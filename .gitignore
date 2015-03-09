@@ -1,0 +1,8 @@
+.bootstrap.auto/
+.bootstrap.local/
+dependencies/
+.repos/
+mulle-configuration/
+.repos/
+build/
+
