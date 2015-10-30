@@ -6,6 +6,21 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		41FA26651BE042CA0093490C /* AppleVsMulle */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 41FA26661BE042CA0093490C /* Build configuration list for PBXAggregateTarget "AppleVsMulle" */;
+			buildPhases = (
+			);
+			dependencies = (
+				41FA266C1BE042DC0093490C /* PBXTargetDependency */,
+				41FA266A1BE042D90093490C /* PBXTargetDependency */,
+			);
+			name = AppleVsMulle;
+			productName = AppleVsMulle;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		410E84FD1BDE3E2100FF7BF2 /* libmulle_objc_runtime.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A51C281BD557AB004CADE9 /* libmulle_objc_runtime.a */; };
 		41280D511BD4EBBD00E81F91 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41280D501BD4EBBD00E81F91 /* main.m */; };
@@ -40,6 +55,14 @@
 		41A827C61AADE30E0017BE29 /* ns_type.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827C41AADE30E0017BE29 /* ns_type.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A9E4FB1BD7F39700210D6E /* ns_debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 41A9E4F91BD7F39700210D6E /* ns_debug.c */; };
 		41A9E4FC1BD7F39700210D6E /* ns_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A9E4FA1BD7F39700210D6E /* ns_debug.h */; };
+		41C9C8DE1BE285DC00264A70 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41C9C8DD1BE285DC00264A70 /* main.m */; };
+		41C9C8E41BE2881500264A70 /* libmulle-objc-root.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A827721AADD0D40017BE29 /* libmulle-objc-root.a */; };
+		41C9C8FB1BE29A5500264A70 /* libmulle_aba.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A51C261BD557AB004CADE9 /* libmulle_aba.a */; };
+		41C9C8FC1BE29A5500264A70 /* libmulle_container.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A51C271BD557AB004CADE9 /* libmulle_container.a */; };
+		41C9C8FD1BE29A5500264A70 /* libmulle_objc_runtime.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A51C281BD557AB004CADE9 /* libmulle_objc_runtime.a */; };
+		41C9C8FE1BE29A5500264A70 /* libmulle_thread.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A51C291BD557AB004CADE9 /* libmulle_thread.a */; };
+		41FA26591BE039900093490C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41280D501BD4EBBD00E81F91 /* main.m */; };
+		41FA265B1BE039900093490C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41FA26531BE0397A0093490C /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +72,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = 41A827711AADD0D40017BE29;
 			remoteInfo = "mulle-objc-root";
+		};
+		41C9C8E21BE2881100264A70 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41A8276A1AADD0D40017BE29 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41A827711AADD0D40017BE29;
+			remoteInfo = "mulle-objc-root";
+		};
+		41FA26691BE042D90093490C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41A8276A1AADD0D40017BE29 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41280D4D1BD4EBBD00E81F91;
+			remoteInfo = "test-root";
+		};
+		41FA266B1BE042DC0093490C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41A8276A1AADD0D40017BE29 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41FA26551BE039900093490C;
+			remoteInfo = "test-root-foundation";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -104,6 +148,10 @@
 		41A9E4F81BD7EE4600210D6E /* mulle_objc_root.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mulle_objc_root.h; sourceTree = "<group>"; };
 		41A9E4F91BD7F39700210D6E /* ns_debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_debug.c; sourceTree = "<group>"; };
 		41A9E4FA1BD7F39700210D6E /* ns_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_debug.h; sourceTree = "<group>"; };
+		41C9C8DB1BE285DC00264A70 /* test-varargs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test-varargs"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41C9C8DD1BE285DC00264A70 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		41FA26531BE0397A0093490C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		41FA26641BE039900093490C /* test-root-foundation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test-root-foundation"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +171,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41C9C8D81BE285DC00264A70 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41C9C8E41BE2881500264A70 /* libmulle-objc-root.a in Frameworks */,
+				41C9C8FB1BE29A5500264A70 /* libmulle_aba.a in Frameworks */,
+				41C9C8FC1BE29A5500264A70 /* libmulle_container.a in Frameworks */,
+				41C9C8FD1BE29A5500264A70 /* libmulle_objc_runtime.a in Frameworks */,
+				41C9C8FE1BE29A5500264A70 /* libmulle_thread.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA265A1BE039900093490C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41FA265B1BE039900093490C /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -157,6 +225,7 @@
 		41A827691AADD0D40017BE29 = {
 			isa = PBXGroup;
 			children = (
+				41FA26531BE0397A0093490C /* Foundation.framework */,
 				417C02841BD84938005A3751 /* mulle-configuration */,
 				41A51C261BD557AB004CADE9 /* libmulle_aba.a */,
 				4170B6FE1BDD20E3008614DC /* libmulle_aba.a */,
@@ -166,6 +235,7 @@
 				41A827791AADD1510017BE29 /* README.md */,
 				41A8279D1AADDFA60017BE29 /* src */,
 				41280D4F1BD4EBBD00E81F91 /* test-root */,
+				41C9C8DC1BE285DC00264A70 /* test-varargs */,
 				41A827731AADD0D40017BE29 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -175,6 +245,8 @@
 			children = (
 				41A827721AADD0D40017BE29 /* libmulle-objc-root.a */,
 				41280D4E1BD4EBBD00E81F91 /* test-root */,
+				41FA26641BE039900093490C /* test-root-foundation */,
+				41C9C8DB1BE285DC00264A70 /* test-varargs */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -233,6 +305,14 @@
 				41A827BB1AADE08C0017BE29 /* NSObjectProtocol.h */,
 			);
 			path = protocols;
+			sourceTree = "<group>";
+		};
+		41C9C8DC1BE285DC00264A70 /* test-varargs */ = {
+			isa = PBXGroup;
+			children = (
+				41C9C8DD1BE285DC00264A70 /* main.m */,
+			);
+			path = "test-varargs";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -300,6 +380,39 @@
 			productReference = 41A827721AADD0D40017BE29 /* libmulle-objc-root.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		41C9C8DA1BE285DC00264A70 /* test-varargs */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41C9C8E11BE285DC00264A70 /* Build configuration list for PBXNativeTarget "test-varargs" */;
+			buildPhases = (
+				41C9C8D71BE285DC00264A70 /* Sources */,
+				41C9C8D81BE285DC00264A70 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				41C9C8E31BE2881100264A70 /* PBXTargetDependency */,
+			);
+			name = "test-varargs";
+			productName = "test-varargs";
+			productReference = 41C9C8DB1BE285DC00264A70 /* test-varargs */;
+			productType = "com.apple.product-type.tool";
+		};
+		41FA26551BE039900093490C /* test-root-foundation */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41FA26611BE039900093490C /* Build configuration list for PBXNativeTarget "test-root-foundation" */;
+			buildPhases = (
+				41FA26581BE039900093490C /* Sources */,
+				41FA265A1BE039900093490C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "test-root-foundation";
+			productName = "test-foundation";
+			productReference = 41FA26641BE039900093490C /* test-root-foundation */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -314,6 +427,12 @@
 					};
 					41A827711AADD0D40017BE29 = {
 						CreatedOnToolsVersion = 6.1.1;
+					};
+					41C9C8DA1BE285DC00264A70 = {
+						CreatedOnToolsVersion = 7.1;
+					};
+					41FA26651BE042CA0093490C = {
+						CreatedOnToolsVersion = 7.1;
 					};
 				};
 			};
@@ -330,7 +449,10 @@
 			projectRoot = "";
 			targets = (
 				41A827711AADD0D40017BE29 /* mulle-objc-root */,
+				41FA26651BE042CA0093490C /* AppleVsMulle */,
 				41280D4D1BD4EBBD00E81F91 /* test-root */,
+				41FA26551BE039900093490C /* test-root-foundation */,
+				41C9C8DA1BE285DC00264A70 /* test-varargs */,
 			);
 		};
 /* End PBXProject section */
@@ -360,6 +482,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		41C9C8D71BE285DC00264A70 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41C9C8DE1BE285DC00264A70 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA26581BE039900093490C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41FA26591BE039900093490C /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -368,6 +506,21 @@
 			target = 41A827711AADD0D40017BE29 /* mulle-objc-root */;
 			targetProxy = 41280D561BD4ED2100E81F91 /* PBXContainerItemProxy */;
 		};
+		41C9C8E31BE2881100264A70 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41A827711AADD0D40017BE29 /* mulle-objc-root */;
+			targetProxy = 41C9C8E21BE2881100264A70 /* PBXContainerItemProxy */;
+		};
+		41FA266A1BE042D90093490C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41280D4D1BD4EBBD00E81F91 /* test-root */;
+			targetProxy = 41FA26691BE042D90093490C /* PBXContainerItemProxy */;
+		};
+		41FA266C1BE042DC0093490C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41FA26551BE039900093490C /* test-root-foundation */;
+			targetProxy = 41FA266B1BE042DC0093490C /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -375,12 +528,14 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 417C028D1BD84938005A3751 /* ToolOSX.xcconfig */;
 			buildSettings = {
+				COPY_PHASE_STRIP = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Volumes/Source/srcM/mulle-aba/build/Debug",
 					"$(PROJECT_DIR)/dependencies/lib/Debug",
 				);
-				WARNING_CFLAGS = "-Wno-protocol";
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALID_ARCHS = i386;
 			};
 			name = Debug;
 		};
@@ -388,13 +543,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 417C028D1BD84938005A3751 /* ToolOSX.xcconfig */;
 			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_OPTIMIZATION_LEVEL = 3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Volumes/Source/srcM/mulle-aba/build/Debug",
 					"$(PROJECT_DIR)/dependencies/lib/Debug",
 				);
-				WARNING_CFLAGS = "-Wno-protocol";
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALID_ARCHS = i386;
 			};
 			name = Release;
 		};
@@ -402,7 +560,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 417C02861BD84938005A3751 /* Debug.xcconfig */;
 			buildSettings = {
-				GCC_VERSION = "com.mulle-kybernetik.compilers.mulle-clang";
 			};
 			name = Debug;
 		};
@@ -410,7 +567,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 417C02891BD84938005A3751 /* Release.xcconfig */;
 			buildSettings = {
-				GCC_VERSION = "com.mulle-kybernetik.compilers.mulle-clang";
 			};
 			name = Release;
 		};
@@ -425,6 +581,82 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 417C028C1BD84938005A3751 /* StaticLibraryOSX.xcconfig */;
 			buildSettings = {
+			};
+			name = Release;
+		};
+		41C9C8DF1BE285DC00264A70 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 417C028D1BD84938005A3751 /* ToolOSX.xcconfig */;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/dependencies/lib/Debug",
+				);
+			};
+			name = Debug;
+		};
+		41C9C8E01BE285DC00264A70 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 417C028D1BD84938005A3751 /* ToolOSX.xcconfig */;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/dependencies/lib/Debug",
+				);
+			};
+			name = Release;
+		};
+		41FA26621BE039900093490C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 417C028D1BD84938005A3751 /* ToolOSX.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_VERSION = "";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Volumes/Source/srcM/mulle-aba/build/Debug",
+					"$(PROJECT_DIR)/dependencies/lib/Debug",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALID_ARCHS = i386;
+			};
+			name = Debug;
+		};
+		41FA26631BE039900093490C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 417C028D1BD84938005A3751 /* ToolOSX.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_VERSION = "";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Volumes/Source/srcM/mulle-aba/build/Debug",
+					"$(PROJECT_DIR)/dependencies/lib/Debug",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALID_ARCHS = i386;
+			};
+			name = Release;
+		};
+		41FA26671BE042CA0093490C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		41FA26681BE042CA0093490C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -454,6 +686,32 @@
 			buildConfigurations = (
 				41A827771AADD0D40017BE29 /* Debug */,
 				41A827781AADD0D40017BE29 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41C9C8E11BE285DC00264A70 /* Build configuration list for PBXNativeTarget "test-varargs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41C9C8DF1BE285DC00264A70 /* Debug */,
+				41C9C8E01BE285DC00264A70 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		41FA26611BE039900093490C /* Build configuration list for PBXNativeTarget "test-root-foundation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41FA26621BE039900093490C /* Debug */,
+				41FA26631BE039900093490C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41FA26661BE042CA0093490C /* Build configuration list for PBXAggregateTarget "AppleVsMulle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41FA26671BE042CA0093490C /* Debug */,
+				41FA26681BE042CA0093490C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

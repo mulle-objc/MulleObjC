@@ -38,7 +38,7 @@ static inline struct _mulle_objc_root_configuration   *_mulle_objc_root_configur
    struct _mulle_objc_root_configuration      *config;
    struct _mulle_objc_runtime              *runtime;
    
-   runtime = _mulle_objc_get_runtime();
+   runtime = mulle_objc_get_runtime();
    _mulle_objc_runtime_get_foundation_space( runtime, (void **) &config, NULL);
    return( config);
 }

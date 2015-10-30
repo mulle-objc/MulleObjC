@@ -58,20 +58,8 @@ struct _mulle_objc_root_configuration  *__mulle_objc_root_setup( void)
    struct _mulle_objc_runtime          *runtime;
    struct _mulle_objc_runtime_friend   us;
    
-   runtime = calloc( 1, sizeof( struct _mulle_objc_runtime));
-   if( ! runtime)
-   {
-      perror( "calloc (MulleObjCRootSetup): ");
-      abort();
-   }
-   
-   // set up minimally
-   _mulle_objc_runtime_set_defaults( runtime);
-   
+   runtime = __mulle_objc_runtime_setup();
    runtime->class_defaults.inheritance = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
-   
-   // now it's "active"
-   mulle_objc_set_thread_runtime( runtime);
    
    _mulle_objc_runtime_get_foundation_space( runtime, (void **) &roots, &size);
    if( size < sizeof( struct _mulle_objc_root_configuration))
