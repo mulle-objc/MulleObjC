@@ -28,12 +28,12 @@ static mulle_thread_key_t    __NSThreadObjectKey;
 
 /*
  */
-- (id) initWithTarget:(id) target
+- (id) initWithTarget:(id) aTarget
              selector:(SEL) selector
-               object:(id) argument
+               object:(id) anArgument
 {
-   self->target   = [target retain];
-   self->argument = [argument retain];
+   self->target   = [aTarget retain];
+   self->argument = [anArgument retain];
    
    return( self);
 }
@@ -60,7 +60,7 @@ static void   bouncyBounceEnd( void *thread);
    NSThread   *thread;
    /* make the current "load" thread the main thread
       needs */
-   mulle_objc_runtime_dump_graphviz();
+ 
    thread = [NSThread new];
    [thread makeRuntimeThread];
 }
@@ -78,11 +78,11 @@ static void   bouncyBounceEnd( void *thread);
    struct _mulle_objc_runtime   *runtime;
    
    if( mulle_thread_getspecific( __NSThreadObjectKey))
-      return;
+      return( self);
 
-   runtime = _mulle_objc_get_runtime();
+   runtime = mulle_objc_get_runtime();
    assert( runtime);
-
+   _mulle_objc_runtime_retain( runtime);
    mulle_thread_setspecific( __NSThreadObjectKey, self);
 
    if( _mulle_objc_runtime_lookup_class( runtime,  MULLE_OBJC_CLASS_ID( 0x511c9ac972f81c49)))

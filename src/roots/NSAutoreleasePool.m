@@ -382,7 +382,7 @@ static struct _NSObject   placeholder;
    extern void   _NSThreadMainThreadConfiguration( void);
    struct _mulle_objc_runtime   *runtime;
    
-   runtime = _mulle_objc_get_runtime();
+   runtime = __get_or_create_objc_runtime();
    if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASS_ID( 0xd8e30a39434366a7)))
       [NSThread makeRuntimeThread];
 
