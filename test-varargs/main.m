@@ -21,10 +21,15 @@ struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
    return( runtime);
 }
 
+@interface NSString < NSObject>
+
+- (char *) cString;
+
+@end
+
 #endif
 
 #include <mulle_objc_runtime/mulle_objc_vararg.h>
-
 
 
 @interface Foo
@@ -107,6 +112,5 @@ int main(int argc, const char * argv[])
 {
    [Foo varargs:"csilq", (char) 18, (short) 1848, (int) 1848, (long) 1848, (long long) 1848];
    [Foo varargs:"fd", (float) 18.48, (double) 18.48];
-   
    return 0;
 }
