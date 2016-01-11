@@ -9,14 +9,11 @@
 
 /* THIS IS THE INCLUDE FILE USED BY "OUTSIDE OF PROJECT" FILES */
 
-#ifndef mulle_objc_root_parent_include_h__
-#define mulle_objc_root_parent_include_h__
+#ifndef ns_objc_include__h__
+#define ns_objc_include__h__
 
 #include <mulle_objc_runtime/mulle_objc_runtime.h>
-
-#ifdef __APPLE__
-# include <malloc/malloc.h>
-#endif
+#include <mulle_container/mulle_container.h>
 
 #include <stdarg.h>
 #include <assert.h>

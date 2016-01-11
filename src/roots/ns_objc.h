@@ -1,15 +1,15 @@
 //
 //  mulle_objc_root.h
-//  mulle-objc-root
+//  MulleObjC
 //
 //  Created by Nat! on 21/10/15.
 //  Copyright © 2015 Mulle kybernetiK. All rights reserved.
 //
 
-#ifndef mulle_objc_root_h
-#define mulle_objc_root_h
+#ifndef ns_objc__h__
+#define ns_objc__h__
 
-#import "mulle_objc_root_configuration.h"
+#import "ns_rootconfiguration.h"
 
 #import "ns_allocation.h"
 #import "ns_exception.h"

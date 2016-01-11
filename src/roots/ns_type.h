@@ -1,15 +1,15 @@
 //
 //  NSType.h
-//  mulle-objc-foundation
+//  MulleObjC
 //
 //  Created by Nat! on 09.03.15.
 //  Copyright (c) 2015 Mulle kybernetiK. All rights reserved.
 //
 
-#ifndef ns_type_h__
-#define ns_type_h__
+#ifndef ns_type__h__
+#define ns_type__h__
 
-#include "mulle_objc_root_parent_include.h"
+#include "ns_objc_include.h"
 
 //
 // this should be C readable
@@ -19,11 +19,15 @@
 // --- compiler defined begin ---
 typedef void                          *id;
 typedef struct _mulle_objc_class      *Class;
-#if NOT_HAVE_PROTOCOL
-typedef void                          Protocol;
-#endif
-typedef unsigned long                 SEL;
-typedef void                           *(*IMP)( void *, SEL, void *params);
+
+// Protocol as a valid keyword and a pseudo-class does not exist
+// @protocol( foo) return  an unsigned long
+// For other compilers say
+// typedef Protocol   *PROTOCOL
+// and code will work on both sides.
+typedef uintptr_t                     PROTOCOL;
+typedef uintptr_t                     SEL;
+typedef void                          *(*IMP)( void *, SEL, void *params);
 // --- compiler defined end ---
 
 

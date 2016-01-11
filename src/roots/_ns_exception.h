@@ -11,6 +11,9 @@
  *  $Id$
  *
  */
+#ifndef _ns_exception__h__
+#define _ns_exception__h__
+
 typedef void   _NSExceptionHandler( void *, va_list);
 
 
@@ -23,11 +26,14 @@ enum
    _NSExceptionInvalidIndexHandlerIndex,
    _NSExceptionRangeHandlerIndex,
    _NSExceptionMathHandlerIndex,
-   _NSExceptionCharacterConversionHandlerIndex
+   _NSExceptionCharacterConversionHandlerIndex,
+   _NSExceptionHandlerTableSize
 };
 
 
-struct _mulle_objc_exception_handler_table
+struct _ns_exceptionhandlertable 
 {
-   _NSExceptionHandler   *handlers[ 8];
+   _NSExceptionHandler   *handlers[ _NSExceptionHandlerTableSize];
 };
+
+#endif

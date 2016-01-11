@@ -1,4 +1,3 @@
-
 /*
  *  MulleFoundation - A tiny Foundation replacement
  *
@@ -22,7 +21,7 @@
 @implementation NSThread
 
 static BOOL                  __NSIsMultiThreaded;
-static mulle_thread_key_t    __NSThreadObjectKey;
+static mulle_thread_tss_t    __NSThreadObjectKey;
 
 
 
@@ -69,7 +68,7 @@ static void   bouncyBounceEnd( void *thread);
 + (void) initialize
 {
    if( ! __NSThreadObjectKey)
-      mulle_thread_key_create( &__NSThreadObjectKey, bouncyBounceEnd);
+      mulle_thread_tss_create( &__NSThreadObjectKey, bouncyBounceEnd);
 }
 
 
@@ -77,15 +76,15 @@ static void   bouncyBounceEnd( void *thread);
 {
    struct _mulle_objc_runtime   *runtime;
    
-   if( mulle_thread_getspecific( __NSThreadObjectKey))
+   if( mulle_thread_tss_get( __NSThreadObjectKey))
       return( self);
 
    runtime = mulle_objc_get_runtime();
    assert( runtime);
    _mulle_objc_runtime_retain( runtime);
-   mulle_thread_setspecific( __NSThreadObjectKey, self);
+   mulle_thread_tss_set( __NSThreadObjectKey, self);
 
-   if( _mulle_objc_runtime_lookup_class( runtime,  MULLE_OBJC_CLASS_ID( 0x511c9ac972f81c49)))
+   if( _mulle_objc_runtime_lookup_class( runtime,  MULLE_OBJC_CLASSID( 0x511c9ac972f81c49)))
       _NSAutoreleasePoolConfigurationSetThread();
       
    return( self);
@@ -101,7 +100,7 @@ static void   bouncyBounceEnd( void *thread);
 {
    NSThread   *p;
    
-   p = mulle_thread_getspecific( __NSThreadObjectKey);
+   p = mulle_thread_tss_get( __NSThreadObjectKey);
    assert( p);
    return( p);  // not a leak
 }
@@ -132,17 +131,18 @@ static void   bouncyBounceEnd( void *thread);
 }
 
 
-static mulle_atomic_ptr_t   __NSNumberOfThreads;
+static mulle_atomic_pointer_t    __NSNumberOfThreads;
 
 
 static void   bouncyBounceEnd( void *_thread)
 {
    NSThread  *thread;
 
+   thread = _thread;
    [thread _threadWillExit];
    [thread release];
 
-   if( ! _mulle_atomic_decrement_pointer( &__NSNumberOfThreads))
+   if( ! _mulle_atomic_pointer_decrement( &__NSNumberOfThreads))
    {
       [NSThread _goingSingleThreaded];
       __NSIsMultiThreaded = NO;
@@ -172,7 +172,7 @@ static void   *bouncyBounce( NSThread *thread)
    struct _mulle_objc_runtime   *runtime;
    mulle_thread_t                m_thread;
    
-   if( ! _mulle_atomic_increment_pointer( &__NSNumberOfThreads))
+   if( ! _mulle_atomic_pointer_increment( &__NSNumberOfThreads))
       [NSThread _isGoingMultiThreaded];
    
    thread = [[NSThread alloc] initWithTarget:target

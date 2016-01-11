@@ -1,6 +1,6 @@
 //
 //  NSThread.h
-//  mulle-objc-foundation
+//  MulleObjC
 //
 //  Created by Nat! on 15/10/15.
 //  Copyright © 2015 Mulle kybernetiK. All rights reserved.

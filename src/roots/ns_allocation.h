@@ -11,105 +11,75 @@
  *  $Id$
  *
  */
-#ifndef NS_ALLOCATION__H__
-#define NS_ALLOCATION__H__
+#ifndef ns_allocation__h__
+#define ns_allocation__h__
 
 #include "ns_type.h"
 
-#include "mulle_objc_root_configuration.h"
+#include "ns_rootconfiguration.h"
 
 #include <stddef.h>
+#include <unistd.h>
 
 
-struct _mulle_objc_allocation_function_table
+static inline void  *_NSAllocator()
 {
-   void     *(*malloc)( size_t);
-   void     *(*realloc)( void *, size_t);
-   void     *(*calloc)( size_t, size_t);
+#if ! MULLE_OBJC_HAVE_THREAD_LOCAL_RUNTIME
+   extern struct mulle_allocator   mulle_allocator_objc;
    
-   void     (*free)( void *);
-   
-   size_t   (*malloc_size)( void *p);  // not necessarily supported(!)
-};
+   return( &mulle_allocator_objc);
+#else
+   return( &_ns_rootconfiguration()->allocator);
+#endif
+}
 
-
-//
-// remnant from trying to move this into config, but it's too slow
-//
-static inline struct _mulle_objc_allocation_function_table   *_NSAllocationFunctionTable( void)
+static inline void  *_NSAllocateNonZeroedMemory( NSUInteger size)
 {
-   extern struct _mulle_objc_allocation_function_table   __NSAllocationFunctionTable;
-   
-   return( &__NSAllocationFunctionTable);
+   return( mulle_allocator_malloc( _NSAllocator(), size));
 }
 
 
-static inline void  *__NSAllocateNonZeroedMemory( NSUInteger size)
+static inline void  *_NSReallocateNonZeroedMemory( void *p, NSUInteger size)
 {
-   return( _NSAllocationFunctionTable()->malloc( size));
+   return( mulle_allocator_realloc( _NSAllocator(), p, size));
 }
 
 
-static inline void  *__NSReallocateNonZeroedMemory( void *p, NSUInteger size)
+static inline void  *_NSAllocateMemory( NSUInteger size)
 {
-   return( _NSAllocationFunctionTable()->realloc( p, size));
-}
-
-
-static inline void  *__NSAllocateMemory( NSUInteger size)
-{
-   return( _NSAllocationFunctionTable()->calloc( 1, size));
-}
-
-
-static inline size_t  __NSSizeOfMemory( void *p)
-{
-   return( _NSAllocationFunctionTable()->malloc_size( p));
-}
-
-
-static inline void  __NSDeallocateMemory( void *p)
-{
-   _NSAllocationFunctionTable()->free( p);
-}
-
-
-static inline size_t  _NSSizeOfMemory( void *p)
-{
-   return( _NSAllocationFunctionTable()->malloc_size( p));
+   return( mulle_allocator_calloc( _NSAllocator(), 1, size));
 }
 
 
 static inline void  _NSDeallocateMemory( void *p)
 {
-   _NSAllocationFunctionTable()->free( p);
+   mulle_allocator_free( _NSAllocator(), p);
 }
 
-
-/* now with added exceptions */
-
-void  *_NSAllocateNonZeroedMemory( NSUInteger size);
-void  *_NSReallocateNonZeroedMemory( void *p, NSUInteger size);
-void  *_NSAllocateMemory( NSUInteger size);
 
 
 void   *NSAllocateMemoryPages( NSUInteger size);
 void   NSDeallocateMemoryPages( void *ptr, NSUInteger size);
 
 
-// only use this in asserts, it will produce UINT_MAX on Linux
+// only use this in asserts.
+// It will produce UINT_MAX on Linux
 size_t   _NSMallocedBlockSize( void *p);
 
 
 static inline NSUInteger   NSPageSize()
 {
-   return( 0x400);  // or let compiler determine it with ifdefs
+   extern size_t   _ns_page_size;
+
+   return( _ns_page_size);  // or let compiler determine it with ifdefs
 }
 
 
 static inline NSUInteger   NSLogPageSize()
 {
-   return( 10);      // 0x1 < (10 - 1)= 0x400
+   extern unsigned int   _ns_log_page_size;
+
+   return( _ns_log_page_size);
 }
 
 
@@ -123,6 +93,5 @@ static inline NSUInteger   NSRoundUpToMultipleOfPageSize( NSUInteger bytes)
 {
    return( NSRoundDownToMultipleOfPageSize( bytes + NSPageSize() - 1));
 }
-
 
 #endif

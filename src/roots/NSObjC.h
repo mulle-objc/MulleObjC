@@ -1,15 +1,11 @@
 //
 //  MulleObjCRoot.h
-//  mulle-objc-root
+//  MulleObjC
 //
 //  Created by Nat! on 21/10/15.
 //  Copyright © 2015 Mulle kybernetiK. All rights reserved.
 //
-#ifdef TRACE_INCLUDE_MULLE_OBJC_ROOT
-# pragma message( "MulleObjCRoot is used")
-#endif
-
-#import "mulle_objc_root.h"
+#import "ns_objc.h"
 
 #import "NSAllocation.h"
 

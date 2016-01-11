@@ -1,52 +1,24 @@
-# mulle-objc-foundation
+# MulleObjC
 
-mulle-objc-foundation is a collection of libraries, that add support for
-the mulle-objc-runtime
+MulleObjC supplies the most basic runtime components to build a foundation
+on top of it. It does all the interfacing with the mulle-objc-runtime. Any
+library code above MulleObjC should not be using mulle-objc-runtime directly.
 
+MulleObjC must be compiled with the mulle-clang compiler, or a compiler which
+supports the metaABI required for the mulle-objc-runtime.
 
-It must be compiled with the mulle-clang compiler, or a compiler which supports
-the mulle-objc-runtime.
-
-> mulle-objc-foundation is protocol based
-
-mulle-objc-foundation is comprised of
+> MulleObjC is protocol based
 
 
-## mulle-objc-roots
-###################
+## Why the NS prefix ?
 
-This library supplies the most basic runtime components to build a foundation
-on top of it.
+In 2015 my assumption is, that almost all existing ObjC code is NSObject based
+(NSString, NSArray etc.). Having a prefix for an ObjC Foundation to be anything
+else than NS is highly impractical and impedes code reuse.
 
-* NSAutoreleasePool
-* NSExceptions
-* NSObject protocol
-* NSCopying protocol
-* NSObject
-* NSThread
+## What's up with the naming here ?
 
-
-## mulle-objc-value
-###################
-
-* NSString
-* NSMutableString
-* NSCharacterSet
-* NSNumber
-* NSValue
-
-
-## mulle-objc-collections
-###################
-
-* NSArray
-* NSMapTable
-* NSDictionary
-* NSHashTable
-* NSSet
-
-* NSMutableArray
-* NSMutableDictionary
-* NSMutableSet
-
-
+All camelcased files like NSObject or NSProxy, are Objective-C classes that a
+Foundation MUST NOT defined (#ifdef them out). Anything in lowercase like
+ns_ contains C code, that a Foundation would use and augment with objects of
+it's own. `ns_` files should be includeable with pure C.

@@ -11,8 +11,8 @@
  *  $Id$
  *
  */
-#ifndef NS_ZONE__H__
-#define NS_ZONE__H__
+#ifndef ns_zone__h__
+#define ns_zone__h__
  
 #include "ns_type.h"
 #include "ns_allocation.h"
@@ -47,12 +47,6 @@ static inline void    NSRecycleZone( NSZone *zone)
 
 static inline void   NSSetZoneName( NSZone *zone, void *name)
 {
-}
-
-
-static inline NSZone   *__NSZoneFromObject( void *p)
-{
-   return( NULL);
 }
 
 

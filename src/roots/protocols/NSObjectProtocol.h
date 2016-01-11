@@ -52,7 +52,7 @@
 - (BOOL) isProxy;
 - (BOOL) isKindOfClass:(Class) cls;
 - (BOOL) isMemberOfClass:(Class) cls;
-- (BOOL) conformsToProtocol:(Protocol *) protocol;
+- (BOOL) conformsToProtocol:(PROTOCOL) protocol;
 - (BOOL) respondsToSelector:(SEL) sel;
 - (id) description;
 

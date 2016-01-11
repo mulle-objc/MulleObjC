@@ -39,16 +39,16 @@ struct _NSAutoreleasePoolConfiguration
 
 static inline struct _NSAutoreleasePoolConfiguration   *_NSAutoreleasePoolConfiguration( void)
 {
-   extern mulle_thread_key_t               _NSAutoreleasePoolConfigurationKey;
+   extern mulle_thread_tss_t               _NSAutoreleasePoolConfigurationKey;
    struct _NSAutoreleasePoolConfiguration  *config;
    
-   config = mulle_thread_getspecific( _NSAutoreleasePoolConfigurationKey);
+   config = mulle_thread_tss_get( _NSAutoreleasePoolConfigurationKey);
    assert( config);
    return( config);
 }
 
 
-mulle_thread_key_t   NSAutoreleasePoolUnfailingGetOrCreateThreadKey( void);
+mulle_thread_tss_t   NSAutoreleasePoolUnfailingGetOrCreateThreadKey( void);
 
 void   _NSAutoreleasePoolConfigurationSetThread( void);
 void   _NSAutoreleasePoolConfigurationUnsetThread( void);
