@@ -14,7 +14,7 @@
 #import "NSDebug.h"
 
 #import "NSObject.h"
-#include "mulle_objc_root_parent_include.h"
+#include "ns_objc_include.h"
 
 
 @interface NSObject ( Debug)
@@ -96,8 +96,8 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 @end
 
 
-#define _NS_LARGE_ZOMBIE_CLASS_ID  MULLE_OBJC_CLASS_ID( 0x10fc739ffc89f239)
-#define _NS_ZOMBIE_CLASS_ID        MULLE_OBJC_CLASS_ID( 0xdb94f0a3bb1d8018)
+#define _NS_LARGE_ZOMBIE_CLASSID  MULLE_OBJC_CLASSID( 0x10fc739ffc89f239)
+#define _NS_ZOMBIE_CLASSID        MULLE_OBJC_CLASSID( 0xdb94f0a3bb1d8018)
 
 
 @interface _NSLargeZombie : _NSZombie
@@ -124,7 +124,7 @@ static void   zombifyLargeObject( id obj)
    zombie = obj;
    zombie->_originalClass = _mulle_objc_object_get_class( obj);
 
-   cls = mulle_objc_unfailing_lookup_class( _NS_LARGE_ZOMBIE_CLASS_ID);
+   cls = mulle_objc_unfailing_lookup_class( _NS_LARGE_ZOMBIE_CLASSID);
    _mulle_objc_object_set_class( obj, cls);
 }
 
@@ -133,7 +133,7 @@ static void   zombifyLargeObject( id obj)
 
 static void   zombifyObject( id obj)
 {
-   mulle_objc_class_id_t       class_id;
+   mulle_objc_classid_t       classid;
    static char                 buf[ 1024];
    struct _mulle_objc_class    *cls;
    struct _mulle_objc_class    *super_class;
@@ -147,16 +147,16 @@ static void   zombifyObject( id obj)
    
    sprintf( buf, "_NSZombieOf%.1000s", _mulle_objc_class_get_name( cls));
    
-   class_id = mulle_objc_class_id_from_string( buf);
-   cls      = _mulle_objc_runtime_lookup_class( runtime, class_id);
+   classid = mulle_objc_classid_from_string( buf);
+   cls      = _mulle_objc_runtime_lookup_class( runtime, classid);
    
    if( ! cls)
    {
-      super_class = _mulle_objc_runtime_lookup_class( runtime, _NS_ZOMBIE_CLASS_ID);
+      super_class = _mulle_objc_runtime_lookup_class( runtime, _NS_ZOMBIE_CLASSID);
       
-      cls = mulle_objc_unfailing_new_class_pair( class_id, buf, sizeof( id), super_class);
-      mulle_objc_class_unfailing_add_method_list( cls, NULL);
-      mulle_objc_class_unfailing_add_method_list( _mulle_objc_class_get_metaclass( cls), NULL);
+      cls = mulle_objc_unfailing_new_class_pair( classid, buf, sizeof( id), super_class);
+      mulle_objc_class_unfailing_add_methodlist( cls, NULL);
+      mulle_objc_class_unfailing_add_methodlist( _mulle_objc_class_get_metaclass( cls), NULL);
       mulle_objc_runtime_add_class( runtime, cls);
    }
    _mulle_objc_object_set_class( obj, cls);

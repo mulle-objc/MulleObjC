@@ -14,83 +14,41 @@
 #include "ns_allocation.h"
 
 #include "ns_exception.h"
+#include <unistd.h>
+
 
 
 # pragma mark -
 # pragma mark Allocations
 
-#ifndef __APPLE__
-static size_t   no_size( void *p)
+size_t         _ns_page_size;
+unsigned int   _ns_log_page_size;
+
+
+void  _NSDeterminePageSize()
 {
-   return( UINT_MAX);  // make it huge, some algorithms depend on it
-}
-#endif
-
-
-
-//
-// it's tempting to remove this global, but stuff gets too slow
-//
-struct _mulle_objc_allocation_function_table   __NSAllocationFunctionTable =
-{
-   malloc,
-   realloc,
-   calloc,
-   free,
+   size_t   size;
    
-#ifndef __APPLE__
-   no_size,
-#else
-   (void *) malloc_size
-#endif
-};
-
-
-void   *_NSAllocateNonZeroedMemory( NSUInteger size)
-{
-   void   *p;
+   /* figure out _ns_page_size for ns_allocation */
+   size = getpagesize();
+   size = size ? size : 0x1000;
    
-   p = __NSAllocateNonZeroedMemory( size);
-   if( ! p)
-      __NSThrowAllocationException( size);
-   return( p);
+   _ns_page_size     = size;
+   _ns_log_page_size = 1;
+   while( size >>= 1)
+      _ns_log_page_size++;
 }
 
 
-void   *_NSAllocateMemory( NSUInteger size)
-{
-   void   *p;
-   
-   p = __NSAllocateMemory( size);
-   if( ! p)
-      __NSThrowAllocationException( size);
-   return( p);
-}
-
-
-void   *_NSReallocateNonZeroedMemory( void *p, NSUInteger size)
-{
-   void   *q;
-   
-   q = __NSReallocateNonZeroedMemory( p, size);
-   if( ! q && size)
-      __NSThrowAllocationException( size);
-   return( q);
-}
-
-
-//
-// for now just use malloc ... 
-// later use mmap or some such
-//
 void   *NSAllocateMemoryPages( NSUInteger size)
 {
    void   *p;
    
    size = NSRoundUpToMultipleOfPageSize( size);
-   p = __NSAllocateMemory( size);
-   if( ! p)
-      __NSThrowInvalidArgumentException( "size %ld too large", size);
+
+   // make sure memory is page aligned ...
+   p = _NSAllocateMemory( size);
+   assert( ! (uintptr_t) p & (NSPageSize() - 1));
    return( p);
 }
 
@@ -101,11 +59,43 @@ void   NSDeallocateMemoryPages( void *ptr, NSUInteger size)
 }
 
 
-size_t   _NSMallocedBlockSize( void *p)
+static void  *calloc_or_raise( size_t n, size_t size)
 {
-#ifdef __APPLE__
-   return( malloc_size( p));
-#else
-   return( UINT_MAX);
-#endif   
+   void     *p;
+   
+   p = calloc( n, size);
+   if( p)
+      return( p);
+
+   size *= n;
+   if( ! size)
+      return( p);
+   
+   __NSThrowAllocationException( size);
+   return( NULL);
 }
+
+
+static void  *realloc_or_raise( void *block, size_t size)
+{
+   void   *p;
+   
+   p = realloc( block, size);
+   if( p)
+      return( p);
+
+   if( ! size)
+      return( p);
+   
+   __NSThrowAllocationException( size);
+   return( NULL);
+}
+
+
+struct mulle_allocator    mulle_allocator_objc =
+{
+   calloc_or_raise,
+   realloc_or_raise,
+   free
+};
+

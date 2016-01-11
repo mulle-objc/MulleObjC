@@ -11,8 +11,8 @@
  *  $Id$
  *
  */
-#ifndef NS_EXCEPTION__H__
-#define NS_EXCEPTION__H__
+#ifndef ns_exception__h__
+#define ns_exception__h__
 
 // the "C" interface to NSException
 // by default these all just call abort
@@ -20,19 +20,19 @@
 #include "ns_type.h"
 #include "ns_range.h"
 
-#include "mulle_objc_root_configuration.h"
+#include "ns_rootconfiguration.h"
 
 
-static inline struct _mulle_objc_exception_handler_table   *_NSExceptionHandlersGetTable( void)
+static inline struct _ns_exceptionhandlertable   *_NSExceptionHandlersGetTable( void)
 {
-   return( &_mulle_objc_root_configuration()->exceptions);
+   return( &_ns_rootconfiguration()->exceptions);
 }
 
 
 
 static inline _NSExceptionHandler   *_NSExceptionHandlerWithIndex( unsigned int index)
 {
-   struct _mulle_objc_exception_handler_table   *table;
+   struct _ns_exceptionhandlertable   *table;
    
    table   = _NSExceptionHandlersGetTable();
    return( table->handlers[ index]);

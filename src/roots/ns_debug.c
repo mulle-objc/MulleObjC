@@ -1,6 +1,6 @@
 //
 //  ns_debug.c
-//  mulle-objc-root
+//  MulleObjC
 //
 //  Created by Nat! on 21/10/15.
 //  Copyright © 2015 Mulle kybernetiK. All rights reserved.

@@ -11,11 +11,10 @@
  *  $Id$
  *
  */
-#ifndef ns_range_h__
-#define ns_range_h__
+#ifndef ns_range__h__
+#define ns_range__h__
 
 #include "ns_type.h"
-
 
 
 typedef struct   _NSRange 
@@ -32,8 +31,6 @@ static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
 {
     NSRange    range;
       
-    assert( location != NSNotFound || (location == NSNotFound && length == 0));
-    
     range.location = location;
     range.length   = length;
     return( range);

@@ -227,9 +227,9 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-- (BOOL) conformsToProtocol:(Protocol *) protocol
+- (BOOL) conformsToProtocol:(PROTOCOL) protocol
 {
-   return( (BOOL) _mulle_objc_class_conforms_to_protocol( _mulle_objc_object_get_class( self), (mulle_objc_protocol_id_t) protocol));
+   return( (BOOL) _mulle_objc_class_conforms_to_protocol( _mulle_objc_object_get_class( self), (mulle_objc_protocolid_t) protocol));
 }
 
 
@@ -239,7 +239,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    IMP     imp;
    
    cls = _mulle_objc_object_get_class( self);
-   imp = (IMP) _mulle_objc_class_get_cached_method_implementation( cls, sel);
+   imp = (IMP) _mulle_objc_class_get_cached_methodimplementation( cls, sel);
    if( imp)
       return( YES);
    if( mulle_objc_class_lookup_method( cls, sel))
@@ -296,7 +296,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    Class   cls;
    
    cls = _mulle_objc_class_get_infraclass( self);
-   return( _mulle_objc_class_lookup_or_search_method_implementation( cls, sel));
+   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( cls, sel));
 }
 
 
@@ -305,7 +305,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    Class    cls;
    
    cls = _mulle_objc_object_get_class( self);
-   return( _mulle_objc_class_lookup_or_search_method_implementation( cls, sel));
+   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( cls, sel));
 }
 
 

@@ -8,7 +8,7 @@ Use -all_load.
 ## Global Variables
 ======================
 
-struct _mulle_objc_runtime  *(*mulle_objc_root_setup)( void);
+struct _mulle_objc_runtime  *(*ns_root_setup)( void);
 
 
 

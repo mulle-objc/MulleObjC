@@ -18,7 +18,7 @@ struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
    
    runtime = __mulle_objc_get_runtime();
    if( ! runtime)
-      runtime = (*mulle_objc_root_setup)();
+      runtime = (*ns_root_setup)();
    return( runtime);
 }
 #endif
