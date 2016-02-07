@@ -14,15 +14,12 @@
 
 #import "NSAutoreleasePool.h"
 
-#import "NSAllocation.h"
 #import "NSAutoreleasePool+Private.h"
+#import "NSAllocation.h"
 #import "NSDebug.h"
-#import "NSObject.h"
 #import "NSThread.h"
-#include "ns_type.h"
 #include "ns_zone.h"
 #include "_ns_autoreleasepointerarray.h"
-#include "ns_objc_include.h"
 
 
 @interface _NSAutoreleasePoolPlaceholder : NSAutoreleasePool
@@ -34,10 +31,6 @@
 + (id) alloc                         { abort(); }
 + (id) allocWithZone:(NSZone *) zone { abort(); }
 
-- (id) autorelease         { return( self); }
-- (id) retain              { return( self); }
-- (void) release           {}
-
 - (id) init
 {
    return( (id) NSPushAutoreleasePool());
@@ -48,12 +41,13 @@
 
 @implementation NSAutoreleasePool
 
-
-static void                popAutoreleasePool( struct _NSAutoreleasePoolConfiguration *config, NSAutoreleasePool *pool);
+static void                popAutoreleasePool( struct _NSAutoreleasePoolConfiguration *config,
+                                               NSAutoreleasePool *pool);
 static NSAutoreleasePool   *pushAutoreleasePool( struct _NSAutoreleasePoolConfiguration *config);
 
 static id     _autoreleaseObject( struct _NSAutoreleasePoolConfiguration *config, id p);
-static void   _autoreleaseObjects( struct _NSAutoreleasePoolConfiguration *config, id *objects, NSUInteger count);
+static void   _autoreleaseObjects( struct _NSAutoreleasePoolConfiguration *config,
+                                   id *objects, NSUInteger count);
 
 mulle_thread_tss_t   _NSAutoreleasePoolConfigurationKey;
 #if DEBUG
@@ -138,7 +132,7 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
    }   
 #if DEBUG   
    assert( p != nil);
-   assert( _mulle_objc_object_get_class( p) != (struct _mulle_objc_class *) __NSAutoreleasePoolClass);
+   assert( _mulle_objc_object_get_isa( p) != (struct _mulle_objc_class *) __NSAutoreleasePoolClass);
    assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
 #endif
 
@@ -178,7 +172,7 @@ static inline void   addObjects( NSAutoreleasePool *self, id *objects, NSUIntege
       {
          p = objects[ i];
          assert( p != nil);
-         assert( _mulle_objc_object_get_class( p) !=  (struct _mulle_objc_class *) __NSAutoreleasePoolClass);
+         assert( _mulle_objc_object_get_isa( p) !=  (struct _mulle_objc_class *) __NSAutoreleasePoolClass);
          assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
       }
    }
@@ -304,8 +298,8 @@ static inline void   autoreleaseObjects( id *objects, NSUInteger count)
 
 static NSAutoreleasePool  *pushAutoreleasePool( struct _NSAutoreleasePoolConfiguration *config)
 {
-   NSAutoreleasePool   *pool;
-   struct _ns_autoreleasepointerarray      *array;
+   NSAutoreleasePool                    *pool;
+   struct _ns_autoreleasepointerarray   *array;
    
    //
    // avoid zeroing out the initial buffer
@@ -385,9 +379,15 @@ static struct _NSObject   placeholder;
 
 + (void) initialize
 {
-   _mulle_objc_object_set_class( NSObjectFrom_NSObject( &placeholder), [_NSAutoreleasePoolPlaceholder class]);
+   _mulle_objc_object_set_isa( NSObjectFrom_NSObject( &placeholder), [_NSAutoreleasePoolPlaceholder class]);
    _mulle_objc_object_infinite_retain( NSObjectFrom_NSObject( &placeholder));
- }
+}
+
+
++ (id) alloc
+{
+   return( NSObjectFrom_NSObject( &placeholder));
+}
 
 
 + (id) allocWithZone:(NSZone *) zone
@@ -398,14 +398,7 @@ static struct _NSObject   placeholder;
 
 + (id) new
 {
-   return( NSPushAutoreleasePool());
-}
-
-
-- (id) retain
-{
-   abort();
-   return( nil);
+   return( (id) NSPushAutoreleasePool());
 }
 
 
@@ -415,13 +408,7 @@ static struct _NSObject   placeholder;
 }
 
 
-- (NSUInteger) retainCount
-{
-   return( 1);
-}
-
-
-- (void) release
+- (void) dealloc
 {
    NSAutoreleasePool                        *pool;
    struct _NSAutoreleasePoolConfiguration   *config;
@@ -434,20 +421,8 @@ static struct _NSObject   placeholder;
       if( pool == self)
          return;
    }
-   abort();  // popped too much
-}
-
-
-- (id) autorelease
-{
-   abort();
-   return( nil);
-}
-
-
-- (void) dealloc
-{
-   abort();
+   
+   abort();  // popped too much, throw an exception
 }
 
 @end

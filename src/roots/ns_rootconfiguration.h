@@ -29,11 +29,11 @@ struct _ns_rootconfiguration
 };
 
 
-struct _ns_rootconfiguration   *__ns_root_setup( void);
-struct _mulle_objc_runtime     *_ns_root_setup( void);
+struct _ns_rootconfiguration   *__ns_root_setup( mulle_objc_runtimefriend_versionassert_t versionassert);
+struct _mulle_objc_runtime     *_ns_root_setup( mulle_objc_runtimefriend_versionassert_t versionassert);
 
 // vector to call
-extern struct _mulle_objc_runtime  *(*ns_root_setup)( void);
+extern struct _mulle_objc_runtime  *(*ns_root_setup)( mulle_objc_runtimefriend_versionassert_t versionassert);
 
 
 static inline struct _ns_rootconfiguration   *_ns_rootconfiguration( void)

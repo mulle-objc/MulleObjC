@@ -17,6 +17,7 @@
 #import "NSCopying.h"
 #import "NSMutableCopying.h"
 #import "NSAutoreleasePool.h"
+#import "NSAllocation.h"
 
 
 @implementation NSObject
@@ -31,18 +32,37 @@
 }
 
 
-#pragma mark -
-#pragma mark these methods are only called via performSelector: or some such
-
 + (id) alloc
 {
-   return( (id) mulle_objc_class_alloc_instance( self));
+   return( _NSAllocateObject( self, 0, NULL));
 }
 
 
 + (id) allocWithZone:(NSZone *) zone
 {
-   return( (id) mulle_objc_class_alloc_instance( self));
+   return( _NSAllocateObject( self, 0, NULL));
+}
+
+
+static int   zero_property( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self)
+{
+   switch( *_mulle_objc_property_get_signature( property))
+   {
+   case _C_COPY_ID   :
+   case _C_RETAIN_ID :
+      mulle_objc_object_call_no_fastmethod( self, property->setter, nil);
+   }
+   return( 0);
+}
+
+- (void) dealloc
+{
+   // walk through properties and release them
+   struct _mulle_objc_class   *cls;
+   
+   cls = _mulle_objc_object_get_isa( self);
+   _mulle_objc_class_walk_properties( cls, _mulle_objc_class_get_inheritance( cls), zero_property, self);
+   NSDeallocateObject( self);
 }
 
 
@@ -50,10 +70,17 @@
 {
    id   p;
    
-   p = (id) mulle_objc_class_alloc_instance( self);
+   p = _NSAllocateObject( self, 0, NULL);
    return( [p init]);
 }
    
+#pragma mark -
+#pragma mark these methods are only called via performSelector: or some such
+
+//
+// these funtions exist, but they are rarely ever called, except when you
+// do performSelector or some such.
+//
 
 - (NSZone *) zone;  // always NULL
 {
@@ -61,10 +88,7 @@
 }
 
 
-//
-// these funtions exist, but they are rarely ever called, except when you
-// do performSelector or some such.
-//
+
 - (id) retain
 {
    return( (id) mulle_objc_object_retain( (struct _mulle_objc_object *) self));
@@ -85,7 +109,7 @@
 
 - (NSUInteger) retainCount
 {
-   return( (NSUInteger) mulle_objc_object_retain_count( self));
+   return( (NSUInteger) _mulle_objc_object_get_retaincount( self));
 }
 
 
@@ -99,9 +123,6 @@
 }
 
 
-- (void) dealloc
-{
-}
 
 - (BOOL) isEqual:(id) other
 {
@@ -147,13 +168,17 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (Class) superclass
 {
-   return( _mulle_objc_class_get_superclass( _mulle_objc_object_get_class( self)));
+   return( _mulle_objc_class_get_superclass( _mulle_objc_object_get_isa( self)));
 }
 
 
 - (Class) class
 {
-   return( _mulle_objc_object_get_class( self));
+   struct _mulle_objc_class  *cls;
+
+   cls = _mulle_objc_object_get_class( self);
+   assert( cls);
+   return( cls);
 }
 
 
@@ -210,7 +235,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 {
    Class   cls;
    
-   cls = _mulle_objc_object_get_class( self);
+   cls = _mulle_objc_object_get_isa( self);
    do
    {
       if( cls == otherClass)
@@ -223,13 +248,13 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (BOOL) isMemberOfClass:(Class) cls
 {
-   return( (Class) _mulle_objc_object_get_class( self) == cls);
+   return( (Class) _mulle_objc_object_get_isa( self) == cls);
 }
 
 
 - (BOOL) conformsToProtocol:(PROTOCOL) protocol
 {
-   return( (BOOL) _mulle_objc_class_conforms_to_protocol( _mulle_objc_object_get_class( self), (mulle_objc_protocolid_t) protocol));
+   return( (BOOL) _mulle_objc_class_conforms_to_protocol( _mulle_objc_object_get_isa( self), (mulle_objc_protocolid_t) protocol));
 }
 
 
@@ -238,7 +263,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    Class   cls;
    IMP     imp;
    
-   cls = _mulle_objc_object_get_class( self);
+   cls = _mulle_objc_object_get_isa( self);
    imp = (IMP) _mulle_objc_class_get_cached_methodimplementation( cls, sel);
    if( imp)
       return( YES);
@@ -304,14 +329,62 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 {
    Class    cls;
    
-   cls = _mulle_objc_object_get_class( self);
+   cls = _mulle_objc_object_get_isa( self);
    return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( cls, sel));
 }
 
 
-+ (Class) class
+struct collect_info
 {
-   return( self);
+   id            self;
+   NSUInteger    n;
+   id            *objects;
+   id            *sentinel;
+};
+
+
+static int   collect( struct _mulle_objc_ivar *ivar,
+                      struct _mulle_objc_class *cls,
+                      struct collect_info *info)
+{
+   char  *signature;
+   
+   signature = _mulle_objc_ivar_get_signature( ivar);
+   switch( *signature)
+   {
+   case _C_RETAIN_ID :
+   case _C_COPY_ID   :
+      if( info->objects < info->sentinel)
+      {
+         *info->objects = _mulle_objc_object_get_pointervalue_for_ivar( info->self, ivar);
+         if( *info->objects)
+            info->objects++;
+      }
+      ++info->n;
+   }
+   return( 0);
+}
+
+
+- (NSUInteger) getOwnedObjects:(id *) objects
+                        length:(NSUInteger) length
+{
+   Class                 cls;
+   struct collect_info   info;
+   
+   assert( (! objects && ! length) || objects);
+   
+   info.self     = self;
+   info.n        = 0;
+   info.objects  = objects;
+   info.sentinel = &objects[ length];
+   
+   cls = _mulle_objc_object_get_isa( self);
+   _mulle_objc_class_walk_ivars( cls,
+                                 _mulle_objc_class_get_inheritance( cls),
+                                 (void *) collect,
+                                 &info);
+   return( info.n);
 }
 
 @end

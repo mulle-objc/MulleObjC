@@ -27,7 +27,6 @@ void   NSZombifyObject( id obj);
 
 @interface NSObject( NSDebug)
 
-- (id) debugDescription;
 - (void) __willBeAddedToAutoreleasePool:(id) pool;
 - (void) __checkReferenceCount;
 

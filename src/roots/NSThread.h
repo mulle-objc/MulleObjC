@@ -6,14 +6,10 @@
 //  Copyright © 2015 Mulle kybernetiK. All rights reserved.
 //
 
-#import "NSObjectProtocol.h"
+#import "NSObject.h"
 
-//
-// why isn't it a subclass of NSObject ?
-// basically for sporting reasons, start with something useful that is
-// protocol based.
-//
-@interface NSThread <NSObject>
+
+@interface NSThread : NSObject
 {
    id   target;
    SEL  sel;
@@ -28,8 +24,7 @@
 
 + (void) exit;
 
-// use:
-// [[NSThread newRoot] makeRuntimeThread];
 - (NSThread *) makeRuntimeThread;
++ (NSThread *) makeRuntimeThread;
 
 @end

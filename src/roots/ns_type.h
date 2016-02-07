@@ -20,13 +20,14 @@
 typedef void                          *id;
 typedef struct _mulle_objc_class      *Class;
 
+//
 // Protocol as a valid keyword and a pseudo-class does not exist
-// @protocol( foo) return  an unsigned long
-// For other compilers say
-// typedef Protocol   *PROTOCOL
+// @protocol( Foo) returns an unsigned long
+// For other compilers say   `typedef Protocol   *PROTOCOL`
 // and code will work on both sides.
-typedef uintptr_t                     PROTOCOL;
-typedef uintptr_t                     SEL;
+//
+typedef mulle_objc_propertyid_t       PROTOCOL;
+typedef mulle_objc_methodid_t         SEL;
 typedef void                          *(*IMP)( void *, SEL, void *params);
 // --- compiler defined end ---
 
@@ -47,6 +48,7 @@ typedef intptr_t    NSInteger;
 
 #endif
 
+
 enum
 {
    NSNotFound = NSIntegerMax
@@ -59,18 +61,18 @@ enum _NSComparisonResult
    NSOrderedSame,
    NSOrderedDescending
 };
+
 typedef NSInteger    NSComparisonResult;
+
 
 #define nil   ((id) 0)
 #define Nil   ((Class) 0)
 
-typedef unsigned char   BOOL;  // the hated BOOL
 
-enum
+typedef enum
 {
    YES = 1,
    NO  = 0
-};
-
+} BOOL;     // the hated BOOL, here it is an enum (-> int. it's C!)
 
 #endif

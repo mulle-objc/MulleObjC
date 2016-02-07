@@ -27,9 +27,6 @@
 // the runtime will replace any [foo alloc] call
 // with a C function
 //
-+ (id) alloc;
-+ (id) allocWithZone:(NSZone *) zone;
-+ (id) new;
 - (NSZone *) zone;  // always NULL
 - (id) retain;
 - (void) release;
@@ -38,6 +35,13 @@
 
 // regular methods
 
+//
+// new does NOT call +alloc or +allocWithZone:
+// override new too, if you override alloc
+//
++ (id) new;
++ (id) alloc;
++ (id) allocWithZone:(NSZone *) zone;   // deprecated
 - (id) init;
 - (void) dealloc;
 
@@ -75,6 +79,16 @@
 - (IMP) methodForSelector:(SEL) sel;
 + (IMP) instanceMethodForSelector:(SEL) sel;
 
+/* 
+   Returns all objects, retained by this instance.
+   This is not deep!
+ 
+   Every class that stores objects in C-arrays, must
+   implement this. Oherwise the default implementation 
+   is good enough.
+ */
+- (NSUInteger) getOwnedObjects:(id *) objects
+                        length:(NSUInteger) length;
 
 @end
 
@@ -82,21 +96,21 @@
 // this is sometimes useful for creating static objects
 struct _NSObject
 {
-   struct _mulle_objc_object_header   header;
-   struct _mulle_objc_object          nsObject;
+   struct _mulle_objc_objectheader   header;
+   struct _mulle_objc_object         nsObject;
 };
 
 
 
 static inline void   *NSObjectFrom_NSObject( struct _NSObject *p)
 {
-   return( _mulle_objc_object_header_get_object( &p->header));
+   return( _mulle_objc_objectheader_get_object( &p->header));
 }
 
 
 static inline void   *_NSObjectFromNSObject( NSObject *p)
 {
-   return( (void *)  _mulle_objc_object_get_object_header( p));
+   return( (void *)  _mulle_objc_object_get_objectheader( p));
 }
 
 

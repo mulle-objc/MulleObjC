@@ -19,24 +19,53 @@
 #import "ns_zone.h"
 
 
-static inline id    NSAllocateObject( Class isa, NSUInteger extra, NSZone *zone)
+static inline id    _NSAllocateObject( Class cls, NSUInteger extra, NSZone *zone)
 {
-   return( (id) mulle_objc_class_alloc_instance_extra( isa, extra));
+   struct _mulle_objc_runtime        *runtime;
+   struct _mulle_objc_class          *infra;
+   struct _mulle_objc_objectheader   *header;
+   struct _mulle_objc_objectheader   *object;
+   // self is the meta class
+   
+   assert( ! _mulle_objc_class_is_metaclass( cls));
+   
+   runtime = _mulle_objc_class_get_runtime( cls);
+   
+   header  = runtime->allocator.calloc( 1, cls->instance_and_header_size + extra);
+   if( ! header)
+      _mulle_objc_runtime_raise_fail_errno_exception( runtime);
+
+   _mulle_objc_objectheader_set_isa( header, cls);
+   return( (id) _mulle_objc_objectheader_get_object( header));
 }
 
 
 static inline id    _NSAllocateNonZeroedObject( Class isa, NSUInteger extra, NSZone *zone)
 {
    // future for now its still just zeroed
-   return( (id) mulle_objc_class_alloc_instance_extra( isa, extra));
+   return( (id) _NSAllocateObject( isa, extra, zone));
 }
 
 
-
-static inline void   NSDeallocateObject( id obj)
+// this does not zero properties
+static inline void   _NSDeallocateObject( id obj)
 {
-   mulle_objc_instance_free( obj);
+   struct _mulle_objc_runtime        *runtime;
+   struct _mulle_objc_class          *cls;
+   struct _mulle_objc_objectheader   *header;
+   struct _mulle_objc_objectheader   *object;
+   
+   if( obj)
+   {
+      cls     = _mulle_objc_object_get_isa( obj);
+      runtime = _mulle_objc_class_get_runtime( cls);
+      header  = _mulle_objc_object_get_objectheader( obj);
+      runtime->allocator.free( header);
+   }
 }
+
+id     NSAllocateObject( Class meta, NSUInteger extra, NSZone *zone);
+void   NSDeallocateObject( id obj);  // this also zeroes properties (!)
 
 
 // implement the convenience stuff
@@ -45,19 +74,19 @@ static inline void   NSDeallocateObject( id obj)
 //
 static inline void   NSIncrementExtraRefCount( id obj)
 {
-   _mulle_objc_object_increment_retain_count( obj);
+   _mulle_objc_object_increment_retaincount( obj);
 }
 
 
 static inline BOOL  NSDecrementExtraRefCountWasZero( id obj)
 {
-   return( (BOOL) (obj ? _mulle_objc_object_decrement_retain_count_was_zero( obj) : 0));
+   return( (BOOL) (obj ? _mulle_objc_object_decrement_retaincount_was_zero( obj) : 0));
 }
 
 
 static inline NSUInteger   NSExtraRefCount( id obj)
 {
-   return( (NSUInteger) (obj ? _mulle_objc_object_retain_count( obj) : 0));
+   return( (NSUInteger) mulle_objc_object_get_retaincount( obj));
 }
 
 
