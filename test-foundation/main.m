@@ -7,21 +7,12 @@
 //
 #ifndef __MULLE_RUNTIME__
 # import <Foundation/Foundation.h>
-# include <sys/time.h>
 #else
-# import "MulleObjCRoot.h"
-# include <sys/time.h>
-
-struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
-{
-   struct _mulle_objc_runtime    *runtime;
-   
-   runtime = __mulle_objc_get_runtime();
-   if( ! runtime)
-      runtime = (*ns_root_setup)();
-   return( runtime);
-}
+# import "MulleStandaloneObjC.h"
 #endif
+
+#include <sys/time.h>
+
 
 
 

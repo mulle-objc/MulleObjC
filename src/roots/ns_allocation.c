@@ -25,7 +25,8 @@ size_t         _ns_page_size;
 unsigned int   _ns_log_page_size;
 
 
-void  _NSDeterminePageSize()
+void  _NSDeterminePageSize( void);
+void  _NSDeterminePageSize( void)
 {
    size_t   size;
    

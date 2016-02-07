@@ -47,7 +47,7 @@ static mulle_thread_tss_t    __NSThreadObjectKey;
    // does not call bouncyBounceEnd
    _NSAutoreleasePoolConfigurationUnsetThread();
    
-   mulle_objc_instance_free( self);
+   [super dealloc];
 }
 
 
@@ -61,6 +61,7 @@ static void   bouncyBounceEnd( void *thread);
       needs */
  
    thread = [NSThread new];
+   // TODO: put it into the roots
    [thread makeRuntimeThread];
 }
 
@@ -76,6 +77,7 @@ static void   bouncyBounceEnd( void *thread);
 {
    struct _mulle_objc_runtime   *runtime;
    
+   assert( __NSThreadObjectKey);
    if( mulle_thread_tss_get( __NSThreadObjectKey))
       return( self);
 
@@ -84,11 +86,12 @@ static void   bouncyBounceEnd( void *thread);
    _mulle_objc_runtime_retain( runtime);
    mulle_thread_tss_set( __NSThreadObjectKey, self);
 
-   if( _mulle_objc_runtime_lookup_class( runtime,  MULLE_OBJC_CLASSID( 0x511c9ac972f81c49)))
+   if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( 0x511c9ac972f81c49)))
       _NSAutoreleasePoolConfigurationSetThread();
       
    return( self);
 }
+
 
 + (NSThread *) makeRuntimeThread
 {

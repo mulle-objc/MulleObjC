@@ -11,7 +11,7 @@
  *  $Id$
  *
  */
-#import "NSObjectProtocol.h"
+#import "NSObject.h"
 
 
 @class NSAutoreleasePool;
@@ -37,17 +37,21 @@ struct _NSAutoreleasePoolConfiguration
 };
 
 
+
+__attribute__((const))
 static inline struct _NSAutoreleasePoolConfiguration   *_NSAutoreleasePoolConfiguration( void)
 {
    extern mulle_thread_tss_t               _NSAutoreleasePoolConfigurationKey;
    struct _NSAutoreleasePoolConfiguration  *config;
    
+   assert( _NSAutoreleasePoolConfigurationKey);
    config = mulle_thread_tss_get( _NSAutoreleasePoolConfigurationKey);
    assert( config);
    return( config);
 }
 
 
+__attribute__((const))
 mulle_thread_tss_t   NSAutoreleasePoolUnfailingGetOrCreateThreadKey( void);
 
 void   _NSAutoreleasePoolConfigurationSetThread( void);
@@ -60,7 +64,7 @@ void   _NSAutoreleasePoolConfigurationUnsetThread( void);
 // Be careful when touching a running system
 // This is not a subclass of NSObject, because it really is different
 //
-@interface NSAutoreleasePool <NSObject>
+@interface NSAutoreleasePool : NSObject
 {
    NSAutoreleasePool   *_owner;
    void                *_storage;
