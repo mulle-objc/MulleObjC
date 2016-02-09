@@ -26,7 +26,7 @@
 // these are not in the traditional NSObject protocol
 + (id) new;
 + (id) alloc;
-+ (id) allocWithZone:(NSZone *) zone;
++ (id) allocWithZone:(NSZone *) zone;  // deprecated
 - (id) init;
 
 

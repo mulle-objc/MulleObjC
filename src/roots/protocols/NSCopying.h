@@ -16,8 +16,11 @@
 #import "ns_zone.h"
 
 
+//
+// the old copyWithZone: still works, but it's gone from the protocol
+//
 @protocol NSCopying
 
-- (id) copyWithZone:(NSZone *) zone;  // NSZone is just here for compatibility
+- (id) copy;
 
 @end

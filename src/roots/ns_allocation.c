@@ -24,6 +24,20 @@
 size_t         _ns_page_size;
 unsigned int   _ns_log_page_size;
 
+char  *_NSDuplicateCString( char *s)
+{
+   char     *dup;
+   size_t   size;
+
+   if( ! s)
+      return( s);
+      
+   size = strlen( s) + 1;
+   dup  = _NSAllocateMemory( size);
+   memcpy( dup, s, size);
+   return( dup);
+}
+
 
 void  _NSDeterminePageSize( void);
 void  _NSDeterminePageSize( void)

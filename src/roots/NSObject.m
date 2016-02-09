@@ -18,6 +18,8 @@
 #import "NSMutableCopying.h"
 #import "NSAutoreleasePool.h"
 #import "NSAllocation.h"
+#import "NSMethodSignature.h"
+#import "NSInvocation.h"
 
 
 @implementation NSObject
@@ -44,25 +46,15 @@
 }
 
 
-static int   zero_property( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self)
+- (void) finalize
 {
-   switch( *_mulle_objc_property_get_signature( property))
-   {
-   case _C_COPY_ID   :
-   case _C_RETAIN_ID :
-      mulle_objc_object_call_no_fastmethod( self, property->setter, nil);
-   }
-   return( 0);
+   _NSFinalizeObject( self);
 }
+
 
 - (void) dealloc
 {
-   // walk through properties and release them
-   struct _mulle_objc_class   *cls;
-   
-   cls = _mulle_objc_object_get_isa( self);
-   _mulle_objc_class_walk_properties( cls, _mulle_objc_class_get_inheritance( cls), zero_property, self);
-   NSDeallocateObject( self);
+   _NSDeallocateObject( self);
 }
 
 
@@ -86,7 +78,6 @@ static int   zero_property( struct _mulle_objc_property *property, struct _mulle
 {
    return( (NSZone *) 0);
 }
-
 
 
 - (id) retain
@@ -168,7 +159,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (Class) superclass
 {
-   return( _mulle_objc_class_get_superclass( _mulle_objc_object_get_isa( self)));
+   return( _mulle_objc_class_get_superclass( _mulle_objc_object_get_class( self)));
 }
 
 
@@ -177,7 +168,6 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    struct _mulle_objc_class  *cls;
 
    cls = _mulle_objc_object_get_class( self);
-   assert( cls);
    return( cls);
 }
 
@@ -201,13 +191,29 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
+/* this is pretty much the worst case for the META-ABI,
+   since we need to extract sel from _param and have to alloca and reshuffle
+   everything 
+ */
 - (id) performSelector:(SEL) sel
             withObject:(id) obj1
             withObject:(id) obj2
 {
-   abort(); // not yet
+   union
+   {
+      struct
+      {
+         id   obj1;
+         id   obj2;
+      } data;
+      void   *space[ 5];      // IMPORTANT!!
+   } param;
+   
+   param.data.obj1 = obj1;
+   param.data.obj2 = obj2;
+   
+   return( mulle_objc_object_inline_call( self, sel, &param));
 }
-          
           
 
 - (BOOL) isProxy
@@ -279,49 +285,22 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-// yes it's +
-+ (id) copyWithZone:(NSZone *) zone
-{
-   return( self);
-}
-
-
-// yes it's +
-+ (id) mutableCopyWithZone:(NSZone *) zone
-{
-   return( self);  
-}
-
-
-- (id) copy
-{
-   return( [self copyWithZone:0]);
-}
-
-
-- (id) mutableCopy
-{
-   return( [self mutableCopyWithZone:(void *) 0]);
-}
-
-
 + (BOOL) instancesRespondToSelector:(SEL) sel
 {
-   Class                       cls;
-   struct _mulle_objc_method   *method;
+   IMP   imp;
    
-   cls    = _mulle_objc_class_get_infraclass( self);
-   method = mulle_objc_class_lookup_method( cls, sel);
-   return( method != (void *) 0);
+   imp = (IMP) _mulle_objc_class_get_cached_methodimplementation( self, sel);
+   if( imp)
+      return( YES);
+   if( mulle_objc_class_lookup_method( self, sel))
+      return( YES);
+   return( NO);
 }
 
 
 + (IMP) instanceMethodForSelector:(SEL) sel
 {
-   Class   cls;
-   
-   cls = _mulle_objc_class_get_infraclass( self);
-   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( cls, sel));
+   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( self, sel));
 }
 
 
@@ -333,6 +312,9 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( cls, sel));
 }
 
+
+#pragma mark -
+#pragma mark walk object graph support
 
 struct collect_info
 {
@@ -385,6 +367,84 @@ static int   collect( struct _mulle_objc_ivar *ivar,
                                  (void *) collect,
                                  &info);
    return( info.n);
+}
+
+
+- (id) forwardingTargetForSelector:(SEL) sel
+{
+   return( nil);
+}
+
+
+- (id) doesNotRecognizeSelector:(SEL) sel
+{
+   struct _mulle_objc_class   *cls;
+   
+   cls = _mulle_objc_object_get_isa( self);
+   _mulle_objc_class_raise_method_not_found_exception( cls, sel);
+}
+
+
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) sel
+{
+   struct _mulle_objc_class    *cls;
+   struct _mulle_objc_method   *method;
+   
+   cls    = _mulle_objc_object_get_isa( self);
+   method = _mulle_objc_class_lookup_method( cls, sel, _mulle_objc_class_get_inheritance( cls));
+   if( ! method)
+      return( nil);
+   
+   return( [NSMethodSignature signatureWithObjCTypes:method->descriptor.signature]);
+}
+
+//
+// subclasses should just override this, for best performance
+//
+- (void *) forward:(void *) _param
+{
+   id                  target;
+   NSMethodSignature   *signature;
+   NSInvocation        *invocation;
+   void                *rval;
+   
+   target = [self forwardingTargetForSelector:_cmd];
+   if( target)
+      return( mulle_objc_object_inline_call( target, _cmd, _param));
+
+   /*
+    * the slowness of these operations can not even be charted
+    */
+   signature = [self methodSignatureForSelector:_cmd];
+   if( ! signature)
+      [self doesNotRecognizeSelector:_cmd];
+   
+   invocation = [NSInvocation invocationWithMethodSignature:signature];
+   [invocation setSelector:_cmd];
+   [invocation setMetaABIFrame:_param];
+   [invocation invokeWithTarget:self];
+   
+   switch( [signature methodMetaABIReturnType])
+   {
+   case _NSMetaABITypeVoid :
+      return( NULL);
+      
+   case _NSMetaABITypeVoidPointer :
+      [invocation getReturnValue:&rval];
+      return( rval);
+         
+   case _NSMetaABITypeParameterBlock :
+      [invocation getReturnValue:_param];
+      return( _param);
+   }
+}
+
+
+@class NSInvocation;
+
+- (void) forwardInvocation:(NSInvocation *) anInvocation
+{
+   [self doesNotRecognizeSelector:[anInvocation selector]];
 }
 
 @end
