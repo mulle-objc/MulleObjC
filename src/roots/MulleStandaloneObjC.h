@@ -26,6 +26,10 @@
 
 #import "MulleObjC.h"
 
+
+// the forwarding method in this partiular runtime
+void   *_objc_msgForward( void *self, mulle_objc_methodid_t _cmd, void *_param);
+
 //
 // [^1] first candidates for replacement
 //

@@ -16,6 +16,6 @@
 
 @protocol NSMutableCopying
 
-- (id) mutableCopyWithZone:(NSZone *) zone;
+- (id) mutableCopy;
 
 @end

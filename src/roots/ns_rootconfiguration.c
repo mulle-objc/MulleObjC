@@ -80,11 +80,13 @@ static void   nop( struct _mulle_objc_runtime *runtime, void *friend,  struct mu
 }
 
 
+
 /*
  * This function sets up a Foundation on a per thread
  * basis.
  */
-struct _ns_rootconfiguration  *__ns_root_setup( mulle_objc_runtimefriend_versionassert_t versionassert)
+struct _ns_rootconfiguration  *__ns_root_setup( struct _ns_root_setupconfig
+*config)
 {
    size_t                              size;
    struct _ns_rootconfiguration        *roots;
@@ -93,11 +95,13 @@ struct _ns_rootconfiguration  *__ns_root_setup( mulle_objc_runtimefriend_version
    struct mulle_container_keycallback  root_object_callback;
    extern struct mulle_allocator       mulle_allocator_objc;
    extern void                         _NSDeterminePageSize( void);
+   extern struct _mulle_objc_method    NSObject_msgForward_method;
 
    _NSDeterminePageSize();
 
    runtime = __mulle_objc_runtime_setup();
-   runtime->classdefaults.inheritance = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
+   runtime->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
+   runtime->classdefaults.forwardmethod = config->forward;
    
    _mulle_objc_runtime_get_foundationspace( runtime, (void **) &roots, &size);
    if( size < sizeof( struct _ns_rootconfiguration))
@@ -109,7 +113,7 @@ struct _ns_rootconfiguration  *__ns_root_setup( mulle_objc_runtimefriend_version
 
    us.runtimefriend.destructor    = runtime_dies;
    us.runtimefriend.data          = roots;
-   us.runtimefriend.versionassert = versionassert ? versionassert : nop;
+   us.runtimefriend.versionassert = config->versionassert ? config->versionassert : nop;
    
    roots->runtime = runtime;
    
@@ -128,11 +132,12 @@ struct _ns_rootconfiguration  *__ns_root_setup( mulle_objc_runtimefriend_version
 }
 
 
-struct _mulle_objc_runtime  *_ns_root_setup( mulle_objc_runtimefriend_versionassert_t versionassert)
+struct _mulle_objc_runtime  *_ns_root_setup( struct _ns_root_setupconfig
+*config)
 {
    struct _ns_rootconfiguration   *roots;
    
-   roots = __ns_root_setup( versionassert);
+   roots = __ns_root_setup( config);
    
    init_ns_exceptionhandlertable ( &roots->exceptions);
 
@@ -154,7 +159,8 @@ struct _mulle_objc_runtime  *_ns_root_setup( mulle_objc_runtimefriend_versionass
 // your chance to take over, if you somehow make it to the front of the
 // __load chain. (You can with dylibs, but is very hard with .a)
 //
-struct _mulle_objc_runtime   *(*ns_root_setup)( mulle_objc_runtimefriend_versionassert_t versionassert) = _ns_root_setup;
+struct _mulle_objc_runtime   *(*ns_root_setup)( struct _ns_root_setupconfig
+*config) = _ns_root_setup;
 
 mulle_thread_tss_t   __ns_rootconfigurationKey;
 

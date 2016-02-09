@@ -21,14 +21,44 @@ static void   versionassert( struct _mulle_objc_runtime *runtime,
 }
 
 
+
+/* 
+ * it's just too convenient, to have this as the old name
+ */
+void   *_objc_msgForward( void *self, mulle_objc_methodid_t _cmd, void *_param)
+{
+   struct _mulle_objc_class   *cls;
+   
+   cls = _mulle_objc_object_get_isa( self);
+   _mulle_objc_class_raise_method_not_found_exception( cls, _cmd);
+   return( NULL);
+}
+
+struct _mulle_objc_method   NSObject_msgForward_method =
+{
+   MULLE_OBJC_FORWARD_METHODID,  // forward:
+   "forward:",
+   "@@:@",
+   0,
+   
+   _objc_msgForward
+};
+
+
+
 __attribute__((const))  // always returns same value (in same thread)
 struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
 {
-   struct _mulle_objc_runtime    *runtime;
-
+   struct _mulle_objc_runtime           *runtime;
+   static struct _ns_root_setupconfig   config =
+   {
+      versionassert,
+      &NSObject_msgForward_method
+   };
+   
    runtime = __mulle_objc_get_runtime();
    if( ! runtime)
-      runtime = (*ns_root_setup)( versionassert);
+      runtime = (*ns_root_setup)( &config);
    return( runtime);
 }
 

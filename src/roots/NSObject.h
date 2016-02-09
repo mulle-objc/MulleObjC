@@ -42,14 +42,24 @@
 + (id) new;
 + (id) alloc;
 + (id) allocWithZone:(NSZone *) zone;   // deprecated
+
+//
+// if you subclass NSObject and override init, don't bother calling [super init]
+// 
 - (id) init;
 - (void) dealloc;
 
-- (BOOL) isEqual:(id) other;
 - (NSUInteger) hash;
+- (BOOL) isEqual:(id) other;
+
 - (Class) superclass;
 - (Class) class;
 - (id) self;
+- (BOOL) isKindOfClass:(Class) cls;
+- (BOOL) isMemberOfClass:(Class) cls;
+
+- (BOOL) conformsToProtocol:(PROTOCOL) protocol;
+- (BOOL) respondsToSelector:(SEL) sel;
 - (id) performSelector:(SEL) sel;
 - (id) performSelector:(SEL) sel 
             withObject:(id) obj;
@@ -58,26 +68,17 @@
             withObject:(id) obj2;
 
 - (BOOL) isProxy;
-- (BOOL) isKindOfClass:(Class) cls;
-- (BOOL) isMemberOfClass:(Class) cls;
-- (BOOL) conformsToProtocol:(PROTOCOL) protocol;
-- (BOOL) respondsToSelector:(SEL) sel;
-
 - (id) description;
 
-+ (BOOL) isSubclassOfClass:(Class) cls;
-
-
-#if 0 // not yet, avoid this in foundation code
-- (id) copy;
-- (id) mutableCopy;
-#endif
 
 + (Class) class;
++ (BOOL) isSubclassOfClass:(Class) cls;
 + (BOOL) instancesRespondToSelector:(SEL) sel;
 
 - (IMP) methodForSelector:(SEL) sel;
 + (IMP) instanceMethodForSelector:(SEL) sel;
+
+#pragma mark mulle additions
 
 /* 
    Returns all objects, retained by this instance.
@@ -93,13 +94,14 @@
 @end
 
 
-// this is sometimes useful for creating static objects
+//
+// this is can be useful for creating placeholder objects
+//
 struct _NSObject
 {
    struct _mulle_objc_objectheader   header;
    struct _mulle_objc_object         nsObject;
 };
-
 
 
 static inline void   *NSObjectFrom_NSObject( struct _NSObject *p)
@@ -112,5 +114,3 @@ static inline void   *_NSObjectFromNSObject( NSObject *p)
 {
    return( (void *)  _mulle_objc_object_get_objectheader( p));
 }
-
-

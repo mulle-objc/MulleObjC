@@ -128,7 +128,6 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
    {
       // or talk about leaking
       abort();
-      return;
    }   
 #if DEBUG   
    assert( p != nil);
@@ -160,7 +159,6 @@ static inline void   addObjects( NSAutoreleasePool *self, id *objects, NSUIntege
    {
       // or talk about leaking
       abort();
-      return;
    }   
    
 #if DEBUG   

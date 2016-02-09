@@ -47,6 +47,16 @@ static inline id    _NSAllocateNonZeroedObject( Class isa, NSUInteger extra, NSZ
 }
 
 
+static inline void  _NSFinalizeObject( id obj)
+{
+   extern int   _NSObjectZeroProperty( struct _mulle_objc_property *, struct _mulle_objc_class *, void *);
+   struct _mulle_objc_class   *cls;
+   
+   // walk through properties and release them
+   cls = _mulle_objc_object_get_isa( obj);
+   _mulle_objc_class_walk_properties( cls, _mulle_objc_class_get_inheritance( cls), _NSObjectZeroProperty, obj);
+}
+
 // this does not zero properties
 static inline void   _NSDeallocateObject( id obj)
 {
@@ -55,17 +65,15 @@ static inline void   _NSDeallocateObject( id obj)
    struct _mulle_objc_objectheader   *header;
    struct _mulle_objc_objectheader   *object;
    
-   if( obj)
-   {
-      cls     = _mulle_objc_object_get_isa( obj);
-      runtime = _mulle_objc_class_get_runtime( cls);
-      header  = _mulle_objc_object_get_objectheader( obj);
-      runtime->allocator.free( header);
-   }
+   cls     = _mulle_objc_object_get_isa( obj);
+   runtime = _mulle_objc_class_get_runtime( cls);
+   header  = _mulle_objc_object_get_objectheader( obj);
+   runtime->allocator.free( header);
 }
 
 id     NSAllocateObject( Class meta, NSUInteger extra, NSZone *zone);
-void   NSDeallocateObject( id obj);  // this also zeroes properties (!)
+void   NSFinalizeObject( id ob);
+void   NSDeallocateObject( id obj);  
 
 
 // implement the convenience stuff

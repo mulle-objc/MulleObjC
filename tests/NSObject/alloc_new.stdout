@@ -1,0 +1,16 @@
++new
+-init
+1
++new
+-init
+2
+YES
+YES
+YES
+YES
+-finalize
+-dealloc
+1
+-finalize
+-dealloc
+0

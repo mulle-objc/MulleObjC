@@ -8,8 +8,9 @@
 
 #include "NSAllocation.h"
 
+int   _NSObjectZeroProperty( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self);
 
-static int   zero_property( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self)
+int   _NSObjectZeroProperty( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self)
 {
    switch( *_mulle_objc_property_get_signature( property))
    {
@@ -23,16 +24,21 @@ static int   zero_property( struct _mulle_objc_property *property, struct _mulle
 
 id   NSAllocateObject( Class meta, NSUInteger extra, NSZone *zone)
 {
-   return( _NSAllocateObject( meta, 0, NULL));
+   if( meta)
+      return( _NSAllocateObject( meta, 0, NULL));
+   abort(); // TODO: raise exception
+   return( nil);
 }
 
 
+void   NSFinalizeObject( id self)
+{
+   if( self)
+      _NSFinalizeObject( self);
+}
+
 void   NSDeallocateObject( id self)
 {
-   // walk through properties and release them
-   struct _mulle_objc_class   *cls;
-   
-   cls = _mulle_objc_object_get_isa( self);
-   _mulle_objc_class_walk_properties( cls, _mulle_objc_class_get_inheritance( cls), zero_property, self);
-   _NSDeallocateObject( self);
+   if( self)
+      _NSDeallocateObject( self);
 }

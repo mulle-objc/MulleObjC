@@ -22,6 +22,7 @@
 #include <unistd.h>
 
 
+__attribute__((const,returns_nonnull))
 static inline void  *_NSAllocator()
 {
 #if ! MULLE_OBJC_HAVE_THREAD_LOCAL_RUNTIME
@@ -57,6 +58,7 @@ static inline void  _NSDeallocateMemory( void *p)
 }
 
 
+char  *_NSDuplicateCString( char *s);
 
 void   *NSAllocateMemoryPages( NSUInteger size);
 void   NSDeallocateMemoryPages( void *ptr, NSUInteger size);
