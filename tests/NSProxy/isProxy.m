@@ -13,7 +13,7 @@
 
 + (id) new
 {
-   return( _mulle_objc_class_alloc_instance( self, calloc));
+   return( _mulle_objc_class_unfailing_alloc_instance( self, calloc));
 }
 @end
 

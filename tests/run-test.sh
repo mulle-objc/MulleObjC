@@ -265,6 +265,38 @@ search_for_strings()
 }
 
 
+fail_test()
+{
+   local m_source
+   local a_out
+   local stdin
+
+   m_source="$1"
+   a_out="$2"
+   stdin="$3"
+
+   [ ! -z "${CC}" ] && exit 1
+
+   echo "DEBUG: " >&2
+   echo "rebuilding with -O0 and debug symbols..." >&2
+   $MULLE_CLANG -O0 -g -o "${a_out}" \
+      -fobjc-runtime=mulle \
+      "-I${MULLE_OBJC_INCLUDE}" \
+      "-I${MULLE_OBJC_DEPENDENCIES_INCLUDE}" \
+      "${MULLE_OBJC}" \
+      "${m_source}" > "$errput" 2>&1
+
+   echo "DYLD_FALLBACK_LIBRARY_PATH=\"${DYLD_FALLBACK_LIBRARY_PATH}\" \
+LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}\" lldb ${a_out}" >&2
+   if [ "${stdin}" != "/dev/null" ]
+   then
+      echo "run < ${stdin}" >&2
+   fi
+   exit 1
+
+}
+
+
 
 run()
 {
@@ -356,27 +388,7 @@ run()
          echo "TEST CRASHED: \"$pretty_source\" (${a_out}, ${errput})" >&2
          maybe_show_diagnostics "$errput" >&2
 
-         [ ! -z "${CC}" ] && exit 1
-
-         echo "DEBUG: " >&2
-         if [ "${CFLAGS}" != "${DEFAULTCFLAGS}" ]
-         then
-            echo "rebuilding with -O0 and debug symbols..." >&2
-            $MULLE_CLANG -O0 -g -o "${a_out}" \
-   -w \
-   -fobjc-runtime=mulle \
-   "-I${MULLE_OBJC_INCLUDE}" \
-   "-I${MULLE_OBJC_DEPENDENCIES_INCLUDE}" \
-   "${MULLE_OBJC}" \
-   "${m_source}" >&2
-         fi
-         echo "DYLD_FALLBACK_LIBRARY_PATH=\"${DYLD_FALLBACK_LIBRARY_PATH}\" \
-LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}\" lldb ${a_out}" >&2
-         if [ "${stdin}" != "/dev/null" ]
-         then
-            echo "run < ${stdin}" >&2
-         fi
-         exit 1
+         fail_test "${m_source}" "${a_out}" "${stdin}"
       else
          search_for_strings "TEST FAILED TO PRODUCE ERRORS: \"$pretty_source\" ($errput)" \
                             "$errput" "$errors"
@@ -385,14 +397,14 @@ LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}\" lldb ${a_out}" >&2
             return 0
          fi
          maybe_show_diagnostics "$errput" >&2
-         exit 1
+         fail_test "${m_source}" "${a_out}" "${stdin}"
       fi
    else
       if [ -f "$errors" ]
       then
          echo "TEST FAILED TO CRASH: \"$pretty_source\" (${a_out})" >&2
          maybe_show_diagnostics "$errput" >&2
-         exit 1
+         fail_test "${m_source}" "${a_out}" "${stdin}"
       fi
    fi
 
@@ -418,7 +430,7 @@ LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}\" lldb ${a_out}" >&2
          maybe_show_diagnostics "$errput" >&2
          maybe_show_output "$output"
 
-         exit 2
+         fail_test "${m_source}" "${a_out}" "${stdin}"
       fi
    else
       contents="`head -2 "$output"`" 2> /dev/null
@@ -429,7 +441,7 @@ LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}\" lldb ${a_out}" >&2
          maybe_show_diagnostics "$errput" >&2
          maybe_show_output "$output"
 
-         exit 2
+         fail_test "${m_source}" "${a_out}" "${stdin}"
       fi
    fi
 
@@ -443,7 +455,7 @@ LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}\" lldb ${a_out}" >&2
          diff "$stderr" "$errput" >&2
 
          maybe_show_diagnostics "$errput"
-         exit 3
+         fail_test "${m_source}" "${a_out}" "${stdin}"
       fi
    fi
 }

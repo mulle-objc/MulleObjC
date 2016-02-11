@@ -38,7 +38,6 @@ struct _NSAutoreleasePoolConfiguration
 
 
 
-__attribute__((const))
 static inline struct _NSAutoreleasePoolConfiguration   *_NSAutoreleasePoolConfiguration( void)
 {
    extern mulle_thread_tss_t               _NSAutoreleasePoolConfigurationKey;
@@ -112,6 +111,7 @@ static inline id   _NSAutoreleaseObject( id obj)
 
 
 // the compile will inline this directly
+__attribute__((always_inline))
 static inline id   NSAutoreleaseObject( id obj)
 {
    return( obj ? _NSAutoreleaseObject( obj) : obj);
