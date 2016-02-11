@@ -74,7 +74,7 @@ static void   testInstanceMethodForSelector( id self, SEL sel)
    IMP   imp;
 
    imp = [self instanceMethodForSelector:sel];
-   if( imp == _objc_msgForward)
+   if( _mulle_objc_class_is_forwardmethodimplementation( self, imp))
    {
       printf( "forward:\n");
       return;
@@ -88,7 +88,7 @@ static void   testMethodForSelector( id self, SEL sel)
    IMP   imp;
 
    imp = [self methodForSelector:sel];
-   if( imp == _objc_msgForward)
+   if( _mulle_objc_class_is_forwardmethodimplementation( _mulle_objc_object_get_isa( self), imp))
    {
       printf( "forward:\n");
       return;

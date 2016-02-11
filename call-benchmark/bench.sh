@@ -1,17 +1,18 @@
 #! /bin/sh
 
-levels="-O0 -O1 -O2 -O3 -Os"
+levels="-O2"  # "-O0 -O1 -O2 -O3 -Os"
+arch=${1:-x86_64}
 
 
 compile_apple()
 {
-	cc "$1" -DNDEBUG -DNSBLOCKASSERTIONS main.m -o "$2"  -framework Foundation
+	cc "$1" -arch "${arch}" -DNDEBUG -DNSBLOCKASSERTIONS main.m -o "$2"  -framework Foundation
 }
 
 
 compile_mulle()
 {
-	mulle-clang "$1" -DNDEBUG -DNSBLOCKASSERTIONS main.m -o "$2" -I../dependencies/include -I../build/Products/Release/usr/local/include  ../build/Products/Release/libMulleStandaloneObjC.dylib
+	mulle-clang "$1" -arch "${arch}" -DNDEBUG -DNSBLOCKASSERTIONS main.m -o "$2" -I../dependencies/include -I../build/Products/Release/usr/local/include  ../build/Products/Release/libMulleStandaloneObjC.dylib
 }
 
 
@@ -19,19 +20,19 @@ flag=
 
 for CFLAGS in $levels
 do
-   csv="apple${CFLAGS}.csv"
+   csv="apple-${arch}${CFLAGS}.csv"
    if [ ! -f "${csv}" ]
  	then
-	   exe="apple-benchmark${CFLAGS}"
+	   exe="apple-benchmark-${arch}${CFLAGS}"
    	compile_apple "${CFLAGS}" "${exe}"
 	   ./"${exe}" $flag > "${csv}"
 	fi
    flag=--noheader
 
-   csv="mulle${CFLAGS}.csv"
+   csv="mulle-${arch}${CFLAGS}.csv"
    if [ ! -f "${csv}" ]
  	then
-	   exe="mulle-benchmark${CFLAGS}"
+	   exe="mulle-benchmark-${arch}${CFLAGS}"
 	   compile_mulle "${CFLAGS}" "${exe}"
 	   ./"${exe}" $flag > "${csv}"
 	fi
@@ -40,19 +41,21 @@ done
 
 # now paste results together
 
-printf "" > results.csv
+results="results-${arch}.csv"
+printf "${arch}" > "${results}"
 
 for CFLAGS in $levels
 do
-   printf ";Apple ${CFLAGS}" >> results.csv
+   printf ";Apple ${CFLAGS}" >> "${results}"
+   printf ";Mulle ${CFLAGS}" >> "${results}"
 
 done
+echo >> "${results}"
 
+FILES=
 for CFLAGS in $levels
 do
-   printf ";Mulle ${CFLAGS}" >> results.csv
+	FILES="${FILES} apple-${arch}${CFLAGS}.csv mulle-${arch}${CFLAGS}.csv"
 done
-echo >> results.csv
 
-paste -d\; apple-O*.csv mulle-O*.csv >> results.csv
-
+paste -d\; ${FILES} >> "${results}"

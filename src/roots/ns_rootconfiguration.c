@@ -85,12 +85,11 @@ static void   nop( struct _mulle_objc_runtime *runtime, void *friend,  struct mu
  * This function sets up a Foundation on a per thread
  * basis.
  */
-struct _ns_rootconfiguration  *__ns_root_setup( struct _ns_root_setupconfig
-*config)
+struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runtime,
+                                                struct _ns_root_setupconfig *config)
 {
    size_t                              size;
    struct _ns_rootconfiguration        *roots;
-   struct _mulle_objc_runtime          *runtime;
    struct _mulle_objc_foundation       us;
    struct mulle_container_keycallback  root_object_callback;
    extern struct mulle_allocator       mulle_allocator_objc;
@@ -99,7 +98,7 @@ struct _ns_rootconfiguration  *__ns_root_setup( struct _ns_root_setupconfig
 
    _NSDeterminePageSize();
 
-   runtime = __mulle_objc_runtime_setup();
+   __mulle_objc_runtime_setup( runtime);
    runtime->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
    runtime->classdefaults.forwardmethod = config->forward;
    
@@ -132,12 +131,12 @@ struct _ns_rootconfiguration  *__ns_root_setup( struct _ns_root_setupconfig
 }
 
 
-struct _mulle_objc_runtime  *_ns_root_setup( struct _ns_root_setupconfig
-*config)
+void   _ns_root_setup( struct _mulle_objc_runtime *runtime,
+                       struct _ns_root_setupconfig *config)
 {
    struct _ns_rootconfiguration   *roots;
    
-   roots = __ns_root_setup( config);
+   roots = __ns_root_setup( runtime, config);
    
    init_ns_exceptionhandlertable ( &roots->exceptions);
 
@@ -150,8 +149,6 @@ struct _mulle_objc_runtime  *_ns_root_setup( struct _ns_root_setupconfig
    //
    // thread = [NSThread new];
    // [thread makeRuntimeThread];
-
-   return( roots->runtime);
 }
 
 
@@ -159,8 +156,8 @@ struct _mulle_objc_runtime  *_ns_root_setup( struct _ns_root_setupconfig
 // your chance to take over, if you somehow make it to the front of the
 // __load chain. (You can with dylibs, but is very hard with .a)
 //
-struct _mulle_objc_runtime   *(*ns_root_setup)( struct _ns_root_setupconfig
-*config) = _ns_root_setup;
+void   (*ns_root_setup)( struct _mulle_objc_runtime *runtime,
+                         struct _ns_root_setupconfig *config) = _ns_root_setup;
 
 mulle_thread_tss_t   __ns_rootconfigurationKey;
 

@@ -28,20 +28,23 @@ struct _ns_rootconfiguration
    struct mulle_set                   *roots;
 };
 
+
 struct _ns_root_setupconfig
 {
    mulle_objc_runtimefriend_versionassert_t   *versionassert;
    struct _mulle_objc_method                  *forward;
 };
 
-struct _ns_rootconfiguration   *__ns_root_setup( struct _ns_root_setupconfig
-*config);
-struct _mulle_objc_runtime     *_ns_root_setup( struct _ns_root_setupconfig
-*confi);
+
+struct _ns_rootconfiguration   *__ns_root_setup( struct _mulle_objc_runtime *runtime,
+                                                 struct _ns_root_setupconfig *config);
+
+void   _ns_root_setup( struct _mulle_objc_runtime *runtime,
+                       struct _ns_root_setupconfig *config);
 
 // vector to call
-extern struct _mulle_objc_runtime  *(*ns_root_setup)( struct _ns_root_setupconfig
-*config);
+extern void   (*ns_root_setup)( struct _mulle_objc_runtime *runtime,
+                                struct _ns_root_setupconfig *config);
 
 
 static inline struct _ns_rootconfiguration   *_ns_rootconfiguration( void)

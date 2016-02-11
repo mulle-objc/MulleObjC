@@ -57,8 +57,8 @@ struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
    };
    
    runtime = __mulle_objc_get_runtime();
-   if( ! runtime)
-      runtime = (*ns_root_setup)( &config);
+   if( ! runtime->version)
+      (*ns_root_setup)( runtime, &config);
    return( runtime);
 }
 
