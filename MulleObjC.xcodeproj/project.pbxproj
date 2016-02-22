@@ -22,9 +22,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		410B50E11C69424B007839D0 /* NSInvocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DB1C69424B007839D0 /* NSInvocation.h */; };
+		410B50E11C69424B007839D0 /* NSInvocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DB1C69424B007839D0 /* NSInvocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		410B50E21C69424B007839D0 /* NSInvocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 410B50DC1C69424B007839D0 /* NSInvocation.m */; };
-		410B50E41C69424B007839D0 /* NSMethodSignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DE1C69424B007839D0 /* NSMethodSignature.h */; };
+		410B50E41C69424B007839D0 /* NSMethodSignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DE1C69424B007839D0 /* NSMethodSignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		410B50E51C69424B007839D0 /* NSMethodSignature.m in Sources */ = {isa = PBXBuildFile; fileRef = 410B50DF1C69424B007839D0 /* NSMethodSignature.m */; };
 		410B50E61C69424B007839D0 /* NSMethodSignature+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50E01C69424B007839D0 /* NSMethodSignature+Private.h */; };
 		410FA24E1C66105E00927C72 /* MulleObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A9E4F51BD7E58B00210D6E /* MulleObjC.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -45,7 +45,6 @@
 		4162D51E1C63CDF1007EC7DD /* ns_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A9E4FA1BD7F39700210D6E /* ns_debug.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4162D51F1C63CDF1007EC7DD /* NSCopying.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827B81AADE08C0017BE29 /* NSCopying.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4162D5201C63CDF1007EC7DD /* NSDebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827A71AADE0400017BE29 /* NSDebug.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4162D5211C63CDF1007EC7DD /* NSMutableCopying.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827BA1AADE08C0017BE29 /* NSMutableCopying.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4162D5221C63CDF1007EC7DD /* NSObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827AB1AADE04B0017BE29 /* NSObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4162D5231C63CDF1007EC7DD /* _ns_autoreleasepointerarray.h in Headers */ = {isa = PBXBuildFile; fileRef = 415A0A0F1C4E98B700290E05 /* _ns_autoreleasepointerarray.h */; };
 		4162D5241C63CDF1007EC7DD /* _ns_exception.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E501AB097CE00A92452 /* _ns_exception.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -87,13 +86,14 @@
 		41A827B11AADE0530017BE29 /* NSProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827AF1AADE0530017BE29 /* NSProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A827B21AADE0530017BE29 /* NSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 41A827B01AADE0530017BE29 /* NSProxy.m */; };
 		41A827BC1AADE08C0017BE29 /* NSCopying.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827B81AADE08C0017BE29 /* NSCopying.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		41A827BE1AADE08C0017BE29 /* NSMutableCopying.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827BA1AADE08C0017BE29 /* NSMutableCopying.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A827BF1AADE08C0017BE29 /* NSObjectProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827BB1AADE08C0017BE29 /* NSObjectProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A827C21AADE14F0017BE29 /* ns_rootconfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827C01AADE14F0017BE29 /* ns_rootconfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A827C31AADE14F0017BE29 /* ns_objc_include.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827C11AADE14F0017BE29 /* ns_objc_include.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A827C61AADE30E0017BE29 /* ns_type.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827C41AADE30E0017BE29 /* ns_type.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A9E4FB1BD7F39700210D6E /* ns_debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 41A9E4F91BD7F39700210D6E /* ns_debug.c */; };
 		41A9E4FC1BD7F39700210D6E /* ns_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A9E4FA1BD7F39700210D6E /* ns_debug.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		41B7F9DA1C6DE60600C74B8A /* NSInvocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DB1C69424B007839D0 /* NSInvocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		41B7F9DB1C6DE60600C74B8A /* NSMethodSignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DE1C69424B007839D0 /* NSMethodSignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -179,7 +179,6 @@
 		41A827AF1AADE0530017BE29 /* NSProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSProxy.h; sourceTree = "<group>"; };
 		41A827B01AADE0530017BE29 /* NSProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSProxy.m; sourceTree = "<group>"; };
 		41A827B81AADE08C0017BE29 /* NSCopying.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSCopying.h; sourceTree = "<group>"; };
-		41A827BA1AADE08C0017BE29 /* NSMutableCopying.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSMutableCopying.h; sourceTree = "<group>"; };
 		41A827BB1AADE08C0017BE29 /* NSObjectProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSObjectProtocol.h; sourceTree = "<group>"; };
 		41A827C01AADE14F0017BE29 /* ns_rootconfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_rootconfiguration.h; sourceTree = "<group>"; };
 		41A827C11AADE14F0017BE29 /* ns_objc_include.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_objc_include.h; sourceTree = "<group>"; };
@@ -341,7 +340,6 @@
 			isa = PBXGroup;
 			children = (
 				41A827B81AADE08C0017BE29 /* NSCopying.h */,
-				41A827BA1AADE08C0017BE29 /* NSMutableCopying.h */,
 				41A827BB1AADE08C0017BE29 /* NSObjectProtocol.h */,
 			);
 			path = protocols;
@@ -361,7 +359,6 @@
 				4162D5201C63CDF1007EC7DD /* NSDebug.h in Headers */,
 				410FA25A1C6624AF00927C72 /* ns_fastclassids.h in Headers */,
 				410FA25D1C6624F500927C72 /* ns_fastmethodids.h in Headers */,
-				4162D5211C63CDF1007EC7DD /* NSMutableCopying.h in Headers */,
 				4162D5241C63CDF1007EC7DD /* _ns_exception.h in Headers */,
 				410FA2531C6610A600927C72 /* ns_exception.h in Headers */,
 				4162D5221C63CDF1007EC7DD /* NSObject.h in Headers */,
@@ -372,6 +369,8 @@
 				4162D5271C63CDF1007EC7DD /* NSAllocation.h in Headers */,
 				4162D5281C63CDF1007EC7DD /* ns_allocation.h in Headers */,
 				410FA2501C66109500927C72 /* ns_objc.h in Headers */,
+				41B7F9DA1C6DE60600C74B8A /* NSInvocation.h in Headers */,
+				41B7F9DB1C6DE60600C74B8A /* NSMethodSignature.h in Headers */,
 				4162D5291C63CDF1007EC7DD /* NSObjectProtocol.h in Headers */,
 				410FA2551C6610CE00927C72 /* NSThread.h in Headers */,
 				4162D52A1C63CDF1007EC7DD /* ns_rootconfiguration.h in Headers */,
@@ -390,7 +389,6 @@
 				41A827A31AADE01D0017BE29 /* NSAutoreleasePool.h in Headers */,
 				41A827BC1AADE08C0017BE29 /* NSCopying.h in Headers */,
 				41A827A91AADE0400017BE29 /* NSDebug.h in Headers */,
-				41A827BE1AADE08C0017BE29 /* NSMutableCopying.h in Headers */,
 				410FA2521C6610A300927C72 /* ns_exception.h in Headers */,
 				41A9E4FC1BD7F39700210D6E /* ns_debug.h in Headers */,
 				410FA25C1C6624F500927C72 /* ns_fastmethodids.h in Headers */,
@@ -402,12 +400,12 @@
 				41A41E601AB0A18600A92452 /* ns_range.h in Headers */,
 				41A41E5C1AB09C2A00A92452 /* ns_zone.h in Headers */,
 				41A41E631AB0BD5700A92452 /* NSAllocation.h in Headers */,
-				41A827A61AADE0290017BE29 /* NSAutoreleasePool+Private.h in Headers */,
 				410B50E11C69424B007839D0 /* NSInvocation.h in Headers */,
+				410B50E41C69424B007839D0 /* NSMethodSignature.h in Headers */,
+				41A827A61AADE0290017BE29 /* NSAutoreleasePool+Private.h in Headers */,
 				41A41E571AB097EC00A92452 /* ns_allocation.h in Headers */,
 				41A827BF1AADE08C0017BE29 /* NSObjectProtocol.h in Headers */,
 				410FA2511C66109900927C72 /* ns_objc.h in Headers */,
-				410B50E41C69424B007839D0 /* NSMethodSignature.h in Headers */,
 				410FA2541C6610C700927C72 /* NSThread.h in Headers */,
 				41A827C21AADE14F0017BE29 /* ns_rootconfiguration.h in Headers */,
 				41A827B11AADE0530017BE29 /* NSProxy.h in Headers */,

@@ -22,11 +22,7 @@ typedef enum
 } _NSMetaABIType;
 
 
-typedef struct
-{
-   struct mulle_objc_typeinfo   info;
-   uintptr_t                    offset;
-} _NSMethodSignatureTypeinfo;
+typedef struct mulle_objc_typeinfo    _NSMethodSignatureTypeinfo;
 
 
 @interface NSMethodSignature : NSObject 

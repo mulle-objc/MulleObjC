@@ -18,7 +18,6 @@
 
 #import "NSObjectProtocol.h"
 #import "NSCopying.h"
-#import "NSMutableCopying.h"
 
 #import "NSAutoreleasePool.h"
 #import "NSObject.h"
@@ -26,3 +25,6 @@
 #import "NSThread.h"
 
 #import "NSAutoreleasePool.h"
+
+#import "NSMethodSignature.h"
+#import "NSInvocation.h"

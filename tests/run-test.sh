@@ -321,7 +321,6 @@ run()
    local match
 
    random=`mktemp -t "MulleObjC"`
-   a_out="$random.exe"
    output="$random.stdout"
    errput="$random.stderr"
    errors=`basename $m_source .m`.errors
@@ -330,10 +329,13 @@ run()
 
    owd=`pwd`
    pretty_source=`relpath "$owd"/"$m_source" "$root"`
+
    if [ "$VERBOSE" = "yes" ]
    then
       echo "$pretty_source" >&2
    fi
+
+   a_out="${owd}/`basename "$m_source" .m`.exe"
 
    RUNS=`expr "$RUNS" + 1`
 

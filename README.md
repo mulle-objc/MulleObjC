@@ -2,7 +2,8 @@
 
 MulleObjC supplies the most basic runtime components to build a foundation
 on top of it. It does all the interfacing with the mulle-objc-runtime. Any
-library code above MulleObjC should not be using mulle-objc-runtime directly.
+library code above MulleObjC should not be using the mulle-objc-runtime 
+directly.
 
 MulleObjC must be compiled with the mulle-clang compiler, or a compiler which
 supports the metaABI required for the mulle-objc-runtime.

@@ -38,28 +38,34 @@
 //
 static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 {
-   unsigned int   i;
-   char           *types;
-   uintptr_t      offset;
+   char                        *types;
+   uintptr_t                   offset;
+   _NSMethodSignatureTypeinfo  *p;
+   _NSMethodSignatureTypeinfo  *sentinel;
    
    assert( self->_count);
-   if( ! self->_infos)
+   if( self->_infos)
+      return( self->_infos);
+
+   self->_infos = _NSAllocateMemory( self->_count * sizeof( _NSMethodSignatureTypeinfo));
+   
+   //
+   // the offsets are kind of wrong, depending on call convention, as the
+   // return value may share the space of the first parameter. But doing
+   // it differently may be too surprising.
+   //
+   offset   = 0;
+   p        = &self->_infos[ 0];
+   sentinel = &p[ self->_count];
+   
+   types = self->_types;
+   while( types = mulle_objc_signature_supply_next_typeinfo( types, p))
    {
-      self->_infos = _NSAllocateMemory( self->_count * sizeof( _NSMethodSignatureTypeinfo));
-      
-      //
-      // the offsets are kind of wrong, depending on call convention, as the
-      // return value may share the space of the first parameter. But doing
-      // it differently may be too surprising.
-      //
-      offset = 0;
-      for( i = 0, types = self->_types; types = mulle_objc_signature_supply_next_typeinfo( types, &self->_infos[ i].info); i++)
-      {
-         self->_infos[ i].offset = mulle_objc_align( offset, self->_infos[ i].info.natural_alignment);
-         offset                 += self->_infos[ i].info.natural_size;
-      }
-      assert( i == self->_count);
+      assert( p < sentinel);
+      ++p;
    }
+
+   assert( p == sentinel);
    return( self->_infos);
 }
 
@@ -115,7 +121,7 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    //
    // will have trailing garbage
    //
-   return( get_infos( self)[ 0].info.type);
+   return( get_infos( self)[ 0].type);
 }
 
 
@@ -131,7 +137,7 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
       __NSThrowInvalidIndexException( i);
 
    // will have trailing garbage, but who cares ?
-   return( get_infos( self)[ 1 + i].info.type);
+   return( get_infos( self)[ 1 + i].type);
 }
 
 
@@ -149,7 +155,7 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 {
    id   obj;
    
-   obj = [[NSMethodSignature allocWithZone:NULL] initWithObjCTypes:types];
+   obj = [[NSMethodSignature alloc] initWithObjCTypes:types];
    return( NSAutoreleaseObject( obj));
 }
 
@@ -169,31 +175,35 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    _NSMethodSignatureTypeinfo  *info;
    size_t                      voidptr5;
    size_t                      overflow;
+   size_t                      len;
    
    info     = &get_infos( self)[ _count - 1];
    voidptr5 = sizeof( void *) * 5;
+   len      = info->offset + info->natural_size;
    
-   overflow = info->offset % voidptr5;
+   overflow = len % voidptr5;
    if( ! overflow)
-      return( info->offset);
-   return( info->offset + voidptr5 - overflow);
+      return( len);
+   return( len + voidptr5 - overflow);
 }
 
 
 - (NSUInteger) methodReturnLength
 {
-   unsigned int   size;
-
-   mulle_objc_signature_supply_size_and_alignment( [self methodReturnType], &size, NULL);
-   return( size);
+   _NSMethodSignatureTypeinfo  *info;
+   
+   info = &get_infos( self)[ 0];
+   return( info->natural_size);
 }
 
 
 - (_NSMetaABIType) methodMetaABIReturnType
 {
-   char   *type;
-   
-   type = get_infos( self)[ 0].info.type;
+   _NSMethodSignatureTypeinfo  *info;
+   char                        *type;
+
+   info = &get_infos( self)[ 0];
+   type = info->type;
    return( mulle_objc_signature_get_metaabireturntype( type));
 }
 

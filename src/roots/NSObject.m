@@ -15,7 +15,6 @@
 
 #import "ns_type.h"
 #import "NSCopying.h"
-#import "NSMutableCopying.h"
 #import "NSAutoreleasePool.h"
 #import "NSAllocation.h"
 #import "NSMethodSignature.h"
@@ -34,15 +33,21 @@
 }
 
 
-+ (id) alloc
++ (nonnull instancetype) alloc
 {
    return( _NSAllocateObject( self, 0, NULL));
 }
 
 
-+ (id) allocWithZone:(NSZone *) zone
++ (nonnull instancetype) allocWithZone:(NSZone *) zone
 {
    return( _NSAllocateObject( self, 0, NULL));
+}
+
+
++ (nonnull instancetype) instantiate
+{
+   return( _NSAutoreleaseObject( _NSAllocateObject( self, 0, NULL)));
 }
 
 
@@ -58,7 +63,7 @@
 }
 
 
-+ (id) new
++ (instancetype) new
 {
    id   p;
    
@@ -80,7 +85,7 @@
 }
 
 
-- (id) retain
+- (nonnull instancetype) retain
 {
    return( (id) mulle_objc_object_retain( (struct _mulle_objc_object *) self));
 }
@@ -92,9 +97,9 @@
 }
 
 
-- (id) autorelease
+- (nonnull instancetype) autorelease
 {
-   return( (id) NSAutoreleaseObject( self));
+   return( (id) _NSAutoreleaseObject( self));
 }
 
 
@@ -108,11 +113,10 @@
 # pragma mark -
 # pragma mark normal methods
 
-- (id) init
+- (instancetype) init
 {
    return( self);
 }
-
 
 
 - (BOOL) isEqual:(id) other
@@ -163,7 +167,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-- (Class) class
+- (nonnull Class) class
 {
    struct _mulle_objc_class  *cls;
 
@@ -172,7 +176,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-- (id) self
+- (instancetype) self
 {
    return( self);
 }
@@ -376,7 +380,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 }
 
 
-- (id) doesNotRecognizeSelector:(SEL) sel
+- (void) doesNotRecognizeSelector:(SEL) sel
 {
    struct _mulle_objc_class   *cls;
    
@@ -414,6 +418,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 
    /*
     * the slowness of these operations can not even be charted
+    * I need to code something better
     */
    signature = [self methodSignatureForSelector:_cmd];
    if( ! signature)
@@ -422,7 +427,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    invocation = [NSInvocation invocationWithMethodSignature:signature];
    [invocation setSelector:_cmd];
    [invocation setMetaABIFrame:_param];
-   [invocation invokeWithTarget:self];
+   [self forwardInvocation:invocation];
    
    switch( [signature methodMetaABIReturnType])
    {
@@ -439,8 +444,6 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    }
 }
 
-
-@class NSInvocation;
 
 - (void) forwardInvocation:(NSInvocation *) anInvocation
 {

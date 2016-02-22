@@ -24,7 +24,7 @@
 //
 struct _NSAutoreleasePoolConfiguration
 {
-   id                  (*autoreleaseObject)( struct _NSAutoreleasePoolConfiguration *, id);
+   id                  (*autoreleaseObject)( struct _NSAutoreleasePoolConfiguration *, id)  __attribute__ ((returns_nonnull));
    void                (*autoreleaseObjects)( struct _NSAutoreleasePoolConfiguration *, id *, NSUInteger);
 
    NSAutoreleasePool   *tail;
@@ -101,6 +101,7 @@ static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
 }
 
 
+__attribute__((nonnull))
 static inline id   _NSAutoreleaseObject( id obj)
 {
    struct _NSAutoreleasePoolConfiguration   *config;
