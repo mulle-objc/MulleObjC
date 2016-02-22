@@ -53,7 +53,8 @@ struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
    static struct _ns_root_setupconfig   config =
    {
       versionassert,
-      &NSObject_msgForward_method
+      &NSObject_msgForward_method,
+      NULL
    };
    
    runtime = __mulle_objc_get_runtime();

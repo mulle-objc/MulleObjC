@@ -99,8 +99,9 @@ struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runt
    _NSDeterminePageSize();
 
    __mulle_objc_runtime_setup( runtime);
-   runtime->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
-   runtime->classdefaults.forwardmethod = config->forward;
+   runtime->classdefaults.inheritance    = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
+   runtime->classdefaults.forwardmethod  = config->forward;
+   runtime->exceptions.uncaughtexception = config->uncaughtexception;
    
    _mulle_objc_runtime_get_foundationspace( runtime, (void **) &roots, &size);
    if( size < sizeof( struct _ns_rootconfiguration))

@@ -19,6 +19,7 @@
 #import "ns_zone.h"
 
 
+__attribute__((returns_nonnull))
 static inline id    _NSAllocateObject( Class cls, NSUInteger extra, NSZone *zone)
 {
    struct _mulle_objc_runtime        *runtime;
@@ -40,6 +41,7 @@ static inline id    _NSAllocateObject( Class cls, NSUInteger extra, NSZone *zone
 }
 
 
+__attribute__((returns_nonnull))
 static inline id    _NSAllocateNonZeroedObject( Class isa, NSUInteger extra, NSZone *zone)
 {
    // future for now its still just zeroed

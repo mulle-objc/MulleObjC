@@ -1,6 +1,7 @@
 #! /bin/sh
 
-levels="-O2"  # "-O0 -O1 -O2 -O3 -Os"
+#levels="-O2"
+levels="-O0 -O1 -O2 -O3 -Os"
 arch=${1:-x86_64}
 
 
@@ -16,8 +17,9 @@ compile_mulle()
 }
 
 
-flag=
+set -e
 
+flag=
 for CFLAGS in $levels
 do
    csv="apple-${arch}${CFLAGS}.csv"

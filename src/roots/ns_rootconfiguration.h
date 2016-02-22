@@ -33,6 +33,7 @@ struct _ns_root_setupconfig
 {
    mulle_objc_runtimefriend_versionassert_t   *versionassert;
    struct _mulle_objc_method                  *forward;
+   void                                       (*uncaughtexception)( void *exception);
 };
 
 

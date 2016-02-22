@@ -576,12 +576,25 @@ int   main( int argc, char  *argv[])
    NSNumber             *nr;
    NSMutableDictionary  *dict;
 
+#if 0
+   {
+      struct _mulle_objc_class   *cls;
+
+      // put in NSMutableDictionary
+      cls = mulle_objc_unfailing_get_class( MULLE_OBJC_CLASSID( MULLE_OBJC_FASTCLASSHASH_10));
+      _mulle_objc_runtime_set_fastclass( mulle_objc_get_runtime(), cls, 10);
+
+      // put in NSNumber
+      cls = mulle_objc_unfailing_get_class( MULLE_OBJC_CLASSID( MULLE_OBJC_FASTCLASSHASH_13));
+      _mulle_objc_runtime_set_fastclass( mulle_objc_get_runtime(), cls, 13);
+   }
+#endif
    foo = [Foo new];
 
 #ifdef __MULLE_RUNTIME__
    {
       struct _mulle_objc_cache  *cache;
-      
+
       [foo doNoParam];
       [foo doOneParam:nil];
       [foo doTwoParam:nil :nil];
@@ -589,11 +602,11 @@ int   main( int argc, char  *argv[])
       [foo doFourParam:nil :nil :nil :nil];
       [foo doThreeParam:nil :nil :nil];
       [foo doTwoParam:nil :nil];
-      [foo doNoParam];
       [foo doOneParam:nil];
-      
-      cache = _mulle_objc_class_get_method_cache( _mulle_objc_object_get_isa( foo));
-      
+      [foo doNoParam];
+
+      cache = _mulle_objc_class_get_methodcache( _mulle_objc_object_get_isa( foo));
+
       fprintf( stderr, "doNoParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doNoParam)));
       fprintf( stderr, "doOneParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doOneParam:)));
       fprintf( stderr, "doTwoParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doTwoParam::)));

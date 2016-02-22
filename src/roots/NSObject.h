@@ -28,9 +28,9 @@
 // with a C function
 //
 - (NSZone *) zone;  // always NULL
-- (id) retain;
+- (instancetype) retain;
 - (void) release;
-- (id) autorelease;
+- (instancetype) autorelease;
 - (NSUInteger) retainCount;
 
 // regular methods
@@ -39,14 +39,14 @@
 // new does NOT call +alloc or +allocWithZone:
 // override new too, if you override alloc
 //
-+ (id) new;
-+ (id) alloc;
-+ (id) allocWithZone:(NSZone *) zone;   // deprecated
++ (instancetype) new;
++ (nonnull instancetype) alloc;
++ (nonnull instancetype) allocWithZone:(NSZone *) zone;   // deprecated
 
 //
 // if you subclass NSObject and override init, don't bother calling [super init]
 // 
-- (id) init;
+- (instancetype) init;
 - (void) dealloc;
 
 - (NSUInteger) hash;
@@ -54,7 +54,7 @@
 
 - (Class) superclass;
 - (Class) class;
-- (id) self;
+- (instancetype) self;
 - (BOOL) isKindOfClass:(Class) cls;
 - (BOOL) isMemberOfClass:(Class) cls;
 
@@ -71,7 +71,7 @@
 - (id) description;
 
 
-+ (Class) class;
++ (nonnull Class) class;
 + (BOOL) isSubclassOfClass:(Class) cls;
 + (BOOL) instancesRespondToSelector:(SEL) sel;
 
@@ -79,6 +79,8 @@
 + (IMP) instanceMethodForSelector:(SEL) sel;
 
 #pragma mark mulle additions
+
++ (nonnull instancetype) instantiate;  // alloc + autorelease
 
 /* 
    Returns all objects, retained by this instance.

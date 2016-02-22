@@ -34,6 +34,7 @@ static inline void  *_NSAllocator()
 #endif
 }
 
+
 static inline void  *_NSAllocateNonZeroedMemory( NSUInteger size)
 {
    return( mulle_allocator_malloc( _NSAllocator(), size));

@@ -17,6 +17,7 @@
 #import "NSMethodSignature+Private.h"
 #import "NSAllocation.h"
 #import "NSAutoreleasePool.h"
+#import "NSCopying.h"
 
 
 @implementation NSInvocation
@@ -88,7 +89,7 @@
 
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature
 {
-   return( NSAutoreleaseObject( [[self allocWithZone:NULL] initWithMethodSignature:signature]));
+   return( NSAutoreleaseObject( [[self alloc] initWithMethodSignature:signature]));
 }
 
 
@@ -104,7 +105,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    
    p     = [self->_methodSignature _runtimeTypeInfoAtIndex:i];
    *adr  = &((char *) self->_storage)[ p->offset];
-   *size = p->info.natural_size;
+   *size = p->natural_size;
 }
 
 
@@ -140,7 +141,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 
    assert( value_p);
    
-   pointerAndSizeOfArgumentValue( self, i + 1,  &adr, &size);
+   pointerAndSizeOfArgumentValue( self, i + 1, &adr, &size);
    memcpy( value_p, adr, size);
 }
 
@@ -153,7 +154,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 
    assert( value_p);
       
-   pointerAndSizeOfArgumentValue( self, i + 1,  &adr, &size);
+   pointerAndSizeOfArgumentValue( self, i + 1, &adr, &size);
    memcpy( adr, value_p, size);
 }
 
@@ -191,7 +192,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       case _C_COPY_ID :
          [self getArgument:&obj
                   atIndex:i];
-         [obj copy];
+         [(id <NSCopying>) obj copy];
          break;
             
       case _C_CHARPTR :
@@ -260,25 +261,26 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    _NSMethodSignatureTypeinfo   *info;
    void                         *param;
    void                         *rval;
+   void                         *storage;
    
    sel   = [self selector];
    param = NULL;
    switch( [_methodSignature methodMetaABIParameterType])
    {
    case _NSMetaABITypeVoid           :
-      rval = mulle_objc_object_inline_call( target, sel, target);
+      rval = mulle_objc_object_call_no_fastmethod( target, sel, target);
       break;
          
    case _NSMetaABITypeVoidPointer    :
-      info  = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
+      info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
-      rval  = mulle_objc_object_inline_call( target, sel, *(void **) param);
+      rval  = mulle_objc_object_call_no_fastmethod( target, sel, *(void **) param);
       break;
          
    case _NSMetaABITypeParameterBlock :
-      info  = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
+      info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
-      rval  = mulle_objc_object_inline_call( target, sel, param);
+      rval  = mulle_objc_object_call_no_fastmethod( target, sel, param);
       break;
    }
 
@@ -288,11 +290,15 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       break;
       
    case _NSMetaABITypeVoidPointer    :
-      *(void **) _storage = rval;
+      info    = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
+      storage = &((char *) self->_storage)[ info->offset];
+      *(void **) storage = rval;
       break;
       
    case _NSMetaABITypeParameterBlock :
-      memcpy( _storage, param, [self->_methodSignature methodReturnLength]);
+      info    = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
+      storage = &((char *) self->_storage)[ info->offset];
+      memcpy( storage, param, [self->_methodSignature methodReturnLength]);
       break;
    }
 }
@@ -309,13 +315,13 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       break;
       
    case _NSMetaABITypeVoidPointer    :
-      info  = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
+      info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
       *((void **) param) = frame;
       break;
       
    case _NSMetaABITypeParameterBlock :
-      info  = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
+      info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
       memcpy( param, frame, [_methodSignature frameLength]);
       break;
