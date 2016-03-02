@@ -22,52 +22,48 @@
 #include <unistd.h>
 
 
+extern struct mulle_allocator    mulle_allocator_objc;
+
+// the '_' underscore is here, because these methods are not compatible
+// with NS
 __attribute__((const,returns_nonnull))
-static inline void  *_NSAllocator()
+static inline void  *MulleObjCAllocator()
 {
-#if ! MULLE_OBJC_HAVE_THREAD_LOCAL_RUNTIME
-   extern struct mulle_allocator   mulle_allocator_objc;
+   struct _ns_rootconfiguration   *configuration;
    
-   return( &mulle_allocator_objc);
-#else
-   return( &_ns_rootconfiguration()->allocator);
-#endif
+   configuration = _ns_rootconfiguration();
+   return( &configuration->allocator);
 }
 
 
-static inline void  *_NSAllocateNonZeroedMemory( NSUInteger size)
+static inline void  *MulleObjCAllocateNonZeroedMemory( NSUInteger size)
 {
-   return( mulle_allocator_malloc( _NSAllocator(), size));
+   return( _mulle_allocator_malloc( MulleObjCAllocator(), size));
 }
 
 
-static inline void  *_NSReallocateNonZeroedMemory( void *p, NSUInteger size)
+static inline void  *MulleObjCReallocateNonZeroedMemory( void *p, NSUInteger size)
 {
-   return( mulle_allocator_realloc( _NSAllocator(), p, size));
+   return( _mulle_allocator_realloc( MulleObjCAllocator(), p, size));
 }
 
 
-static inline void  *_NSAllocateMemory( NSUInteger size)
+static inline void  *MulleObjCAllocateMemory( NSUInteger size)
 {
-   return( mulle_allocator_calloc( _NSAllocator(), 1, size));
+   return( _mulle_allocator_calloc( MulleObjCAllocator(), 1, size));
 }
 
 
-static inline void  _NSDeallocateMemory( void *p)
+static inline void  MulleObjCDeallocateMemory( void *p)
 {
-   mulle_allocator_free( _NSAllocator(), p);
+   _mulle_allocator_free( MulleObjCAllocator(), p);
 }
 
 
-char  *_NSDuplicateCString( char *s);
+char  *MulleObjCDuplicateCString( char *s);
 
 void   *NSAllocateMemoryPages( NSUInteger size);
 void   NSDeallocateMemoryPages( void *ptr, NSUInteger size);
-
-
-// only use this in asserts.
-// It will produce UINT_MAX on Linux
-size_t   _NSMallocedBlockSize( void *p);
 
 
 static inline NSUInteger   NSPageSize()

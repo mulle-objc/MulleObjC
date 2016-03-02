@@ -55,4 +55,7 @@ main()
    print_bool( [bar self] != [NSObject self]);
    print_bool( [bar self] != [Foo self]);
    print_bool( [bar self] != [Bar self]);
+
+   [bar release];
+   [foo release];
 }

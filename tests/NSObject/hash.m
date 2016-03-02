@@ -7,7 +7,11 @@
 
 main()
 {
+   id   obj;
+
    // can only do existance (non-crash) checks
    [NSObject hash];
-   [[NSObject new] hash];
+   obj = [NSObject new];
+   [obj hash];
+   [obj release];
 }

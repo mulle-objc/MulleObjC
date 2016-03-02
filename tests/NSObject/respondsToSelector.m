@@ -66,4 +66,7 @@ main()
 
    print_bool( [bar respondsToSelector:@selector( foo)]);
    print_bool( [bar respondsToSelector:@selector( bar)]);
+
+   [bar release];
+   [foo release];
 }

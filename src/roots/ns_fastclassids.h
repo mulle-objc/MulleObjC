@@ -10,8 +10,8 @@
 #define ns_fastclassids_h__
 
 //
-// we define some fastclasses, where the id MUST be a integer
-// A fastclasss makes sense where there are lots of class method calls
+// we define some fastclasses, where the hash MUST be an integer constant
+// A fastclass makes sense, where there are lots of class method calls
 //
 #define MULLE_OBJC_FASTCLASSHASH_0    0xe6a8fb2683d48355  // NSArray
 #define MULLE_OBJC_FASTCLASSHASH_1    0x511c9ac972f81c49  // NSAutoreleasePool
@@ -31,6 +31,6 @@
 #define MULLE_OBJC_FASTCLASSHASH_14   0x2038a99ee2ee3f4a  // NSSet
 #define MULLE_OBJC_FASTCLASSHASH_15   0xe4263c36f49e2d93  // NSString
 
-// room for 16 more
+// room for 16 more ATM, leave it for user programs
 
 #endif /* ns_fastclassids_h */

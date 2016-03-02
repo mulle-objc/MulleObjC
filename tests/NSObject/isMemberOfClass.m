@@ -52,4 +52,7 @@ main()
    print_bool( [bar isMemberOfClass:[Bar class]]);
 
    print_bool( [bar isMemberOfClass:foo]);
+
+   [bar release];
+   [foo release];
 }

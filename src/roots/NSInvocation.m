@@ -36,7 +36,7 @@
    size             = [signature frameLength];
    size            += [signature methodReturnLength];
    
-   _storage         = _NSAllocateNonZeroedMemory( size);
+   _storage         = MulleObjCAllocateNonZeroedMemory( size);
    _methodSignature = [signature retain];
 
    return( self);
@@ -66,7 +66,7 @@
       case _C_CHARPTR :
          [self getArgument:&s 
                   atIndex:i];
-         _NSDeallocateMemory( s);
+         MulleObjCDeallocateMemory( s);
          break;
       }
    }
@@ -76,13 +76,14 @@
 {
    if( _argumentsRetained)
       [self _releaseArguments];
-   _NSFinalizeObject( self);
+   _MulleObjCFinalizeObject( self);
 }
 
 
 - (void) dealloc
 {
-   _NSDeallocateMemory( _storage);
+   MulleObjCDeallocateMemory( _storage);
+   [_methodSignature release];
    NSDeallocateObject( self);
 }
 
@@ -101,7 +102,7 @@
 
 static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteger i, void **adr, size_t *size)
 {
-   _NSMethodSignatureTypeinfo   *p;
+   MulleObjCMethodSignatureTypeinfo   *p;
    
    p     = [self->_methodSignature _runtimeTypeInfoAtIndex:i];
    *adr  = &((char *) self->_storage)[ p->offset];
@@ -198,7 +199,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       case _C_CHARPTR :
          [self getArgument:&s 
                   atIndex:i];
-         dup  = _NSDuplicateCString( s);
+         dup  = MulleObjCDuplicateCString( s);
          [self setArgument:&dup
                   atIndex:i];
          break;
@@ -258,7 +259,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 - (void) invokeWithTarget:(id) target
 {
    SEL                          sel;
-   _NSMethodSignatureTypeinfo   *info;
+   MulleObjCMethodSignatureTypeinfo   *info;
    void                         *param;
    void                         *rval;
    void                         *storage;
@@ -267,17 +268,17 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    param = NULL;
    switch( [_methodSignature methodMetaABIParameterType])
    {
-   case _NSMetaABITypeVoid           :
+   case MulleObjCMetaABITypeVoid           :
       rval = mulle_objc_object_call_no_fastmethod( target, sel, target);
       break;
          
-   case _NSMetaABITypeVoidPointer    :
+   case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
       rval  = mulle_objc_object_call_no_fastmethod( target, sel, *(void **) param);
       break;
          
-   case _NSMetaABITypeParameterBlock :
+   case MulleObjCMetaABITypeParameterBlock :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
       rval  = mulle_objc_object_call_no_fastmethod( target, sel, param);
@@ -286,16 +287,16 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 
    switch( [_methodSignature methodMetaABIReturnType])
    {
-   case _NSMetaABITypeVoid           :
+   case MulleObjCMetaABITypeVoid           :
       break;
       
-   case _NSMetaABITypeVoidPointer    :
+   case MulleObjCMetaABITypeVoidPointer    :
       info    = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
       storage = &((char *) self->_storage)[ info->offset];
       *(void **) storage = rval;
       break;
       
-   case _NSMetaABITypeParameterBlock :
+   case MulleObjCMetaABITypeParameterBlock :
       info    = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
       storage = &((char *) self->_storage)[ info->offset];
       memcpy( storage, param, [self->_methodSignature methodReturnLength]);
@@ -306,21 +307,21 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 
 - (void) setMetaABIFrame:(void *) frame
 {
-   _NSMethodSignatureTypeinfo   *info;
+   MulleObjCMethodSignatureTypeinfo   *info;
    void                         *param;
    
    switch( [_methodSignature methodMetaABIParameterType])
    {
-   case _NSMetaABITypeVoid           :
+   case MulleObjCMetaABITypeVoid           :
       break;
       
-   case _NSMetaABITypeVoidPointer    :
+   case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
       *((void **) param) = frame;
       break;
       
-   case _NSMetaABITypeParameterBlock :
+   case MulleObjCMetaABITypeParameterBlock :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
       memcpy( param, frame, [_methodSignature frameLength]);

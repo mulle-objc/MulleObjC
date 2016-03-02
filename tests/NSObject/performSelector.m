@@ -62,5 +62,7 @@ main()
    [foo performSelector:@selector( foo:) withObject:(id) "VfL"];
    [foo performSelector:@selector( foo::) withObject:(id) "VfL" withObject:(id) "1848"];
 
+   [foo release];
+
    return( 0);
 }

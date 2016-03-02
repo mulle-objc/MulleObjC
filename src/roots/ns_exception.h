@@ -1,7 +1,7 @@
 /*
  *  MulleFoundation - A tiny Foundation replacement
  *
- *  _NSException.h is a part of MulleFoundation
+ *  MulleObjCException.h is a part of MulleFoundation
  *
  *  Copyright (C) 2011 Nat!, Mulle kybernetiK.
  *  All rights reserved.
@@ -23,18 +23,18 @@
 #include "ns_rootconfiguration.h"
 
 
-static inline struct _ns_exceptionhandlertable   *_NSExceptionHandlersGetTable( void)
+static inline struct _ns_exceptionhandlertable   *MulleObjCExceptionHandlersGetTable( void)
 {
    return( &_ns_rootconfiguration()->exceptions);
 }
 
 
 
-static inline _NSExceptionHandler   *_NSExceptionHandlerWithIndex( unsigned int index)
+static inline MulleObjCExceptionHandler   *MulleObjCExceptionHandlerWithIndex( unsigned int index)
 {
    struct _ns_exceptionhandlertable   *table;
    
-   table   = _NSExceptionHandlersGetTable();
+   table   = MulleObjCExceptionHandlersGetTable();
    return( table->handlers[ index]);
 }
 
@@ -42,7 +42,7 @@ static inline _NSExceptionHandler   *_NSExceptionHandlerWithIndex( unsigned int 
 
 static inline void   __NSThrowAllocationException( size_t bytes)
 {
-   (*(*_NSExceptionHandlersGetTable)()->handlers[ _NSExceptionAllocationErrorHandlerIndex])( (void *) bytes, NULL);
+   (*(*MulleObjCExceptionHandlersGetTable)()->handlers[ MulleObjCExceptionAllocationErrorHandlerIndex])( (void *) bytes, NULL);
 }
 
 
@@ -51,7 +51,7 @@ static inline void   __NSThrowInvalidArgumentException( void *format, ...)
    va_list  args;
    
    va_start( args, format);
-   (*_NSExceptionHandlerWithIndex( _NSExceptionInvalidArgumentHandlerIndex))( format, args);
+   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionInvalidArgumentHandlerIndex))( format, args);
    va_end( args);
 }
 
@@ -60,7 +60,7 @@ static inline void   __NSThrowInvalidArgumentException( void *format, ...)
 // improve this later on
 static inline void   __NSThrowInvalidIndexException( NSUInteger i)
 {
-   (*_NSExceptionHandlerWithIndex( _NSExceptionInvalidIndexHandlerIndex))( (void *) i, NULL);
+   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionInvalidIndexHandlerIndex))( (void *) i, NULL);
 }
 
 
@@ -70,7 +70,7 @@ static inline void   __NSThrowInternalInconsistencyException( char *format, ...)
    va_list   args;
    
    va_start( args, format);
-   (*_NSExceptionHandlerWithIndex( _NSExceptionInternalInconsistencyHandlerIndex))( format, args);
+   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionInternalInconsistencyHandlerIndex))( format, args);
    va_end( args);
 }
 
@@ -80,14 +80,14 @@ static inline void   __NSThrowRangeException( NSRange range, ...)
    va_list   args;
    
    va_start( args, range);
-   (*_NSExceptionHandlerWithIndex( _NSExceptionRangeHandlerIndex))( &range, args);
+   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionRangeHandlerIndex))( &range, args);
    va_end( args);
 }
 
 
 static inline void   __NSThrowErrnoException( char *s)
 {
-   (*_NSExceptionHandlerWithIndex( _NSExceptionErrnoHandlerIndex))( s, NULL);
+   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionErrnoHandlerIndex))( s, NULL);
 }
 
 
@@ -96,14 +96,14 @@ static inline void   __NSThrowMathException( void *sel, ...)
    va_list   args;
    
    va_start( args, sel);
-   (*_NSExceptionHandlerWithIndex( _NSExceptionMathHandlerIndex))( sel, args);
+   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionMathHandlerIndex))( sel, args);
    va_end( args);
 }
 
 
 static inline void   __NSThrowCharacterConversionException( int c)
 {
-   (*_NSExceptionHandlerWithIndex( _NSExceptionCharacterConversionHandlerIndex))( (void *) (long) c, NULL);
+   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionCharacterConversionHandlerIndex))( (void *) (long) c, NULL);
 }
 
 #endif

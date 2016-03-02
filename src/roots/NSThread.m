@@ -12,7 +12,9 @@
  *
  */
 #import "NSThread.h"
+
 #import "NSAutoreleasePool.h"
+#import "NSAllocation.h"
 
 #include <mulle_thread/mulle_thread.h>
 #include <stdlib.h>
@@ -20,8 +22,8 @@
 
 @implementation NSThread
 
-static BOOL                  __NSIsMultiThreaded;
-static mulle_thread_tss_t    __NSThreadObjectKey;
+static BOOL                  __MulleObjCMultiThreaded;
+static mulle_thread_tss_t    __MulleObjCThreadObjectKey;
 
 
 
@@ -43,11 +45,7 @@ static mulle_thread_tss_t    __NSThreadObjectKey;
    [self->target release];
    [self->argument release];
 
-   // experimentally put here:, in case the main thread
-   // does not call bouncyBounceEnd
-   _NSAutoreleasePoolConfigurationUnsetThread();
-   
-   [super dealloc];
+   MulleObjCThreadDeallocRuntimeThread( self);
 }
 
 
@@ -56,46 +54,68 @@ static void   bouncyBounceEnd( void *thread);
 
 + (void) load
 {
-   NSThread   *thread;
-   /* make the current "load" thread the main thread
-      needs */
- 
-   thread = [NSThread new];
-   // TODO: put it into the roots
-   [thread makeRuntimeThread];
+   [NSThread _instantiateRuntimeThread];
 }
 
 
 + (void) initialize
 {
-   if( ! __NSThreadObjectKey)
-      mulle_thread_tss_create( &__NSThreadObjectKey, bouncyBounceEnd);
+   if( ! __MulleObjCThreadObjectKey)
+      mulle_thread_tss_create( &__MulleObjCThreadObjectKey, bouncyBounceEnd);
 }
 
 
-- (NSThread *) makeRuntimeThread
+void   MulleObjCThreadBecomeRuntimeThread( NSThread *self)
 {
    struct _mulle_objc_runtime   *runtime;
    
-   assert( __NSThreadObjectKey);
-   if( mulle_thread_tss_get( __NSThreadObjectKey))
-      return( self);
+   assert( __MulleObjCThreadObjectKey);
+   if( mulle_thread_tss_get( __MulleObjCThreadObjectKey))
+      return;
 
-   runtime = mulle_objc_get_runtime();
+   mulle_thread_tss_set( __MulleObjCThreadObjectKey, self);
+
+   runtime = mulle_objc_inlined_get_runtime();
    assert( runtime);
    _mulle_objc_runtime_retain( runtime);
-   mulle_thread_tss_set( __NSThreadObjectKey, self);
-
+   _mulle_objc_runtime_register_current_thread_if_needed( runtime);
+   
    if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( 0x511c9ac972f81c49)))
-      _NSAutoreleasePoolConfigurationSetThread();
-      
-   return( self);
+      MulleObjCAutoreleasePoolConfigurationSetThread();
 }
 
 
-+ (NSThread *) makeRuntimeThread
+void  MulleObjCThreadDeallocRuntimeThread( NSThread *self)
 {
-   return( [[NSThread new] makeRuntimeThread]);
+   struct _mulle_objc_runtime   *runtime;
+   
+   if( mulle_thread_tss_get( __MulleObjCThreadObjectKey))
+   {
+      MulleObjCAutoreleasePoolConfigurationUnsetThread();
+   
+      mulle_thread_tss_set( __MulleObjCThreadObjectKey, NULL);
+   
+      runtime = mulle_objc_inlined_get_runtime();
+      assert( runtime);
+   
+      _mulle_objc_runtime_unregister_current_thread( runtime);
+      // can't call methods anymore after this
+      _mulle_objc_runtime_release( runtime);
+   }
+   _MulleObjCDeallocateObject( self);
+}
+
+
++ (NSThread *) _instantiateRuntimeThread
+{
+   NSThread   *thread;
+
+   thread = [NSThread new];
+   MulleObjCThreadBecomeRuntimeThread( thread);
+   [thread becomeRootObject];
+   [thread release]; // becomeRoot retains, undo it as thread is not autoreleased
+
+   return( thread);
 }
 
 
@@ -103,7 +123,7 @@ static void   bouncyBounceEnd( void *thread);
 {
    NSThread   *p;
    
-   p = mulle_thread_tss_get( __NSThreadObjectKey);
+   p = mulle_thread_tss_get( __MulleObjCThreadObjectKey);
    assert( p);
    return( p);  // not a leak
 }
@@ -139,17 +159,19 @@ static mulle_atomic_pointer_t    __NSNumberOfThreads;
 
 static void   bouncyBounceEnd( void *_thread)
 {
-   NSThread  *thread;
-
+   struct _mulle_objc_runtime  *runtime;
+   NSThread                    *thread;
+   
    thread = _thread;
    [thread _threadWillExit];
-   [thread release];
 
    if( ! _mulle_atomic_pointer_decrement( &__NSNumberOfThreads))
    {
       [NSThread _goingSingleThreaded];
-      __NSIsMultiThreaded = NO;
+      __MulleObjCMultiThreaded = NO;
    }
+   
+   [thread release]; // ho hum
 }
 
 
@@ -159,9 +181,9 @@ static void   *bouncyBounce( NSThread *thread)
    struct _mulle_objc_runtime   *runtime;
    struct _mulle_objc_class     *cls;
    
-   __NSIsMultiThreaded = YES;
+   __MulleObjCMultiThreaded = YES;
 
-   [thread makeRuntimeThread];
+   MulleObjCThreadBecomeRuntimeThread( thread);
 
    return( mulle_objc_object_call( thread->target, thread->sel, thread->argument));
 }
@@ -195,7 +217,7 @@ static void   *bouncyBounce( NSThread *thread)
 
 + (BOOL) isMultiThreaded
 {
-   return( __NSIsMultiThreaded);
+   return( __MulleObjCMultiThreaded);
 }
 
 @end

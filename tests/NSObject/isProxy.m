@@ -22,10 +22,18 @@ static void print_bool( BOOL flag)
 main()
 {
    Foo   *foo;
+   id    obj;
 
    print_bool( [NSObject isProxy]);
-   print_bool( [[NSObject new] isProxy]);
+   obj = [NSObject new];
+   print_bool( [obj isProxy]);
+   [obj release];
 
    print_bool( [Foo isProxy]);
-   print_bool( [[Foo new] isProxy]);
+
+   foo = [Foo new];
+   print_bool( [foo isProxy]);
+   [foo release];
+
+   return( 0);
 }

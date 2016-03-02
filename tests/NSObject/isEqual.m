@@ -33,4 +33,7 @@ main()
    print_bool( [foo1 isEqual:foo2]);
    print_bool( [foo1 isEqual:foo1]);
    print_bool( [foo2 isEqual:foo2]);
+
+   [foo2 release];
+   [foo1 release];
 }

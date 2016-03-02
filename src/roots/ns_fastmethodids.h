@@ -9,7 +9,7 @@
 #ifndef ns_fastmethodids_h__
 #define ns_fastmethodids_h__
 
-// we define some fastmethods, where the id MUST be a integer
+// we define some fastmethods, where the id MUST be a constant integer
 //
 // a good candidate is a method, which is called often AND
 // few instructions are executed (i.e. the overhead of

@@ -29,28 +29,48 @@ static void  init_ns_exceptionhandlertable ( struct _ns_exceptionhandlertable *t
 {
    unsigned int   i;
    
-   for( i = 0; i <= _NSExceptionHandlerTableSize; i++)
-      table->handlers[ i] = (i == _NSExceptionErrnoHandlerIndex) ? (void *) perror_abort : (void *) abort;
+   for( i = 0; i <= MulleObjCExceptionHandlerTableSize; i++)
+      table->handlers[ i] = (i == MulleObjCExceptionErrnoHandlerIndex) ? (void *) perror_abort : (void *) abort;
 }
 
+
+void   _ns_rootconfiguration_add_root( struct _ns_rootconfiguration *config, void *obj)
+{
+   assert( mulle_set_get( config->roots, obj) == NULL);
+   
+   mulle_objc_object_retain( obj);
+   mulle_set_put( config->roots, obj);
+}
+
+
+void   _ns_rootconfiguration_release_roots( struct _ns_rootconfiguration *config)
+{
+   struct mulle_setenumerator     rover;
+   void                           *obj;
+   
+   /* remove all root objects: need to have an enclosing
+    * autoreleasepool here
+    */
+   rover = mulle_set_enumerate( config->roots);
+   while( obj = mulle_setenumerator_next( &rover))
+      mulle_objc_object_release( obj);
+   mulle_setenumerator_done( &rover);
+}
 
 # pragma mark -
 # pragma mark AutoreleasePool
 
+extern void   MulleObjCAutoreleasePoolConfigurationUnsetThread( void);
+
 static void   runtime_dies( struct _mulle_objc_runtime *runtime, void *data)
 {
-   struct        _MulleObjCRoots   *roots;
-   extern void   _NSAutoreleasePoolConfigurationUnsetThread( void);
-
-   _mulle_objc_runtime_get_foundationspace( runtime, (void **) &roots, NULL);
-   if( data != roots)
+   struct _ns_rootconfiguration   *config;
+   
+   _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+   
+   mulle_set_free( config->roots);
+   if( data != config)
       free( data);
-}
-
-
-static void   release_object( struct mulle_container_keycallback *callback, void *p)
-{
-   _mulle_objc_object_release( p);
 }
 
 
@@ -66,7 +86,7 @@ static struct mulle_container_keycallback   default_root_object_callback =
    (void *) mulle_container_callback_pointer_hash,
    (void *) mulle_container_callback_pointer_is_equal,
    (void *) mulle_container_callback_self,
-   release_object,
+   (void *) mulle_container_callback_nop,
    describe_object,
    NULL,
    NULL,
@@ -74,34 +94,33 @@ static struct mulle_container_keycallback   default_root_object_callback =
 };
 
 
-
 static void   nop( struct _mulle_objc_runtime *runtime, void *friend,  struct mulle_objc_loadversion *info)
 {
 }
-
 
 
 /*
  * This function sets up a Foundation on a per thread
  * basis.
  */
+extern struct _mulle_objc_method    NSObject_msgForward_method;
+extern void                         MulleObjCDeterminePageSize( void);
+
 struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runtime,
                                                 struct _ns_root_setupconfig *config)
 {
-   size_t                              size;
-   struct _ns_rootconfiguration        *roots;
-   struct _mulle_objc_foundation       us;
-   struct mulle_container_keycallback  root_object_callback;
-   extern struct mulle_allocator       mulle_allocator_objc;
-   extern void                         _NSDeterminePageSize( void);
-   extern struct _mulle_objc_method    NSObject_msgForward_method;
+   size_t                               size;
+   struct _mulle_objc_foundation        us;
+   struct _ns_rootconfiguration         *roots;
+   struct mulle_container_keycallback   root_object_callback;
 
-   _NSDeterminePageSize();
+   MulleObjCDeterminePageSize();
 
-   __mulle_objc_runtime_setup( runtime);
+   __mulle_objc_runtime_setup( runtime, config->allocator_p);
+   
    runtime->classdefaults.inheritance    = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
    runtime->classdefaults.forwardmethod  = config->forward;
-   runtime->exceptions.uncaughtexception = config->uncaughtexception;
+   runtime->exceptions.uncaughtexception = (void *) config->uncaughtexception;
    
    _mulle_objc_runtime_get_foundationspace( runtime, (void **) &roots, &size);
    if( size < sizeof( struct _ns_rootconfiguration))
@@ -118,14 +137,15 @@ struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runt
    roots->runtime = runtime;
    
    /* the callback is copied anyway, but the allocator needs to be stored
-      in the config 
+      in the config. It's OK to have a different allocator for Foundation
+      then for the runtime. The roots->allocator is used to create instances.
     */
    
-   roots->allocator     = mulle_allocator_objc;
-   root_object_callback = default_root_object_callback;
+   roots->allocator               = *config->allocator_p;
+   root_object_callback           = default_root_object_callback;
    root_object_callback.allocator = &roots->allocator;
    
-   roots->roots   = mulle_set_create( 32, &root_object_callback);
+   roots->roots = mulle_set_create( 32, &root_object_callback);
    _mulle_objc_runtime_set_foundation( runtime, &us);
    
    return( roots);
@@ -149,7 +169,7 @@ void   _ns_root_setup( struct _mulle_objc_runtime *runtime,
    // this will be done in [NSThread load]
    //
    // thread = [NSThread new];
-   // [thread makeRuntimeThread];
+   // [thread instantiateRuntimeThread];
 }
 
 

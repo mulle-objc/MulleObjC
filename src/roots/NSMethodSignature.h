@@ -16,20 +16,20 @@
 
 typedef enum
 {
-   _NSMetaABITypeVoid           = 0,
-   _NSMetaABITypeVoidPointer    = 1,
-   _NSMetaABITypeParameterBlock = 2
-} _NSMetaABIType;
+   MulleObjCMetaABITypeVoid           = 0,
+   MulleObjCMetaABITypeVoidPointer    = 1,
+   MulleObjCMetaABITypeParameterBlock = 2
+} MulleObjCMetaABIType;
 
 
-typedef struct mulle_objc_typeinfo    _NSMethodSignatureTypeinfo;
+typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
 
 
 @interface NSMethodSignature : NSObject 
 {
-   char                         *_types;
-   uint32_t                     _count;
-   _NSMethodSignatureTypeinfo   *_infos;
+   char                               *_types;
+   uint32_t                            _count;
+   MulleObjCMethodSignatureTypeinfo   *_infos;
 }
 
 + (NSMethodSignature *) signatureWithObjCTypes:(char *) types;
@@ -46,8 +46,8 @@ typedef struct mulle_objc_typeinfo    _NSMethodSignatureTypeinfo;
 
 // mulle additions
 
-- (_NSMetaABIType) methodMetaABIReturnType;
-- (_NSMetaABIType) methodMetaABIParameterType;
+- (MulleObjCMetaABIType) methodMetaABIReturnType;
+- (MulleObjCMetaABIType) methodMetaABIParameterType;
 
 @end
 

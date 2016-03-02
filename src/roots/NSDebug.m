@@ -51,7 +51,7 @@ char   *_NSPrintForDebugger( id a)
    m   = 0;
    cls = _mulle_objc_object_get_isa( a);
    
-   imp = (IMP) _mulle_objc_object_get_or_lookup_implementation_no_forward( a, @selector( debugMallocedCString));
+   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( a, @selector( debugMallocedCString));
    if( imp)
    {
       s = (*imp)( a, @selector( debugMallocedCString), NULL);
@@ -64,20 +64,20 @@ char   *_NSPrintForDebugger( id a)
 
 
 
-@interface _NSZombie
+@interface _MulleObjCZombie
 {
 }
 @end
 
 
-@implementation _NSZombie
+@implementation _MulleObjCZombie
 
 static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was sent a \"%s\" message\n";
 
 + (void) initialize
 {
 #if DEBUG_INITIALIZE
-   printf( "+[%s initialize] handled by %s\n", _NSObjCGetClassName( self), __PRETTY_FUNCTION__);
+   printf( "+[%s initialize] handled by %s\n", _mulle_objc_class_get_name( self), __PRETTY_FUNCTION__);
 #endif
 }
 
@@ -95,7 +95,7 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
    // possibly bullshit ;)
    isMeta = _mulle_objc_class_is_metaclass( _mulle_objc_object_get_isa( self));
    
-   fprintf( stderr, zombie_format, self, isMeta ? "meta" : "", [self _originalClassName], "_NSObjCGetSelectorName( sel)");
+   fprintf( stderr, zombie_format, self, isMeta ? "meta" : "", [self _originalClassName], mulle_objc_search_debughashname( sel));
    abort();
 }
 
@@ -109,11 +109,11 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 @end
 
 
-#define _NS_LARGE_ZOMBIE_CLASSID  MULLE_OBJC_CLASSID( 0x10fc739ffc89f239)
-#define _NS_ZOMBIE_CLASSID        MULLE_OBJC_CLASSID( 0xdb94f0a3bb1d8018)
+#define MULLE_ZOMBIE_HASH                  0x20b28e0bb0a4ff96  // _MulleObjCZombie
+#define MULLE_OBJC_LARGE_ZOMBIE_HASH       0xb97c4959d4664927  // _MulleObjCLargeZombie
 
 
-@interface _NSLargeZombie : _NSZombie
+@interface _MulleObjCLargeZombie : _MulleObjCZombie
 {
    Class   _originalClass;
 }
@@ -121,7 +121,7 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 
 
 
-@implementation _NSLargeZombie
+@implementation _MulleObjCLargeZombie
 
 - (char *) _originalClassName
 {
@@ -131,13 +131,13 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
    
 static void   zombifyLargeObject( id obj)
 {
-   _NSLargeZombie   *zombie;
+   _MulleObjCLargeZombie   *zombie;
    Class            cls;
    
    zombie = obj;
    zombie->_originalClass = _mulle_objc_object_get_isa( obj);
 
-   cls = mulle_objc_unfailing_lookup_class( _NS_LARGE_ZOMBIE_CLASSID);
+   cls = mulle_objc_unfailing_lookup_class( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
    _mulle_objc_object_set_isa( obj, cls);
 }
 
@@ -146,11 +146,12 @@ static void   zombifyLargeObject( id obj)
 
 static void   zombifyObject( id obj)
 {
-   mulle_objc_classid_t       classid;
-   static char                 buf[ 1024];
-   struct _mulle_objc_class    *cls;
-   struct _mulle_objc_class    *super_class;
-   struct _mulle_objc_runtime  *runtime;
+   mulle_objc_classid_t           classid;
+   static char                    buf[ 1024];
+   struct _mulle_objc_classpair   *pair;
+   struct _mulle_objc_class       *cls;
+   struct _mulle_objc_class       *super_class;
+   struct _mulle_objc_runtime     *runtime;
    
    if( ! obj)
       return;
@@ -158,16 +159,18 @@ static void   zombifyObject( id obj)
    cls     = _mulle_objc_object_get_isa( obj);
    runtime = _mulle_objc_class_get_runtime( cls);
    
-   sprintf( buf, "_NSZombieOf%.1000s", _mulle_objc_class_get_name( cls));
+   sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_class_get_name( cls));
    
    classid = mulle_objc_classid_from_string( buf);
    cls      = _mulle_objc_runtime_lookup_class( runtime, classid);
    
    if( ! cls)
    {
-      super_class = _mulle_objc_runtime_lookup_class( runtime, _NS_ZOMBIE_CLASSID);
+      super_class = _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
       
-      cls = mulle_objc_unfailing_new_class_pair( classid, buf, sizeof( id), super_class);
+      pair = mulle_objc_unfailing_new_classpair( classid, buf, sizeof( id), super_class);
+      cls  = mulle_objc_classpair_get_class( pair);
+      
       mulle_objc_class_unfailing_add_methodlist( cls, NULL);
       mulle_objc_class_unfailing_add_methodlist( _mulle_objc_class_get_metaclass( cls), NULL);
       mulle_objc_runtime_add_class( runtime, cls);
@@ -176,14 +179,14 @@ static void   zombifyObject( id obj)
 }
 
 
-void   NSZombifyObject( id obj)
+void   MulleObjCZombifyObject( id obj)
 {
    struct _mulle_objc_class    *cls;
    size_t                      size;
    
    cls  = _mulle_objc_object_get_isa( obj);
    size = _mulle_objc_class_get_instance_size( cls);
-   if( size >= sizeof( Class)) // sizeof( _NSLargeZombie)
+   if( size >= sizeof( Class)) // sizeof( _MulleObjCLargeZombie)
    {
       zombifyLargeObject( obj);
       return;

@@ -24,7 +24,18 @@
 
 + (void) exit;
 
-- (NSThread *) makeRuntimeThread;
-+ (NSThread *) makeRuntimeThread;
+
+
+// mulle additons
+
++ (BOOL) isMultiThreaded;
+
+
+// don't call these methods
++ (NSThread *) _instantiateRuntimeThread;
+
+
+void  MulleObjCThreadBecomeRuntimeThread( NSThread *self);
+void  MulleObjCThreadDeallocRuntimeThread( NSThread *self);
 
 @end

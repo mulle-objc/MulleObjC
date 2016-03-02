@@ -8,15 +8,19 @@
 
 #include "NSAllocation.h"
 
-int   _NSObjectZeroProperty( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self);
+int   MulleObjCObjectZeroProperty( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self);
 
-int   _NSObjectZeroProperty( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self)
+int   MulleObjCObjectZeroProperty( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self)
 {
-   switch( *_mulle_objc_property_get_signature( property))
+   char   *signature;
+   
+   signature = _mulle_objc_property_get_signature( property);
+   switch( *signature)
    {
    case _C_COPY_ID   :
    case _C_RETAIN_ID :
-      mulle_objc_object_call_no_fastmethod( self, property->setter, nil);
+      if( property->setter)
+         mulle_objc_object_call_no_fastmethod( self, property->setter, nil);
    }
    return( 0);
 }
@@ -25,7 +29,7 @@ int   _NSObjectZeroProperty( struct _mulle_objc_property *property, struct _mull
 id   NSAllocateObject( Class meta, NSUInteger extra, NSZone *zone)
 {
    if( meta)
-      return( _NSAllocateObject( meta, 0, NULL));
+      return( _MulleObjCAllocateObject( meta, 0, NULL));
    abort(); // TODO: raise exception
    return( nil);
 }
@@ -34,11 +38,12 @@ id   NSAllocateObject( Class meta, NSUInteger extra, NSZone *zone)
 void   NSFinalizeObject( id self)
 {
    if( self)
-      _NSFinalizeObject( self);
+      _MulleObjCFinalizeObject( self);
 }
+
 
 void   NSDeallocateObject( id self)
 {
    if( self)
-      _NSDeallocateObject( self);
+      _MulleObjCDeallocateObject( self);
 }

@@ -13,7 +13,7 @@
  */
 @interface NSMethodSignature( _Private) 
 
-- (_NSMethodSignatureTypeinfo *) _runtimeTypeInfoAtIndex:(NSUInteger) i;
+- (MulleObjCMethodSignatureTypeinfo *) _runtimeTypeInfoAtIndex:(NSUInteger) i;
 - (char *) _objCTypes;
 - (id) initWithObjCTypes:(char *) types;
 

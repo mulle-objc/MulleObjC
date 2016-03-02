@@ -21,6 +21,20 @@
 #import "NSInvocation.h"
 
 
+@interface NSObject ( NSCopying)
+
+- (instancetype) copy;
+
+@end
+
+
+@interface NSObject ( NSMutableCopying)
+
+- (instancetype) mutableCopy;
+
+@end
+
+
 @implementation NSObject
 
 + (void) initialize
@@ -35,31 +49,25 @@
 
 + (nonnull instancetype) alloc
 {
-   return( _NSAllocateObject( self, 0, NULL));
+   return( _MulleObjCAllocateObject( self, 0, NULL));
 }
 
 
 + (nonnull instancetype) allocWithZone:(NSZone *) zone
 {
-   return( _NSAllocateObject( self, 0, NULL));
-}
-
-
-+ (nonnull instancetype) instantiate
-{
-   return( _NSAutoreleaseObject( _NSAllocateObject( self, 0, NULL)));
+   return( _MulleObjCAllocateObject( self, 0, NULL));
 }
 
 
 - (void) finalize
 {
-   _NSFinalizeObject( self);
+   _MulleObjCFinalizeObject( self);
 }
 
 
 - (void) dealloc
 {
-   _NSDeallocateObject( self);
+   _MulleObjCDeallocateObject( self);
 }
 
 
@@ -67,7 +75,7 @@
 {
    id   p;
    
-   p = _NSAllocateObject( self, 0, NULL);
+   p = _MulleObjCAllocateObject( self, 0, NULL);
    return( [p init]);
 }
    
@@ -99,13 +107,132 @@
 
 - (nonnull instancetype) autorelease
 {
-   return( (id) _NSAutoreleaseObject( self));
+   _MulleObjCAutoreleaseObject( self);
+   return( self);
 }
 
 
 - (NSUInteger) retainCount
 {
    return( (NSUInteger) _mulle_objc_object_get_retaincount( self));
+}
+
+
+#pragma mark -
+#pragma mark AAO methods
+
+//
++ (nonnull instancetype) instantiate
+{
+   id   obj;
+   
+   obj = _MulleObjCAllocateObject( self, 0, NULL);
+   _MulleObjCAutoreleaseObject( obj);
+   return( obj);
+}
+
+
+- (nonnull instancetype) immutableInstance
+{
+   id   obj;
+   
+   obj = [self copy];
+   NSAutoreleaseObject( obj);
+   return( obj);
+}
+
+
+- (nonnull instancetype) mutableInstance
+{
+   id   obj;
+   
+   obj = [self mutableCopy];
+   NSAutoreleaseObject( obj);
+   return( obj);
+}
+
+
+- (NSUInteger) getRootObjects:(id *) buf
+                       length:(NSUInteger) length
+{
+   struct _ns_rootconfiguration   *config;
+   struct _mulle_objc_runtime     *runtime;
+   NSUInteger                     count;
+   struct mulle_setenumerator     rover;
+   id                             obj;
+   id                             *sentinel;
+   
+   runtime = mulle_objc_inlined_get_runtime();
+   
+   _mulle_objc_runtime_lock( runtime);
+   {
+      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+
+      count    = mulle_set_count( config->roots);
+      sentinel = &buf[ count < length ? count : length];
+      
+      rover = mulle_set_enumerate( config->roots);
+      while( buf < sentinel)
+      {
+         obj = mulle_setenumerator_next( &rover);
+         assert( obj);
+         *buf++ = obj;
+      }
+      mulle_setenumerator_done( &rover);
+   }
+   _mulle_objc_runtime_unlock( runtime);
+   
+   return( count);
+}
+
+
+- (void) becomeRootObject
+{
+   // get foundation add to roots
+   struct _ns_rootconfiguration   *config;
+   struct _mulle_objc_runtime     *runtime;
+   
+   runtime = mulle_objc_inlined_get_runtime();
+   
+   _mulle_objc_runtime_lock( runtime);
+   {
+      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _ns_rootconfiguration_add_root( config, self);
+   }
+   _mulle_objc_runtime_unlock( runtime);
+}
+
+
++ (void) releaseAllRootObjects
+{
+   // get foundation add to roots
+   struct _ns_rootconfiguration   *config;
+   struct _mulle_objc_runtime     *runtime;
+   
+   runtime = mulle_objc_inlined_get_runtime();
+   
+   _mulle_objc_runtime_lock( runtime);
+   {
+      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _ns_rootconfiguration_release_roots( config);
+   }
+   _mulle_objc_runtime_unlock( runtime);
+}
+
+
+- (void) pushToParentAutoreleasePool
+{
+   NSAutoreleasePool   *pool;
+   
+   pool = [NSAutoreleasePool parentAutoreleasePool];
+   if( pool)
+   {
+      [self retain];
+      [pool addObject:self];
+      return;
+   }
+   
+   [self becomeRootObject];
 }
 
 
@@ -167,6 +294,9 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
+//
+// +class loops around to - class
+//
 - (nonnull Class) class
 {
    struct _mulle_objc_class  *cls;
@@ -176,7 +306,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-- (instancetype) self
+- (nonnull instancetype) self
 {
    return( self);
 }
@@ -274,12 +404,8 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    IMP     imp;
    
    cls = _mulle_objc_object_get_isa( self);
-   imp = (IMP) _mulle_objc_class_get_cached_methodimplementation( cls, sel);
-   if( imp)
-      return( YES);
-   if( mulle_objc_class_lookup_method( cls, sel))
-      return( YES);
-   return( NO);
+   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, sel);
+   return( imp ? YES : NO);
 }
 
 
@@ -293,17 +419,14 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 {
    IMP   imp;
    
-   imp = (IMP) _mulle_objc_class_get_cached_methodimplementation( self, sel);
-   if( imp)
-      return( YES);
-   if( mulle_objc_class_lookup_method( self, sel))
-      return( YES);
-   return( NO);
+   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( self, sel);
+   return( imp ? YES : NO);
 }
 
 
 + (IMP) instanceMethodForSelector:(SEL) sel
 {
+   // don't cache the forward entry yet
    return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( self, sel));
 }
 
@@ -395,7 +518,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    struct _mulle_objc_method   *method;
    
    cls    = _mulle_objc_object_get_isa( self);
-   method = _mulle_objc_class_lookup_method( cls, sel, _mulle_objc_class_get_inheritance( cls));
+   method = _mulle_objc_class_search_method( cls, sel, _mulle_objc_class_get_inheritance( cls));
    if( ! method)
       return( nil);
    
@@ -431,14 +554,14 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    
    switch( [signature methodMetaABIReturnType])
    {
-   case _NSMetaABITypeVoid :
+   case MulleObjCMetaABITypeVoid :
       return( NULL);
       
-   case _NSMetaABITypeVoidPointer :
+   case MulleObjCMetaABITypeVoidPointer :
       [invocation getReturnValue:&rval];
       return( rval);
          
-   case _NSMetaABITypeParameterBlock :
+   case MulleObjCMetaABITypeParameterBlock :
       [invocation getReturnValue:_param];
       return( _param);
    }

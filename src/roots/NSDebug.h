@@ -18,7 +18,7 @@
 
 
 char   *_NSPrintForDebugger( id a);
-void   NSZombifyObject( id obj);
+void   MulleObjCZombifyObject( id obj);
 
 //
 // move all DEBUG stuff out into a "mulleDebug.dylib" we can dynamically

@@ -53,4 +53,6 @@ main()
 
    print_bool( [bar isKindOfClass:foo]);
 
+   [bar release];
+   [foo release];
 }
