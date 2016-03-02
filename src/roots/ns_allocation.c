@@ -17,14 +17,13 @@
 #include <unistd.h>
 
 
-
 # pragma mark -
 # pragma mark Allocations
 
 size_t         _ns_page_size;
 unsigned int   _ns_log_page_size;
 
-char  *_NSDuplicateCString( char *s)
+char  *MulleObjCDuplicateCString( char *s)
 {
    char     *dup;
    size_t   size;
@@ -33,14 +32,14 @@ char  *_NSDuplicateCString( char *s)
       return( s);
       
    size = strlen( s) + 1;
-   dup  = _NSAllocateMemory( size);
+   dup  = MulleObjCAllocateMemory( size);
    memcpy( dup, s, size);
    return( dup);
 }
 
 
-void  _NSDeterminePageSize( void);
-void  _NSDeterminePageSize( void)
+void  MulleObjCDeterminePageSize( void);
+void  MulleObjCDeterminePageSize( void)
 {
    size_t   size;
    
@@ -62,7 +61,7 @@ void   *NSAllocateMemoryPages( NSUInteger size)
    size = NSRoundUpToMultipleOfPageSize( size);
 
    // make sure memory is page aligned ...
-   p = _NSAllocateMemory( size);
+   p = MulleObjCAllocateMemory( size);
    assert( ! (uintptr_t) p & (NSPageSize() - 1));
    return( p);
 }
@@ -70,7 +69,7 @@ void   *NSAllocateMemoryPages( NSUInteger size)
 
 void   NSDeallocateMemoryPages( void *ptr, NSUInteger size)
 {
-   return( _NSDeallocateMemory( ptr));
+   return( MulleObjCDeallocateMemory( ptr));
 }
 
 

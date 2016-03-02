@@ -286,14 +286,21 @@ fail_test()
       "${MULLE_OBJC}" \
       "${m_source}" > "$errput" 2>&1
 
-   echo "DYLD_FALLBACK_LIBRARY_PATH=\"${DYLD_FALLBACK_LIBRARY_PATH}\" \
+   echo "MULLE_OBJC_TEST_ALLOCATOR=YES \
+MULLE_TEST_ALLOCATOR_TRACE=2 \
+MallocStackLogging=1 \
+MallocStackLoggingNoCompact=1 \
+MallocScribble=1 \
+MallocPreScribble=1 \
+MallocGuardEdges=1 \
+MallocCheckHeapEach=1 \
+DYLD_FALLBACK_LIBRARY_PATH=\"${DYLD_FALLBACK_LIBRARY_PATH}\" \
 LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}\" lldb ${a_out}" >&2
    if [ "${stdin}" != "/dev/null" ]
    then
       echo "run < ${stdin}" >&2
    fi
    exit 1
-
 }
 
 
@@ -380,6 +387,15 @@ run()
       fi
    fi
 
+   MULLE_OBJC_TEST_ALLOCATOR=YES \
+   MULLE_TEST_ALLOCATOR_TRACE=2 \
+MallocStackLogging=1 \
+MallocStackLoggingNoCompact=1 \
+MallocScribble=1 \
+MallocPreScribble=1 \
+MallocGuardEdges=1 \
+MallocCheckHeapEach=1 \
+\
    "${a_out}" < "$stdin" > "$output" 2> "$errput"
    rval=$?
 

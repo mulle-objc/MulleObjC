@@ -23,7 +23,7 @@
 // these are just here for compatibilty, they pretty much vanish due to
 // inlining
 
-typedef struct _NSZone 
+typedef struct  
 {
 } NSZone;
 
@@ -61,25 +61,25 @@ static inline NSZone   *NSZoneFromPointer( void *p)
 //
 static inline void   *NSZoneMalloc( NSZone *zone, NSUInteger size)
 {
-   return( _NSAllocateNonZeroedMemory( size));
+   return( MulleObjCAllocateNonZeroedMemory( size));
 }
 
 
 static inline void   *NSZoneCalloc( NSZone *zone, NSUInteger numElems, NSUInteger byteSize)
 {
-   return( _NSAllocateMemory( numElems * byteSize));
+   return( MulleObjCAllocateMemory( numElems * byteSize));
 }
 
 
 static inline void   *NSZoneRealloc( NSZone *zone, void *p, NSUInteger size)
 {
-   return( _NSReallocateNonZeroedMemory( p, size));
+   return( MulleObjCReallocateNonZeroedMemory( p, size));
 }
 
 
 static inline void   NSZoneFree( NSZone *zone, void *p)
 {
-   _NSDeallocateMemory( p);
+   MulleObjCDeallocateMemory( p);
 }
 
 #endif

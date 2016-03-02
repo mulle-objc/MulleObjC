@@ -27,10 +27,10 @@
 // the runtime will replace any [foo alloc] call
 // with a C function
 //
-- (NSZone *) zone;  // always NULL
-- (instancetype) retain;
+- (NSZone *) zone   __attribute__((deprecated("zones have no meaning and will eventually disappear")));  // always NULL
+- (nonnull instancetype) retain;
 - (void) release;
-- (instancetype) autorelease;
+- (nonnull instancetype) autorelease;
 - (NSUInteger) retainCount;
 
 // regular methods
@@ -41,7 +41,7 @@
 //
 + (instancetype) new;
 + (nonnull instancetype) alloc;
-+ (nonnull instancetype) allocWithZone:(NSZone *) zone;   // deprecated
++ (nonnull instancetype) allocWithZone:(NSZone *) zone  __attribute__((deprecated("zones have no meaning and will eventually disappear")));   // deprecated
 
 //
 // if you subclass NSObject and override init, don't bother calling [super init]
@@ -53,8 +53,8 @@
 - (BOOL) isEqual:(id) other;
 
 - (Class) superclass;
-- (Class) class;
-- (instancetype) self;
+- (nonnull Class) class;
+- (nonnull instancetype) self;
 - (BOOL) isKindOfClass:(Class) cls;
 - (BOOL) isMemberOfClass:(Class) cls;
 
@@ -80,7 +80,16 @@
 
 #pragma mark mulle additions
 
-+ (nonnull instancetype) instantiate;  // alloc + autorelease
+// AAO suport
++ (nonnull instancetype) instantiate;        // alloc + autorelease
+- (nonnull instancetype) immutableInstance;  // copy + autorelease
+
+// advanced Autorelease and ObjectGraph support
+- (void) becomeRootObject;
+- (void) pushToParentAutoreleasePool;
+
+// not part of NSObject protocol
++ (void) releaseAllRootObjects;
 
 /* 
    Returns all objects, retained by this instance.
@@ -97,22 +106,23 @@
 
 
 //
-// this is can be useful for creating placeholder objects
+// this can be useful for creating placeholder objects
+// TODO: make this a runtime struct like classpair
 //
-struct _NSObject
+struct MulleObjCObjectWithHeader
 {
    struct _mulle_objc_objectheader   header;
-   struct _mulle_objc_object         nsObject;
+   struct _mulle_objc_object         object;
 };
 
 
-static inline void   *NSObjectFrom_NSObject( struct _NSObject *p)
+static inline void   *MulleObjCObjectWithHeaderGetObject( struct MulleObjCObjectWithHeader *p)
 {
-   return( _mulle_objc_objectheader_get_object( &p->header));
+   return( &p->object);
 }
 
 
-static inline void   *_NSObjectFromNSObject( NSObject *p)
+static inline void   *MulleObjCObjectGetObjectWithHeaderFromObject( id p)
 {
    return( (void *)  _mulle_objc_object_get_objectheader( p));
 }

@@ -1,7 +1,7 @@
 /*
  *  MulleFoundation - A tiny Foundation replacement
  *
- *  _NSException.h is a part of MulleFoundation
+ *  MulleObjCException.h is a part of MulleFoundation
  *
  *  Copyright (C) 2011 Nat!, Mulle kybernetiK.
  *  All rights reserved.
@@ -14,26 +14,26 @@
 #ifndef _ns_exception__h__
 #define _ns_exception__h__
 
-typedef void   _NSExceptionHandler( void *, va_list);
+typedef void   MulleObjCExceptionHandler( void *, va_list);
 
 
 enum
 {
-   _NSExceptionAllocationErrorHandlerIndex = 0,
-   _NSExceptionInternalInconsistencyHandlerIndex,
-   _NSExceptionInvalidArgumentHandlerIndex,
-   _NSExceptionErrnoHandlerIndex,
-   _NSExceptionInvalidIndexHandlerIndex,
-   _NSExceptionRangeHandlerIndex,
-   _NSExceptionMathHandlerIndex,
-   _NSExceptionCharacterConversionHandlerIndex,
-   _NSExceptionHandlerTableSize
+   MulleObjCExceptionAllocationErrorHandlerIndex = 0,
+   MulleObjCExceptionInternalInconsistencyHandlerIndex,
+   MulleObjCExceptionInvalidArgumentHandlerIndex,
+   MulleObjCExceptionErrnoHandlerIndex,
+   MulleObjCExceptionInvalidIndexHandlerIndex,
+   MulleObjCExceptionRangeHandlerIndex,
+   MulleObjCExceptionMathHandlerIndex,
+   MulleObjCExceptionCharacterConversionHandlerIndex,
+   MulleObjCExceptionHandlerTableSize
 };
 
 
 struct _ns_exceptionhandlertable 
 {
-   _NSExceptionHandler   *handlers[ _NSExceptionHandlerTableSize];
+   MulleObjCExceptionHandler   *handlers[ MulleObjCExceptionHandlerTableSize];
 };
 
 #endif

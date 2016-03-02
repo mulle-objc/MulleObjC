@@ -31,6 +31,10 @@
 
 main()
 {
+   Foo  *foo;
+
    [Foo class];
-   [[Foo new] class];
+   foo = [Foo new];
+   [foo class];
+   [foo release];
 }

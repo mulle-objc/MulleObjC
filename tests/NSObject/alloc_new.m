@@ -1,6 +1,6 @@
 #ifndef __MULLE_RUNTIME__
 # import <Foundation/Foundation.h>
-# pragma message "this test does not work with Apple Foundation, as +new calls +alloc, and properties are not released"
+# pragma message "this test does not work with Apple Foundation"
 #else
 # import <MulleStandaloneObjC/MulleStandaloneObjC.h>
 #endif
@@ -67,9 +67,9 @@ main()
 
    @autoreleasepool
    {
-      foo = [Foo new];
+      foo = [[Foo new] autorelease];
       printf( "%d\n", n_instances);
-      other = [Foo new];
+      other = [[Foo new] autorelease];
       printf( "%d\n", n_instances);
       [foo setOther:other];
       [other release];

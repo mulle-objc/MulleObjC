@@ -15,6 +15,12 @@
 {
    return( _mulle_objc_class_unfailing_alloc_instance( self, calloc));
 }
+
+- (void) dealloc
+{
+   _mulle_objc_object_free( self, free);
+}
+
 @end
 
 
@@ -31,5 +37,7 @@ main()
    print_bool( [NSProxy isProxy]);
 
    print_bool( [Foo isProxy]);
-   print_bool( [[Foo new] isProxy]);
+   foo = [Foo new];
+   print_bool( [foo isProxy]);
+   [foo release];
 }

@@ -28,7 +28,7 @@
       return( nil);
    }
 
-   _types = _NSDuplicateCString( types);
+   _types = MulleObjCDuplicateCString( types);
    return( self);
 }
 
@@ -36,29 +36,23 @@
 //
 // do _infos lazily, as they use a bit of memory
 //
-static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
+static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 {
-   char                        *types;
-   uintptr_t                   offset;
-   _NSMethodSignatureTypeinfo  *p;
-   _NSMethodSignatureTypeinfo  *sentinel;
+   char                              *types;
+   MulleObjCMethodSignatureTypeinfo  *p;
+   MulleObjCMethodSignatureTypeinfo  *sentinel;
    
    assert( self->_count);
    if( self->_infos)
       return( self->_infos);
 
-   self->_infos = _NSAllocateMemory( self->_count * sizeof( _NSMethodSignatureTypeinfo));
+   self->_infos = MulleObjCAllocateMemory( self->_count * sizeof( MulleObjCMethodSignatureTypeinfo));
    
-   //
-   // the offsets are kind of wrong, depending on call convention, as the
-   // return value may share the space of the first parameter. But doing
-   // it differently may be too surprising.
-   //
-   offset   = 0;
    p        = &self->_infos[ 0];
    sentinel = &p[ self->_count];
    
    types = self->_types;
+   
    while( types = mulle_objc_signature_supply_next_typeinfo( types, p))
    {
       assert( p < sentinel);
@@ -72,8 +66,8 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 
 - (void) dealloc
 {
-   _NSDeallocateMemory( _types);
-   _NSDeallocateMemory( _infos);
+   MulleObjCDeallocateMemory( _types);
+   MulleObjCDeallocateMemory( _infos);
 
    NSDeallocateObject( self);
 }
@@ -91,7 +85,7 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    hash = 5381;
    s    = (unsigned char *) _types;
    
-   while( c = *_types++)
+   while( c = *s++)
       hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
    
    return( hash);
@@ -142,7 +136,7 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 
 
 // internal usage!
-- (_NSMethodSignatureTypeinfo *) _runtimeTypeInfoAtIndex:(NSUInteger) i
+- (MulleObjCMethodSignatureTypeinfo *) _runtimeTypeInfoAtIndex:(NSUInteger) i
 {
    if( i >= _count + 1)
       __NSThrowInvalidIndexException( i);
@@ -172,7 +166,7 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 
 - (NSUInteger) frameLength
 {
-   _NSMethodSignatureTypeinfo  *info;
+   MulleObjCMethodSignatureTypeinfo  *info;
    size_t                      voidptr5;
    size_t                      overflow;
    size_t                      len;
@@ -190,16 +184,16 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 
 - (NSUInteger) methodReturnLength
 {
-   _NSMethodSignatureTypeinfo  *info;
+   MulleObjCMethodSignatureTypeinfo  *info;
    
    info = &get_infos( self)[ 0];
    return( info->natural_size);
 }
 
 
-- (_NSMetaABIType) methodMetaABIReturnType
+- (MulleObjCMetaABIType) methodMetaABIReturnType
 {
-   _NSMethodSignatureTypeinfo  *info;
+   MulleObjCMethodSignatureTypeinfo  *info;
    char                        *type;
 
    info = &get_infos( self)[ 0];
@@ -208,7 +202,7 @@ static _NSMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 }
 
 
-- (_NSMetaABIType) methodMetaABIParameterType
+- (MulleObjCMetaABIType) methodMetaABIParameterType
 {
    return( mulle_objc_signature_get_metaabiparamtype( _types));
 }

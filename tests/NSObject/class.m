@@ -54,4 +54,7 @@ main()
    print_bool( [bar class] != [NSObject class]);
    print_bool( [bar class] != [Foo class]);
    print_bool( [bar class] == [Bar class]);
+
+   [bar release];
+   [foo release];
 }

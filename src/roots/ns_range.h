@@ -17,7 +17,7 @@
 #include "ns_type.h"
 
 
-typedef struct   _NSRange 
+typedef struct
 {
    NSUInteger   location;
    NSUInteger   length;
@@ -60,7 +60,7 @@ extern NSRange    NSIntersectionRange( NSRange range1, NSRange range2);
 
 
 // mulle additon:
-static inline BOOL  _NSRangeContainsRange( NSRange big, NSRange small)
+static inline BOOL  MulleObjCRangeContainsRange( NSRange big, NSRange small)
 {
    if( ! small.length)
       return( NO);

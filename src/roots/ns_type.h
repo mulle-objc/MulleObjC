@@ -55,14 +55,12 @@ enum
 };
 
 
-enum _NSComparisonResult
+typedef enum
 {
    NSOrderedAscending = -1,
    NSOrderedSame,
    NSOrderedDescending
-};
-
-typedef NSInteger    NSComparisonResult;
+} NSComparisonResult;
 
 
 #define nil   ((id) 0)

@@ -72,14 +72,20 @@ extern void  *_objc_msgForward( id, SEL, ...);
 static void   testInstanceMethodForSelector( id self, SEL sel)
 {
    IMP   imp;
-
+   id    obj;
+   
    imp = [self instanceMethodForSelector:sel];
    if( _mulle_objc_class_is_forwardmethodimplementation( self, imp))
    {
       printf( "forward:\n");
       return;
    }
-   (*imp)( [self new], sel, NULL);
+
+   assert( imp);
+   
+   obj = [self new];
+   (*imp)( obj, sel, NULL);
+   [obj release];
 }
 
 
@@ -110,6 +116,8 @@ static void  test_instance( id self)
 
 static void  test_class( Class cls)
 {
+   id  obj;
+
    testInstanceMethodForSelector( cls, @selector( foo));
    testInstanceMethodForSelector( cls, @selector( bar));
    testInstanceMethodForSelector( cls, @selector( foobar));
@@ -118,7 +126,9 @@ static void  test_class( Class cls)
    testInstanceMethodForSelector( cls, @selector( ff));
 
    test_instance( (id) cls);
-   test_instance( [cls new]);
+   obj = [cls new];
+   test_instance( obj);
+   [obj release];
 }
 
 

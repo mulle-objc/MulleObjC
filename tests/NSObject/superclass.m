@@ -40,4 +40,7 @@ main()
    bar = [Bar new];
 
    print_bool( [bar superclass] == [Foo class]);
+
+   [bar release];
+   [foo release];
 }
