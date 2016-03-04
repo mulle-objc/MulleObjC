@@ -17,6 +17,14 @@
 #import "ns_zone.h"
 
 
+//
+// +load: mulle-objc-runtime guarantees, that the class and therefore the
+//        superclass too is available. Messaging other classes in the same
+//        shared library is wrong.
+//
+// +initialize: mulle-objc-runtime guarantees that +initialize is executed
+//              only once per meta-class object.
+//
 @interface NSObject < NSObject>
 {
 }
@@ -85,7 +93,9 @@
 - (nonnull instancetype) immutableInstance;  // copy + autorelease
 
 // advanced Autorelease and ObjectGraph support
-- (void) becomeRootObject;
+
+- (void) becomeRootObject;          // retains  #1#
+- (void) stepdownAsRootObject;      // autoreleases
 - (void) pushToParentAutoreleasePool;
 
 // not part of NSObject protocol
@@ -126,3 +136,10 @@ static inline void   *MulleObjCObjectGetObjectWithHeaderFromObject( id p)
 {
    return( (void *)  _mulle_objc_object_get_objectheader( p));
 }
+
+
+/*
+ * #1# whenever you call [self retain] or don't return an object autoreleased,
+ * chances are very high, this object is a root object (or could become one)
+ */
+

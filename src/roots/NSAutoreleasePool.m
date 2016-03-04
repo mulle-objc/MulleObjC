@@ -46,72 +46,70 @@
 
 @implementation NSAutoreleasePool
 
-static void                popAutoreleasePool( struct MulleObjCAutoreleasePoolConfiguration *config,
-                                               NSAutoreleasePool *pool);
-static NSAutoreleasePool   *pushAutoreleasePool( struct MulleObjCAutoreleasePoolConfiguration *config);
+static void   popAutoreleasePool( struct _ns_poolconfiguration *config,
+                                  id pool);
+static void   *pushAutoreleasePool( struct _ns_poolconfiguration *config);
 
-static void   _autoreleaseObject( struct MulleObjCAutoreleasePoolConfiguration *config, id p);
-static void   _autoreleaseObjects( struct MulleObjCAutoreleasePoolConfiguration *config,
+static void   _autoreleaseObject( struct _ns_poolconfiguration *config, id p);
+static void   _autoreleaseObjects( struct _ns_poolconfiguration *config,
                                    id *objects, NSUInteger count);
 
-mulle_thread_tss_t   MulleObjCAutoreleasePoolConfigurationKey;
-#if DEBUG
-static Class         __NSAutoreleasePoolClass;
-#endif
 
 
-
-void   MulleObjCAutoreleasePoolConfigurationSetThread( void)
+static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
 {
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
-   mulle_thread_tss_t    key;
-   
-   key    = NSAutoreleasePoolUnfailingGetOrCreateThreadKey();
-   
-   config = MulleObjCAllocateMemory( sizeof( struct MulleObjCAutoreleasePoolConfiguration));
-
    config->poolClass          = mulle_objc_unfailing_get_or_lookup_class( MULLE_OBJC_CLASSID( AUTORELEASEPOOL_HASH));
-#if DEBUG
-   __NSAutoreleasePoolClass   = config->poolClass;
-#endif
    config->autoreleaseObject  = _autoreleaseObject;
    config->autoreleaseObjects = _autoreleaseObjects;
    config->push               = pushAutoreleasePool;
    config->pop                = popAutoreleasePool;
    
-   mulle_thread_tss_set( key, config);
    (*config->push)( config);  // create a pool
 }
 
 
-void   MulleObjCAutoreleasePoolConfigurationUnsetThread( void)
+void   _ns_poolconfiguration_set_thread( void)
 {
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
+   __ns_poolconfiguration_set_thread( _ns_get_poolconfiguration());
+}
+
+
+//
+// if NSThread ran before, it can't have setup the main autoreleasepool yet
+// fix that...
+//
++ (void) load
+{
+   struct _ns_poolconfiguration          *config;
+   struct _mulle_objc_threadconfig       *threadconfig;
+   struct _ns_threadlocalconfiguration   *local;
    
-   config = MulleObjCAutoreleasePoolConfiguration();
+   threadconfig = mulle_objc_get_threadconfig();
+   if( ! threadconfig)
+      return;
+   
+   local  = _mulle_objc_threadconfig_get_foundationspace( threadconfig);
+   config = &local->poolconfig;
+   
+   __ns_poolconfiguration_set_thread( config);
+}
+
+
+void   _ns_poolconfiguration_unset_thread( void)
+{
+   struct _ns_poolconfiguration   *config;
+   
+   config = _ns_get_poolconfiguration();
+   assert( config);
    
    // remove all pools
    while( config->tail)
       (*config->pop)( config, config->tail);
-   MulleObjCDeallocateMemory( config);
 }
 
 
-static void  thread_dies( void *something)
-{
-}
 
-
-mulle_thread_tss_t   NSAutoreleasePoolUnfailingGetOrCreateThreadKey()
-{
-   if( ! MulleObjCAutoreleasePoolConfigurationKey)
-      if( mulle_thread_tss_create( &MulleObjCAutoreleasePoolConfigurationKey, thread_dies))
-         mulle_objc_raise_fail_errno_exception();
-   return( MulleObjCAutoreleasePoolConfigurationKey);
-}
-
-
-static inline struct _mulle_autoreleasepointerarray   *static_storage( struct MulleObjCAutoreleasePoolConfiguration *config,
+static inline struct _mulle_autoreleasepointerarray   *static_storage( struct _ns_poolconfiguration *config,
                                                 NSAutoreleasePool *pool)
 {
    size_t   size;
@@ -132,7 +130,7 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
    }   
 #if DEBUG   
    assert( p != nil);
-   assert( _mulle_objc_object_get_isa( p) != (struct _mulle_objc_class *) __NSAutoreleasePoolClass);
+   assert( _mulle_objc_object_get_isa( p) != _ns_get_autoreleasepoolclass());
    assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
 #endif
 
@@ -171,7 +169,7 @@ static inline void   addObjects( NSAutoreleasePool *self, id *objects, NSUIntege
       {
          p = objects[ i];
          assert( p != nil);
-         assert( _mulle_objc_object_get_isa( p) !=  (struct _mulle_objc_class *) __NSAutoreleasePoolClass);
+         assert( _mulle_objc_object_get_isa( p) !=_ns_get_autoreleasepoolclass());
          assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
       }
    }
@@ -207,20 +205,19 @@ static inline void   addObjects( NSAutoreleasePool *self, id *objects, NSUIntege
 
 + (NSAutoreleasePool *) defaultAutoreleasePool
 {
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
-   NSAutoreleasePool   *pool;
+   struct _ns_poolconfiguration   *config;
    
-   config = MulleObjCAutoreleasePoolConfiguration();
+   config = _ns_get_poolconfiguration();
    return( config->tail);
 }
 
 
 + (NSAutoreleasePool *) parentAutoreleasePool
 {
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
-   NSAutoreleasePool   *pool;
+   struct _ns_poolconfiguration   *config;
+   NSAutoreleasePool              *pool;
    
-   config = MulleObjCAutoreleasePoolConfiguration();
+   config = _ns_get_poolconfiguration();
    pool   = config->tail;
    if( pool)
       pool = pool->_owner;
@@ -234,7 +231,7 @@ static inline void   addObjects( NSAutoreleasePool *self, id *objects, NSUIntege
 }
 
 
-static void   _autoreleaseObject( struct MulleObjCAutoreleasePoolConfiguration *config, id p)
+static void   _autoreleaseObject( struct _ns_poolconfiguration *config, id p)
 {
    if( config->releasing)
    {
@@ -265,14 +262,14 @@ static void   _autoreleaseObject( struct MulleObjCAutoreleasePoolConfiguration *
 
 static inline void  autoreleaseObject( id p)
 {
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
+   struct _ns_poolconfiguration   *config;
    
-   config = MulleObjCAutoreleasePoolConfiguration();
+   config = _ns_get_poolconfiguration();
    _autoreleaseObject( config, p);
 }
 
 
-static void   _autoreleaseObjects( struct MulleObjCAutoreleasePoolConfiguration *config, id *objects, NSUInteger count)
+static void   _autoreleaseObjects( struct _ns_poolconfiguration *config, id *objects, NSUInteger count)
 {
    if( ! objects || ! count)
       return;
@@ -289,9 +286,9 @@ static void   _autoreleaseObjects( struct MulleObjCAutoreleasePoolConfiguration 
 
 static inline void   autoreleaseObjects( id *objects, NSUInteger count)
 {
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
+   struct _ns_poolconfiguration   *config;
    
-   config = MulleObjCAutoreleasePoolConfiguration();
+   config = _ns_get_poolconfiguration();
    _autoreleaseObjects( config, objects, count);
 }
 
@@ -322,7 +319,7 @@ static inline void   autoreleaseObjects( id *objects, NSUInteger count)
 }
 
 
-static NSAutoreleasePool  *pushAutoreleasePool( struct MulleObjCAutoreleasePoolConfiguration *config)
+static void   *pushAutoreleasePool( struct _ns_poolconfiguration *config)
 {
    NSAutoreleasePool                       *pool;
    struct _mulle_autoreleasepointerarray   *array;
@@ -347,11 +344,14 @@ static NSAutoreleasePool  *pushAutoreleasePool( struct MulleObjCAutoreleasePoolC
 }
 
 
-static void   popAutoreleasePool( struct MulleObjCAutoreleasePoolConfiguration *config, NSAutoreleasePool *aPool)
+static void   popAutoreleasePool( struct _ns_poolconfiguration *config, id aPool)
 {
    NSAutoreleasePool                       *pool;
 //   NSException         *exception;
    struct _mulle_autoreleasepointerarray   *storage;
+   
+   assert( config);
+   assert( aPool);
    
    pool = aPool;
    if( pool != config->tail)
@@ -391,20 +391,9 @@ static void   popAutoreleasePool( struct MulleObjCAutoreleasePoolConfiguration *
 static struct MulleObjCObjectWithHeader   placeholder;
 
 
-+ (void) load
-{
-   struct _mulle_objc_runtime   *runtime;
-   
-   runtime = __get_or_create_objc_runtime();
-   if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( THREAD_UNIQUEHASH)))
-      [NSThread _instantiateRuntimeThread];
-}
-
-
 + (void) initialize
 {
-   struct _mulle_objc_class     *cls;
-   struct _mulle_objc_runtime   *runtime;
+   struct _mulle_objc_class   *cls;
    
    cls = mulle_objc_unfailing_get_or_lookup_class( MULLE_OBJC_CLASSID( PLACEHOLDER_HASH));
    _mulle_objc_object_set_isa( MulleObjCObjectWithHeaderGetObject( &placeholder), cls);
@@ -443,10 +432,10 @@ static struct MulleObjCObjectWithHeader   placeholder;
 
 - (void) dealloc
 {
-   NSAutoreleasePool                              *pool;
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
+   NSAutoreleasePool              *pool;
+   struct _ns_poolconfiguration   *config;
    
-   config = MulleObjCAutoreleasePoolConfiguration();
+   config = _ns_get_poolconfiguration();
    
    while( pool = config->tail)
    {

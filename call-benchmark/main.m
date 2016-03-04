@@ -5,7 +5,7 @@
 //  Created by Nat! on 19/10/15.
 //  Copyright © 2015 Mulle kybernetiK. All rights reserved.
 //
-#ifndef __MULLE_RUNTIME__
+#ifndef __MULLE_OBJC_RUNTIME__
 # import <Foundation/Foundation.h>
 #else
 # import <MulleStandaloneObjC/MulleStandaloneObjC.h>
@@ -591,7 +591,7 @@ int   main( int argc, char  *argv[])
 #endif
    foo = [Foo new];
 
-#ifdef __MULLE_RUNTIME__
+#ifdef __MULLE_OBJC_RUNTIME__
    {
       struct _mulle_objc_cache  *cache;
 

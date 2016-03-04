@@ -50,7 +50,7 @@ struct _mulle_objc_method   NSObject_msgForward_method =
 
 static void  tear_down()
 {
-   NSThread  *thread;
+   NSThread   *thread;
    
    //
    // keep current thread around, which is a root
@@ -59,14 +59,20 @@ static void  tear_down()
    assert( ! [NSThread isMultiThreaded]);
 
    thread = [NSThread currentThread];
-   [thread retain];
+   [thread retain];  // as we are root, keep us around
    [NSObject releaseAllRootObjects];
-   [thread release];
+   
+   assert( _mulle_atomic_pointer_read( &mulle_objc_get_runtime()->retaincount_1) == 0);
+   NSThreadDeallocateRuntimeThread( thread);
+   
+   _mulle_stepdown_as_objc_runtime_thread();
+
+   // No Objective-C available anymore
    
    // TODO: check that all autoreleasepools are gone
-   
-   mulle_objc_release_runtime();
-   
+
+   // check that runtime will be really released
+
    if( getenv( "MULLE_OBJC_TEST_ALLOCATOR"))
       mulle_test_allocator_objc_reset();
 }

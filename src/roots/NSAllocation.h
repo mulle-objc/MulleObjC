@@ -23,7 +23,6 @@ __attribute__((returns_nonnull))
 static inline id    _MulleObjCAllocateObject( Class cls, NSUInteger extra, NSZone *zone)
 {
    struct _mulle_objc_objectheader   *header;
-   struct _mulle_objc_objectheader   *object;
    NSUInteger                        size;
    
    assert( ! _mulle_objc_class_is_metaclass( cls));

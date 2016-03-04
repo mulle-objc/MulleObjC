@@ -36,11 +36,19 @@ static void  init_ns_exceptionhandlertable ( struct _ns_exceptionhandlertable *t
 
 void   _ns_rootconfiguration_add_root( struct _ns_rootconfiguration *config, void *obj)
 {
-   assert( mulle_set_get( config->roots, obj) == NULL);
+   assert( mulle_set_get( config->object.roots, obj) == NULL);
    
-   mulle_objc_object_retain( obj);
-   mulle_set_put( config->roots, obj);
+   mulle_set_put( config->object.roots, obj);
 }
+
+
+void   _ns_rootconfiguration_remove_root( struct _ns_rootconfiguration *config, void *obj)
+{
+   assert( mulle_set_get( config->object.roots, obj) != NULL);
+   
+   mulle_set_remove( config->object.roots, obj);
+}
+
 
 
 void   _ns_rootconfiguration_release_roots( struct _ns_rootconfiguration *config)
@@ -51,11 +59,74 @@ void   _ns_rootconfiguration_release_roots( struct _ns_rootconfiguration *config
    /* remove all root objects: need to have an enclosing
     * autoreleasepool here
     */
-   rover = mulle_set_enumerate( config->roots);
+   rover = mulle_set_enumerate( config->object.roots);
    while( obj = mulle_setenumerator_next( &rover))
       mulle_objc_object_release( obj);
    mulle_setenumerator_done( &rover);
 }
+
+# pragma mark -
+# pragma mark root conveniences
+
+void  _ns_add_root( void *obj)
+{
+   // get foundation add to roots
+   struct _ns_rootconfiguration   *config;
+   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_class       *cls;
+   
+   assert( obj);
+   
+   cls     = _mulle_objc_object_get_isa( obj);
+   runtime = _mulle_objc_class_get_runtime( cls);
+   
+   _mulle_objc_runtime_lock( runtime);
+   {
+      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _ns_rootconfiguration_add_root( config, obj);
+   }
+   _mulle_objc_runtime_unlock( runtime);
+}
+
+
+void  _ns_remove_root( void *obj)
+{
+   // get foundation add to roots
+   struct _ns_rootconfiguration   *config;
+   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_class       *cls;
+   
+   assert( obj);
+   cls     = _mulle_objc_object_get_isa( obj);
+   runtime = _mulle_objc_class_get_runtime( cls);
+   
+   _mulle_objc_runtime_lock( runtime);
+   {
+      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _ns_rootconfiguration_remove_root( config, obj);
+   }
+   _mulle_objc_runtime_unlock( runtime);
+}
+
+
+void  _ns_release_roots( struct _mulle_objc_class *cls)
+{
+   // get foundation add to roots
+   struct _ns_rootconfiguration   *config;
+   struct _mulle_objc_runtime     *runtime;
+   
+   assert( cls);
+   
+   runtime = cls ? _mulle_objc_class_get_runtime( cls) : mulle_objc_inlined_get_runtime();
+   
+   _mulle_objc_runtime_lock( runtime);
+   {
+      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _ns_rootconfiguration_release_roots( config);
+   }
+   _mulle_objc_runtime_unlock( runtime);
+}
+
 
 # pragma mark -
 # pragma mark AutoreleasePool
@@ -68,7 +139,7 @@ static void   runtime_dies( struct _mulle_objc_runtime *runtime, void *data)
    
    _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
    
-   mulle_set_free( config->roots);
+   mulle_set_free( config->object.roots);
    if( data != config)
       free( data);
 }
@@ -141,11 +212,11 @@ struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runt
       then for the runtime. The roots->allocator is used to create instances.
     */
    
-   roots->allocator               = *config->allocator_p;
+   roots->object.allocator         = *config->allocator_p;
    root_object_callback           = default_root_object_callback;
-   root_object_callback.allocator = &roots->allocator;
+   root_object_callback.allocator = &roots->object.allocator;
    
-   roots->roots = mulle_set_create( 32, &root_object_callback);
+   roots->object.roots = mulle_set_create( 32, &root_object_callback);
    _mulle_objc_runtime_set_foundation( runtime, &us);
    
    return( roots);
@@ -159,7 +230,7 @@ void   _ns_root_setup( struct _mulle_objc_runtime *runtime,
    
    roots = __ns_root_setup( runtime, config);
    
-   init_ns_exceptionhandlertable ( &roots->exceptions);
+   init_ns_exceptionhandlertable ( &roots->exception.vectors);
 
    //
    // this initializes the autorelease pool for this thread

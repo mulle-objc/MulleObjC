@@ -13,48 +13,8 @@
  */
 #import "NSObject.h"
 
-
-@class NSAutoreleasePool;
-
-#pragma mark -
-#pragma mark MulleObjCAutoreleasePoolConfiguration
-
-//
-// these are shortcuts for the currently active pool in this thread
-//
-struct MulleObjCAutoreleasePoolConfiguration
-{
-   void                (*autoreleaseObject)( struct MulleObjCAutoreleasePoolConfiguration *, id);
-   void                (*autoreleaseObjects)( struct MulleObjCAutoreleasePoolConfiguration *, id *, NSUInteger);
-
-   NSAutoreleasePool   *tail;
-   Class               poolClass;
-   
-   NSAutoreleasePool   *(*push)( struct MulleObjCAutoreleasePoolConfiguration *);
-   void                (*pop)( struct MulleObjCAutoreleasePoolConfiguration *, NSAutoreleasePool *pool);
-
-   int                 releasing;
-};
-
-
-
-static inline struct MulleObjCAutoreleasePoolConfiguration   *MulleObjCAutoreleasePoolConfiguration( void)
-{
-   extern mulle_thread_tss_t               MulleObjCAutoreleasePoolConfigurationKey;
-   struct MulleObjCAutoreleasePoolConfiguration  *config;
-   
-   assert( MulleObjCAutoreleasePoolConfigurationKey);
-   config = mulle_thread_tss_get( MulleObjCAutoreleasePoolConfigurationKey);
-   assert( config);
-   return( config);
-}
-
-
-__attribute__((const))
-mulle_thread_tss_t   NSAutoreleasePoolUnfailingGetOrCreateThreadKey( void);
-
-void   MulleObjCAutoreleasePoolConfigurationSetThread( void);
-void   MulleObjCAutoreleasePoolConfigurationUnsetThread( void);
+#import "NSThread.h"
+#import "ns_threadconfiguration.h"
 
 
 //
@@ -89,32 +49,32 @@ void   MulleObjCAutoreleasePoolConfigurationUnsetThread( void);
 //
 static inline NSAutoreleasePool   *NSPushAutoreleasePool()
 {
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
+   struct _ns_poolconfiguration   *config;
    
-   config = MulleObjCAutoreleasePoolConfiguration();
+   config = _ns_get_poolconfiguration();
    return( (*config->push)( config));
 }
 
 
 static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
 {
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
+   struct _ns_poolconfiguration   *config;
    
-   config = MulleObjCAutoreleasePoolConfiguration();
+   config = _ns_get_poolconfiguration();
    (*config->pop)( config, pool);
 }
 
 
 static inline void   _MulleObjCAutoreleaseObject( id obj)
 {
-   struct MulleObjCAutoreleasePoolConfiguration   *config;
+   struct _ns_poolconfiguration   *config;
    
-   config = MulleObjCAutoreleasePoolConfiguration();
+   config = _ns_get_poolconfiguration();
    (*config->autoreleaseObject)( config, obj);
 }
 
 
-// the compile will inline this directly
+// the compiler will inline this directly
 __attribute__((always_inline))
 static inline id   NSAutoreleaseObject( id obj)
 {
@@ -123,3 +83,7 @@ static inline id   NSAutoreleaseObject( id obj)
    return( obj);
 }
 
+
+// for NSThread
+void   _ns_poolconfiguration_set_thread( void);
+void   _ns_poolconfiguration_unset_thread( void);

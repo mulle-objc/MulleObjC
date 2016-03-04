@@ -25,7 +25,7 @@
 
 static inline struct _ns_exceptionhandlertable   *MulleObjCExceptionHandlersGetTable( void)
 {
-   return( &_ns_rootconfiguration()->exceptions);
+   return( &_ns_rootconfiguration()->exception.vectors);
 }
 
 

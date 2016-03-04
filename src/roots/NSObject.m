@@ -78,7 +78,8 @@
    p = _MulleObjCAllocateObject( self, 0, NULL);
    return( [p init]);
 }
-   
+
+
 #pragma mark -
 #pragma mark these methods are only called via performSelector: or some such
 
@@ -168,10 +169,10 @@
    {
       _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
 
-      count    = mulle_set_count( config->roots);
+      count    = mulle_set_count( config->object.roots);
       sentinel = &buf[ count < length ? count : length];
       
-      rover = mulle_set_enumerate( config->roots);
+      rover = mulle_set_enumerate( config->object.roots);
       while( buf < sentinel)
       {
          obj = mulle_setenumerator_next( &rover);
@@ -188,35 +189,21 @@
 
 - (void) becomeRootObject
 {
-   // get foundation add to roots
-   struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_runtime     *runtime;
-   
-   runtime = mulle_objc_inlined_get_runtime();
-   
-   _mulle_objc_runtime_lock( runtime);
-   {
-      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
-      _ns_rootconfiguration_add_root( config, self);
-   }
-   _mulle_objc_runtime_unlock( runtime);
+   [self retain];
+   _ns_add_root( self);
+}
+
+
+- (void) stepdownAsRootObject
+{
+   _ns_remove_root( self);
+   [self autorelease];
 }
 
 
 + (void) releaseAllRootObjects
 {
-   // get foundation add to roots
-   struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_runtime     *runtime;
-   
-   runtime = mulle_objc_inlined_get_runtime();
-   
-   _mulle_objc_runtime_lock( runtime);
-   {
-      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
-      _ns_rootconfiguration_release_roots( config);
-   }
-   _mulle_objc_runtime_unlock( runtime);
+   _ns_release_roots( self);
 }
 
 
