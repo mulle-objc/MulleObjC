@@ -32,7 +32,7 @@ static inline void  *MulleObjCAllocator()
    struct _ns_rootconfiguration   *configuration;
    
    configuration = _ns_rootconfiguration();
-   return( &configuration->allocator);
+   return( &configuration->object.allocator);
 }
 
 

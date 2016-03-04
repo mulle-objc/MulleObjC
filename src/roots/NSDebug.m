@@ -51,7 +51,7 @@ char   *_NSPrintForDebugger( id a)
    m   = 0;
    cls = _mulle_objc_object_get_isa( a);
    
-   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( a, @selector( debugMallocedCString));
+   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, @selector( debugMallocedCString));
    if( imp)
    {
       s = (*imp)( a, @selector( debugMallocedCString), NULL);

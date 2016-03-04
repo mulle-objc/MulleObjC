@@ -42,3 +42,16 @@ Anything prefixed with '_' is not checking it's arguments and is free to crash.
 Everything else should check it's arguments and return an error or raise and 
 must not crash (within reason).
 
+## What about the methods ?
+
+Prefixing all methods with mulle would be tedious and produce ungainly code.
+Instead methods, that are not defined in OS X are adorned with
+
+`__attribute__((availability(macosx,unavailable)))` 
+
+This could be useful with a future compiler flag (-objc-crossplatform-warn).
+
+
+## What's up with the naming here ?
+
+

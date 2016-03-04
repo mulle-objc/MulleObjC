@@ -22,19 +22,19 @@
 
 @implementation NSThread
 
-static BOOL                  __MulleObjCMultiThreaded;
-static mulle_thread_tss_t    __MulleObjCThreadObjectKey;
-
-
 
 /*
  */
-- (id) initWithTarget:(id) aTarget
-             selector:(SEL) selector
-               object:(id) anArgument
+- (id) initWithTarget:(id) target
+             selector:(SEL) sel
+               object:(id) argument
 {
-   self->target   = [aTarget retain];
-   self->argument = [anArgument retain];
+   if( ! target || ! sel)
+      __NSThrowInvalidArgumentException( "target and selector must not be nil");
+
+   self->_target   = (target == self) ? self : [target retain];
+   self->_selector = sel;
+   self->_argument = (argument == self) ? self : [argument retain];
    
    return( self);
 }
@@ -42,90 +42,114 @@ static mulle_thread_tss_t    __MulleObjCThreadObjectKey;
 
 - (void) dealloc
 {
-   [self->target release];
-   [self->argument release];
+   if( self->_target != self)
+      [self->_target release];
+   if( self->_argument != self)
+      [self->_argument release];
 
-   MulleObjCThreadDeallocRuntimeThread( self);
-}
-
-
-static void   bouncyBounceEnd( void *thread);
-
-
-+ (void) load
-{
-   [NSThread _instantiateRuntimeThread];
-}
-
-
-+ (void) initialize
-{
-   if( ! __MulleObjCThreadObjectKey)
-      mulle_thread_tss_create( &__MulleObjCThreadObjectKey, bouncyBounceEnd);
-}
-
-
-void   MulleObjCThreadBecomeRuntimeThread( NSThread *self)
-{
-   struct _mulle_objc_runtime   *runtime;
-   
-   assert( __MulleObjCThreadObjectKey);
-   if( mulle_thread_tss_get( __MulleObjCThreadObjectKey))
-      return;
-
-   mulle_thread_tss_set( __MulleObjCThreadObjectKey, self);
-
-   runtime = mulle_objc_inlined_get_runtime();
-   assert( runtime);
-   _mulle_objc_runtime_retain( runtime);
-   _mulle_objc_runtime_register_current_thread_if_needed( runtime);
-   
-   if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( 0x511c9ac972f81c49)))
-      MulleObjCAutoreleasePoolConfigurationSetThread();
-}
-
-
-void  MulleObjCThreadDeallocRuntimeThread( NSThread *self)
-{
-   struct _mulle_objc_runtime   *runtime;
-   
-   if( mulle_thread_tss_get( __MulleObjCThreadObjectKey))
-   {
-      MulleObjCAutoreleasePoolConfigurationUnsetThread();
-   
-      mulle_thread_tss_set( __MulleObjCThreadObjectKey, NULL);
-   
-      runtime = mulle_objc_inlined_get_runtime();
-      assert( runtime);
-   
-      _mulle_objc_runtime_unregister_current_thread( runtime);
-      // can't call methods anymore after this
-      _mulle_objc_runtime_release( runtime);
-   }
    _MulleObjCDeallocateObject( self);
 }
 
 
-+ (NSThread *) _instantiateRuntimeThread
++ (void) load
 {
-   NSThread   *thread;
+   NSThreadInstantiateRuntimeThread();
+}
+
+
+void   _mulle_become_objc_runtime_thread( void)
+{
+   struct _mulle_objc_runtime     *runtime;
+   
+   runtime = mulle_objc_get_runtime();
+   assert( runtime);
+
+   _mulle_objc_runtime_retain( runtime);
+   mulle_objc_set_thread_runtime( runtime);
+   _mulle_objc_runtime_register_current_thread_if_needed( runtime);
+   
+   if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( 0x511c9ac972f81c49)))
+      _ns_poolconfiguration_set_thread();
+}
+
+
+void  _mulle_stepdown_as_objc_runtime_thread( void)
+{
+   struct _mulle_objc_runtime     *runtime;
+
+   if( ! _ns_get_thread())
+      return;
+
+   _ns_set_thread( NULL);
+   _ns_poolconfiguration_unset_thread();
+   
+   runtime = mulle_objc_inlined_get_runtime();
+   _mulle_objc_runtime_unregister_current_thread( runtime);
+
+   // can't call Objective-C anymore
+   _mulle_objc_runtime_release( runtime);
+}
+
+
+NSThread  *NSThreadInstantiateRuntimeThread()
+{
+   NSThread                       *thread;
+   struct _ns_rootconfiguration   *config;
+
+   config = _ns_rootconfiguration();
+
+   if( _mulle_atomic_pointer_nonatomic_read( &config->thread.n_threads))
+      __NSThrowInternalInconsistencyException( "runtime is still or already multithreaded");
+   _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 1);
+
+   // this should have happened already in the runtime init
+   // _mulle_become_objc_runtime_thread();
 
    thread = [NSThread new];
-   MulleObjCThreadBecomeRuntimeThread( thread);
-   [thread becomeRootObject];
-   [thread release]; // becomeRoot retains, undo it as thread is not autoreleased
-
+   _ns_add_root( thread);           // does not retain
+   [thread _setAsCurrentThread];
+   
+   //
+   // why no autorelease (?)
+   // the runtime thread has one big problem, it has to shutdown ObjC and
+   // then it wants to dealloc, but dealloc can't be called anymore.
+   // For that reason it is an error to autorelease the runtime thread, so
+   // it can be turned off deterministically
+   //
    return( thread);
+}
+
+
+void  NSThreadDeallocateRuntimeThread( NSThread *self)
+{
+   struct _ns_rootconfiguration   *config;
+
+   config = _ns_rootconfiguration();
+
+   if( _mulle_atomic_pointer_read( &config->thread.n_threads) != (void *) 1)
+      __NSThrowInternalInconsistencyException( "runtime is still or already multithreaded");
+   _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 0);
+   assert( ! config->thread.is_multi_threaded);
+   
+   _ns_remove_root( self);
+   
+   assert( ! self->_target);
+   assert( ! self->_argument);
+   assert( [self retainCount] == 1);
+   
+   _MulleObjCDeallocateObject( self);
+}
+
+
+- (void) _setAsCurrentThread
+{
+   _ns_set_thread( self);
 }
 
 
 + (NSThread *) currentThread
 {
-   NSThread   *p;
-   
-   p = mulle_thread_tss_get( __MulleObjCThreadObjectKey);
-   assert( p);
-   return( p);  // not a leak
+   return( _ns_get_thread());
 }
 
 
@@ -149,43 +173,105 @@ void  MulleObjCThreadDeallocRuntimeThread( NSThread *self)
 - (void) _threadWillExit
 {
    // this will be done later by someone else
-   //[[NSNotificationCenter defaultCenter] postNotificationName:NSThreadWillExitNotification
-   //                                                    object:[NSThread currentThread]];
+   // [[NSNotificationCenter defaultCenter] postNotificationName:NSThreadWillExitNotification
+   //                                                     object:[NSThread currentThread]];
+}
+
+- (void) _begin
+{
+   struct _ns_rootconfiguration   *config;
+   
+   config = _ns_rootconfiguration();
+   config->thread.is_multi_threaded = YES;
+   
+   [self _setAsCurrentThread];
 }
 
 
-static mulle_atomic_pointer_t    __NSNumberOfThreads;
-
-
-static void   bouncyBounceEnd( void *_thread)
+- (void) _end
 {
-   struct _mulle_objc_runtime  *runtime;
-   NSThread                    *thread;
-   
-   thread = _thread;
-   [thread _threadWillExit];
+   struct _ns_rootconfiguration   *config;
 
-   if( ! _mulle_atomic_pointer_decrement( &__NSNumberOfThreads))
+   [self _threadWillExit];
+
+   config = _ns_rootconfiguration();
+   if( _mulle_atomic_pointer_decrement( &config->thread.n_threads) == (void *) 2)
    {
       [NSThread _goingSingleThreaded];
-      __MulleObjCMultiThreaded = NO;
+      config->thread.is_multi_threaded = NO;
    }
    
-   [thread release]; // ho hum
+   _thread = NULL;   // allow to start again (in case someone retained us)
+   
+   if( _isDetached)
+   {
+      _ns_remove_root( self);
+      _isDetached = NO;
+      [self release];  // can't autorelease here
+   }
 }
 
 
 static void   *bouncyBounce( NSThread *thread)
 {
-   id                           rval;
-   struct _mulle_objc_runtime   *runtime;
-   struct _mulle_objc_class     *cls;
+   _mulle_become_objc_runtime_thread();
+   {
+      [thread autorelease];
+      [thread _begin];
+      [thread main];
+      [thread _end];
+   }
+   _mulle_stepdown_as_objc_runtime_thread();
    
-   __MulleObjCMultiThreaded = YES;
+   return( NULL);
+}
 
-   MulleObjCThreadBecomeRuntimeThread( thread);
 
-   return( mulle_objc_object_call( thread->target, thread->sel, thread->argument));
+- (void) detach
+{
+   [self retain];
+   _ns_add_root( self);
+
+   self->_isDetached = YES;
+   mulle_thread_detach( self->_thread);
+}
+
+
+- (void) startUndetached
+{
+   struct _ns_rootconfiguration   *config;
+
+   if( self->_thread)
+      __NSThrowInternalInconsistencyException( "thread already running");
+   
+   config = _ns_rootconfiguration();
+   if( _mulle_atomic_pointer_increment( &config->thread.n_threads) == (void *) 1)
+      [NSThread _isGoingMultiThreaded];
+
+   [self retain]; // retain self for thread
+   if( mulle_thread_create( (void *(*)( void *)) bouncyBounce, self, &self->_thread))
+      __NSThrowErrnoException( "thread creation");
+}
+
+
+- (void) start
+{
+   [self startUndetached];
+   [self detach];
+}
+
+
+- (void) main
+{
+   mulle_objc_object_call_no_fastmethod( self->_target, self->_selector, self->_argument);
+}
+
+
+- (void) join
+{
+   if( self->_isDetached)
+      __NSThrowInternalInconsistencyException( "can't join a detached thread. Use -startUndetached");
+   mulle_thread_join( self->_thread);
 }
 
 
@@ -193,19 +279,13 @@ static void   *bouncyBounce( NSThread *thread)
                         toTarget:(id) target
                       withObject:(id) argument
 {
-   NSThread                     *thread;
-   struct _mulle_objc_runtime   *runtime;
-   mulle_thread_t                m_thread;
+   NSThread   *thread;
    
-   if( ! _mulle_atomic_pointer_increment( &__NSNumberOfThreads))
-      [NSThread _isGoingMultiThreaded];
-   
-   thread = [[NSThread alloc] initWithTarget:target
-                                    selector:sel
-                                      object:argument];
-   
-   if( mulle_thread_create( (void *(*)( void *)) bouncyBounce, thread, &m_thread))
-      __NSThrowErrnoException( "thread creation");
+   thread = [[NSThread instantiate] initWithTarget:target
+                                          selector:sel
+                                            object:argument];
+   [thread start];
+   [thread detach];
 }
 
 
@@ -217,7 +297,10 @@ static void   *bouncyBounce( NSThread *thread)
 
 + (BOOL) isMultiThreaded
 {
-   return( __MulleObjCMultiThreaded);
+   struct _ns_rootconfiguration   *config;
+
+   config = _ns_rootconfiguration();
+   return( config->thread.is_multi_threaded);
 }
 
 @end
