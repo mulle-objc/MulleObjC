@@ -102,6 +102,7 @@
 		41B200571C8CBD6C00588C5E /* autopool.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B200561C8CBD6C00588C5E /* autopool.m */; };
 		41B7F9DA1C6DE60600C74B8A /* NSInvocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DB1C69424B007839D0 /* NSInvocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41B7F9DB1C6DE60600C74B8A /* NSMethodSignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DE1C69424B007839D0 /* NSMethodSignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		41D04ABB1C8DEFCD00CC8F11 /* libmulle_concurrent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41D04ABA1C8DEFCD00CC8F11 /* libmulle_concurrent.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -210,6 +211,7 @@
 		41A9E4FA1BD7F39700210D6E /* ns_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_debug.h; sourceTree = "<group>"; };
 		41B200541C8CBC3300588C5E /* libmulle_allocator.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_allocator.a; path = dependencies/lib/Debug/libmulle_allocator.a; sourceTree = "<group>"; };
 		41B200561C8CBD6C00588C5E /* autopool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = autopool.m; path = tests/NSAutoreleasePool/autopool.m; sourceTree = SOURCE_ROOT; };
+		41D04ABA1C8DEFCD00CC8F11 /* libmulle_concurrent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_concurrent.a; path = dependencies/lib/Debug/libmulle_concurrent.a; sourceTree = "<group>"; };
 		41FA26531BE0397A0093490C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -228,6 +230,7 @@
 			files = (
 				417D6E2D1C64B40A0022660E /* libMulleObjC.a in Frameworks */,
 				41B200551C8CBC3300588C5E /* libmulle_allocator.a in Frameworks */,
+				41D04ABB1C8DEFCD00CC8F11 /* libmulle_concurrent.a in Frameworks */,
 				417D6E3D1C64C1E50022660E /* libmulle_objc_runtime.a in Frameworks */,
 				417D6E2E1C64B4560022660E /* libmulle_aba.a in Frameworks */,
 				417D6E2F1C64B4560022660E /* libmulle_container.a in Frameworks */,
@@ -303,6 +306,7 @@
 		41A827691AADD0D40017BE29 = {
 			isa = PBXGroup;
 			children = (
+				41D04ABA1C8DEFCD00CC8F11 /* libmulle_concurrent.a */,
 				41A827791AADD1510017BE29 /* README.md */,
 				417C02841BD84938005A3751 /* mulle-configuration */,
 				41A8279D1AADDFA60017BE29 /* src */,
