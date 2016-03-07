@@ -17,7 +17,7 @@ static void  *test_calloc_or_raise( size_t n, size_t size)
 {
    void     *p;
    
-   p = mulle_test_allocator.calloc( n, size);
+   p = _mulle_allocator_calloc( &mulle_test_allocator, n, size);
    if( p)
       return( p);
 
@@ -34,7 +34,7 @@ static void  *test_realloc_or_raise( void *block, size_t size)
 {
    void   *p;
    
-   p = mulle_test_allocator.realloc( block, size);
+   p = _mulle_allocator_realloc( &mulle_test_allocator, block, size);
    if( p || ! size)
       return( p);
    
@@ -45,7 +45,7 @@ static void  *test_realloc_or_raise( void *block, size_t size)
 
 static void  test_free( void *block)
 {
-   mulle_test_allocator.free( block);
+   _mulle_allocator_free( &mulle_test_allocator, block);
 }
 
 
@@ -53,7 +53,8 @@ struct mulle_allocator    mulle_test_allocator_objc =
 {
    test_calloc_or_raise,
    test_realloc_or_raise,
-   test_free
+   test_free,
+   0
 };
 
 
