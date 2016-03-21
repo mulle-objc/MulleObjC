@@ -1,5 +1,7 @@
 #! /bin/sh
 
-mulle-bootstrap build mulle-objc-runtime
+set -e
+mulle-bootstrap build "$@"
+
 xcodebuild -configuration Release -scheme Libraries
 xcodebuild -configuration Debug -scheme Libraries

@@ -20,18 +20,9 @@ int   MulleObjCObjectZeroProperty( struct _mulle_objc_property *property, struct
    case _C_COPY_ID   :
    case _C_RETAIN_ID :
       if( property->setter)
-         mulle_objc_object_call_no_fastmethod( self, property->setter, nil);
+         mulle_objc_object_inline_variable_selector_call( self, property->setter, nil);
    }
    return( 0);
-}
-
-
-id   NSAllocateObject( Class meta, NSUInteger extra, NSZone *zone)
-{
-   if( meta)
-      return( _MulleObjCAllocateObject( meta, 0, NULL));
-   abort(); // TODO: raise exception
-   return( nil);
 }
 
 
