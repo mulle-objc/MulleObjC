@@ -20,13 +20,14 @@
 
 
 __attribute__((returns_nonnull))
-static inline id    _MulleObjCAllocateObject( Class cls, NSUInteger extra, NSZone *zone)
+static inline id    _MulleObjCAllocateObject( Class cls, NSUInteger extra)
 {
    struct _mulle_objc_objectheader   *header;
    NSUInteger                        size;
    
-   assert( ! _mulle_objc_class_is_metaclass( cls));
-   
+   assert( cls);
+   assert( _mulle_objc_class_is_infraclass( cls));
+
    size   = _mulle_objc_class_get_instance_and_header_size( cls) + extra;
    header = MulleObjCAllocateMemory( size);
 
@@ -36,10 +37,19 @@ static inline id    _MulleObjCAllocateObject( Class cls, NSUInteger extra, NSZon
 
 
 __attribute__((returns_nonnull))
-static inline id    MulleObjCAllocateNonZeroedObject( Class isa, NSUInteger extra, NSZone *zone)
+static inline id    MulleObjCAllocateNonZeroedObject( Class cls, NSUInteger extra)
 {
-   // future for now its still just zeroed, coz lazyness
-   return( (id) _MulleObjCAllocateObject( isa, extra, zone));
+   struct _mulle_objc_objectheader   *header;
+   NSUInteger                        size;
+   
+   assert( cls);
+   assert( _mulle_objc_class_is_infraclass( cls));
+   
+   size   = _mulle_objc_class_get_instance_and_header_size( cls) + extra;
+   header = MulleObjCAllocateNonZeroedMemory( size);
+   
+   _mulle_objc_objectheader_set_isa( header, cls);
+   return( (id) _mulle_objc_objectheader_get_object( header));
 }
 
 
@@ -62,7 +72,12 @@ static inline void   _MulleObjCDeallocateObject( id obj)
    MulleObjCDeallocateMemory( header);
 }
 
-id     NSAllocateObject( Class meta, NSUInteger extra, NSZone *zone);
+
+static inline id     NSAllocateObject( Class meta, NSUInteger extra, NSZone *zone)
+{
+   return( _MulleObjCAllocateObject( meta, extra));
+}
+
 void   NSFinalizeObject( id ob);
 void   NSDeallocateObject( id obj);  
 
