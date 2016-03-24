@@ -30,6 +30,7 @@
 }
 
 
+
 //
 // these methods must not be overriden
 // the runtime will replace any [foo alloc] call
@@ -94,12 +95,14 @@
 
 // advanced Autorelease and ObjectGraph support
 
-- (void) becomeRootObject;          // retains  #1#
-- (void) stepdownAsRootObject;      // autoreleases
+- (void) becomeRootObject;        // retains  #1#
+- (void) becomePlaceholder;       // these stay until the runtime dies
+- (void) becomeSingleton;         // these stay until the runtime dies
+
+- (void) resignAsRootObject;      // autoreleases
 - (void) pushToParentAutoreleasePool;
 
 // not part of NSObject protocol
-+ (void) releaseAllRootObjects;
 
 /* 
    Returns all objects, retained by this instance.
@@ -114,6 +117,11 @@
 
 @end
 
+
+//
+// HACKISH stuff
+//
+struct _mulle_objc_object   *MulleObjCCreatePlaceholder( struct _mulle_objc_class *self, mulle_objc_classid_t classid);
 
 //
 // this can be useful for creating placeholder objects

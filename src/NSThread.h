@@ -5,7 +5,6 @@
 //  Created by Nat! on 15/10/15.
 //  Copyright © 2015 Mulle kybernetiK. All rights reserved.
 //
-
 #import "NSObject.h"
 
 
@@ -52,14 +51,16 @@ struct MulleObjCAutoreleasePoolConfiguration;
 //
 // a pthread or C11 thread that wants to call ObjC functions must minimally call
 // _mulle_become_objc_runtime_thread beforehand and must call
-// _mulle_stepdown_as_objc_runtime_thread before exiting
+// _mulle_resignas_objc_runtime_thread before exiting
 //
 void  _mulle_become_objc_runtime_thread( void);
-void  _mulle_stepdown_as_objc_runtime_thread( void);       // NSThread object should be gone already
+void  _mulle_resignas_objc_runtime_thread( void);       // NSThread object should be gone already
 
 
 // don't call these functions
 NSThread  *NSThreadInstantiateRuntimeThread( void);
 void       NSThreadDeallocateRuntimeThread( NSThread *self);
+
+void  NSThreadDeallocateMainThread( void);
 
 @end

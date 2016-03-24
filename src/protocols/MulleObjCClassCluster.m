@@ -51,6 +51,7 @@
    if( ! placeholder)
    {
       placeholder = MulleObjCCreatePlaceholder( self, [self __classClusterPlaceholderClassid]);
+      [(id) placeholder becomePlaceholder];
       _mulle_objc_class_set_auxplaceholder( self, placeholder);
    }
    return( (id) placeholder);

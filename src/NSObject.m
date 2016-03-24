@@ -14,9 +14,10 @@
 #import "NSObject.h"
 
 #import "ns_type.h"
+#import "ns_debug.h"
 #import "NSCopying.h"
 #import "NSAutoreleasePool.h"
-#import "NSAllocation.h"
+#import "MulleObjCAllocation.h"
 #import "NSMethodSignature.h"
 #import "NSInvocation.h"
 
@@ -34,6 +35,63 @@
 
 @end
 
+// desperately need @classid( ) compiler support in clang
+
+#define _MulleObjCInstantiatePlaceholderHash  0xb29be388c5d2b55b  // _MulleObjCInstantiatePlaceholder
+
+// intentonally a root object (!)
+@interface _MulleObjCInstantiatePlaceholder
+{
+@public
+   Class   _cls;
+}
+@end
+
+
+@implementation _MulleObjCInstantiatePlaceholder
+
+- (void) finalize
+{
+   _MulleObjCFinalizeObject( self);
+}
+
+
+- (void) dealloc
+{
+   _MulleObjCDeallocateObject( self);
+}
+
+
+- (void *) forward:(void *) _param
+{
+   id  obj;
+
+   assert( _cls);
+   
+   // assert that we are calling an init method
+#ifndef NDEBUG
+   {
+      struct _mulle_objc_method             *method;
+      struct _mulle_objc_methoddescriptor   *desc;
+      
+      method = _mulle_objc_class_search_method( _cls, _cmd, _mulle_objc_class_get_inheritance( _cls));
+      if( method)
+      {
+         desc = _mulle_objc_method_get_methoddescriptor( method);
+         assert( _mulle_objc_methoddescriptor_is_init_method( desc));
+      }
+   }
+#endif
+
+   obj = [_cls alloc];
+   obj = mulle_objc_object_inline_variable_selector_call( obj, _cmd, _param);
+   [obj autorelease];
+   return( obj);
+}
+
+@end
+
+
 
 @implementation NSObject
 
@@ -49,13 +107,13 @@
 
 + (nonnull instancetype) alloc
 {
-   return( _MulleObjCAllocateObject( self, 0, NULL));
+   return( _MulleObjCAllocateObject( self, 0));
 }
 
 
 + (nonnull instancetype) allocWithZone:(NSZone *) zone
 {
-   return( _MulleObjCAllocateObject( self, 0, NULL));
+   return( _MulleObjCAllocateObject( self, 0));
 }
 
 
@@ -75,7 +133,7 @@
 {
    id   p;
    
-   p = _MulleObjCAllocateObject( self, 0, NULL);
+   p = _MulleObjCAllocateObject( self, 0);
    return( [p init]);
 }
 
@@ -122,14 +180,48 @@
 #pragma mark -
 #pragma mark AAO methods
 
-//
+
+struct _mulle_objc_object   *MulleObjCCreatePlaceholder( struct _mulle_objc_class  *self, mulle_objc_classid_t classid)
+{
+   struct _mulle_objc_runtime          *runtime;
+   struct _mulle_objc_class            *cls;
+   _MulleObjCInstantiatePlaceholder    *placeholder;
+   struct _mulle_objc_method           *method;
+   
+   assert( classid);
+   
+   runtime = _mulle_objc_class_get_runtime( self);
+   cls     = _mulle_objc_runtime_unfailing_get_or_lookup_class( runtime, classid);
+   
+   placeholder       = _MulleObjCAllocateObject( cls, 0);
+   placeholder->_cls = self;
+   
+   method      = _mulle_objc_class_search_method( cls, @selector( __initPlaceholder), _mulle_objc_class_get_inheritance( cls));
+   if( method)
+      (*method->implementation)( placeholder, @selector( __initPlaceholder), NULL);
+   _ns_add_placeholder( placeholder);
+
+   return( (struct _mulle_objc_object *) placeholder);
+}
+
+
++ (mulle_objc_classid_t) __instantiatePlaceholderClassid
+{
+   return( MULLE_OBJC_CLASSID( _MulleObjCInstantiatePlaceholderHash));
+}
+
+
 + (nonnull instancetype) instantiate
 {
-   id   obj;
+   struct _mulle_objc_object   *placeholder;
    
-   obj = _MulleObjCAllocateObject( self, 0, NULL);
-   _MulleObjCAutoreleaseObject( obj);
-   return( obj);
+   placeholder = _mulle_objc_class_get_placeholder( self);
+   if( ! placeholder)
+   {
+      placeholder = MulleObjCCreatePlaceholder( self, [self __instantiatePlaceholderClassid]);
+      _mulle_objc_class_set_placeholder( self, placeholder);
+   }
+   return( (id) placeholder);
 }
 
 
@@ -169,7 +261,7 @@
    {
       _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
 
-      count    = mulle_set_count( config->object.roots);
+      count    = mulle_set_get_count( config->object.roots);
       sentinel = &buf[ count < length ? count : length];
       
       rover = mulle_set_enumerate( config->object.roots);
@@ -187,6 +279,20 @@
 }
 
 
+- (void) becomePlaceholder
+{
+   [self retain];
+   _ns_add_placeholder( self);
+}
+
+
+- (void) becomeSingleton
+{
+   [self retain];
+   _ns_add_singleton( self);
+}
+
+
 - (void) becomeRootObject
 {
    [self retain];
@@ -194,16 +300,10 @@
 }
 
 
-- (void) stepdownAsRootObject
+- (void) resignAsRootObject
 {
    _ns_remove_root( self);
    [self autorelease];
-}
-
-
-+ (void) releaseAllRootObjects
-{
-   _ns_release_roots( self);
 }
 
 
@@ -221,7 +321,6 @@
    
    [self becomeRootObject];
 }
-
 
 
 # pragma mark -
@@ -301,14 +400,14 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (id) performSelector:(SEL) sel
 {
-   return( mulle_objc_object_inline_call( self, sel, (void *) 0));
+   return( mulle_objc_object_inline_variable_selector_call( self, sel, (void *) 0));
 }
 
 
 - (id) performSelector:(SEL) sel
             withObject:(id) obj
 {
-   return( mulle_objc_object_inline_call( self, sel, (void *) obj));
+   return( mulle_objc_object_inline_variable_selector_call( self, sel, (void *) obj));
 }
 
 
@@ -333,7 +432,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    param.data.obj1 = obj1;
    param.data.obj2 = obj2;
    
-   return( mulle_objc_object_inline_call( self, sel, &param));
+   return( mulle_objc_object_inline_variable_selector_call( self, sel, &param));
 }
           
 
@@ -420,10 +519,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (IMP) methodForSelector:(SEL) sel
 {
-   Class    cls;
-   
-   cls = _mulle_objc_object_get_isa( self);
-   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( cls, sel));
+   return( (IMP) _mulle_objc_object_lookup_or_search_methodimplementation( (void *) self, sel));
 }
 
 
@@ -524,7 +620,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    
    target = [self forwardingTargetForSelector:_cmd];
    if( target)
-      return( mulle_objc_object_inline_call( target, _cmd, _param));
+      return( mulle_objc_object_inline_variable_selector_call( target, _cmd, _param));
 
    /*
     * the slowness of these operations can not even be charted
@@ -561,4 +657,5 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 }
 
 @end
+
 

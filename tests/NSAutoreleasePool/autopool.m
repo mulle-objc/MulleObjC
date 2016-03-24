@@ -28,16 +28,8 @@ static int   n_instances;
    [super dealloc];
 }
 
-@end
 
-
-static void print_bool( BOOL flag)
-{
-   printf( "%s\n", flag ? "YES" : "NO");
-}
-
-
-int  main( void)
++ (void) test
 {
    Foo   *foo;
    Foo   *other;
@@ -50,6 +42,21 @@ int  main( void)
    printf( "%d\n", n_instances);
    other = [[Foo new] autorelease];
    printf( "%d\n", n_instances);
+}
 
-   return( 0);
+@end
+
+
+
+main()
+{
+   NSThread   *thread;
+
+   thread = [[NSThread instantiate] initWithTarget:[Foo class]
+                                          selector:@selector( test)
+                                            object:nil];
+   printf( "startUndetached\n");
+   [thread startUndetached];
+   [thread join];
+   printf( "joined\n");
 }

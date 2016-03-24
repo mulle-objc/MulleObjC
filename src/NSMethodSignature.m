@@ -14,7 +14,7 @@
 #import "NSMethodSignature.h"
 
 #import "NSAutoreleasePool.h"
-#import "NSAllocation.h"
+#import "MulleObjCAllocation.h"
 
 
 @implementation NSMethodSignature

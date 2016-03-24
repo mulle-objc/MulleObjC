@@ -110,6 +110,8 @@ struct mulle_allocator    mulle_allocator_objc =
 {
    calloc_or_raise,
    realloc_or_raise,
-   free
+   free,
+   0,
+   0
 };
 

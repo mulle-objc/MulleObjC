@@ -54,7 +54,8 @@ struct mulle_allocator    mulle_test_allocator_objc =
    test_calloc_or_raise,
    test_realloc_or_raise,
    test_free,
-   0
+   0,
+   NULL
 };
 
 

@@ -1,7 +1,7 @@
 /*
  *  MulleFoundation - A tiny Foundation replacement
  *
- *  NSAllocation.h is a part of MulleFoundation
+ *  MulleObjCAllocation.h is a part of MulleFoundation
  *
  *  Copyright (C) 2011 Nat!, Mulle kybernetiK.
  *  All rights reserved.
@@ -31,7 +31,7 @@ static inline void  *MulleObjCAllocator()
 {
    struct _ns_rootconfiguration   *configuration;
    
-   configuration = _ns_rootconfiguration();
+   configuration = _ns_get_rootconfiguration();
    return( &configuration->object.allocator);
 }
 
@@ -56,7 +56,8 @@ static inline void  *MulleObjCAllocateMemory( NSUInteger size)
 
 static inline void  MulleObjCDeallocateMemory( void *p)
 {
-   _mulle_allocator_free( MulleObjCAllocator(), p);
+   if( p)
+      _mulle_allocator_free( MulleObjCAllocator(), p);
 }
 
 

@@ -15,7 +15,7 @@
 
 #import "NSMethodSignature.h"
 #import "NSMethodSignature+Private.h"
-#import "NSAllocation.h"
+#import "MulleObjCAllocation.h"
 #import "NSAutoreleasePool.h"
 #import "NSCopying.h"
 
@@ -269,19 +269,19 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    switch( [_methodSignature methodMetaABIParameterType])
    {
    case MulleObjCMetaABITypeVoid           :
-      rval = mulle_objc_object_call_no_fastmethod( target, sel, target);
+      rval = mulle_objc_object_inline_variable_selector_call( target, sel, target);
       break;
          
    case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
-      rval  = mulle_objc_object_call_no_fastmethod( target, sel, *(void **) param);
+      rval  = mulle_objc_object_inline_variable_selector_call( target, sel, *(void **) param);
       break;
          
    case MulleObjCMetaABITypeParameterBlock :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
-      rval  = mulle_objc_object_call_no_fastmethod( target, sel, param);
+      rval  = mulle_objc_object_inline_variable_selector_call( target, sel, param);
       break;
    }
 

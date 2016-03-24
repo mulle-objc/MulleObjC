@@ -1,12 +1,12 @@
 //
-//  NSAllocation.c
+//  MulleObjCAllocation.c
 //  MulleObjC
 //
 //  Created by Nat! on 07.02.16.
 //  Copyright © 2016 Mulle kybernetiK. All rights reserved.
 //
 
-#include "NSAllocation.h"
+#include "MulleObjCAllocation.h"
 
 int   MulleObjCObjectZeroProperty( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self);
 

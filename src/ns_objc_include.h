@@ -33,6 +33,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#ifdef __clang__
+# if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && ((__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__-0) <= 1040)
+#  if ! __DARWIN_UNIX03
+#   warning "compiling for 10.4 (not __DARWIN_UNIX03), with __eprintf"
+#  endif
+# endif
+#endif
+
 #if MULLE_OBJC_RUNTIME_VERSION < ((1 << 20) | (0 << 8) | 0)
 # error "mulle_objc_runtime is too old"
 #endif

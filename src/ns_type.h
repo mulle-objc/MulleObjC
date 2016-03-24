@@ -73,4 +73,10 @@ typedef enum
    NO  = 0
 } BOOL;     // the hated BOOL, here it is an enum (-> int. it's C!)
 
+
+enum
+{
+   MULLE_OBJC_IS_CLASSCLUSTER = (MULLE_OBJC_FOUNDATION_BIT0 << 0),
+   MULLE_OBJC_IS_SINGLETON    = (MULLE_OBJC_FOUNDATION_BIT0 << 1)
+};
 #endif
