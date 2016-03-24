@@ -18,7 +18,7 @@
 
 struct _mulle_autoreleasepointerarray
 {
-   void           *objects_[ N_MULLE_OBJECT_C_ARRAY];
+   id             objects_[ N_MULLE_OBJECT_C_ARRAY];
    unsigned int   used_;
    
    struct _mulle_autoreleasepointerarray   *previous_;
@@ -55,6 +55,29 @@ _mulle_autoreleasepointerarray_release_and_free(
 }
 
 
+static inline void
+_mulle_autoreleasepointerarray_dump_objects(
+                            struct _mulle_autoreleasepointerarray *end,
+                            struct _mulle_autoreleasepointerarray *staticStorage)
+{
+   struct _mulle_autoreleasepointerarray   *p, *q;
+   id   *objects;
+   id   *sentinel;
+   
+   for( p = end; p; p = q)
+   {
+      objects = p->objects_;
+      sentinel = &p->objects_[ p->used_];
+      while( objects < sentinel)
+         fprintf( stderr, "\t%p\n", *objects++);
+
+      q = p->previous_;
+      if( p != staticStorage)
+         MulleObjCDeallocateMemory( p);
+   }
+}
+
+
 static inline BOOL   _mulle_autoreleasepointerarray_is_full( struct _mulle_autoreleasepointerarray *array)
 {
    return( array->used_ >= N_MULLE_OBJECT_C_ARRAY);
@@ -78,6 +101,29 @@ static inline void   _mulle_autoreleasepointerarray_add( struct _mulle_autorelea
    assert( array->used_ < N_MULLE_OBJECT_C_ARRAY);
    array->objects_[ array->used_++] = p;
 }
+
+
+
+static inline int   _mulle_autoreleasepointerarray_contains( struct _mulle_autoreleasepointerarray *array, id p)
+{
+   id   *q;
+   id   *sentinel;
+   
+   do
+   {
+      sentinel = array->objects_;
+      q        = &array->objects_[ array->used_];
+      while( q > sentinel)
+         if( *--q == p)
+            return( 1);
+   }
+   while( array = array->previous_);
+   
+   return( 0);
+}
+
+
+
 
 #endif
 

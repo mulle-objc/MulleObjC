@@ -14,7 +14,7 @@
 #ifndef _ns_exception__h__
 #define _ns_exception__h__
 
-typedef void   MulleObjCExceptionHandler( void *, va_list);
+typedef __attribute__ ((noreturn))  void  MulleObjCExceptionHandler( void *, va_list);
 
 
 enum

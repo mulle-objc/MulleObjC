@@ -14,7 +14,7 @@
 #import "NSThread.h"
 
 #import "NSAutoreleasePool.h"
-#import "NSAllocation.h"
+#import "MulleObjCAllocation.h"
 
 #include <mulle_thread/mulle_thread.h>
 #include <stdlib.h>
@@ -51,6 +51,7 @@
 }
 
 
+
 + (void) load
 {
    NSThreadInstantiateRuntimeThread();
@@ -67,13 +68,12 @@ void   _mulle_become_objc_runtime_thread( void)
    _mulle_objc_runtime_retain( runtime);
    mulle_objc_set_thread_runtime( runtime);
    _mulle_objc_runtime_register_current_thread_if_needed( runtime);
-   
    if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( 0x511c9ac972f81c49)))
       _ns_poolconfiguration_set_thread();
 }
 
 
-void  _mulle_stepdown_as_objc_runtime_thread( void)
+void  _mulle_resignas_objc_runtime_thread( void)
 {
    struct _mulle_objc_runtime     *runtime;
 
@@ -96,7 +96,7 @@ NSThread  *NSThreadInstantiateRuntimeThread()
    NSThread                       *thread;
    struct _ns_rootconfiguration   *config;
 
-   config = _ns_rootconfiguration();
+   config = _ns_get_rootconfiguration();
 
    if( _mulle_atomic_pointer_nonatomic_read( &config->thread.n_threads))
       __NSThrowInternalInconsistencyException( "runtime is still or already multithreaded");
@@ -106,7 +106,7 @@ NSThread  *NSThreadInstantiateRuntimeThread()
    // _mulle_become_objc_runtime_thread();
 
    thread = [NSThread new];
-   _ns_add_root( thread);           // does not retain
+   _ns_add_thread( thread);           // does not retain
    [thread _setAsCurrentThread];
    
    //
@@ -124,20 +124,43 @@ void  NSThreadDeallocateRuntimeThread( NSThread *self)
 {
    struct _ns_rootconfiguration   *config;
 
-   config = _ns_rootconfiguration();
+   config = _ns_get_rootconfiguration();
 
    if( _mulle_atomic_pointer_read( &config->thread.n_threads) != (void *) 1)
       __NSThrowInternalInconsistencyException( "runtime is still or already multithreaded");
    _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 0);
    assert( ! config->thread.is_multi_threaded);
    
-   _ns_remove_root( self);
-   
+   _ns_remove_thread( self);
+
    assert( ! self->_target);
    assert( ! self->_argument);
    assert( [self retainCount] == 1);
    
    _MulleObjCDeallocateObject( self);
+}
+
+
+void  NSThreadDeallocateMainThread( void)
+{
+   NSThread   *thread;
+   
+   //
+   // keep current thread around, which is a root
+   // that way we also have an AutoreleasePool in place
+   //
+   assert( ! [NSThread isMultiThreaded]);
+   
+   thread = [NSThread currentThread];
+
+   _ns_release_roots();          //
+   _ns_release_singletons();     //
+   _ns_release_placeholders();
+   
+   assert( _mulle_atomic_pointer_read( &mulle_objc_get_runtime()->retaincount_1) == 0);
+   NSThreadDeallocateRuntimeThread( thread);
+   
+   _mulle_resignas_objc_runtime_thread();
 }
 
 
@@ -181,7 +204,7 @@ void  NSThreadDeallocateRuntimeThread( NSThread *self)
 {
    struct _ns_rootconfiguration   *config;
    
-   config = _ns_rootconfiguration();
+   config = _ns_get_rootconfiguration();
    config->thread.is_multi_threaded = YES;
    
    [self _setAsCurrentThread];
@@ -194,7 +217,7 @@ void  NSThreadDeallocateRuntimeThread( NSThread *self)
 
    [self _threadWillExit];
 
-   config = _ns_rootconfiguration();
+   config = _ns_get_rootconfiguration();
    if( _mulle_atomic_pointer_decrement( &config->thread.n_threads) == (void *) 2)
    {
       [NSThread _goingSingleThreaded];
@@ -217,11 +240,12 @@ static void   *bouncyBounce( NSThread *thread)
    _mulle_become_objc_runtime_thread();
    {
       [thread autorelease];
+      
       [thread _begin];
       [thread main];
       [thread _end];
    }
-   _mulle_stepdown_as_objc_runtime_thread();
+   _mulle_resignas_objc_runtime_thread();
    
    return( NULL);
 }
@@ -244,7 +268,7 @@ static void   *bouncyBounce( NSThread *thread)
    if( self->_thread)
       __NSThrowInternalInconsistencyException( "thread already running");
    
-   config = _ns_rootconfiguration();
+   config = _ns_get_rootconfiguration();
    if( _mulle_atomic_pointer_increment( &config->thread.n_threads) == (void *) 1)
       [NSThread _isGoingMultiThreaded];
 
@@ -263,7 +287,7 @@ static void   *bouncyBounce( NSThread *thread)
 
 - (void) main
 {
-   mulle_objc_object_call_no_fastmethod( self->_target, self->_selector, self->_argument);
+   mulle_objc_object_inline_variable_selector_call( self->_target, self->_selector, self->_argument);
 }
 
 
@@ -299,9 +323,17 @@ static void   *bouncyBounce( NSThread *thread)
 {
    struct _ns_rootconfiguration   *config;
 
-   config = _ns_rootconfiguration();
+   config = _ns_get_rootconfiguration();
    return( config->thread.is_multi_threaded);
 }
+
+
+#if DEBUG
+- (id) retain
+{
+   return( [super retain]);
+}
+#endif
 
 @end
 

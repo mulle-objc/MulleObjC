@@ -55,6 +55,8 @@ main()
    thread = [[NSThread instantiate] initWithTarget:[Foo class]
                                           selector:@selector( test)
                                             object:nil];
+   printf( "startUndetached\n");
    [thread startUndetached];
    [thread join];
+   printf( "joined\n");
 }

@@ -31,5 +31,9 @@
 #define MULLE_OBJC_FASTMETHODHASH_18    0x395aeda846bc6bee  // objectAtIndex:
 #define MULLE_OBJC_FASTMETHODHASH_19    0x1b24725408b990ce  // characterAtIndex:
 
+// candidates:
+// methodForSelector:
+// performSelector:
+//
 
 #endif /* ns_fastmethodids_h */

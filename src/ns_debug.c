@@ -9,12 +9,6 @@
 #include "ns_debug.h"
 
 
-BOOL   NSDebugEnabled;
-BOOL   NSZombieEnabled;
-BOOL   NSDeallocateZombies;
-BOOL   NSHangOnUncaughtException;
-
-
 void   *NSFrameAddress( NSUInteger frame)
 {
    return( NULL);

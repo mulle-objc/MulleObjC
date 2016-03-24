@@ -40,6 +40,9 @@
 + (NSAutoreleasePool *) parentAutoreleasePool;
 - (NSAutoreleasePool *) parentAutoreleasePool;
 
+// mulle addition:
+- (BOOL) containsObject:(id) p;
+
 @end
 
 

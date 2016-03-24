@@ -27,6 +27,7 @@ struct _ns_poolconfiguration
    void   (*pop)( struct _ns_poolconfiguration *, id pool);
    
    int    releasing;
+   int    trace;
 };
 
 

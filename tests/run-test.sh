@@ -286,7 +286,8 @@ fail_test()
       "${MULLE_OBJC}" \
       "${m_source}" > "$errput" 2>&1
 
-   echo "MULLE_OBJC_TEST_ALLOCATOR=YES \
+   echo "MULLE_OBJC_AUTORELEASEPOOL_TRACE=15 \
+   MULLE_OBJC_TEST_ALLOCATOR=1 \
 MULLE_TEST_ALLOCATOR_TRACE=2 \
 MallocStackLogging=1 \
 MallocStackLoggingNoCompact=1 \
@@ -387,8 +388,7 @@ run()
       fi
    fi
 
-   MULLE_OBJC_TEST_ALLOCATOR=YES \
-   MULLE_TEST_ALLOCATOR_TRACE=2 \
+   MULLE_OBJC_TEST_ALLOCATOR=1 \
 MallocStackLogging=1 \
 MallocStackLoggingNoCompact=1 \
 MallocScribble=1 \
@@ -435,8 +435,8 @@ MallocCheckHeapEach=1 \
          if [ "$white" != "" ]
          then
             echo "FAILED: \"$pretty_source\" produced unexpected output" >&2
-            echo "DIFF: ($stdout vs. $output)" >&2
-            diff -y "$stdout" "$output" >&2
+            echo "DIFF: ($output vs. $stdout)" >&2
+            diff -y "$output" "$stdout" >&2
          else
             echo "FAILED: \"$pretty_source\" produced different whitespace output" >&2
             echo "DIFF: ($stdout vs. $output)" >&2

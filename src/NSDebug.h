@@ -25,11 +25,5 @@ void   MulleObjCZombifyObject( id obj);
 // add
 //
 
-@interface NSObject( NSDebug)
-
-- (void) __willBeAddedToAutoreleasePool:(id) pool;
-- (void) __checkReferenceCount;
-
-@end
 
 

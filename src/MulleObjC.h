@@ -1,5 +1,5 @@
 //
-//  MulleObjCRoot.h
+//  MulleObjC.h
 //  MulleObjC
 //
 //  Created by Nat! on 21/10/15.
@@ -15,17 +15,22 @@
 
 #import "ns_objc.h"
 
-#import "NSAllocation.h"
-
-#import "NSObjectProtocol.h"
-#import "NSCopying.h"
-
+// objects
 #import "NSAutoreleasePool.h"
+#import "NSInvocation.h"
+#import "NSMethodSignature.h"
 #import "NSObject.h"
 #import "NSProxy.h"
 #import "NSThread.h"
 
-#import "NSAutoreleasePool.h"
+// protocols
+#import "MulleObjCClassCluster.h"
+#import "MulleObjCException.h"
+#import "MulleObjCSingleton.h"
+#import "NSCopying.h"
+#import "NSObjectProtocol.h"
 
-#import "NSMethodSignature.h"
-#import "NSInvocation.h"
+// functions
+#import "MulleObjCAllocation.h"
+#import "MulleObjCFunctions.h"
+

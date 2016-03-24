@@ -24,11 +24,15 @@
 @end
 
 
-@implementation NSObject( NSDebug)
+@interface NSObject( NSDebug)
 
-- (void) __willBeAddedToAutoreleasePool:(id) pool
-{
-}
+- (void) __checkReferenceCount;
+
+@end
+
+
+
+@implementation NSObject( NSDebug)
 
 - (void) __checkReferenceCount
 {
@@ -44,13 +48,24 @@ char   *_NSPrintForDebugger( id a)
    char                        buf[ 128];
    struct _mulle_objc_class    *cls;
    struct _mulle_objc_method   *m;
+   char                        *name;
    
    if( ! a)
       return( strdup( "*nil*"));
    
    m   = 0;
    cls = _mulle_objc_object_get_isa( a);
+   if( ! cls)
+      return( strdup( "*not an object (anymore ?)*"));
    
+   // typical "released" isa values
+   if( cls == (void *) (intptr_t) 0xDEADDEADDEADDEAD || // our scribble
+       cls == (void *) (intptr_t) 0xAAAAAAAAAAAAAAAA)   // malloc scribble
+   {
+      sprintf( buf, "<%p dealloced,(%p>", a, cls);
+      return( strdup( buf));  // hmm hmm, what's the interface here anyway ?
+   }
+
    imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, @selector( debugMallocedCString));
    if( imp)
    {
@@ -58,7 +73,7 @@ char   *_NSPrintForDebugger( id a)
       return( s);
    }
       
-   sprintf( buf, "<%p %.100s>", a, _mulle_objc_class_get_name( _mulle_objc_object_get_isa( cls)));
+   sprintf( buf, "<%p %.100s>", a, _mulle_objc_class_get_name( cls));
    return( strdup( buf));  // hmm hmm, what's the interface here anyway ?
 }
 

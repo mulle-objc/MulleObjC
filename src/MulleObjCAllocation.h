@@ -16,7 +16,10 @@
 
 #import "ns_type.h"
 #import "ns_allocation.h"
+#import "ns_debug.h"
 #import "ns_zone.h"
+
+#import "NSDebug.h"
 
 
 __attribute__((returns_nonnull))
@@ -48,11 +51,13 @@ static inline id    MulleObjCAllocateNonZeroedObject( Class cls, NSUInteger extr
    size   = _mulle_objc_class_get_instance_and_header_size( cls) + extra;
    header = MulleObjCAllocateNonZeroedMemory( size);
    
+   _mulle_atomic_pointer_nonatomic_write( &header->retaincount_1, 0);
    _mulle_objc_objectheader_set_isa( header, cls);
    return( (id) _mulle_objc_objectheader_get_object( header));
 }
 
 
+// this zeroes properties
 static inline void  _MulleObjCFinalizeObject( id obj)
 {
    extern int   MulleObjCObjectZeroProperty( struct _mulle_objc_property *, struct _mulle_objc_class *, void *);
@@ -63,12 +68,26 @@ static inline void  _MulleObjCFinalizeObject( id obj)
    _mulle_objc_class_walk_properties( cls, _mulle_objc_class_get_inheritance( cls), MulleObjCObjectZeroProperty, obj);
 }
 
+
 // this does not zero properties
 static inline void   _MulleObjCDeallocateObject( id obj)
 {
    struct _mulle_objc_objectheader   *header;
+   struct _ns_rootconfiguration      *config;
    
-   header  = _mulle_objc_object_get_objectheader( obj);
+   config = _ns_get_rootconfiguration();
+   if( config->object.zombieenabled)
+   {
+      MulleObjCZombifyObject( obj);
+      if( ! config->object.deallocatezombies)
+         return;
+   }
+   
+   header = _mulle_objc_object_get_objectheader( obj);
+#if DEBUG
+   // malloc scribble will kill it though
+   header->isa = (void *) (intptr_t) 0xDEADDEADDEADDEAD;
+#endif
    MulleObjCDeallocateMemory( header);
 }
 

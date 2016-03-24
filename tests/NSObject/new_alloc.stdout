@@ -8,9 +8,10 @@ YES
 YES
 YES
 YES
+YES
+YES
 -finalize
 -dealloc
-1
 -finalize
 -dealloc
 0

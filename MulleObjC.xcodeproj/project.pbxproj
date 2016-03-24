@@ -505,6 +505,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 41300CA71C87180200D1D1C1 /* Build configuration list for PBXNativeTarget "sometest" */;
 			buildPhases = (
+				417FFE961CA2EB980044793E /* ShellScript */,
 				41300C9D1C87180200D1D1C1 /* Sources */,
 				41300C9E1C87180200D1D1C1 /* Frameworks */,
 			);
@@ -614,6 +615,22 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		417FFE961CA2EB980044793E /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		41300C9D1C87180200D1D1C1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -712,6 +729,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4162D50F1C63CBBC007EC7DD /* ToolOSX.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(BUILT_PRODUCTS_DIR)/usr/local/include/",
+					"$(DEPENDENCIES_DIR)/include",
+					/usr/local/include,
+					"$(inherited)",
+				);
 			};
 			name = Debug;
 		};
@@ -719,6 +742,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4162D50F1C63CBBC007EC7DD /* ToolOSX.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(BUILT_PRODUCTS_DIR)/usr/local/include/",
+					"$(DEPENDENCIES_DIR)/include",
+					/usr/local/include,
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};

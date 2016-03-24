@@ -30,7 +30,7 @@
    if( ! singleton)
    {
       singleton = [[[self alloc] init] autorelease];
-      [singleton becomeRootObject];
+      [singleton becomeSingleton];
       _mulle_objc_class_get_auxplaceholder( self);
    }
    return( (id) singleton);

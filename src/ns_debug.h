@@ -11,11 +11,6 @@
 
 #include "ns_type.h"
 
-extern BOOL   NSDebugEnabled;
-extern BOOL   NSZombieEnabled;
-extern BOOL   NSDeallocateZombies;
-extern BOOL   NSHangOnUncaughtException;
-
 
 extern void         *NSFrameAddress( NSUInteger frame);
 extern void         *NSReturnAddress( NSUInteger frame);

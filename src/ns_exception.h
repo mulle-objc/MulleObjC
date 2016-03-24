@@ -25,7 +25,7 @@
 
 static inline struct _ns_exceptionhandlertable   *MulleObjCExceptionHandlersGetTable( void)
 {
-   return( &_ns_rootconfiguration()->exception.vectors);
+   return( &_ns_get_rootconfiguration()->exception.vectors);
 }
 
 
@@ -40,12 +40,14 @@ static inline MulleObjCExceptionHandler   *MulleObjCExceptionHandlerWithIndex( u
 
 
 
+__attribute__ ((noreturn))
 static inline void   __NSThrowAllocationException( size_t bytes)
 {
    (*(*MulleObjCExceptionHandlersGetTable)()->handlers[ MulleObjCExceptionAllocationErrorHandlerIndex])( (void *) bytes, NULL);
 }
 
 
+__attribute__ ((noreturn))
 static inline void   __NSThrowInvalidArgumentException( void *format, ...)
 {
    va_list  args;
@@ -58,6 +60,7 @@ static inline void   __NSThrowInvalidArgumentException( void *format, ...)
 
 
 // improve this later on
+__attribute__ ((noreturn))
 static inline void   __NSThrowInvalidIndexException( NSUInteger i)
 {
    (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionInvalidIndexHandlerIndex))( (void *) i, NULL);
@@ -65,6 +68,7 @@ static inline void   __NSThrowInvalidIndexException( NSUInteger i)
 
 
 
+__attribute__ ((noreturn))
 static inline void   __NSThrowInternalInconsistencyException( char *format, ...)
 {
    va_list   args;
@@ -75,6 +79,7 @@ static inline void   __NSThrowInternalInconsistencyException( char *format, ...)
 }
 
 
+__attribute__ ((noreturn))
 static inline void   __NSThrowRangeException( NSRange range, ...)
 {
    va_list   args;
@@ -85,12 +90,14 @@ static inline void   __NSThrowRangeException( NSRange range, ...)
 }
 
 
+__attribute__ ((noreturn))
 static inline void   __NSThrowErrnoException( char *s)
 {
    (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionErrnoHandlerIndex))( s, NULL);
 }
 
 
+__attribute__ ((noreturn))
 static inline void   __NSThrowMathException( void *sel, ...)
 {
    va_list   args;
@@ -101,6 +108,7 @@ static inline void   __NSThrowMathException( void *sel, ...)
 }
 
 
+__attribute__ ((noreturn))
 static inline void   __NSThrowCharacterConversionException( int c)
 {
    (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionCharacterConversionHandlerIndex))( (void *) (long) c, NULL);
