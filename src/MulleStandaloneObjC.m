@@ -25,6 +25,28 @@ static void   versionassert( struct _mulle_objc_runtime *runtime,
 
 
 
+# pragma mark -
+# pragma mark Exceptions
+
+
+static void  perror_abort( char *s)
+{
+   perror( s);
+   abort();
+}
+
+
+static void  init_ns_exceptionhandlertable ( struct _ns_exceptionhandlertable *table)
+{
+   table->errno_error            = (void *) perror_abort;
+   table->allocation_error       = (void *) abort;
+   table->internal_inconsistency = (void *) abort;
+   table->invalid_argument       = (void *) abort;
+   table->invalid_index          = (void *) abort;
+   table->invalid_range          = (void *) abort;
+}
+
+
 /* 
  * it's just too convenient, to have this as the old name
  */
@@ -69,18 +91,21 @@ __attribute__((const))  // always returns same value (in same thread)
 struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
 {
    struct _mulle_objc_runtime           *runtime;
+   struct _ns_rootconfiguration         *rootconfig;
    extern struct mulle_allocator        mulle_objc_allocator;
+   struct _ns_exceptionhandlertable     vectors;
    static struct _ns_root_setupconfig   config =
    {
       {
          NULL,
          versionassert,
          &NSObject_msgForward_method,
-         NULL,
+         NULL
       },
       {
          0,
-         &mulle_allocator_objc
+         &mulle_allocator_objc,
+         NULL
       }
    };
    int    is_test;
@@ -111,17 +136,21 @@ struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
             fprintf( stderr, "MulleObjC uses \"mulle_test_allocator_objc\" to detect leaks.\n");
 #endif
       }
-      _ns_root_setup( runtime, &config);
-
+      
+      init_ns_exceptionhandlertable( &vectors);
+      config.foundation.exceptiontable = &vectors;
+      {
+         _ns_root_setup( runtime, &config);
+      }
+      config.foundation.exceptiontable = NULL; // pedantic
+   
       is_pedantic = getenv( "MULLE_OBJC_PEDANTIC_EXIT") != NULL;
       if( is_pedantic || is_test)
       {
-         struct _ns_rootconfiguration *config;
-         
-         config = _mulle_objc_runtime_get_foundationdata( runtime);
+         rootconfig = _mulle_objc_runtime_get_foundationdata( runtime);
          
          // if we retain zombies, we leak, so no point in looking for leaks
-         if( config->object.zombieenabled && ! config->object.deallocatezombies)
+         if( rootconfig->object.zombieenabled && ! rootconfig->object.deallocatezombies)
             is_test = 0;
          if( atexit( is_test ? tear_down_and_check : tear_down))
             perror( "atexit:");

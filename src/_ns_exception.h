@@ -14,26 +14,21 @@
 #ifndef _ns_exception__h__
 #define _ns_exception__h__
 
-typedef __attribute__ ((noreturn))  void  MulleObjCExceptionHandler( void *, va_list);
+#include "ns_range.h"
+#include "ns_type.h"
 
-
-enum
-{
-   MulleObjCExceptionAllocationErrorHandlerIndex = 0,
-   MulleObjCExceptionInternalInconsistencyHandlerIndex,
-   MulleObjCExceptionInvalidArgumentHandlerIndex,
-   MulleObjCExceptionErrnoHandlerIndex,
-   MulleObjCExceptionInvalidIndexHandlerIndex,
-   MulleObjCExceptionRangeHandlerIndex,
-   MulleObjCExceptionMathHandlerIndex,
-   MulleObjCExceptionCharacterConversionHandlerIndex,
-   MulleObjCExceptionHandlerTableSize
-};
-
-
+//
+// these exceptions are kinda lazy shortcuts for the foundation
+// user code just uses NSException and ignores this
+//
 struct _ns_exceptionhandlertable 
 {
-   MulleObjCExceptionHandler   *handlers[ MulleObjCExceptionHandlerTableSize];
+   void (*errno_error)( char *s)                      __attribute__ ((noreturn));
+   void (*allocation_error)( size_t bytes)            __attribute__ ((noreturn));
+   void (*internal_inconsistency)( id format, va_list args) __attribute__ ((noreturn));
+   void (*invalid_argument)( id format, va_list args) __attribute__ ((noreturn));
+   void (*invalid_index)( NSUInteger i)               __attribute__ ((noreturn));
+   void (*invalid_range)( NSRange range)              __attribute__ ((noreturn));
 };
 
 #endif

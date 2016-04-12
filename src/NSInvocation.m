@@ -29,7 +29,7 @@
    if( ! signature)
    {
       [self release];
-      __NSThrowInvalidArgumentException( signature, "is nil");
+      MulleObjCThrowInvalidArgumentException( signature, "is nil");
       return( nil);
    }
 
@@ -72,18 +72,20 @@
    }
 }
 
+
 - (void) finalize
 {
-   if( _argumentsRetained)
-      [self _releaseArguments];
-   _MulleObjCFinalizeObject( self);
 }
 
 
 - (void) dealloc
 {
+   if( _argumentsRetained)
+      [self _releaseArguments];
+
    MulleObjCDeallocateMemory( _storage);
    [_methodSignature release];
+
    NSDeallocateObject( self);
 }
 

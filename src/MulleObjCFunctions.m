@@ -13,6 +13,10 @@
  */
 #include "MulleObjCFunctions.h"
 
+// other files in this library
+#import "NSObjectProtocol.h"
+
+// std-c and dependencies
 #include <mulle_objc_runtime/mulle_objc_runtime.h>
 #include "ns_rootconfiguration.h"
 
@@ -38,12 +42,29 @@ char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignme
 }
 
 
-void   MulleObjCMakeObjectsPerformSelector( id *objects, unsigned int n, SEL sel, id argument)
+// because of vtab, simpler is faster in this case
+void   MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n)
+{
+   id   p;
+   id   *sentinel;
+
+   sentinel = &objects[ n];
+   while( objects < sentinel)
+   {
+      p = *objects++;
+      assert( p);
+      
+      [p retain];
+   }
+}
+
+
+void   MulleObjCMakeObjectsPerformSelector( id *objects, NSUInteger n, SEL sel, id argument)
 {
    mulle_objc_methodimplementation_t   lastSelIMP[ 16];
    struct _mulle_objc_class            *lastIsa[ 16];
    struct _mulle_objc_class            *thisIsa;
-   unsigned int                        i;
+   NSUInteger                          i;
    id                                  p;
    id                                  *sentinel;
    mulle_objc_methodimplementation_t   (*lookup)( struct _mulle_objc_class *, mulle_objc_methodid_t);
@@ -65,7 +86,7 @@ void   MulleObjCMakeObjectsPerformSelector( id *objects, unsigned int n, SEL sel
       
       if( lastIsa[ i] != thisIsa)
       {
-         imp = (*lookup)( thisIsa, sel);
+         imp = (*lookup)( thisIsa, (mulle_objc_methodid_t) sel);
          if( ! imp)
             imp = mulle_objc_object_call;
          
@@ -73,21 +94,21 @@ void   MulleObjCMakeObjectsPerformSelector( id *objects, unsigned int n, SEL sel
          lastSelIMP[ i] = imp;
       }
       
-      (*lastSelIMP[ i])( p, sel, argument);
+      (*lastSelIMP[ i])( p, (mulle_objc_methodid_t) sel, argument);
    }
 }
 
 
-void   MulleObjCMakeObjectsPerformSelector2( id *objects, unsigned int n, SEL sel, id argument, id argument2)
+void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel, id argument, id argument2)
 {
-   IMP            lastSelIMP[ 16];
-   Class          lastIsa[ 16];
-   Class          thisIsa;
-   unsigned int   i;
-   id             p;
-   id             *sentinel;
+   mulle_objc_methodimplementation_t   lastSelIMP[ 16];
+   Class                               lastIsa[ 16];
+   Class                               thisIsa;
+   NSUInteger                          i;
+   id                                  p;
+   id                                  *sentinel;
    mulle_objc_methodimplementation_t   (*lookup)( struct _mulle_objc_class *, mulle_objc_methodid_t);
-   mulle_objc_methodimplementation_t    imp;
+   mulle_objc_methodimplementation_t   imp;
    struct { id a; id b; }  _param = { .a = argument, .b = argument2 };
    
    memset( lastIsa, 0, sizeof( lastIsa));
@@ -107,7 +128,7 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects, unsigned int n, SEL se
       
       if( lastIsa[ i] != thisIsa)
       {
-         imp = (*lookup)( thisIsa, sel);
+         imp = (*lookup)( thisIsa, (mulle_objc_methodid_t) sel);
          if( ! imp)
             imp = mulle_objc_object_call;
          
@@ -115,7 +136,7 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects, unsigned int n, SEL se
          lastSelIMP[ i] = imp;
       }
       
-      (*lastSelIMP[ i])( p, sel, &_param);
+      (*lastSelIMP[ i])( p, (mulle_objc_methodid_t) sel, &_param);
    }
 }
 

@@ -21,7 +21,7 @@
 #define MULLE_OBJC_FASTMETHODHASH_9     0xe2942a04780e223b  // count
 #define MULLE_OBJC_FASTMETHODHASH_10    0x590f53e8699817c6  // self [^1]
 #define MULLE_OBJC_FASTMETHODHASH_11    0x0800fc577294c34e  // hash
-#define MULLE_OBJC_FASTMETHODHASH_12    0x6ceb43ffc1176cf9  // isEqual:
+#define MULLE_OBJC_FASTMETHODHASH_12    0x6ceb43ffc1176cf9  // isEqual: (good ?, it's slow)
 #define MULLE_OBJC_FASTMETHODHASH_13    0xa0d32c96ace2fe85  // timeIntervalSinceReferenceDate [^1]
 #define MULLE_OBJC_FASTMETHODHASH_14    0xdce7c4174ce93239  // lock
 #define MULLE_OBJC_FASTMETHODHASH_15    0x474f3c5e4e32cc95  // unlock
@@ -34,6 +34,6 @@
 // candidates:
 // methodForSelector:
 // performSelector:
-//
+// respondsToSelector: !
 
 #endif /* ns_fastmethodids_h */

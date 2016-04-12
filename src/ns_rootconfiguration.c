@@ -17,25 +17,6 @@
 
 
 # pragma mark -
-# pragma mark Exceptions
-
-static void  perror_abort( char *s)
-{
-   perror( s);
-   abort();
-}
-
-
-static void  init_ns_exceptionhandlertable ( struct _ns_exceptionhandlertable *table)
-{
-   unsigned int   i;
-   
-   for( i = 0; i <= MulleObjCExceptionHandlerTableSize; i++)
-      table->handlers[ i] = (i == MulleObjCExceptionErrnoHandlerIndex) ? (void *) perror_abort : (void *) abort;
-}
-
-
-# pragma mark -
 # pragma mark root object handling
 
 void   _ns_rootconfiguration_add_root( struct _ns_rootconfiguration *config, void *obj)
@@ -253,7 +234,7 @@ static void   nop( struct _mulle_objc_runtime *runtime, void *friend,  struct mu
  */
 extern void   MulleObjCDeterminePageSize( void);
 
-struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runtime,
+struct _ns_rootconfiguration  *__MulleObjC_root_setup( struct _mulle_objc_runtime *runtime,
                                                 struct _ns_root_setupconfig *config)
 {
    size_t                          size;
@@ -266,9 +247,9 @@ struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runt
 
    __mulle_objc_runtime_setup( runtime, config->runtime.allocator);
    
-   runtime->classdefaults.inheritance    = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
-   runtime->classdefaults.forwardmethod  = config->runtime.forward;
-   runtime->exceptions.uncaughtexception = (void *) config->runtime.uncaughtexception;
+   runtime->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
+   runtime->classdefaults.forwardmethod = config->runtime.forward;
+   runtime->failures.uncaughtexception  = (void *) config->runtime.uncaughtexception;
    
    neededsize = config->foundation.configurationsize;
    if( ! neededsize)
@@ -285,6 +266,12 @@ struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runt
    us.runtimefriend.destructor    = runtime_dies;
    us.runtimefriend.data          = roots;
    us.runtimefriend.versionassert = config->runtime.versionassert ? config->runtime.versionassert : nop;
+
+   allocator = config->foundation.objectallocator
+                  ? config->foundation.objectallocator
+                  : &mulle_default_allocator;
+
+   us.allocator = *allocator;
    
    roots->runtime = runtime;
    
@@ -292,9 +279,8 @@ struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runt
       in the config. It's OK to have a different allocator for Foundation
       then for the runtime. The roots->allocator is used to create instances.
     */
-   allocator = config->foundation.objectallocator
-                  ? config->foundation.objectallocator :
-                  &mulle_default_allocator;
+   
+   roots->exception.vectors = *config->foundation.exceptiontable;
 
    roots->object.roots = mulle_set_create( 32,
                                            (void *) &default_root_object_callback,
@@ -311,8 +297,6 @@ struct _ns_rootconfiguration  *__ns_root_setup( struct _mulle_objc_runtime *runt
    
    _mulle_objc_runtime_set_foundation( runtime, &us);
 
-   roots->object.allocator         = *allocator;
-   
    roots->object.debugenabled      = getenv( "MULLE_OBJC_DEBUG_ENABLED") != NULL;
    roots->object.zombieenabled     = getenv( "MULLE_OBJC_ZOMBIE_ENABLED") != NULL;
    roots->object.deallocatezombies = getenv( "MULLE_OBJC_DEALLOCATE_ZOMBIES") != NULL;
@@ -326,9 +310,7 @@ void   _ns_root_setup( struct _mulle_objc_runtime *runtime,
 {
    struct _ns_rootconfiguration   *roots;
    
-   roots = __ns_root_setup( runtime, config);
-   
-   init_ns_exceptionhandlertable ( &roots->exception.vectors);
+   roots = __MulleObjC_root_setup( runtime, config);
 
    //
    //

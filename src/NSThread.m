@@ -13,9 +13,11 @@
  */
 #import "NSThread.h"
 
+// other files in this library
 #import "NSAutoreleasePool.h"
 #import "MulleObjCAllocation.h"
 
+// std-c and dependencies
 #include <mulle_thread/mulle_thread.h>
 #include <stdlib.h>
 
@@ -30,7 +32,7 @@
                object:(id) argument
 {
    if( ! target || ! sel)
-      __NSThrowInvalidArgumentException( "target and selector must not be nil");
+      MulleObjCThrowInvalidArgumentException( @"target and selector must not be nil");
 
    self->_target   = (target == self) ? self : [target retain];
    self->_selector = sel;
@@ -47,7 +49,7 @@
    if( self->_argument != self)
       [self->_argument release];
 
-   _MulleObjCDeallocateObject( self);
+   _MulleObjCObjectFree( self);
 }
 
 
@@ -99,7 +101,7 @@ NSThread  *NSThreadInstantiateRuntimeThread()
    config = _ns_get_rootconfiguration();
 
    if( _mulle_atomic_pointer_nonatomic_read( &config->thread.n_threads))
-      __NSThrowInternalInconsistencyException( "runtime is still or already multithreaded");
+      MulleObjCThrowInternalInconsistencyException( @"runtime is still or already multithreaded");
    _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 1);
 
    // this should have happened already in the runtime init
@@ -127,7 +129,7 @@ void  NSThreadDeallocateRuntimeThread( NSThread *self)
    config = _ns_get_rootconfiguration();
 
    if( _mulle_atomic_pointer_read( &config->thread.n_threads) != (void *) 1)
-      __NSThrowInternalInconsistencyException( "runtime is still or already multithreaded");
+      MulleObjCThrowInternalInconsistencyException( @"runtime is still or already multithreaded");
    _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 0);
    assert( ! config->thread.is_multi_threaded);
    
@@ -137,7 +139,7 @@ void  NSThreadDeallocateRuntimeThread( NSThread *self)
    assert( ! self->_argument);
    assert( [self retainCount] == 1);
    
-   _MulleObjCDeallocateObject( self);
+   _MulleObjCObjectFree( self);
 }
 
 
@@ -266,7 +268,7 @@ static void   *bouncyBounce( NSThread *thread)
    struct _ns_rootconfiguration   *config;
 
    if( self->_thread)
-      __NSThrowInternalInconsistencyException( "thread already running");
+      MulleObjCThrowInternalInconsistencyException( @"thread already running");
    
    config = _ns_get_rootconfiguration();
    if( _mulle_atomic_pointer_increment( &config->thread.n_threads) == (void *) 1)
@@ -274,7 +276,7 @@ static void   *bouncyBounce( NSThread *thread)
 
    [self retain]; // retain self for thread
    if( mulle_thread_create( (void *(*)( void *)) bouncyBounce, self, &self->_thread))
-      __NSThrowErrnoException( "thread creation");
+      MulleObjCThrowErrnoException( "thread creation");
 }
 
 
@@ -294,7 +296,7 @@ static void   *bouncyBounce( NSThread *thread)
 - (void) join
 {
    if( self->_isDetached)
-      __NSThrowInternalInconsistencyException( "can't join a detached thread. Use -startUndetached");
+      MulleObjCThrowInternalInconsistencyException( @"can't join a detached thread. Use -startUndetached");
    mulle_thread_join( self->_thread);
 }
 

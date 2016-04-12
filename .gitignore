@@ -8,3 +8,5 @@ build/
 xcuserdata/
 project.xcworkspace/
 *~.*
+*.dSYM/
+*.exe

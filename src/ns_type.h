@@ -31,6 +31,9 @@ typedef mulle_objc_methodid_t         SEL;
 typedef void                          *(*IMP)( void *, SEL, void *params);
 // --- compiler defined end ---
 
+// turn off this warning, because it's wrong for us
+#pragma clang diagnostic ignored "-Wcast-of-sel-type"
+
 
 #ifndef NSINTEGER_DEFINED
 

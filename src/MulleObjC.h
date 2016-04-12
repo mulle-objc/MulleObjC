@@ -20,6 +20,8 @@
 #import "NSInvocation.h"
 #import "NSMethodSignature.h"
 #import "NSObject.h"
+#import "NSLock.h"
+#import "NSRecursiveLock.h"
 #import "NSProxy.h"
 #import "NSThread.h"
 
@@ -28,6 +30,8 @@
 #import "MulleObjCException.h"
 #import "MulleObjCSingleton.h"
 #import "NSCopying.h"
+#import "NSFastEnumeration.h"
+#import "NSLocking.h"
 #import "NSObjectProtocol.h"
 
 // functions

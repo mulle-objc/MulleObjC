@@ -29,89 +29,53 @@ static inline struct _ns_exceptionhandlertable   *MulleObjCExceptionHandlersGetT
 }
 
 
-
-static inline MulleObjCExceptionHandler   *MulleObjCExceptionHandlerWithIndex( unsigned int index)
-{
-   struct _ns_exceptionhandlertable   *table;
-   
-   table   = MulleObjCExceptionHandlersGetTable();
-   return( table->handlers[ index]);
-}
-
-
-
 __attribute__ ((noreturn))
-static inline void   __NSThrowAllocationException( size_t bytes)
+static inline void   MulleObjCThrowAllocationException( size_t bytes)
 {
-   (*(*MulleObjCExceptionHandlersGetTable)()->handlers[ MulleObjCExceptionAllocationErrorHandlerIndex])( (void *) bytes, NULL);
+   MulleObjCExceptionHandlersGetTable()->allocation_error( bytes);
 }
 
 
 __attribute__ ((noreturn))
-static inline void   __NSThrowInvalidArgumentException( void *format, ...)
+static inline void   MulleObjCThrowInvalidArgumentException( id format, ...)
 {
    va_list  args;
    
    va_start( args, format);
-   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionInvalidArgumentHandlerIndex))( format, args);
+   MulleObjCExceptionHandlersGetTable()->invalid_argument( format, args);
    va_end( args);
 }
 
 
-
-// improve this later on
 __attribute__ ((noreturn))
-static inline void   __NSThrowInvalidIndexException( NSUInteger i)
+static inline void   MulleObjCThrowInvalidIndexException( NSUInteger index)
 {
-   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionInvalidIndexHandlerIndex))( (void *) i, NULL);
+   MulleObjCExceptionHandlersGetTable()->invalid_index( index);
 }
 
 
-
 __attribute__ ((noreturn))
-static inline void   __NSThrowInternalInconsistencyException( char *format, ...)
+static inline void   MulleObjCThrowInternalInconsistencyException( id format, ...)
 {
    va_list   args;
    
    va_start( args, format);
-   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionInternalInconsistencyHandlerIndex))( format, args);
+   MulleObjCExceptionHandlersGetTable()->internal_inconsistency( format, args);
    va_end( args);
 }
 
 
 __attribute__ ((noreturn))
-static inline void   __NSThrowRangeException( NSRange range, ...)
+static inline void   MulleObjCThrowInvalidRangeException( NSRange range)
 {
-   va_list   args;
-   
-   va_start( args, range);
-   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionRangeHandlerIndex))( &range, args);
-   va_end( args);
+   MulleObjCExceptionHandlersGetTable()->invalid_range( range);
 }
 
 
 __attribute__ ((noreturn))
-static inline void   __NSThrowErrnoException( char *s)
+static inline void   MulleObjCThrowErrnoException( char *s)
 {
-   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionErrnoHandlerIndex))( s, NULL);
-}
-
-
-__attribute__ ((noreturn))
-static inline void   __NSThrowMathException( void *sel, ...)
-{
-   va_list   args;
-   
-   va_start( args, sel);
-   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionMathHandlerIndex))( sel, args);
-   va_end( args);
-}
-
-
-__attribute__ ((noreturn))
-static inline void   __NSThrowCharacterConversionException( int c)
-{
-   (*MulleObjCExceptionHandlerWithIndex( MulleObjCExceptionCharacterConversionHandlerIndex))( (void *) (long) c, NULL);
+   MulleObjCExceptionHandlersGetTable()->errno_error( s);
 }
 
 #endif

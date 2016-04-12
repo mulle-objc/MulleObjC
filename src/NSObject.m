@@ -52,13 +52,13 @@
 
 - (void) finalize
 {
-   _MulleObjCFinalizeObject( self);
 }
 
 
 - (void) dealloc
 {
-   _MulleObjCDeallocateObject( self);
+   _MulleObjCObjectZeroProperties( self);
+   _MulleObjCObjectFree( self);
 }
 
 
@@ -74,7 +74,7 @@
       struct _mulle_objc_method             *method;
       struct _mulle_objc_methoddescriptor   *desc;
       
-      method = _mulle_objc_class_search_method( _cls, _cmd, _mulle_objc_class_get_inheritance( _cls));
+      method = _mulle_objc_class_search_method( _cls, (mulle_objc_methodid_t) (mulle_objc_methodid_t) _cmd, _mulle_objc_class_get_inheritance( _cls));
       if( method)
       {
          desc = _mulle_objc_method_get_methoddescriptor( method);
@@ -84,7 +84,7 @@
 #endif
 
    obj = [_cls alloc];
-   obj = mulle_objc_object_inline_variable_selector_call( obj, _cmd, _param);
+   obj = mulle_objc_object_inline_variable_selector_call( obj, (mulle_objc_methodid_t) _cmd, _param);
    [obj autorelease];
    return( obj);
 }
@@ -107,25 +107,25 @@
 
 + (nonnull instancetype) alloc
 {
-   return( _MulleObjCAllocateObject( self, 0));
+   return( _MulleObjCClassAllocateObject( self, 0));
 }
 
 
 + (nonnull instancetype) allocWithZone:(NSZone *) zone
 {
-   return( _MulleObjCAllocateObject( self, 0));
+   return( _MulleObjCClassAllocateObject( self, 0));
 }
 
 
 - (void) finalize
 {
-   _MulleObjCFinalizeObject( self);
 }
 
 
 - (void) dealloc
 {
-   _MulleObjCDeallocateObject( self);
+   _MulleObjCObjectZeroProperties( self);
+   _MulleObjCObjectFree( self);
 }
 
 
@@ -133,10 +133,9 @@
 {
    id   p;
    
-   p = _MulleObjCAllocateObject( self, 0);
-   return( [p init]);
+   p = [NSAllocateObject( self, 0, NULL) init];
+   return( p);
 }
-
 
 #pragma mark -
 #pragma mark these methods are only called via performSelector: or some such
@@ -181,25 +180,30 @@
 #pragma mark AAO methods
 
 
-struct _mulle_objc_object   *MulleObjCCreatePlaceholder( struct _mulle_objc_class  *self, mulle_objc_classid_t classid)
+static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( struct _mulle_objc_class  *self, mulle_objc_classid_t classid)
 {
    struct _mulle_objc_runtime          *runtime;
    struct _mulle_objc_class            *cls;
    _MulleObjCInstantiatePlaceholder    *placeholder;
    struct _mulle_objc_method           *method;
+   SEL                                  initSel;
    
    assert( classid);
    
    runtime = _mulle_objc_class_get_runtime( self);
    cls     = _mulle_objc_runtime_unfailing_get_or_lookup_class( runtime, classid);
    
-   placeholder       = _MulleObjCAllocateObject( cls, 0);
+   placeholder       = _MulleObjCClassAllocateObject( cls, 0);
    placeholder->_cls = self;
    
-   method      = _mulle_objc_class_search_method( cls, @selector( __initPlaceholder), _mulle_objc_class_get_inheritance( cls));
+   initSel = @selector( __initPlaceholder);
+   method = _mulle_objc_class_search_method( cls,
+                                             (mulle_objc_methodid_t) initSel,
+                                             _mulle_objc_class_get_inheritance( cls));
    if( method)
-      (*method->implementation)( placeholder, @selector( __initPlaceholder), NULL);
-   _ns_add_placeholder( placeholder);
+      (*method->implementation)( placeholder,
+                                 (mulle_objc_methodid_t) initSel,
+                                 NULL);
 
    return( (struct _mulle_objc_object *) placeholder);
 }
@@ -214,12 +218,19 @@ struct _mulle_objc_object   *MulleObjCCreatePlaceholder( struct _mulle_objc_clas
 + (nonnull instancetype) instantiate
 {
    struct _mulle_objc_object   *placeholder;
-   
+
+retry:
    placeholder = _mulle_objc_class_get_placeholder( self);
    if( ! placeholder)
    {
-      placeholder = MulleObjCCreatePlaceholder( self, [self __instantiatePlaceholderClassid]);
-      _mulle_objc_class_set_placeholder( self, placeholder);
+      placeholder = _MulleObjCClassNewInstantiatePlaceholder( self, [self __instantiatePlaceholderClassid]);
+      _ns_add_placeholder( placeholder);
+      
+      if( ! _mulle_objc_class_set_placeholder( self, placeholder))
+      {
+         _MulleObjCObjectFree( (id) placeholder);
+         goto retry;
+      }
    }
    return( (id) placeholder);
 }
@@ -276,20 +287,6 @@ struct _mulle_objc_object   *MulleObjCCreatePlaceholder( struct _mulle_objc_clas
    _mulle_objc_runtime_unlock( runtime);
    
    return( count);
-}
-
-
-- (void) becomePlaceholder
-{
-   [self retain];
-   _ns_add_placeholder( self);
-}
-
-
-- (void) becomeSingleton
-{
-   [self retain];
-   _ns_add_singleton( self);
 }
 
 
@@ -400,14 +397,14 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (id) performSelector:(SEL) sel
 {
-   return( mulle_objc_object_inline_variable_selector_call( self, sel, (void *) 0));
+   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, (void *) 0));
 }
 
 
 - (id) performSelector:(SEL) sel
             withObject:(id) obj
 {
-   return( mulle_objc_object_inline_variable_selector_call( self, sel, (void *) obj));
+   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, (void *) obj));
 }
 
 
@@ -432,7 +429,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    param.data.obj1 = obj1;
    param.data.obj2 = obj2;
    
-   return( mulle_objc_object_inline_variable_selector_call( self, sel, &param));
+   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, &param));
 }
           
 
@@ -490,7 +487,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    IMP     imp;
    
    cls = _mulle_objc_object_get_isa( self);
-   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, sel);
+   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
 
@@ -505,7 +502,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 {
    IMP   imp;
    
-   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( self, sel);
+   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( self, (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
 
@@ -513,13 +510,13 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 + (IMP) instanceMethodForSelector:(SEL) sel
 {
    // don't cache the forward entry yet
-   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( self, sel));
+   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( self, (mulle_objc_methodid_t) sel));
 }
 
 
 - (IMP) methodForSelector:(SEL) sel
 {
-   return( (IMP) _mulle_objc_object_lookup_or_search_methodimplementation( (void *) self, sel));
+   return( (IMP) _mulle_objc_object_lookup_or_search_methodimplementation( (void *) self, (mulle_objc_methodid_t) sel));
 }
 
 
@@ -591,7 +588,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    struct _mulle_objc_class   *cls;
    
    cls = _mulle_objc_object_get_isa( self);
-   _mulle_objc_class_raise_method_not_found_exception( cls, sel);
+   _mulle_objc_class_raise_method_not_found_exception( cls, (mulle_objc_methodid_t) sel);
 }
 
 
@@ -601,7 +598,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    struct _mulle_objc_method   *method;
    
    cls    = _mulle_objc_object_get_isa( self);
-   method = _mulle_objc_class_search_method( cls, sel, _mulle_objc_class_get_inheritance( cls));
+   method = _mulle_objc_class_search_method( cls, (mulle_objc_methodid_t) sel, _mulle_objc_class_get_inheritance( cls));
    if( ! method)
       return( nil);
    
@@ -620,7 +617,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    
    target = [self forwardingTargetForSelector:_cmd];
    if( target)
-      return( mulle_objc_object_inline_variable_selector_call( target, _cmd, _param));
+      return( mulle_objc_object_inline_variable_selector_call( target, (mulle_objc_methodid_t) _cmd, _param));
 
    /*
     * the slowness of these operations can not even be charted

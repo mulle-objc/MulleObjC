@@ -10,8 +10,10 @@
 
 char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
 
-void   MulleObjCMakeObjectsPerformSelector( id *objects, unsigned int n, SEL sel, id argument);
-void   MulleObjCMakeObjectsPerformSelector2( id *objects, unsigned int n, SEL sel, id argument, id argument2);
+void   MulleObjCMakeObjectsPerformSelector( id *objects, NSUInteger n, SEL sel, id argument);
+void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel, id argument, id argument2);
+
+void   MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n);
 
 
 void   *MulleObjCStringFromClass( Class cls);

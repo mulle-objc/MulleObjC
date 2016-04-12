@@ -11,16 +11,18 @@
 
 //
 // this protocol adds an +alloc mechanism to the
-// +instantiate mechanism. It also exposes two methods, you
-// use in your class to change the placeholder
+// +instantiate mechanism. It also exposes a method, you
+// may need in your class to change the instantiate placeholder
 //
 // use it like this:
 //  <your class> : MulleObjCClassCluster  , will alloc placeholder
 //  <your subclass> : <your class>,         will NSAllocateObject
 //
-@protocol MulleObjCClassCluster
+// When you call +alloc you get a retained placeholder back. In your
+// init method, you should release it.
+//
+@protocol MulleObjCClassCluster 
 
-+ (mulle_objc_classid_t) __classClusterPlaceholderClassid;
 @optional
 + (mulle_objc_classid_t) __instantiatePlaceholderClassid;
 

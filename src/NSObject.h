@@ -17,6 +17,10 @@
 #import "ns_zone.h"
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-completeness"
+#pragma clang diagnostic ignored "-Wcast-of-sel-type"
+
 //
 // +load: mulle-objc-runtime guarantees, that the class and therefore the
 //        superclass too is available. Messaging other classes in the same
@@ -96,8 +100,6 @@
 // advanced Autorelease and ObjectGraph support
 
 - (void) becomeRootObject;        // retains  #1#
-- (void) becomePlaceholder;       // these stay until the runtime dies
-- (void) becomeSingleton;         // these stay until the runtime dies
 
 - (void) resignAsRootObject;      // autoreleases
 - (void) pushToParentAutoreleasePool;
@@ -117,12 +119,12 @@
 
 @end
 
+#pragma clang diagnostic push
+
 
 //
 // HACKISH stuff
 //
-struct _mulle_objc_object   *MulleObjCCreatePlaceholder( struct _mulle_objc_class *self, mulle_objc_classid_t classid);
-
 //
 // this can be useful for creating placeholder objects
 // TODO: make this a runtime struct like classpair

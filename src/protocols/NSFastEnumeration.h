@@ -11,15 +11,15 @@
  *  $Id$
  *
  */
-#import "NSTypes.h"
+#import "ns_type.h"
 
 
-typedef struct 
+typedef struct
 {
-    unsigned long   state;
-    id              *itemsPtr;
-    unsigned long   *mutationsPtr;
-    unsigned long   extra[5];
+   unsigned long   state;
+   id              *itemsPtr;
+   unsigned long   *mutationsPtr;
+   unsigned long   extra[5];
 } NSFastEnumerationState;
 
 

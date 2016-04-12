@@ -8,9 +8,16 @@
 
 #import "NSObjectProtocol.h"
 
-
+//
+// singletons are expected to be created through "sharedInstance"
+// and not through alloc, if you use alloc you get another instance
+//
 @protocol MulleObjCSingleton < NSObject>
 
 + (instancetype) sharedInstance;
 
 @end
+
+// for subclasses, who don't use sharedInstance
+id  MulleObjCSingletonCreate( Class self);
+
