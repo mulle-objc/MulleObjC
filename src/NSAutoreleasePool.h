@@ -87,6 +87,27 @@ static inline id   NSAutoreleaseObject( id obj)
 }
 
 
+static inline void   _MulleObjCAutoreleaseObjects( id *objects, NSUInteger count)
+{
+   struct _ns_poolconfiguration   *config;
+   
+   config = _ns_get_poolconfiguration();
+   (*config->autoreleaseObjects)( config, objects, count, sizeof( id));
+}
+
+
+static inline void   _MulleObjCAutoreleaseSpacedObjects( id *objects, NSUInteger count, NSUInteger step)
+{
+   struct _ns_poolconfiguration   *config;
+   
+   config = _ns_get_poolconfiguration();
+   (*config->autoreleaseObjects)( config, objects, count, step);
+}
+
+
+
+
+
 // for NSThread
 void   _ns_poolconfiguration_set_thread( void);
 void   _ns_poolconfiguration_unset_thread( void);

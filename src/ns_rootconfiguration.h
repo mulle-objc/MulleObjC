@@ -31,8 +31,6 @@
 
 struct _ns_objectconfiguration
 {
-   struct mulle_allocator   allocator;  // for easy access to allocator keep this up here
-
    struct mulle_set         *roots;
 
    // single out some known classes into their own sets
@@ -56,9 +54,8 @@ struct _ns_threadconfiguration
 
 struct _ns_stringconfiguration
 {
-   struct _mulle_objc_class   *static_string_class;
-   void                       *(*objectfromchars)( char *s);
-   char                       *(*charsfromobject)( void *obj);
+   void   *(*objectfromchars)( char *s);
+   char   *(*charsfromobject)( void *obj);
 };
 
 
@@ -70,7 +67,6 @@ struct _ns_exceptionconfiguration
 
 struct _ns_autoreleasepool
 {
-   
    mulle_thread_tss_t   config_key;
    Class                pool_class;
 };
@@ -102,8 +98,9 @@ struct _ns_root_runtimeconfig
 
 struct _ns_root_foundationconfig
 {
-   size_t                   configurationsize;
-   struct mulle_allocator   *objectallocator;
+   size_t                             configurationsize;
+   struct mulle_allocator             *objectallocator;
+   struct _ns_exceptionhandlertable   *exceptiontable;  // must be set
 };
 
 
@@ -114,7 +111,7 @@ struct _ns_root_setupconfig
 };
 
 
-struct _ns_rootconfiguration   *__ns_root_setup( struct _mulle_objc_runtime *runtime,
+struct _ns_rootconfiguration   *__MulleObjC_root_setup( struct _mulle_objc_runtime *runtime,
                                                  struct _ns_root_setupconfig *config);
 
 // this also sets up exception vectors

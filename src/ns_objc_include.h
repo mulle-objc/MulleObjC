@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <limits.h>
+
 
 #ifdef __clang__
 # if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && ((__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__-0) <= 1040)

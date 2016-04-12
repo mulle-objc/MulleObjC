@@ -1,0 +1,8 @@
+startUndetached
++new
+1
++new
+2
+-dealloc
+-dealloc
+joined

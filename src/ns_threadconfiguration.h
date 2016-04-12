@@ -18,7 +18,7 @@
 struct _ns_poolconfiguration
 {
    void   (*autoreleaseObject)( struct _ns_poolconfiguration *, id);
-   void   (*autoreleaseObjects)( struct _ns_poolconfiguration *, id *, NSUInteger);
+   void   (*autoreleaseObjects)( struct _ns_poolconfiguration *, id *, NSUInteger, NSUInteger);
    
    id                         tail;     // NSAutoreleasepool
    struct _mulle_objc_class   *poolClass;

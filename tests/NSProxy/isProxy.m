@@ -11,6 +11,7 @@
 
 @implementation Foo
 
+#ifdef __MULLE_OBJC_RUNTIME__
 + (id) new
 {
    return( (Foo *) _mulle_objc_class_unfailing_alloc_instance( (void *) self, calloc));
@@ -20,6 +21,7 @@
 {
    _mulle_objc_object_free( (void *) self, free);
 }
+#endif
 
 @end
 

@@ -14,12 +14,18 @@
 
 #import "NSAutoreleasePool.h"
 
-#import "NSAutoreleasePool+Private.h"
+
+// other files in this library
 #import "MulleObjCAllocation.h"
 #import "NSDebug.h"
 #import "NSThread.h"
 #include "ns_zone.h"
 #include "_ns_autoreleasepointerarray.h"
+
+// other libraries of MulleObjCFoundation
+
+// std-c and dependencies
+
 
 
 #define AUTORELEASEPOOL_HASH   0x511c9ac972f81c49  // NSAutoreleasePool
@@ -33,11 +39,13 @@ static void   *pushAutoreleasePool( struct _ns_poolconfiguration *config);
 
 static void   _autoreleaseObject( struct _ns_poolconfiguration *config, id p);
 static void   _autoreleaseObjects( struct _ns_poolconfiguration *config,
-                                   id *objects, NSUInteger count);
+                                   id *objects,
+                                   NSUInteger count,
+                                   NSUInteger step);
 
 
 
-static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
+static void   __MulleObjC_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
 {
    char   *s;
    
@@ -55,7 +63,7 @@ static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *
 
 void   _ns_poolconfiguration_set_thread( void)
 {
-   __ns_poolconfiguration_set_thread( _ns_get_poolconfiguration());
+   __MulleObjC_poolconfiguration_set_thread( _ns_get_poolconfiguration());
 }
 
 
@@ -76,7 +84,7 @@ void   _ns_poolconfiguration_set_thread( void)
    local  = _mulle_objc_threadconfig_get_foundationspace( threadconfig);
    config = &local->poolconfig;
    
-   __ns_poolconfiguration_set_thread( config);
+   __MulleObjC_poolconfiguration_set_thread( config);
 }
 
 
@@ -129,16 +137,13 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
 {
    struct _mulle_autoreleasepointerarray   *array;
    
-   if( ! self)
-   {
-      // or talk about leaking
-      abort();
-   }   
-#if DEBUG   
+   assert( self != nil);
    assert( p != nil);
+   assert( _mulle_objc_object_get_isa( p));
+   assert( _mulle_objc_class_get_runtime( _mulle_objc_object_get_isa( p)) ==
+           _mulle_objc_class_get_runtime( _ns_get_autoreleasepoolclass())) ;
    assert( _mulle_objc_object_get_isa( p) != _ns_get_autoreleasepoolclass());
    assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
-#endif
 
    array = (struct _mulle_autoreleasepointerarray *) self->_storage;
    if( !  _mulle_autoreleasepointerarray_can_add( array))
@@ -147,11 +152,20 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
 }
 
 
-static inline void   addObjects( NSAutoreleasePool *self, id *objects, NSUInteger count)
+/* objects can have space between them 
+ * ex.  objects = struct { id a; intptr_t x; }[ 120];
+ *      addObjects( self, objects, 120, sizeof( id) + sizeof( intptr_t))
+ */
+static inline void   addObjects( NSAutoreleasePool *self,
+                                 id *objects,
+                                 NSUInteger count,
+                                 NSUInteger step)
 {
-   NSUInteger                           amount;
+   NSUInteger                              amount;
    struct _mulle_autoreleasepointerarray   *array;
 
+   assert( step >= sizeof( id));
+   
    if( ! self)
    {
       // or talk about leaking
@@ -161,14 +175,21 @@ static inline void   addObjects( NSAutoreleasePool *self, id *objects, NSUIntege
 #if DEBUG   
    {
       NSUInteger   i;
-      id           p;
-
-      for( i = 0; i < count; i++)
+      id           q;
+      char         *p;
+      char         *sentinel;
+      
+      p        = (char *) objects;
+      sentinel = &p[ step * count];
+      
+      while( p < sentinel)
       {
-         p = objects[ i];
-         assert( p != nil);
-         assert( _mulle_objc_object_get_isa( p) !=_ns_get_autoreleasepoolclass());
-         assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
+         q  = *(id *) p;
+         p += step;
+         
+         assert( q != nil);
+         assert( _mulle_objc_object_get_isa( q) !=_ns_get_autoreleasepoolclass());
+         assert( [q isProxy] || [q respondsToSelector:@selector( release)]);
       }
    }
 #endif
@@ -180,13 +201,30 @@ static inline void   addObjects( NSAutoreleasePool *self, id *objects, NSUIntege
       if( ! amount)
       {
          self->_storage = array = _mulle_autoreleasepointerarray_create( array);
-         amount         = N_MULLE_OBJECT_C_ARRAY;
+         amount         = MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS;
       }
       
       if( count < amount)
          amount = count;
       
-      memcpy( &array->objects_[ array->used_], objects, amount);
+      if( step != sizeof( id))
+      {
+         char   *p;
+         char   *sentinel;
+         id     *dst;
+         
+         dst      = &array->objects_[ array->used_];
+         p        = (char *) objects;
+         sentinel = &p[ step * amount];
+         
+         while( p < sentinel)
+         {
+            *dst++ = *(id *) p;
+            p     += step;
+         }
+      }
+      else
+         memcpy( &array->objects_[ array->used_], objects, amount);
       
       array->used_ += amount;
       objects       = &objects[ amount];
@@ -238,6 +276,7 @@ static void   _autoreleaseObject( struct _ns_poolconfiguration *config, id p)
       // --------------------------------------------------------------------
       // to release the object now, would be cool... alas not possible f.e.
       // for strings that are created on the fly in NSLog messages in dealloc
+      // or finalize
       // --------------------------------------------------------------------
 #if FORBID_ALLOC_DURING_AUTORELEASE
       if( config->trace & 0x2)
@@ -262,7 +301,10 @@ static inline void   autoreleaseObject( id p)
 }
 
 
-static void   _autoreleaseObjects( struct _ns_poolconfiguration *config, id *objects, NSUInteger count)
+static void   _autoreleaseObjects( struct _ns_poolconfiguration *config,
+                                   id *objects,
+                                   NSUInteger count,
+                                   NSUInteger step)
 {
    if( ! objects || ! count)
       return;
@@ -273,7 +315,7 @@ static void   _autoreleaseObjects( struct _ns_poolconfiguration *config, id *obj
       return;
    }
    
-   addObjects( config->tail, objects, count);
+   addObjects( config->tail, objects, count, step);
    
    if( config->trace & 0x1)
    {
@@ -294,7 +336,7 @@ static inline void   autoreleaseObjects( id *objects, NSUInteger count)
    struct _ns_poolconfiguration   *config;
    
    config = _ns_get_poolconfiguration();
-   _autoreleaseObjects( config, objects, count);
+   _autoreleaseObjects( config, objects, count, sizeof( id));
 }
 
 
@@ -338,7 +380,7 @@ static void   *pushAutoreleasePool( struct _ns_poolconfiguration *config)
    //
    // avoid zeroing out the initial buffer
    //
-   pool             = MulleObjCAllocateNonZeroedObject( config->poolClass,
+   pool             = _MulleObjCClassAllocateNonZeroedObject( config->poolClass,
                                                         sizeof( struct _mulle_autoreleasepointerarray));
    array            = static_storage( config, pool);
    pool->_storage   = array;

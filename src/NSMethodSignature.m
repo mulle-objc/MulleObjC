@@ -128,7 +128,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 - (char *) getArgumentTypeAtIndex:(NSUInteger) i
 {  
    if( i >= _count)
-      __NSThrowInvalidIndexException( i);
+      MulleObjCThrowInvalidIndexException( i);
 
    // will have trailing garbage, but who cares ?
    return( get_infos( self)[ 1 + i].type);
@@ -139,7 +139,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 - (MulleObjCMethodSignatureTypeinfo *) _runtimeTypeInfoAtIndex:(NSUInteger) i
 {
    if( i >= _count + 1)
-      __NSThrowInvalidIndexException( i);
+      MulleObjCThrowInvalidIndexException( i);
       
    return( &get_infos( self)[ i]);
 }

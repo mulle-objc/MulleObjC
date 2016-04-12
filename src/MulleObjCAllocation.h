@@ -22,17 +22,52 @@
 #import "NSDebug.h"
 
 
+__attribute__((const))
+static inline struct mulle_allocator   *MulleObjCObjectGetAllocator( id obj)
+{
+   struct _mulle_objc_class        *cls;
+   struct _mulle_objc_runtime      *runtime;
+   struct _mulle_objc_foundation   *foundation;
+   
+   if( ! obj)
+      return( NULL);
+   
+   cls        = _mulle_objc_object_get_isa( obj);
+   runtime    = _mulle_objc_class_get_runtime( cls);
+   foundation = _mulle_objc_runtime_get_foundation( runtime);
+   return( &foundation->allocator);
+}
+
+
+__attribute__((const))
+static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
+{
+   struct _mulle_objc_runtime      *runtime;
+   struct _mulle_objc_foundation   *foundation;
+
+   if( ! cls)
+      return( NULL);
+   
+   runtime    = _mulle_objc_class_get_runtime( (struct _mulle_objc_class *) cls);
+   foundation = _mulle_objc_runtime_get_foundation( runtime);
+   return( &foundation->allocator);
+}
+
+
 __attribute__((returns_nonnull))
-static inline id    _MulleObjCAllocateObject( Class cls, NSUInteger extra)
+static inline id    _MulleObjCClassAllocateObject( Class cls, NSUInteger extra)
 {
    struct _mulle_objc_objectheader   *header;
+   struct mulle_allocator            *allocator;
    NSUInteger                        size;
    
    assert( cls);
    assert( _mulle_objc_class_is_infraclass( cls));
 
-   size   = _mulle_objc_class_get_instance_and_header_size( cls) + extra;
-   header = MulleObjCAllocateMemory( size);
+   allocator = _mulle_objc_class_get_allocator( cls);
+   
+   size      = _mulle_objc_class_get_instance_and_header_size( cls) + extra;
+   header    = _mulle_allocator_calloc( allocator, 1, size);
 
    _mulle_objc_objectheader_set_isa( header, cls);
    return( (id) _mulle_objc_objectheader_get_object( header));
@@ -40,16 +75,19 @@ static inline id    _MulleObjCAllocateObject( Class cls, NSUInteger extra)
 
 
 __attribute__((returns_nonnull))
-static inline id    MulleObjCAllocateNonZeroedObject( Class cls, NSUInteger extra)
+static inline id    _MulleObjCClassAllocateNonZeroedObject( Class cls, NSUInteger extra)
 {
    struct _mulle_objc_objectheader   *header;
+   struct mulle_allocator            *allocator;
    NSUInteger                        size;
    
    assert( cls);
    assert( _mulle_objc_class_is_infraclass( cls));
    
+   allocator = _mulle_objc_class_get_allocator( cls);
+
    size   = _mulle_objc_class_get_instance_and_header_size( cls) + extra;
-   header = MulleObjCAllocateNonZeroedMemory( size);
+   header = _mulle_allocator_malloc( allocator, size);
    
    _mulle_atomic_pointer_nonatomic_write( &header->retaincount_1, 0);
    _mulle_objc_objectheader_set_isa( header, cls);
@@ -57,8 +95,7 @@ static inline id    MulleObjCAllocateNonZeroedObject( Class cls, NSUInteger extr
 }
 
 
-// this zeroes properties
-static inline void  _MulleObjCFinalizeObject( id obj)
+static inline void   _MulleObjCObjectZeroProperties( id obj)
 {
    extern int   MulleObjCObjectZeroProperty( struct _mulle_objc_property *, struct _mulle_objc_class *, void *);
    struct _mulle_objc_class   *cls;
@@ -70,10 +107,11 @@ static inline void  _MulleObjCFinalizeObject( id obj)
 
 
 // this does not zero properties
-static inline void   _MulleObjCDeallocateObject( id obj)
+static inline void   _MulleObjCObjectFree( id obj)
 {
    struct _mulle_objc_objectheader   *header;
    struct _ns_rootconfiguration      *config;
+   struct mulle_allocator            *allocator;
    
    config = _ns_get_rootconfiguration();
    if( config->object.zombieenabled)
@@ -83,21 +121,21 @@ static inline void   _MulleObjCDeallocateObject( id obj)
          return;
    }
    
-   header = _mulle_objc_object_get_objectheader( obj);
+   allocator = _mulle_objc_class_get_allocator( _mulle_objc_object_get_isa( obj));
+   header    = _mulle_objc_object_get_objectheader( obj);
 #if DEBUG
    // malloc scribble will kill it though
    header->isa = (void *) (intptr_t) 0xDEADDEADDEADDEAD;
 #endif
-   MulleObjCDeallocateMemory( header);
+   _mulle_allocator_free( allocator, header);
 }
 
 
-static inline id     NSAllocateObject( Class meta, NSUInteger extra, NSZone *zone)
+static inline id     NSAllocateObject( Class infra, NSUInteger extra, NSZone *zone)
 {
-   return( _MulleObjCAllocateObject( meta, extra));
+   return( _MulleObjCClassAllocateObject( infra, extra));
 }
 
-void   NSFinalizeObject( id ob);
 void   NSDeallocateObject( id obj);  
 
 

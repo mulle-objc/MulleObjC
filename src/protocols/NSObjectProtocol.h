@@ -63,8 +63,6 @@
 
 // advanced Autorelease and ObjectGraph support
 - (void) becomeRootObject;
-- (void) becomeSingleton;
-- (void) becomePlaceholder;
 - (void) pushToParentAutoreleasePool;
 
 @end

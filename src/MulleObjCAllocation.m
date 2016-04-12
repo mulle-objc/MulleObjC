@@ -26,15 +26,8 @@ int   MulleObjCObjectZeroProperty( struct _mulle_objc_property *property, struct
 }
 
 
-void   NSFinalizeObject( id self)
-{
-   if( self)
-      _MulleObjCFinalizeObject( self);
-}
-
-
 void   NSDeallocateObject( id self)
 {
    if( self)
-      _MulleObjCDeallocateObject( self);
+      _MulleObjCObjectFree( self);
 }

@@ -14,14 +14,25 @@
 #ifndef _mulle_autoreleasepointerarray__h___
 #define _mulle_autoreleasepointerarray__h___
 
-/* rename this to not mention NSObject */
+
+// for an NSAutoreleasePool we'd like to allocate two memory pages (8k)
+// so that's
+//  sizeof( NSAutoreleasePool) == 2 * sizeof( intptr_t)
+//  sizeof( struct _mulle_objc_objectheader) == 2 * sizeof( intptr_t))
+//  sizeof( struct _mulle_autoreleasepointerarray)
+// == 8192
+//
+#define MULLE_OBJC_TWOPAGES_LESS_AUTORELEASE_POOL   (4096 * 2 - 4 * sizeof( intptr_t))
+
+#define MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS    ((MULLE_OBJC_TWOPAGES_LESS_AUTORELEASE_POOL - 2 * sizeof( intptr_t)) / sizeof( id))
+
+
 
 struct _mulle_autoreleasepointerarray
 {
-   id             objects_[ N_MULLE_OBJECT_C_ARRAY];
-   unsigned int   used_;
-   
    struct _mulle_autoreleasepointerarray   *previous_;
+   NSUInteger                              used_;
+   id                                      objects_[ MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS];
 };
 
 
@@ -80,7 +91,7 @@ _mulle_autoreleasepointerarray_dump_objects(
 
 static inline BOOL   _mulle_autoreleasepointerarray_is_full( struct _mulle_autoreleasepointerarray *array)
 {
-   return( array->used_ >= N_MULLE_OBJECT_C_ARRAY);
+   return( array->used_ >= MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS);
 }
 
 
@@ -92,13 +103,13 @@ static inline BOOL   _mulle_autoreleasepointerarray_can_add( struct _mulle_autor
 
 static inline size_t   _mulle_autoreleasepointerarray_space_left( struct _mulle_autoreleasepointerarray *array)
 {
-   return( array ? N_MULLE_OBJECT_C_ARRAY - array->used_ : 0);
+   return( array ? MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS - array->used_ : 0);
 }
 
 
 static inline void   _mulle_autoreleasepointerarray_add( struct _mulle_autoreleasepointerarray *array, id p)
 {
-   assert( array->used_ < N_MULLE_OBJECT_C_ARRAY);
+   assert( array->used_ < MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS);
    array->objects_[ array->used_++] = p;
 }
 
@@ -121,9 +132,6 @@ static inline int   _mulle_autoreleasepointerarray_contains( struct _mulle_autor
    
    return( 0);
 }
-
-
-
 
 #endif
 

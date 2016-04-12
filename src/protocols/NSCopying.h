@@ -19,7 +19,7 @@
 //
 // the old copyWithZone: still works, but it's gone from the protocol
 //
-@protocol NSCopying
+@protocol NSCopying 
 
 - (instancetype) copy;
 

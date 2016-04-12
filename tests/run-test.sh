@@ -203,11 +203,11 @@ maybe_show_diagnostics()
    errput="$1"
 
    local contents
-   contents="`head -2 "$errput"`" 2> /dev/null
+   contents="`grep -v ') malloc: ' "${errput}"| head -2`" 2> /dev/null
    if [ "${contents}" != "" ]
    then
       echo "DIAGNOSTICS:" >&2
-      cat  "$errput"
+      grep -v ') malloc: ' "${errput}"
    fi
 }
 

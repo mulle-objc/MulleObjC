@@ -16,25 +16,43 @@
 #define MulleObjCClassClusterHash    0x05202825d261fbb7  // MulleObjCClassCluster
 
 
-@interface MulleObjCClassCluster
+@interface MulleObjCClassCluster < NSObject, MulleObjCClassCluster>
 @end
 
 
 @implementation MulleObjCClassCluster
 
-+ (mulle_objc_classid_t) __classClusterPlaceholderClassid
+//
+// this gets inherited by the class, that implements the protocol
+// but JUST that class
+//
++ (void) initialize
 {
-   return( MULLE_OBJC_NO_CLASSID);
+   _mulle_objc_class_set_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER);
 }
 
 
-+ (id) alloc
+static id   MulleObjCNewClassClusterPlaceholder( struct _mulle_objc_class  *self)
 {
-   extern struct _mulle_objc_object   *MulleObjCCreatePlaceholder( struct _mulle_objc_class  *, mulle_objc_classid_t);
+   struct _mulle_objc_method    *method;
+   id                           placeholder;
    
+   placeholder = NSAllocateObject( self, 0, NULL);
+   method      = _mulle_objc_class_search_method( self,
+                                                  @selector( __initPlaceholder),
+                                                 _mulle_objc_class_get_inheritance( self));
+   if( method)
+      (*method->implementation)( placeholder, @selector( __initPlaceholder), NULL);
+
+   return( placeholder);
+}
+
+
++ (nonnull instancetype) alloc
+{
    struct _mulle_objc_object   *placeholder;
    struct _mulle_objc_class    *supercls;
-   
+   mulle_objc_classid_t        classid;
    
    //
    // only the class marked as MulleObjCClassCluster gets the
@@ -50,11 +68,19 @@
    placeholder = _mulle_objc_class_get_auxplaceholder( self);
    if( ! placeholder)
    {
-      placeholder = MulleObjCCreatePlaceholder( self, [self __classClusterPlaceholderClassid]);
-      [(id) placeholder becomePlaceholder];
+      placeholder = (struct _mulle_objc_object *) MulleObjCNewClassClusterPlaceholder( self);
+      _ns_add_placeholder( placeholder);
       _mulle_objc_class_set_auxplaceholder( self, placeholder);
    }
-   return( (id) placeholder);
+   
+   // retain the placeholder
+   return( [(id) placeholder retain]);
+}
+
+
++ (nonnull instancetype) new
+{
+   return( [[self alloc] init]);
 }
 
 @end

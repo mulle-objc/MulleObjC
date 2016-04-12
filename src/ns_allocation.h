@@ -29,10 +29,12 @@ extern struct mulle_allocator    mulle_allocator_objc;
 __attribute__((const,returns_nonnull))
 static inline void  *MulleObjCAllocator()
 {
-   struct _ns_rootconfiguration   *configuration;
+   struct _mulle_objc_runtime      *runtime;
+   struct _mulle_objc_foundation   *foundation;
    
-   configuration = _ns_get_rootconfiguration();
-   return( &configuration->object.allocator);
+   runtime    = mulle_objc_get_runtime();
+   foundation = _mulle_objc_runtime_get_foundation( runtime);
+   return( &foundation->allocator);
 }
 
 
@@ -69,7 +71,7 @@ void   NSDeallocateMemoryPages( void *ptr, NSUInteger size);
 
 static inline NSUInteger   NSPageSize()
 {
-   extern size_t   _ns_page_size;
+   extern NSUInteger   _ns_page_size;
 
    return( _ns_page_size);  // or let compiler determine it with ifdefs
 }
@@ -77,7 +79,7 @@ static inline NSUInteger   NSPageSize()
 
 static inline NSUInteger   NSLogPageSize()
 {
-   extern unsigned int   _ns_log_page_size;
+   extern NSUInteger   _ns_log_page_size;
 
    return( _ns_log_page_size);
 }

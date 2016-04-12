@@ -8,11 +8,13 @@
 
 #import "MulleObjCException.h"
 
-@interface MulleObjCException
+
+@interface MulleObjCException < MulleObjCException>
 
 - (void) raise  __attribute__((noreturn));
 
 @end
+
 
 @implementation MulleObjCException
 
