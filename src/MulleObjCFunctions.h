@@ -16,7 +16,7 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel,
 void   MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n);
 
 
-void   *MulleObjCStringFromClass( Class cls);
-void   *MulleObjCStringFromSelector( SEL sel);
-Class   MulleObjCClassFromString( void *obj);
-SEL     MulleObjCSelectorFromString( void *obj);
+void   *MulleObjCClassGetName( Class cls);
+void   *MulleObjCSelectorGetName( SEL sel);
+Class   MulleObjCLookupClassByName( id obj);
+SEL     MulleObjCCreateSelector( id obj);

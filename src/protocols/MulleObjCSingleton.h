@@ -14,6 +14,7 @@
 //
 @protocol MulleObjCSingleton < NSObject>
 
+@optional  // MulleObjCSingleton implements this for you
 + (instancetype) sharedInstance;
 
 @end

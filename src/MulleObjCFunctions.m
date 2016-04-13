@@ -144,15 +144,16 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel,
 # pragma mark -
 # pragma mark String Functions
 
-void   *MulleObjCStringFromClass( Class cls)
+void   *MulleObjCClassGetName( Class cls)
 {
    if( ! cls)
       return( NULL);
+
    return( _ns_string( _mulle_objc_class_get_name( cls)));
 }
 
 
-void   *MulleObjCStringFromSelector( SEL sel)
+void   *MulleObjCSelectorGetName( SEL sel)
 {
    char                                  *s;
    struct _mulle_objc_methoddescriptor   *desc;
@@ -166,7 +167,7 @@ void   *MulleObjCStringFromSelector( SEL sel)
 }
 
 
-Class   MulleObjCClassFromString( void *obj)
+Class   MulleObjCLookupClassByName( id obj)
 {
    char                         *s;
    struct _mulle_objc_runtime   *runtime;
@@ -186,7 +187,7 @@ Class   MulleObjCClassFromString( void *obj)
 }
 
 
-SEL     MulleObjCSelectorFromString( void *obj)
+SEL     MulleObjCCreateSelector( id obj)
 {
    char                    *s;
    mulle_objc_methodid_t   methodid;

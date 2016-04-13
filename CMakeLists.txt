@@ -2,17 +2,22 @@ cmake_minimum_required (VERSION 3.0)
 
 project (MulleObjC)
 
+
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/mulle-configuration)
+message(STATUS "CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
+message(STATUS "CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
+if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+  include( Debug)
+else()
+  include( Release)
+endif()
+
+
 include_directories(
 src
 src/protocols
 )
 
-include_directories( BEFORE SYSTEM
-dependencies/include
-)
-
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -g -DNDEBUG")
 
 set(HEADERS
 src/MulleObjC.h
@@ -31,6 +36,7 @@ src/NSRecursiveLock.h
 src/NSThread.h
 src/ns_allocation.h
 src/ns_debug.h
+src/_ns_exception.h
 src/ns_exception.h
 src/ns_fastclassids.h
 src/ns_fastmethodids.h
@@ -51,7 +57,7 @@ src/protocols/NSLocking.h
 src/protocols/NSObjectProtocol.h)
 
 
-add_library(MulleObjC
+add_library(MulleObjC STATIC
 src/MulleObjCAllocation.m
 src/MulleObjCFunctions.m
 src/NSAutoreleasePool.m
@@ -74,5 +80,23 @@ src/protocols/MulleObjCSingleton.m
 src/protocols/NSCopying.m)
 
 
-INSTALL(TARGETS MulleObjC DESTINATION "lib")
-INSTALL(FILES ${HEADERS} DESTINATION "include/MulleObjC")
+add_library( MulleStandaloneObjC SHARED
+src/MulleStandaloneObjC.m
+src/ns_test_allocation.c
+)
+
+add_dependencies( MulleStandaloneObjC MulleObjC)
+
+TARGET_LINK_LIBRARIES( MulleStandaloneObjC
+MulleObjC
+mulle_objc_runtime
+mulle_container
+mulle_concurrent
+mulle_aba
+mulle_allocator
+mulle_test_allocator )
+
+
+INSTALL( TARGETS MulleObjC MulleStandaloneObjC DESTINATION "lib")
+INSTALL( FILES ${HEADERS} DESTINATION "include/MulleObjC")
+INSTALL( FILES src/MulleStandaloneObjC.h src/ns_test_allocation.h DESTINATION "include/MulleStandaloneObjC")

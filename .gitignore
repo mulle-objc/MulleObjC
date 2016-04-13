@@ -11,3 +11,6 @@ project.xcworkspace/
 *.dSYM/
 *.exe
 call-benchmark/
+old/
+tmp/
+
