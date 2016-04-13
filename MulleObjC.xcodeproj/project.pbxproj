@@ -41,7 +41,7 @@
 		410FA25D1C6624F500927C72 /* ns_fastmethodids.h in Headers */ = {isa = PBXBuildFile; fileRef = 410FA25B1C6624F500927C72 /* ns_fastmethodids.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		411C19231C86FDC600B09881 /* libmulle_test_allocator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 411C19221C86FDC600B09881 /* libmulle_test_allocator.a */; };
 		411C19271C86FE0500B09881 /* ns_test_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 411C19261C86FE0500B09881 /* ns_test_allocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		41300CAA1C87185100D1D1C1 /* libMulleStandaloneObjC.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.dylib */; };
+		41300CAA1C87185100D1D1C1 /* libMulleStandaloneObjC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.a */; };
 		415A022E1CB04060003C4ACF /* NSFastEnumeration.h in Headers */ = {isa = PBXBuildFile; fileRef = 415A022D1CB04060003C4ACF /* NSFastEnumeration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		415A02301CB04138003C4ACF /* NSLocking.h in Headers */ = {isa = PBXBuildFile; fileRef = 415A022F1CB04138003C4ACF /* NSLocking.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		415A02371CB04154003C4ACF /* NSLock.h in Headers */ = {isa = PBXBuildFile; fileRef = 415A02321CB04154003C4ACF /* NSLock.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -80,7 +80,7 @@
 		417D8AD11C89B8C600C3EFC9 /* ns_threadconfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 417D8ACE1C89A7E500C3EFC9 /* ns_threadconfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4183C3621BDAE344009BE58B /* NSThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 419C582F1BCFF32000731B64 /* NSThread.m */; };
 		4185027E1C8755B8008C77C4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41280D501BD4EBBD00E81F91 /* main.m */; };
-		4185027F1C8755D9008C77C4 /* libMulleStandaloneObjC.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.dylib */; };
+		4185027F1C8755D9008C77C4 /* libMulleStandaloneObjC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.a */; };
 		41872A2A1C67870F0087DFB1 /* MulleObjCAllocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 41872A291C67870F0087DFB1 /* MulleObjCAllocation.m */; };
 		418B6E911C9FFEAF0080FABD /* MulleObjCClassCluster.h in Headers */ = {isa = PBXBuildFile; fileRef = 418B6E8F1C9FFEAF0080FABD /* MulleObjCClassCluster.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		418B6E921C9FFEAF0080FABD /* MulleObjCClassCluster.m in Sources */ = {isa = PBXBuildFile; fileRef = 418B6E901C9FFEAF0080FABD /* MulleObjCClassCluster.m */; };
@@ -179,6 +179,7 @@
 		411C19261C86FE0500B09881 /* ns_test_allocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_test_allocation.h; sourceTree = "<group>"; };
 		41280D501BD4EBBD00E81F91 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		41300CA11C87180200D1D1C1 /* sometest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sometest; sourceTree = BUILT_PRODUCTS_DIR; };
+		413677871CBDA9A400A944A9 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		415A022D1CB04060003C4ACF /* NSFastEnumeration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSFastEnumeration.h; sourceTree = "<group>"; };
 		415A022F1CB04138003C4ACF /* NSLocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSLocking.h; sourceTree = "<group>"; };
 		415A02321CB04154003C4ACF /* NSLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSLock.h; sourceTree = "<group>"; };
@@ -194,7 +195,7 @@
 		4162D50D1C63CBBC007EC7DD /* StaticLibraryIOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = StaticLibraryIOS.xcconfig; sourceTree = "<group>"; };
 		4162D50E1C63CBBC007EC7DD /* StaticLibraryOSX.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = StaticLibraryOSX.xcconfig; sourceTree = "<group>"; };
 		4162D50F1C63CBBC007EC7DD /* ToolOSX.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ToolOSX.xcconfig; sourceTree = "<group>"; };
-		4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.dylib */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMulleStandaloneObjC.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libMulleStandaloneObjC.a; path = libMulleStandaloneObjC.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4162D5351C63CE2E007EC7DD /* MulleStandaloneObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulleStandaloneObjC.h; sourceTree = "<group>"; };
 		4162D5371C63F938007EC7DD /* MulleStandaloneObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleStandaloneObjC.m; sourceTree = "<group>"; };
 		4177F28F1AB1ECBE003A44B2 /* ROOTS.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = ROOTS.md; sourceTree = "<group>"; };
@@ -257,7 +258,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41300CAA1C87185100D1D1C1 /* libMulleStandaloneObjC.dylib in Frameworks */,
+				41300CAA1C87185100D1D1C1 /* libMulleStandaloneObjC.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,7 +281,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4185027F1C8755D9008C77C4 /* libMulleStandaloneObjC.dylib in Frameworks */,
+				4185027F1C8755D9008C77C4 /* libMulleStandaloneObjC.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,6 +346,7 @@
 		41A827691AADD0D40017BE29 = {
 			isa = PBXGroup;
 			children = (
+				413677871CBDA9A400A944A9 /* CMakeLists.txt */,
 				41A827791AADD1510017BE29 /* README.md */,
 				417C02841BD84938005A3751 /* mulle-configuration */,
 				41A8279D1AADDFA60017BE29 /* src */,
@@ -359,7 +361,7 @@
 			isa = PBXGroup;
 			children = (
 				41A827721AADD0D40017BE29 /* libMulleObjC.a */,
-				4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.dylib */,
+				4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.a */,
 				41300CA11C87180200D1D1C1 /* sometest */,
 				418502771C8755A9008C77C4 /* callbenchmark */,
 			);
@@ -563,7 +565,7 @@
 			);
 			name = MulleStandaloneObjC;
 			productName = "mulle-objc-foundation";
-			productReference = 4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.dylib */;
+			productReference = 4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		418502761C8755A9008C77C4 /* callbenchmark */ = {
