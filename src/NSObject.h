@@ -93,6 +93,13 @@
 
 #pragma mark mulle additions
 
+//
+// find the implementation that was overridden
+// fairly slow!
+//
+- (IMP) methodWithSelector:(SEL) sel
+overriddenByImplementation:(IMP) imp;
+
 // AAO suport
 + (nonnull instancetype) instantiate;        // alloc + autorelease
 - (nonnull instancetype) immutableInstance;  // copy + autorelease
