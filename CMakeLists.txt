@@ -44,7 +44,6 @@ src/ns_objc.h
 src/ns_objc_include.h
 src/ns_range.h
 src/ns_rootconfiguration.h
-src/ns_test_allocation.h
 src/ns_threadconfiguration.h
 src/ns_type.h
 src/ns_zone.h
@@ -73,7 +72,6 @@ src/ns_allocation.c
 src/ns_debug.c
 src/ns_range.c
 src/ns_rootconfiguration.c
-src/ns_test_allocation.c
 src/protocols/MulleObjCClassCluster.m
 src/protocols/MulleObjCException.m
 src/protocols/MulleObjCSingleton.m
