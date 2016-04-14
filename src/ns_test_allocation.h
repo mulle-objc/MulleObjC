@@ -9,7 +9,7 @@
 #ifndef ns_test_allocation_h__
 #define ns_test_allocation_h__
 
-#include "ns_allocation.h"
+#include <mulle_allocator/mulle_allocator.h>
 
 
 extern struct mulle_allocator    mulle_test_allocator_objc;
