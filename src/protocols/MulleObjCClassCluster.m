@@ -40,6 +40,7 @@ static id   MulleObjCNewClassClusterPlaceholder( struct _mulle_objc_class  *self
    placeholder = NSAllocateObject( self, 0, NULL);
    method      = _mulle_objc_class_search_method( self,
                                                   @selector( __initPlaceholder),
+                                                 NULL,
                                                  _mulle_objc_class_get_inheritance( self));
    if( method)
       (*method->implementation)( placeholder, @selector( __initPlaceholder), NULL);
@@ -51,8 +52,6 @@ static id   MulleObjCNewClassClusterPlaceholder( struct _mulle_objc_class  *self
 + (nonnull instancetype) alloc
 {
    struct _mulle_objc_object   *placeholder;
-   struct _mulle_objc_class    *supercls;
-   mulle_objc_classid_t        classid;
    
    //
    // only the class marked as MulleObjCClassCluster gets the

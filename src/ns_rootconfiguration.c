@@ -144,7 +144,6 @@ void  _ns_rootconfiguration_locked_call( void (*f)( struct _ns_rootconfiguration
    // get foundation add to roots
    struct _ns_rootconfiguration   *config;
    struct _mulle_objc_runtime     *runtime;
-   struct _mulle_objc_class       *cls;
    
    runtime = mulle_objc_inlined_get_runtime();
    

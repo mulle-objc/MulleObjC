@@ -174,10 +174,9 @@ static inline void   addObjects( NSAutoreleasePool *self,
    
 #if DEBUG   
    {
-      NSUInteger   i;
-      id           q;
-      char         *p;
-      char         *sentinel;
+      char   *p;
+      char   *sentinel;
+      id     q;
       
       p        = (char *) objects;
       sentinel = &p[ step * count];

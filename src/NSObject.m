@@ -74,7 +74,10 @@
       struct _mulle_objc_method             *method;
       struct _mulle_objc_methoddescriptor   *desc;
       
-      method = _mulle_objc_class_search_method( _cls, (mulle_objc_methodid_t) (mulle_objc_methodid_t) _cmd, _mulle_objc_class_get_inheritance( _cls));
+      method = _mulle_objc_class_search_method( _cls,
+                                               (mulle_objc_methodid_t) _cmd,
+                                               NULL,
+                                               _mulle_objc_class_get_inheritance( _cls));
       if( method)
       {
          desc = _mulle_objc_method_get_methoddescriptor( method);
@@ -199,6 +202,7 @@ static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( st
    initSel = @selector( __initPlaceholder);
    method = _mulle_objc_class_search_method( cls,
                                              (mulle_objc_methodid_t) initSel,
+                                             NULL,
                                              _mulle_objc_class_get_inheritance( cls));
    if( method)
       (*method->implementation)( placeholder,
@@ -520,6 +524,36 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
+
+//
+// this is fairly slow, it would be faster if it wouldn't restart from the
+// beginning. Fix this, if it gets actually used
+//
+- (IMP) methodWithSelector:(SEL) sel
+overriddenByImplementation:(IMP) imp
+{
+   struct _mulle_objc_class    *cls;
+   struct _mulle_objc_method   *previous;
+   struct _mulle_objc_method   *method;
+   
+   cls      = _mulle_objc_object_get_isa( self);
+   previous = NULL;
+   for(;;)
+   {
+      method = _mulle_objc_class_search_method( cls, (mulle_objc_methodid_t) sel, previous, cls->inheritance);
+      if( ! method)
+         return( (IMP) 0);
+      
+      previous = method;
+      if( previous->implementation == (mulle_objc_methodimplementation_t) imp)
+         break;
+   }
+
+   return( (IMP) _mulle_objc_class_search_method( cls, (mulle_objc_methodid_t) sel, previous, cls->inheritance));
+}
+
+
+
 #pragma mark -
 #pragma mark walk object graph support
 
@@ -598,7 +632,10 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    struct _mulle_objc_method   *method;
    
    cls    = _mulle_objc_object_get_isa( self);
-   method = _mulle_objc_class_search_method( cls, (mulle_objc_methodid_t) sel, _mulle_objc_class_get_inheritance( cls));
+   method = _mulle_objc_class_search_method( cls,
+                                             (mulle_objc_methodid_t) sel,
+                                             NULL,
+                                             _mulle_objc_class_get_inheritance( cls));
    if( ! method)
       return( nil);
    

@@ -48,7 +48,6 @@ char   *_NSPrintForDebugger( id a)
    char                        buf[ 128];
    struct _mulle_objc_class    *cls;
    struct _mulle_objc_method   *m;
-   char                        *name;
    
    if( ! a)
       return( strdup( "*nil*"));
