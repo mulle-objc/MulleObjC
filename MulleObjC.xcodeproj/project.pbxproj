@@ -41,6 +41,10 @@
 		410FA25D1C6624F500927C72 /* ns_fastmethodids.h in Headers */ = {isa = PBXBuildFile; fileRef = 410FA25B1C6624F500927C72 /* ns_fastmethodids.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		411C19231C86FDC600B09881 /* libmulle_test_allocator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 411C19221C86FDC600B09881 /* libmulle_test_allocator.a */; };
 		411C19271C86FE0500B09881 /* ns_test_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 411C19261C86FE0500B09881 /* ns_test_allocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		412ED7D51CC3C34E00E64506 /* NSObject+NSCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 412ED7D31CC3C34E00E64506 /* NSObject+NSCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		412ED7D61CC3C34E00E64506 /* NSObject+NSCoding.m in Sources */ = {isa = PBXBuildFile; fileRef = 412ED7D41CC3C34E00E64506 /* NSObject+NSCoding.m */; };
+		412ED7D91CC3C3AC00E64506 /* NSCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 412ED7D71CC3C3AC00E64506 /* NSCoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		412ED7DA1CC3C3AC00E64506 /* NSCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 412ED7D81CC3C3AC00E64506 /* NSCoder.m */; };
 		41300CAA1C87185100D1D1C1 /* libMulleStandaloneObjC.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.dylib */; };
 		415A022E1CB04060003C4ACF /* NSFastEnumeration.h in Headers */ = {isa = PBXBuildFile; fileRef = 415A022D1CB04060003C4ACF /* NSFastEnumeration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		415A02301CB04138003C4ACF /* NSLocking.h in Headers */ = {isa = PBXBuildFile; fileRef = 415A022F1CB04138003C4ACF /* NSLocking.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -116,10 +120,12 @@
 		41B200571C8CBD6C00588C5E /* autopool.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B200561C8CBD6C00588C5E /* autopool.m */; };
 		41B7F9DA1C6DE60600C74B8A /* NSInvocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DB1C69424B007839D0 /* NSInvocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41B7F9DB1C6DE60600C74B8A /* NSMethodSignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DE1C69424B007839D0 /* NSMethodSignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		41C851AF1CC3A554003AF1E1 /* NSCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C851AE1CC3A554003AF1E1 /* NSCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41D04ABB1C8DEFCD00CC8F11 /* libmulle_concurrent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41D04ABA1C8DEFCD00CC8F11 /* libmulle_concurrent.a */; };
 		41DB5C381CAD656F001A4CEA /* NSCopying.m in Sources */ = {isa = PBXBuildFile; fileRef = 41DB5C361CAD656F001A4CEA /* NSCopying.m */; };
 		41DB5C391CAD8127001A4CEA /* ns_test_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 411C19241C86FDFD00B09881 /* ns_test_allocation.c */; };
 		41DB5C3A1CAD8178001A4CEA /* ns_test_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 411C19261C86FE0500B09881 /* ns_test_allocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		41E9C65D1CC4E87F00ED4145 /* ns_exception.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E9C65C1CC4E87F00ED4145 /* ns_exception.c */; };
 		41EA8D841C9F60DE007CEAE8 /* MulleObjCException.h in Headers */ = {isa = PBXBuildFile; fileRef = 41EA8D821C9F60DE007CEAE8 /* MulleObjCException.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41EA8D851C9F60DE007CEAE8 /* MulleObjCException.m in Sources */ = {isa = PBXBuildFile; fileRef = 41EA8D831C9F60DE007CEAE8 /* MulleObjCException.m */; };
 		41EA8D861C9F638D007CEAE8 /* MulleObjCException.h in Headers */ = {isa = PBXBuildFile; fileRef = 41EA8D821C9F60DE007CEAE8 /* MulleObjCException.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -178,6 +184,10 @@
 		411C19241C86FDFD00B09881 /* ns_test_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_test_allocation.c; sourceTree = "<group>"; };
 		411C19261C86FE0500B09881 /* ns_test_allocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_test_allocation.h; sourceTree = "<group>"; };
 		41280D501BD4EBBD00E81F91 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		412ED7D31CC3C34E00E64506 /* NSObject+NSCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+NSCoding.h"; sourceTree = "<group>"; };
+		412ED7D41CC3C34E00E64506 /* NSObject+NSCoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+NSCoding.m"; sourceTree = "<group>"; };
+		412ED7D71CC3C3AC00E64506 /* NSCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSCoder.h; sourceTree = "<group>"; };
+		412ED7D81CC3C3AC00E64506 /* NSCoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSCoder.m; sourceTree = "<group>"; };
 		41300CA11C87180200D1D1C1 /* sometest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sometest; sourceTree = BUILT_PRODUCTS_DIR; };
 		413677871CBDA9A400A944A9 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		415A022D1CB04060003C4ACF /* NSFastEnumeration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSFastEnumeration.h; sourceTree = "<group>"; };
@@ -244,8 +254,10 @@
 		41A9E4FA1BD7F39700210D6E /* ns_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_debug.h; sourceTree = "<group>"; };
 		41B200541C8CBC3300588C5E /* libmulle_allocator.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_allocator.a; path = dependencies/lib/Debug/libmulle_allocator.a; sourceTree = "<group>"; };
 		41B200561C8CBD6C00588C5E /* autopool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = autopool.m; path = tests/NSAutoreleasePool/autopool.m; sourceTree = SOURCE_ROOT; };
+		41C851AE1CC3A554003AF1E1 /* NSCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSCoding.h; sourceTree = "<group>"; };
 		41D04ABA1C8DEFCD00CC8F11 /* libmulle_concurrent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_concurrent.a; path = dependencies/lib/Debug/libmulle_concurrent.a; sourceTree = "<group>"; };
 		41DB5C361CAD656F001A4CEA /* NSCopying.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSCopying.m; sourceTree = "<group>"; };
+		41E9C65C1CC4E87F00ED4145 /* ns_exception.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_exception.c; sourceTree = "<group>"; };
 		41EA8D821C9F60DE007CEAE8 /* MulleObjCException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulleObjCException.h; sourceTree = "<group>"; };
 		41EA8D831C9F60DE007CEAE8 /* MulleObjCException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleObjCException.m; sourceTree = "<group>"; };
 		41F896851C9C3EC700971F63 /* MulleObjCFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleObjCFunctions.m; sourceTree = "<group>"; };
@@ -392,6 +404,8 @@
 				41872A291C67870F0087DFB1 /* MulleObjCAllocation.m */,
 				41A827A11AADE01D0017BE29 /* NSAutoreleasePool.h */,
 				41A827A21AADE01D0017BE29 /* NSAutoreleasePool.m */,
+				412ED7D71CC3C3AC00E64506 /* NSCoder.h */,
+				412ED7D81CC3C3AC00E64506 /* NSCoder.m */,
 				41A9E4FA1BD7F39700210D6E /* ns_debug.h */,
 				41A9E4F91BD7F39700210D6E /* ns_debug.c */,
 				41A827A71AADE0400017BE29 /* NSDebug.h */,
@@ -402,6 +416,8 @@
 				415A02351CB04154003C4ACF /* NSRecursiveLock.m */,
 				41A827AB1AADE04B0017BE29 /* NSObject.h */,
 				41A827AC1AADE04B0017BE29 /* NSObject.m */,
+				412ED7D31CC3C34E00E64506 /* NSObject+NSCoding.h */,
+				412ED7D41CC3C34E00E64506 /* NSObject+NSCoding.m */,
 				41A827AF1AADE0530017BE29 /* NSProxy.h */,
 				41A827B01AADE0530017BE29 /* NSProxy.m */,
 				410B50DB1C69424B007839D0 /* NSInvocation.h */,
@@ -414,6 +430,7 @@
 				415A0A0F1C4E98B700290E05 /* _ns_autoreleasepointerarray.h */,
 				41A41E501AB097CE00A92452 /* _ns_exception.h */,
 				41A9E4F71BD7E6D300210D6E /* ns_exception.h */,
+				41E9C65C1CC4E87F00ED4145 /* ns_exception.c */,
 				41A41E5E1AB0A18600A92452 /* ns_range.h */,
 				41A41E5F1AB0A18600A92452 /* ns_range.c */,
 				417D8ACE1C89A7E500C3EFC9 /* ns_threadconfiguration.h */,
@@ -433,6 +450,7 @@
 				418B6E941C9FFEF30080FABD /* MulleObjCSingleton.m */,
 				41EA8D821C9F60DE007CEAE8 /* MulleObjCException.h */,
 				41EA8D831C9F60DE007CEAE8 /* MulleObjCException.m */,
+				41C851AE1CC3A554003AF1E1 /* NSCoding.h */,
 				41A827B81AADE08C0017BE29 /* NSCopying.h */,
 				41DB5C361CAD656F001A4CEA /* NSCopying.m */,
 				415A022D1CB04060003C4ACF /* NSFastEnumeration.h */,
@@ -521,7 +539,10 @@
 				41A41E601AB0A18600A92452 /* ns_range.h in Headers */,
 				411C19271C86FE0500B09881 /* ns_test_allocation.h in Headers */,
 				410FA2511C66109900927C72 /* ns_objc.h in Headers */,
+				412ED7D51CC3C34E00E64506 /* NSObject+NSCoding.h in Headers */,
 				41A827C21AADE14F0017BE29 /* ns_rootconfiguration.h in Headers */,
+				41C851AF1CC3A554003AF1E1 /* NSCoding.h in Headers */,
+				412ED7D91CC3C3AC00E64506 /* NSCoder.h in Headers */,
 				41A41E571AB097EC00A92452 /* ns_allocation.h in Headers */,
 				41A41E5C1AB09C2A00A92452 /* ns_zone.h in Headers */,
 				417D8AD01C89A7E500C3EFC9 /* ns_threadconfiguration.h in Headers */,
@@ -698,8 +719,11 @@
 				41A41E611AB0A18600A92452 /* ns_range.c in Sources */,
 				415A023A1CB04154003C4ACF /* NSRecursiveLock.m in Sources */,
 				41EA8D851C9F60DE007CEAE8 /* MulleObjCException.m in Sources */,
+				412ED7D61CC3C34E00E64506 /* NSObject+NSCoding.m in Sources */,
 				418B6E921C9FFEAF0080FABD /* MulleObjCClassCluster.m in Sources */,
+				41E9C65D1CC4E87F00ED4145 /* ns_exception.c in Sources */,
 				418B6E961C9FFEF30080FABD /* MulleObjCSingleton.m in Sources */,
+				412ED7DA1CC3C3AC00E64506 /* NSCoder.m in Sources */,
 				41872A2A1C67870F0087DFB1 /* MulleObjCAllocation.m in Sources */,
 				41F896861C9C3EC700971F63 /* MulleObjCFunctions.m in Sources */,
 				41A827A41AADE01D0017BE29 /* NSAutoreleasePool.m in Sources */,
