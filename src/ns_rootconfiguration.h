@@ -111,7 +111,7 @@ struct _ns_root_setupconfig
 };
 
 
-struct _ns_rootconfiguration   *__MulleObjC_root_setup( struct _mulle_objc_runtime *runtime,
+struct _ns_rootconfiguration   *__mulle_objc_root_setup( struct _mulle_objc_runtime *runtime,
                                                  struct _ns_root_setupconfig *config);
 
 // this also sets up exception vectors

@@ -28,10 +28,18 @@ char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignme
    
    assert( type);
    
-   if( ! size && ! alignment)
-      return( mulle_objc_signature_supply_next_typeinfo( type, NULL));
-   
-   next = mulle_objc_signature_supply_next_typeinfo( type, &info);
+   if( ! type)
+   {
+      memset( &info, 0, sizeof( info));
+      next = NULL;
+   }
+   else
+   {
+      if( ! size && ! alignment)
+         return( mulle_objc_signature_supply_next_typeinfo( type, NULL));
+      
+      next = mulle_objc_signature_supply_next_typeinfo( type, &info);
+   }
    
    if( size)
       *size      = info.bits_size >> 3;

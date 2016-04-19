@@ -28,7 +28,7 @@
 
 
 
-#define AUTORELEASEPOOL_HASH   0x511c9ac972f81c49  // NSAutoreleasePool
+#define AUTORELEASEPOOL_HASH   0x5b791fc6  // NSAutoreleasePool
 
 
 @implementation NSAutoreleasePool
@@ -45,7 +45,7 @@ static void   _autoreleaseObjects( struct _ns_poolconfiguration *config,
 
 
 
-static void   __MulleObjC_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
+static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
 {
    char   *s;
    
@@ -63,7 +63,7 @@ static void   __MulleObjC_poolconfiguration_set_thread( struct _ns_poolconfigura
 
 void   _ns_poolconfiguration_set_thread( void)
 {
-   __MulleObjC_poolconfiguration_set_thread( _ns_get_poolconfiguration());
+   __ns_poolconfiguration_set_thread( _ns_get_poolconfiguration());
 }
 
 
@@ -84,7 +84,7 @@ void   _ns_poolconfiguration_set_thread( void)
    local  = _mulle_objc_threadconfig_get_foundationspace( threadconfig);
    config = &local->poolconfig;
    
-   __MulleObjC_poolconfiguration_set_thread( config);
+   __ns_poolconfiguration_set_thread( config);
 }
 
 

@@ -17,6 +17,7 @@
 
 // objects
 #import "NSAutoreleasePool.h"
+#import "NSCoder.h"
 #import "NSInvocation.h"
 #import "NSMethodSignature.h"
 #import "NSObject.h"
@@ -25,14 +26,19 @@
 #import "NSProxy.h"
 #import "NSThread.h"
 
+
 // protocols
 #import "MulleObjCClassCluster.h"
 #import "MulleObjCException.h"
 #import "MulleObjCSingleton.h"
 #import "NSCopying.h"
+#import "NSCoding.h"
 #import "NSFastEnumeration.h"
 #import "NSLocking.h"
 #import "NSObjectProtocol.h"
+
+// categories
+#import "NSObject+NSCoding.h"
 
 // functions
 #import "MulleObjCAllocation.h"

@@ -149,8 +149,8 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 {
    id   obj;
    
-   obj = [[NSMethodSignature alloc] initWithObjCTypes:types];
-   return( NSAutoreleaseObject( obj));
+   obj = [[[NSMethodSignature alloc] initWithObjCTypes:types] autorelease];
+   return( obj);
 }
 
 

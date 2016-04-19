@@ -28,54 +28,31 @@ static inline struct _ns_exceptionhandlertable   *MulleObjCExceptionHandlersGetT
    return( &_ns_get_rootconfiguration()->exception.vectors);
 }
 
+__attribute__ ((noreturn))
+void   MulleObjCThrowAllocationException( size_t bytes);
 
 __attribute__ ((noreturn))
-static inline void   MulleObjCThrowAllocationException( size_t bytes)
-{
-   MulleObjCExceptionHandlersGetTable()->allocation_error( bytes);
-}
-
+void   MulleObjCThrowInvalidArgumentException( id format, ...);
 
 __attribute__ ((noreturn))
-static inline void   MulleObjCThrowInvalidArgumentException( id format, ...)
-{
-   va_list  args;
-   
-   va_start( args, format);
-   MulleObjCExceptionHandlersGetTable()->invalid_argument( format, args);
-   va_end( args);
-}
-
+void   MulleObjCThrowInvalidIndexException( NSUInteger index);
 
 __attribute__ ((noreturn))
-static inline void   MulleObjCThrowInvalidIndexException( NSUInteger index)
-{
-   MulleObjCExceptionHandlersGetTable()->invalid_index( index);
-}
-
+void   MulleObjCThrowInternalInconsistencyException( id format, ...);
 
 __attribute__ ((noreturn))
-static inline void   MulleObjCThrowInternalInconsistencyException( id format, ...)
-{
-   va_list   args;
-   
-   va_start( args, format);
-   MulleObjCExceptionHandlersGetTable()->internal_inconsistency( format, args);
-   va_end( args);
-}
-
+void   MulleObjCThrowInvalidRangeException( NSRange range);
 
 __attribute__ ((noreturn))
-static inline void   MulleObjCThrowInvalidRangeException( NSRange range)
-{
-   MulleObjCExceptionHandlersGetTable()->invalid_range( range);
-}
+void   MulleObjCThrowErrnoException( id s, ...);
 
+#pragma mark -
+#pragma mark Some C Interfaces with char *
 
 __attribute__ ((noreturn))
-static inline void   MulleObjCThrowErrnoException( char *s)
-{
-   MulleObjCExceptionHandlersGetTable()->errno_error( s);
-}
+void   mulle_objc_throw_invalid_argument_exception( char *format, ...);
+
+__attribute__ ((noreturn))
+void   mulle_objc_throw_errno_exception( char *format, ...);
 
 #endif

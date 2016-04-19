@@ -43,6 +43,10 @@
 // mulle addition:
 - (BOOL) containsObject:(id) p;
 
++ (id) alloc;
++ (id) new;
+- (void) release;
+
 @end
 
 

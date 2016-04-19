@@ -242,21 +242,13 @@ retry:
 
 - (nonnull instancetype) immutableInstance
 {
-   id   obj;
-   
-   obj = [self copy];
-   NSAutoreleaseObject( obj);
-   return( obj);
+   return( [[self copy] autorelease]);
 }
 
 
 - (nonnull instancetype) mutableInstance
 {
-   id   obj;
-   
-   obj = [self mutableCopy];
-   NSAutoreleaseObject( obj);
-   return( obj);
+   return( [[self mutableCopy] autorelease]);
 }
 
 
