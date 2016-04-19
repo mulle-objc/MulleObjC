@@ -195,7 +195,8 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       case _C_COPY_ID :
          [self getArgument:&obj
                   atIndex:i];
-         [(id <NSCopying>) obj copy];
+         [self setArgument:[(id <NSCopying>) obj copy]
+                   atIndex:i];
          break;
             
       case _C_CHARPTR :
@@ -299,6 +300,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       break;
       
    case MulleObjCMetaABITypeParameterBlock :
+      assert( param);
       info    = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
       storage = &((char *) self->_storage)[ info->offset];
       memcpy( storage, param, [self->_methodSignature methodReturnLength]);

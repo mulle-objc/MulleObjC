@@ -276,7 +276,7 @@ static void   *bouncyBounce( NSThread *thread)
 
    [self retain]; // retain self for thread
    if( mulle_thread_create( (void *(*)( void *)) bouncyBounce, self, &self->_thread))
-      MulleObjCThrowErrnoException( "thread creation");
+      mulle_objc_throw_errno_exception( "thread creation");
 }
 
 
@@ -307,9 +307,12 @@ static void   *bouncyBounce( NSThread *thread)
 {
    NSThread   *thread;
    
-   thread = [[NSThread instantiate] initWithTarget:target
-                                          selector:sel
-                                            object:argument];
+   thread = [[[NSThread alloc] initWithTarget:target
+                                     selector:sel
+                                       object:argument] autorelease];
+
+   //   [thread becomeRootObject];  // investigate
+   
    [thread start];
    [thread detach];
 }

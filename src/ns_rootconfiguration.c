@@ -26,7 +26,7 @@ void   _ns_rootconfiguration_add_root( struct _ns_rootconfiguration *config, voi
    assert( mulle_set_get( config->object.singletons, obj) == NULL);
    assert( mulle_set_get( config->object.threads, obj) == NULL);
    
-   mulle_set_put( config->object.roots, obj);
+   mulle_set_set( config->object.roots, obj);
 }
 
 
@@ -65,7 +65,7 @@ void   _ns_rootconfiguration_add_placeholder( struct _ns_rootconfiguration *conf
    assert( mulle_set_get( config->object.singletons, obj) == NULL);
    assert( mulle_set_get( config->object.threads, obj) == NULL);
    
-   mulle_set_put( config->object.placeholders, obj);
+   mulle_set_set( config->object.placeholders, obj);
 }
 
 
@@ -94,7 +94,7 @@ void   _ns_rootconfiguration_add_singleton( struct _ns_rootconfiguration *config
    assert( mulle_set_get( config->object.singletons, obj) == NULL);
    assert( mulle_set_get( config->object.threads, obj) == NULL);
    
-   mulle_set_put( config->object.singletons, obj);
+   mulle_set_set( config->object.singletons, obj);
 }
 
 
@@ -123,7 +123,7 @@ void   _ns_rootconfiguration_add_thread( struct _ns_rootconfiguration *config, v
    assert( mulle_set_get( config->object.singletons, obj) == NULL);
    assert( mulle_set_get( config->object.threads, obj) == NULL);
    
-   mulle_set_put( config->object.threads, obj);
+   mulle_set_set( config->object.threads, obj);
 }
 
 
@@ -190,10 +190,10 @@ static void   runtime_dies( struct _mulle_objc_runtime *runtime, void *data)
    
    _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
    
-   mulle_set_free( config->object.placeholders);
-   mulle_set_free( config->object.singletons);
-   mulle_set_free( config->object.roots);
-   mulle_set_free( config->object.threads);
+   mulle_set_destroy( config->object.placeholders);
+   mulle_set_destroy( config->object.singletons);
+   mulle_set_destroy( config->object.roots);
+   mulle_set_destroy( config->object.threads);
 
    if( data != config)
       free( data);
@@ -233,7 +233,7 @@ static void   nop( struct _mulle_objc_runtime *runtime, void *friend,  struct mu
  */
 extern void   MulleObjCDeterminePageSize( void);
 
-struct _ns_rootconfiguration  *__MulleObjC_root_setup( struct _mulle_objc_runtime *runtime,
+struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runtime *runtime,
                                                 struct _ns_root_setupconfig *config)
 {
    size_t                          size;
@@ -309,7 +309,7 @@ void   _ns_root_setup( struct _mulle_objc_runtime *runtime,
 {
    struct _ns_rootconfiguration   *roots;
    
-   roots = __MulleObjC_root_setup( runtime, config);
+   roots = __mulle_objc_root_setup( runtime, config);
 
    //
    //

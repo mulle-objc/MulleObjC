@@ -28,6 +28,7 @@ typedef struct _mulle_objc_class      *Class;
 //
 typedef mulle_objc_propertyid_t       PROTOCOL;
 typedef mulle_objc_methodid_t         SEL;
+typedef struct _mulle_objc_method     *Method;
 typedef void                          *(*IMP)( void *, SEL, void *params);
 // --- compiler defined end ---
 

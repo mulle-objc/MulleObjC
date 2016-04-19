@@ -23,7 +23,7 @@
 //
 struct _ns_exceptionhandlertable 
 {
-   void (*errno_error)( char *s)                      __attribute__ ((noreturn));
+   void (*errno_error)( id format, va_list args)      __attribute__ ((noreturn));
    void (*allocation_error)( size_t bytes)            __attribute__ ((noreturn));
    void (*internal_inconsistency)( id format, va_list args) __attribute__ ((noreturn));
    void (*invalid_argument)( id format, va_list args) __attribute__ ((noreturn));
