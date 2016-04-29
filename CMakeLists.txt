@@ -23,21 +23,20 @@ set(HEADERS
 src/MulleObjC.h
 src/MulleObjCAllocation.h
 src/MulleObjCFunctions.h
-src/MulleStandaloneObjC.h
 src/NSAutoreleasePool.h
 src/NSCoder.h
 src/NSDebug.h
 src/NSInvocation.h
 src/NSLock.h
 src/NSMethodSignature.h
-src/NSObject.h
 src/NSObject+NSCoding.h
+src/NSObject.h
 src/NSProxy.h
 src/NSRecursiveLock.h
 src/NSThread.h
+src/_ns_exception.h
 src/ns_allocation.h
 src/ns_debug.h
-src/_ns_exception.h
 src/ns_exception.h
 src/ns_fastclassids.h
 src/ns_fastmethodids.h
@@ -55,7 +54,8 @@ src/protocols/NSCoding.h
 src/protocols/NSCopying.h
 src/protocols/NSFastEnumeration.h
 src/protocols/NSLocking.h
-src/protocols/NSObjectProtocol.h)
+src/protocols/NSObjectProtocol.h
+)
 
 
 add_library(MulleObjC STATIC
@@ -102,4 +102,4 @@ mulle_test_allocator )
 
 INSTALL( TARGETS MulleObjC MulleStandaloneObjC DESTINATION "lib")
 INSTALL( FILES ${HEADERS} DESTINATION "include/MulleObjC")
-INSTALL( FILES src/MulleStandaloneObjC.h src/ns_test_allocation.h DESTINATION "include/MulleStandaloneObjC")
+INSTALL( FILES ${HEADERS} src/MulleStandaloneObjC.h src/ns_test_allocation.h DESTINATION "include/MulleStandaloneObjC")

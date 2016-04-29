@@ -211,7 +211,7 @@ static void  *describe_object( struct mulle_container_keycallback *callback,
 
 static const struct mulle_container_keycallback   default_root_object_callback =
 {
-   (void *) mulle_container_callback_pointer_hash,
+   (void *) mulle_hash_pointer,
    (void *) mulle_container_callback_pointer_is_equal,
    (void *) mulle_container_callback_self,
    (void *) mulle_container_callback_nop,

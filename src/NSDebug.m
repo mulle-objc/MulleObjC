@@ -44,8 +44,9 @@
 char   *_NSPrintForDebugger( id a)
 {
    IMP                         imp;
-   char                        *s;
-   char                        buf[ 128];
+   char                        *aux;
+   char                        *spacer;
+   char                        buf[ 256];
    struct _mulle_objc_class    *cls;
    struct _mulle_objc_method   *m;
    
@@ -61,18 +62,36 @@ char   *_NSPrintForDebugger( id a)
    if( cls == (void *) (intptr_t) 0xDEADDEADDEADDEAD || // our scribble
        cls == (void *) (intptr_t) 0xAAAAAAAAAAAAAAAA)   // malloc scribble
    {
-      sprintf( buf, "<%p dealloced,(%p>", a, cls);
+      sprintf( buf, "<%p dealloced,(%p)>", a, cls);
       return( strdup( buf));  // hmm hmm, what's the interface here anyway ?
    }
 
-   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, @selector( debugMallocedCString));
+   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, @selector( debugDescription));
    if( imp)
    {
-      s = (*imp)( a, @selector( debugMallocedCString), NULL);
-      return( s);
-   }
+      void   *s;
       
-   sprintf( buf, "<%p %.100s>", a, _mulle_objc_class_get_name( cls));
+      s = (*imp)( a, @selector( debugDescription), NULL);
+      return( _ns_characters( s));
+   }
+
+   spacer = "";
+   aux    = "";
+   imp    = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, @selector( description));
+   if( imp)
+   {
+      void   *s;
+      
+      s = (*imp)( a, @selector( description), NULL);
+      if( s)
+      {
+         aux = _ns_characters( s);
+         if( strlen( aux))
+            spacer=" ";
+      }
+   }
+  
+   sprintf( buf, "<%p %.100s%s%.100s>", a, _mulle_objc_class_get_name( cls), spacer, aux);
    return( strdup( buf));  // hmm hmm, what's the interface here anyway ?
 }
 
@@ -123,8 +142,8 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 @end
 
 
-#define MULLE_ZOMBIE_HASH                  0x20b28e0bb0a4ff96  // _MulleObjCZombie
-#define MULLE_OBJC_LARGE_ZOMBIE_HASH       0xb97c4959d4664927  // _MulleObjCLargeZombie
+#define MULLE_ZOMBIE_HASH              0x057fc0af  // _MulleObjCZombie
+#define MULLE_OBJC_LARGE_ZOMBIE_HASH   0xafb92130  // _MulleObjCLargeZombie
 
 
 @interface _MulleObjCLargeZombie : _MulleObjCZombie

@@ -49,6 +49,8 @@
    if( self->_argument != self)
       [self->_argument release];
 
+   [self->_userInfo release];
+
    _MulleObjCObjectFree( self);
 }
 
@@ -60,6 +62,8 @@
 }
 
 
+#define NSAUTORELEASEPOOL_HASH   0x5b791fc6  // NSAutoreleasePool
+
 void   _mulle_become_objc_runtime_thread( void)
 {
    struct _mulle_objc_runtime     *runtime;
@@ -70,7 +74,7 @@ void   _mulle_become_objc_runtime_thread( void)
    _mulle_objc_runtime_retain( runtime);
    mulle_objc_set_thread_runtime( runtime);
    _mulle_objc_runtime_register_current_thread_if_needed( runtime);
-   if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( 0x511c9ac972f81c49)))
+   if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH))) // NSAutoreleasePool
       _ns_poolconfiguration_set_thread();
 }
 

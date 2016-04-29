@@ -13,6 +13,7 @@
  */
 #import "NSObject.h"
 
+// other files in this library
 #import "ns_type.h"
 #import "ns_debug.h"
 #import "NSCopying.h"
@@ -20,6 +21,9 @@
 #import "MulleObjCAllocation.h"
 #import "NSMethodSignature.h"
 #import "NSInvocation.h"
+
+// std-c and dependencies
+#import <mulle_concurrent/mulle_concurrent.h>
 
 
 @interface NSObject ( NSCopying)
@@ -37,7 +41,7 @@
 
 // desperately need @classid( ) compiler support in clang
 
-#define _MulleObjCInstantiatePlaceholderHash  0xb29be388c5d2b55b  // _MulleObjCInstantiatePlaceholder
+#define _MulleObjCInstantiatePlaceholderHash  0x56154b76  // _MulleObjCInstantiatePlaceholder
 
 // intentonally a root object (!)
 @interface _MulleObjCInstantiatePlaceholder
@@ -313,6 +317,122 @@ retry:
    }
    
    [self becomeRootObject];
+}
+
+
+# pragma mark -
+# pragma mark concurrent class "variable" support
+
+
++ (void) removeClassValueForKey:(id) key
+{
+   struct _mulle_objc_class   *cls;
+   id                         old;
+   int                        rval;
+
+   assert( ! strcmp( "NSConstantString",
+                    _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
+   
+   cls = self;
+
+   while( old = _mulle_objc_class_get_cvar( cls, key))
+   {
+      switch( (rval = _mulle_objc_class_remove_cvar( cls, key, old)))
+      {
+         case 0 :
+            [old resignAsRootObject];
+         case ENOENT :
+            return;
+            
+         default :
+            errno = rval;
+            MulleObjCThrowErrnoException( @"failed to remove key");
+      }
+   }
+   return;
+}
+
+
++ (BOOL) insertClassValue:(id) value
+                   forKey:(id) key
+{
+   struct _mulle_objc_class   *cls;
+   int                        rval;
+   
+   assert( value);
+   assert( ! strcmp( "NSConstantString",
+                    _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
+   
+   cls = self;
+   
+   switch( (rval = _mulle_objc_class_set_cvar( cls, key, value)))
+   {
+   case 0 :
+      [value becomeRootObject];
+      return( YES);
+         
+   case EEXIST :
+      return( NO);
+
+   default :
+      errno = rval;
+      MulleObjCThrowErrnoException( @"failed to insert key");
+   }
+}
+
+
++ (void) setClassValue:(id) value
+                forKey:(id) key
+{
+   struct _mulle_objc_class   *cls;
+
+   assert( ! strcmp( "NSConstantString",
+                    _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
+   
+   cls = self;
+   
+   if( ! value)
+   {
+      [self removeClassValueForKey:key];
+      return;
+   }
+   
+   while( ! [self insertClassValue:value
+                            forKey:key])
+   {
+      [self removeClassValueForKey:key];
+   }
+}
+
+
++ (id) classValueForKey:(id) key
+{
+   struct _mulle_objc_class   *cls;
+   
+   assert( ! strcmp( "NSConstantString",
+                    _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
+   
+   cls = self;
+   return( _mulle_objc_class_get_cvar( cls, key));
+}
+
+
++ (void) dealloc
+{
+   id                                          value;
+   struct _mulle_objc_class                    *cls;
+   struct mulle_concurrent_hashmapenumerator   rover;
+
+   cls = self;
+
+   rover = _mulle_objc_class_enumerate_cvars( cls);
+   while( _mulle_concurrent_hashmapenumerator_next( &rover,
+                                                    NULL,
+                                                   (void **) &value))
+   {
+      [value resignAsRootObject];
+   }
+   _mulle_concurrent_hashmapenumerator_done( &rover);
 }
 
 

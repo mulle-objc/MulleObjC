@@ -72,6 +72,10 @@ struct _ns_autoreleasepool
 };
 
 
+//
+// rename this to foundationconfiguration or so...
+// this is part of the runtime structure..
+//
 struct _ns_rootconfiguration
 {
    struct _ns_objectconfiguration     object;  // for easy access to allocator keep this up here
@@ -230,7 +234,7 @@ static inline void   *_ns_string( char *s)
 }
 
 
-static inline void   *_ns_characters( void *obj)
+static inline char   *_ns_characters( void *obj)
 {
    struct _ns_rootconfiguration   *config;
  

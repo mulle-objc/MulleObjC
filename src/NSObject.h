@@ -30,10 +30,6 @@
 //              only once per meta-class object.
 //
 @interface NSObject < NSObject>
-{
-}
-
-
 
 //
 // these methods must not be overriden
@@ -91,7 +87,22 @@
 - (IMP) methodForSelector:(SEL) sel;
 + (IMP) instanceMethodForSelector:(SEL) sel;
 
+
 #pragma mark mulle additions
+
++ (void) removeClassValueForKey:(id) key;
++ (BOOL) insertClassValue:(id) value
+                   forKey:(id) key;
++ (void) setClassValue:(id) value
+                forKey:(id) key;
+
++ (id) classValueForKey:(id) key;
+
+//
+// At this time, the superclass or all other classes
+// may already be gone. 
+//
++ (void) dealloc;  // used to clear classValues
 
 //
 // find the implementation that was overridden
@@ -127,7 +138,24 @@ overriddenByImplementation:(IMP) imp;
 @end
 
 
-#pragma clang diagnostic push
+@class NSMethodSignature;
+@class NSInvocation;
+
+@interface NSObject ( Forwarding)
+
+- (id) forwardingTargetForSelector:(SEL) sel;
+- (void) doesNotRecognizeSelector:(SEL) sel;
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) sel;
+
+//
+// subclasses should just override this, for best performance
+//
+- (void *) forward:(void *) _param;
+- (void) forwardInvocation:(NSInvocation *) anInvocation;
+
+@end
+
+
 
 
 //
@@ -155,6 +183,7 @@ static inline void   *MulleObjCObjectGetObjectWithHeaderFromObject( id p)
    return( (void *)  _mulle_objc_object_get_objectheader( p));
 }
 
+#pragma clang diagnostic pop
 
 /*
  * #1# whenever you call [self retain] or don't return an object autoreleased,

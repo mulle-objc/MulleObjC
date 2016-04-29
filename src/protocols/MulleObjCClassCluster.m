@@ -13,8 +13,6 @@
 
 // std-c and dependencies
 
-#define MulleObjCClassClusterHash    0x05202825d261fbb7  // MulleObjCClassCluster
-
 
 @interface MulleObjCClassCluster < NSObject, MulleObjCClassCluster>
 @end

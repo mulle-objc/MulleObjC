@@ -1,10 +1,10 @@
-/* Copyright (c) 2006-2007 Christopher J. W. Lloyd
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
+//
+//  NSCoder.h
+//  MulleObjC
+//
+//  Created by Nat! on 20/4/16.
+//  Copyright © 2016 Mulle kybernetiK. All rights reserved.
+//
 
 #import "NSObject.h"
 
@@ -13,94 +13,171 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <mulle_container/mulle_container.h>
 
 
-@class NSString,NSData;
+@class NSString;
+@class NSData;
+@class NSSet;
 
-
+//
+// this class structure is historic ...
+// people implement:
+//
+// - (void) encodeWithCoder:(NSCoder *) coder
+//
+// so NSArchiver and NSKeyesArchiver must subclass NSCoder.
+//
+// Your NSCoder object will either support keyed
+// archiving or regular archiving but not both
+// in this Foundation.
+//
 @interface NSCoder : NSObject
 
--(NSUInteger)systemVersion;
-
--(void)setObjectZone:(NSZone *)zone;
--(NSZone *)objectZone;
-
--(BOOL)allowsKeyedCoding;
-
-
--(void)encodeObject:object;
--(void)encodePropertyList:propertyList;
--(void)encodeRootObject:rootObject;
--(void)encodeBycopyObject:object;
--(void)encodeByrefObject:object;
-
--(void)encodeConditionalObject:object;
--(void)encodeValuesOfObjCTypes:(char *)types,...;
--(void)encodeArrayOfObjCType:(char *)type count:(NSUInteger)count at:(void *)ptr;
--(void)encodeBytes:(void *)ptr length:(NSUInteger)length;
-
--(void)encodeBool:(BOOL)value forKey:(NSString *)key;
--(void)encodeConditionalObject:object forKey:(NSString *)key;
--(void)encodeDouble:(double)value forKey:(NSString *)key;
--(void)encodeFloat:(float)value forKey:(NSString *)key;
--(void)encodeInt:(int)value forKey:(NSString *)key;
--(void)encodeObject:object forKey:(NSString *)key;
-
--(void)encodeInt32:(int32_t)value forKey:(NSString *)key;
--(void)encodeInt64:(int64_t)value forKey:(NSString *)key;
--(void)encodeInteger:(NSInteger)value forKey:(NSString *)key;
-
--(void)encodeBytes:(void *)bytes length:(NSUInteger)length forKey:(NSString *)key;
-
--(id) decodeObject;
--(id) decodePropertyList;
--(void)decodeValuesOfObjCTypes:(char *)types,...;
--(void)decodeArrayOfObjCType:(char *)type count:(NSUInteger)count at:(void *)array;
--(void *)decodeBytesWithReturnedLength:(NSUInteger *)lengthp;
-
--(void *)decodeBytesForKey:(NSString *)key returnedLength:(NSUInteger *)lengthp;
-
--(BOOL)decodeBoolForKey:(NSString *)key;
--(double)decodeDoubleForKey:(NSString *)key;
--(float)decodeFloatForKey:(NSString *)key;
--(int)decodeIntForKey:(NSString *)key;
--(id) decodeObjectForKey:(NSString *)key;
-
--(int32_t)decodeInt32ForKey:(NSString *)key;
--(int64_t)decodeInt64ForKey:(NSString *)key;
--(NSInteger)decodeIntegerForKey:(NSString *)key;
+- (NSInteger) systemVersion;
+- (BOOL) allowsKeyedCoding;
 
 @end
 
 
-@interface NSCoder( Subclasses)
+@interface NSCoder ( Common)
 
--(void)encodeDataObject:(NSData *)data;
--(NSData *)decodeDataObject;
+- (NSInteger) versionForClassName:(NSString *) className;
 
--(NSInteger)versionForClassName:(NSString *)className;
--(void)decodeValueOfObjCType:(char *)type at:(void *)ptr;
--(void)encodeValueOfObjCType:(char *)type at:(void *)ptr;
+@end
 
--(BOOL)containsValueForKey:(NSString *)key;
+// future support
+@interface NSCoder ( UnkeyedArchivingUnarchiving)
+
+- (void) encodeDecodeValueOfObjCType:(char *) type
+                                  at:(void *) addr;
+- (void) encodeDecodeObject:(id) obj;
+- (void) encodeDecodeConditionalObject:(id) obj;
+- (void) encodeDecodeValuesOfObjCTypes:(char *) types, ...;
+
+@end
+
+
+@interface NSCoder ( UnkeyedArchiving)
+
+- (void) encodeValueOfObjCType:(char *) type
+                            at:(void *) addr;
+- (void) encodeObject:(id) obj;
+- (void) encodeRootObject:(id) obj;
+- (void) encodeBycopyObject:(id) obj;
+- (void) encodeByrefObject:(id) obj;
+- (void) encodeConditionalObject:(id) obj;
+- (void) encodeValuesOfObjCTypes:(char *) types, ...;
+- (void) encodeArrayOfObjCType:(char *) type
+                         count:(NSUInteger) count
+                            at:(void *) array;
+- (void) encodeBytes:(void *) bytes
+              length:(NSUInteger) length;
+- (void) encodePropertyList:(id) aPropertyList;
+
+@end
+
+
+@interface NSCoder ( UnkeyedUnarchiving)
+
+- (void) decodeValueOfObjCType:(char *) type
+                            at:(void *)data;
+- (id) decodeObject;
+- (void) decodeValuesOfObjCTypes:(char *) types, ...;
+- (void) decodeArrayOfObjCType:(char *) itemType
+                         count:(NSUInteger) count
+                            at:(void *) array;
+
+- (void *) decodeBytesWithReturnedLength:(NSUInteger *) len_p;
+
+- (id)  decodePropertyList;
+
+@end
+
+
+@interface NSCoder ( KeyedArchiving)
+
+- (void) encodeObject:(id)obj
+               forKey:(NSString *) key;
+
+- (void) encodeConditionalObject:(id)obj
+                          forKey:(NSString *) key;
+- (void) encodeBool:(BOOL) value
+             forKey:(NSString *) key;
+- (void) encodeInt:(int)value forKey:(NSString *) key;
+- (void) encodeInt32:(int32_t)value
+              forKey:(NSString *) key;
+- (void) encodeInt64:(int64_t)value
+              forKey:(NSString *) key;
+- (void) encodeFloat:(float)value
+              forKey:(NSString *) key;
+- (void) encodeDouble:(double)value
+               forKey:(NSString *) key;
+- (void) encodeBytes:(void *) bytes
+              length:(NSUInteger) len
+              forKey:(NSString *) key;
+
+- (void) encodeInteger:(NSInteger)value
+                forKey:(NSString *) key;
+@end
+
+
+@interface NSCoder ( KeyedUnarchiving)
+
+- (BOOL) containsValueForKey:(NSString *) key;
+
+- (id) decodeObjectForKey:(NSString *) key;
+- (BOOL) decodeBoolForKey:(NSString *) key;
+- (int) decodeIntForKey:(NSString *) key;
+- (int32_t) decodeInt32ForKey:(NSString *) key;
+- (int64_t) decodeInt64ForKey:(NSString *) key;
+- (float) decodeFloatForKey:(NSString *) key;
+- (double) decodeDoubleForKey:(NSString *) key;
+- (void *) decodeBytesForKey:(NSString *) key
+              returnedLength:(NSUInteger *) len_p;
+
+- (NSInteger) decodeIntegerForKey:(NSString *) key;
 
 @end
 
 
 
-//-(void)encodePoint:(NSPoint)point;
-//-(void)encodeSize:(NSSize)size;
-//-(void)encodeRect:(NSRect)rect;
+#pragma mark -
+#pragma mark Default methods for sublasses to pick
+
 //
-//-(void)encodePoint:(NSPoint)value forKey:(NSString *)key;
-//-(void)encodeRect:(NSRect)value forKey:(NSString *)key;
-//-(void)encodeSize:(NSSize)value forKey:(NSString *)key;
+// this protocols supplies the default implementations
+// one would expect
 //
-//
-//-(NSPoint)decodePoint;
-//-(NSSize)decodeSize;
-//-(NSRect)decodeRect;
-//
-//
-//-(NSPoint)decodePointForKey:(NSString *)key;
-//-(NSRect)decodeRectForKey:(NSString *)key;
-//-(NSSize)decodeSizeForKey:(NSString *)key;
+@protocol NSUnkeyedArchiver
+
+@optional
+- (void) encodeObject:(id) obj;
+- (void) encodeRootObject:(id) obj;
+- (void) encodeBycopyObject:(id) obj;
+- (void) encodeByrefObject:(id) obj;
+- (void) encodeConditionalObject:(id) obj;
+- (void) encodeValuesOfObjCTypes:(char *) types, ...;
+- (void) encodeArrayOfObjCType:(char *)type
+                         count:(NSUInteger) count
+                            at:(void *) array;
+
+- (void) encodeBytes:(void *)bytes
+              length:(NSUInteger)length;
+@end
+
+
+@protocol NSUnkeyedUnarchiver
+
+@optional
+- (id) decodeObject;
+- (void) decodeValuesOfObjCTypes:(char *) types, ...;
+- (void) decodeArrayOfObjCType:(char *) itemType
+                         count:(NSUInteger) count
+                            at:(void *) array;
+
+- (void *) decodeBytesWithReturnedLength:(NSUInteger *) len_p;
+
+- (void) encodePropertyList:(id) aPropertyList;
+- (id)  decodePropertyList;
+
+@end
+
 

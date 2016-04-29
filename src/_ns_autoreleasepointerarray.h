@@ -57,9 +57,10 @@ _mulle_autoreleasepointerarray_release_and_free(
    
    for( p = end; p; p = q)
    {
+      q = p->previous_;
+      
       _mulle_objc_objects_call_release_and_zero( (void **) p->objects_, p->used_);
 
-      q = p->previous_;
       if( p != staticStorage)
          MulleObjCDeallocateMemory( p);
    }
@@ -77,12 +78,13 @@ _mulle_autoreleasepointerarray_dump_objects(
    
    for( p = end; p; p = q)
    {
-      objects = p->objects_;
+      q = p->previous_;
+
+      objects  = p->objects_;
       sentinel = &p->objects_[ p->used_];
       while( objects < sentinel)
          fprintf( stderr, "\t%p\n", *objects++);
 
-      q = p->previous_;
       if( p != staticStorage)
          MulleObjCDeallocateMemory( p);
    }
