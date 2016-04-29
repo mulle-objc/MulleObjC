@@ -36,6 +36,6 @@
 // candidates:
 // methodForSelector:
 // performSelector:
-// respondsToSelector: !
+// sharedInstance
 
 #endif /* ns_fastmethodids_h */

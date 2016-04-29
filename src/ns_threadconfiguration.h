@@ -50,7 +50,7 @@ static inline struct _ns_threadlocalconfiguration   *_ns_get_threadlocalconfigur
    threadconfig = mulle_objc_get_threadconfig();
    assert( threadconfig);
    
-   local        = _mulle_objc_threadconfig_get_foundationspace( threadconfig);
+   local = _mulle_objc_threadconfig_get_foundationspace( threadconfig);
    return( local);
 }
 

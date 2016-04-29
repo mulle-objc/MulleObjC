@@ -28,8 +28,7 @@
 
 
 
-#define AUTORELEASEPOOL_HASH   0x5b791fc6  // NSAutoreleasePool
-
+#define NSAUTORELEASEPOOL_HASH   0x5b791fc6  // NSAutoreleasePool
 
 @implementation NSAutoreleasePool
 
@@ -49,7 +48,7 @@ static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *
 {
    char   *s;
    
-   config->poolClass          = mulle_objc_unfailing_get_or_lookup_class( MULLE_OBJC_CLASSID( AUTORELEASEPOOL_HASH));
+   config->poolClass          = mulle_objc_unfailing_get_or_lookup_class( MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH));
    config->autoreleaseObject  = _autoreleaseObject;
    config->autoreleaseObjects = _autoreleaseObjects;
    config->push               = pushAutoreleasePool;
@@ -262,28 +261,30 @@ static inline void   addObjects( NSAutoreleasePool *self,
 
 static void   _autoreleaseObject( struct _ns_poolconfiguration *config, id p)
 {
+#if DEBUG
+   if( ! config->tail)
+   {
+      fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
+      abort();
+   }
+#endif
+
+#if FORBID_ALLOC_DURING_AUTORELEASE
    if( config->releasing)
    {
-#if DEBUG
-      if( ! config->tail)
-      {
-         fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
-         abort();
-      }
-#endif
       // must be within a pool releasing
       // --------------------------------------------------------------------
       // to release the object now, would be cool... alas not possible f.e.
       // for strings that are created on the fly in NSLog messages in dealloc
       // or finalize
       // --------------------------------------------------------------------
-#if FORBID_ALLOC_DURING_AUTORELEASE
       if( config->trace & 0x2)
          fprintf( stderr, "[pool] %p immediately releases object %p\n", config->tail, p);
       [p release];
       return( nil);
-#endif
    }
+#endif
+   
    addObject( config->tail, p);
 
    if( config->trace & 0x1)
@@ -441,10 +442,12 @@ static void   popAutoreleasePool( struct _ns_poolconfiguration *config, id aPool
 
    // experimentally moved one down
    config->tail      = pool->_owner;
-   config->releasing = config->tail == NULL;
+   config->releasing = (config->tail == NULL);
    
 //   [exception raise];
    
+   if( config->trace & 0x4)
+      fprintf( stderr, "[pool] %p deallocates\n", pool);
    NSDeallocateObject( pool);
 }
 
