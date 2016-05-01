@@ -48,7 +48,7 @@ static int   n_instances;
 
 
 
-main()
+int  main()
 {
    NSThread   *thread;
 

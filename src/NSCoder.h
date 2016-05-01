@@ -143,14 +143,12 @@
 #pragma mark Default methods for sublasses to pick
 
 //
-// this protocols supplies the default implementations
-// one would expect
+// these protocols supply implementations
 //
-@protocol NSUnkeyedArchiver
+@protocol MulleObjCUnkeyedArchiver
 
 @optional
 - (void) encodeObject:(id) obj;
-- (void) encodeRootObject:(id) obj;
 - (void) encodeBycopyObject:(id) obj;
 - (void) encodeByrefObject:(id) obj;
 - (void) encodeConditionalObject:(id) obj;
@@ -164,7 +162,7 @@
 @end
 
 
-@protocol NSUnkeyedUnarchiver
+@protocol MulleObjCUnkeyedUnarchiver
 
 @optional
 - (id) decodeObject;

@@ -29,7 +29,7 @@
    if( ! signature)
    {
       [self release];
-      MulleObjCThrowInvalidArgumentException( signature, "is nil");
+      mulle_objc_throw_invalid_argument_exception( "signature is nil");
       return( nil);
    }
 
@@ -92,7 +92,7 @@
 
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature
 {
-   return( NSAutoreleaseObject( [[self alloc] initWithMethodSignature:signature]));
+   return( [[[self alloc] initWithMethodSignature:signature] autorelease]);
 }
 
 
@@ -195,7 +195,8 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       case _C_COPY_ID :
          [self getArgument:&obj
                   atIndex:i];
-         [self setArgument:[(id <NSCopying>) obj copy]
+         obj = [(id <NSCopying>) obj copy];
+         [self setArgument:&obj
                    atIndex:i];
          break;
             

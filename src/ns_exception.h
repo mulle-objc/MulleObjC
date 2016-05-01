@@ -46,13 +46,26 @@ void   MulleObjCThrowInvalidRangeException( NSRange range);
 __attribute__ ((noreturn))
 void   MulleObjCThrowErrnoException( id s, ...);
 
+
 #pragma mark -
-#pragma mark Some C Interfaces with char *
+#pragma mark Some C Interfaces with char * (and some just for completeness)
+
+__attribute__ ((noreturn))
+void   mulle_objc_throw_allocation_exception( size_t bytes);
+
+__attribute__ ((noreturn))
+void   mulle_objc_throw_invalid_index_exception( NSUInteger index);
+
+__attribute__ ((noreturn))
+void   mulle_objc_throw_invalid_range_exception( NSRange range);
 
 __attribute__ ((noreturn))
 void   mulle_objc_throw_invalid_argument_exception( char *format, ...);
 
 __attribute__ ((noreturn))
 void   mulle_objc_throw_errno_exception( char *format, ...);
+
+__attribute__ ((noreturn))
+void   mulle_objc_throw_internal_inconsistency_exception( char *format, ...);
 
 #endif

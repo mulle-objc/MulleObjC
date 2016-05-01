@@ -41,7 +41,7 @@ id  MulleObjCSingletonCreate( Class self)
 
    cls = self;
    if( ! _mulle_objc_class_get_state_bit( cls, MULLE_OBJC_IS_SINGLETON))
-      MulleObjCThrowInternalInconsistencyException( @"missing MULLE_OBJC_IS_CLASSCLUSTER bit on class %p", self);
+      mulle_objc_throw_internal_inconsistency_exception( "missing MULLE_OBJC_IS_CLASSCLUSTER bit on class %p", self);
    
    singleton = (id) _mulle_objc_class_get_auxplaceholder( cls);
    if( ! singleton)

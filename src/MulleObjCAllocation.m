@@ -17,10 +17,13 @@ int   MulleObjCObjectZeroProperty( struct _mulle_objc_property *property, struct
    signature = _mulle_objc_property_get_signature( property);
    switch( *signature)
    {
+   case _C_PTR       :
+   case _C_CHARPTR   :
+   case _C_ASSIGN_ID :
    case _C_COPY_ID   :
    case _C_RETAIN_ID :
       if( property->setter)
-         mulle_objc_object_inline_variable_selector_call( self, property->setter, nil);
+         mulle_objc_object_inline_variable_selector_call( self, property->setter, NULL);
    }
    return( 0);
 }

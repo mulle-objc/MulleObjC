@@ -67,12 +67,11 @@ main()
 
    @autoreleasepool
    {
-      foo = [[Foo new] autorelease];
+      foo = [Foo new];
       printf( "%d\n", n_instances);
       other = [[Foo new] autorelease];
       printf( "%d\n", n_instances);
       [foo setOther:other];
-      [other release];
 
       print_bool( [foo retainCount] == 1);
       print_bool( [foo retain] == foo);

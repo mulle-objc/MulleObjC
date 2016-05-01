@@ -46,10 +46,13 @@
 #if MULLE_OBJC_RUNTIME_VERSION < ((1 << 20) | (0 << 8) | 0)
 # error "mulle_objc_runtime is too old"
 #endif
-#if MULLE_CONTAINER_VERSION < ((0 << 20) | (0 << 8) | 0)
+#if MULLE_CONTAINER_VERSION < ((0 << 20) | (3 << 8) | 0)
 # error "mulle_container is too old"
 #endif
-#if MULLE_ALLOCATOR_VERSION < ((0 << 20) | (1 << 8) | 0)
+#if MULLE_ALLOCATOR_VERSION < ((1 << 20) | (3 << 8) | 0)
+# error "mulle_allocator is too old"
+#endif
+#if MULLE_VARARG_VERSION < ((0 << 20) | (1 << 8) | 0)
 # error "mulle_allocator is too old"
 #endif
 

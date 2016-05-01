@@ -18,6 +18,13 @@ void   MulleObjCThrowAllocationException( size_t bytes)
 
 
 __attribute__ ((noreturn))
+void   mulle_objc_throw_allocation_exception( size_t bytes)
+{
+   MulleObjCExceptionHandlersGetTable()->allocation_error( bytes);
+}
+
+
+__attribute__ ((noreturn))
 void   MulleObjCThrowInvalidArgumentException( id format, ...)
 {
    va_list  args;
@@ -49,6 +56,13 @@ void   MulleObjCThrowInvalidIndexException( NSUInteger index)
 
 
 __attribute__ ((noreturn))
+void   mulle_objc_throw_invalid_index_exception( NSUInteger index)
+{
+   MulleObjCExceptionHandlersGetTable()->invalid_index( index);
+}
+
+
+__attribute__ ((noreturn))
 void   MulleObjCThrowInternalInconsistencyException( id format, ...)
 {
    va_list   args;
@@ -60,7 +74,27 @@ void   MulleObjCThrowInternalInconsistencyException( id format, ...)
 
 
 __attribute__ ((noreturn))
+void   mulle_objc_throw_internal_inconsistency_exception( char *format, ...)
+{
+   va_list   args;
+   id        s;
+   
+   va_start( args, format);
+   s = _ns_string( format);
+   MulleObjCExceptionHandlersGetTable()->internal_inconsistency( format, args);
+   va_end( args);
+}
+
+
+__attribute__ ((noreturn))
 void   MulleObjCThrowInvalidRangeException( NSRange range)
+{
+   MulleObjCExceptionHandlersGetTable()->invalid_range( range);
+}
+
+
+__attribute__ ((noreturn))
+void   mulle_objc_throw_invalid_range_exception( NSRange range)
 {
    MulleObjCExceptionHandlersGetTable()->invalid_range( range);
 }

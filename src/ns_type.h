@@ -12,6 +12,11 @@
 #include "ns_objc_include.h"
 
 //
+// allow isa with cpp define
+//
+#define isa       (_mulle_objc_object_get_objectheader( obj))->_isa)
+
+//
 // this should be C readable
 // these are here in the header, but they are actually defined by the
 // compiler. So you can't change them.

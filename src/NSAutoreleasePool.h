@@ -29,23 +29,34 @@
    void                *_storage;
 }
 
-+ (void) addObjects:(id *) objects
-              count:(NSUInteger) count;
-- (void) addObjects:(id *) objects
-              count:(NSUInteger) count;
-+ (void) addObject:(id) object;
-- (void) addObject:(id) object;
-
-+ (NSAutoreleasePool *) defaultAutoreleasePool;
-+ (NSAutoreleasePool *) parentAutoreleasePool;
-- (NSAutoreleasePool *) parentAutoreleasePool;
-
-// mulle addition:
-- (BOOL) containsObject:(id) p;
 
 + (id) alloc;
 + (id) new;
 - (void) release;
+
++ (void) addObject:(id) object;
+- (void) addObject:(id) object;
+
+#pragma mark mulle additions:
+
++ (void) _addObjects:(id *) objects
+              count:(NSUInteger) count;
+- (void) _addObjects:(id *) objects
+              count:(NSUInteger) count;
+
++ (NSAutoreleasePool *) _defaultAutoreleasePool;
++ (NSAutoreleasePool *) _parentAutoreleasePool;
+- (NSAutoreleasePool *) _parentAutoreleasePool;
+
+//
+// these only check within the current thread, these routines are
+// not fast as they search linearly. only useful for debugging
+//
+- (BOOL) _containsObject:(id) p;
+- (NSUInteger) _countObject:(id) p;
+
++ (BOOL) _containsObject:(id) p;
++ (NSUInteger) _countObject:(id) p;
 
 @end
 
@@ -107,9 +118,6 @@ static inline void   _MulleObjCAutoreleaseSpacedObjects( id *objects, NSUInteger
    config = _ns_get_poolconfiguration();
    (*config->autoreleaseObjects)( config, objects, count, step);
 }
-
-
-
 
 
 // for NSThread
