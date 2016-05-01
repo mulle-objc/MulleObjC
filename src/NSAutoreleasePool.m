@@ -14,7 +14,6 @@
 
 #import "NSAutoreleasePool.h"
 
-
 // other files in this library
 #import "MulleObjCAllocation.h"
 #import "NSDebug.h"
@@ -41,7 +40,6 @@ static void   _autoreleaseObjects( struct _ns_poolconfiguration *config,
                                    id *objects,
                                    NSUInteger count,
                                    NSUInteger step);
-
 
 
 static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
@@ -100,7 +98,6 @@ void   _ns_poolconfiguration_unset_thread( void)
 }
 
 
-
 static inline struct _mulle_autoreleasepointerarray   *static_storage( struct _ns_poolconfiguration *config,
                                                 NSAutoreleasePool *pool)
 {
@@ -119,16 +116,25 @@ static inline int   _containsObject( NSAutoreleasePool *self, id p)
       return( 0);
 
    array = (struct _mulle_autoreleasepointerarray *) self->_storage;
+   if( ! array)
+      return( 0);
+   
    return( _mulle_autoreleasepointerarray_contains( array, p));
 }
 
 
-static inline int   containsObject( id p)
+static inline int   _countObject( NSAutoreleasePool *self, id p)
 {
-   struct _ns_poolconfiguration   *config;
+   struct _mulle_autoreleasepointerarray   *array;
    
-   config = _ns_get_poolconfiguration();
-   return( _containsObject( config->tail, p));
+   if( ! self)
+      return( 0);
+
+   array = (struct _mulle_autoreleasepointerarray *) self->_storage;
+   if( ! array)
+      return( 0);
+   
+   return( _mulle_autoreleasepointerarray_count( array, p));
 }
 
 
@@ -145,8 +151,11 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
    assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
 
    array = (struct _mulle_autoreleasepointerarray *) self->_storage;
-   if( !  _mulle_autoreleasepointerarray_can_add( array))
-      self->_storage = array = _mulle_autoreleasepointerarray_create( array);
+   if( ! _mulle_autoreleasepointerarray_can_add( array))
+   {
+      array          = _mulle_autoreleasepointerarray_create( array);
+      self->_storage = array;
+   }
    _mulle_autoreleasepointerarray_add( array, p);
 }
 
@@ -231,7 +240,7 @@ static inline void   addObjects( NSAutoreleasePool *self,
 }
 
 
-+ (NSAutoreleasePool *) defaultAutoreleasePool
++ (NSAutoreleasePool *) _defaultAutoreleasePool
 {
    struct _ns_poolconfiguration   *config;
    
@@ -240,7 +249,7 @@ static inline void   addObjects( NSAutoreleasePool *self,
 }
 
 
-+ (NSAutoreleasePool *) parentAutoreleasePool
++ (NSAutoreleasePool *) _parentAutoreleasePool
 {
    struct _ns_poolconfiguration   *config;
    NSAutoreleasePool              *pool;
@@ -253,7 +262,7 @@ static inline void   addObjects( NSAutoreleasePool *self,
 }
 
 
-- (NSAutoreleasePool *) parentAutoreleasePool
+- (NSAutoreleasePool *) _parentAutoreleasePool
 {
    return( self->_owner);
 }
@@ -288,7 +297,10 @@ static void   _autoreleaseObject( struct _ns_poolconfiguration *config, id p)
    addObject( config->tail, p);
 
    if( config->trace & 0x1)
-      fprintf( stderr, "[pool] %p added object %p\n", config->tail, p);
+      fprintf( stderr, "[pool] %p added object %p to storage %p\n",
+                           config->tail,
+                           p,
+                           ((NSAutoreleasePool *) config->tail)->_storage);
 }
 
 
@@ -352,23 +364,66 @@ static inline void   autoreleaseObjects( id *objects, NSUInteger count)
 }
 
 
-- (void) addObjects:(id *) objects
+- (void) _addObjects:(id *) objects
               count:(NSUInteger) count
 {              
    autoreleaseObjects( objects, count);
 }
 
 
-+ (void) addObjects:(id *) objects
++ (void) _addObjects:(id *) objects
               count:(NSUInteger) count
 {
    autoreleaseObjects( objects, count);
 }
 
 
-- (BOOL) containsObject:(id) p
+
+
+- (BOOL) _containsObject:(id) p
 {
-   return( containsObject( p));
+   struct _ns_poolconfiguration   *config;
+   
+   config = _ns_get_poolconfiguration();
+   return( _containsObject( config->tail, p));
+}
+
+
+- (NSUInteger) _countObject:(id) p;
+{
+   struct _ns_poolconfiguration   *config;
+   
+   config = _ns_get_poolconfiguration();
+   return( _countObject( config->tail, p));
+}
+
+
++ (BOOL) _containsObject:(id) p
+{
+   struct _ns_poolconfiguration   *config;
+   NSAutoreleasePool              *pool;
+   
+   config = _ns_get_poolconfiguration();
+   for( pool = config->tail; pool; pool = pool->_owner)
+      if( _containsObject( pool, p))
+      return( YES);
+
+   return( NO);
+}
+
+
++ (NSUInteger) _countObject:(id) p;
+{
+   struct _ns_poolconfiguration   *config;
+   NSAutoreleasePool              *pool;
+   NSUInteger                     count;
+   
+   count  = 0;
+   config = _ns_get_poolconfiguration();
+   for( pool = config->tail; pool; pool = pool->_owner)
+      count += _countObject( pool, p);
+
+   return( count);
 }
 
 
@@ -430,7 +485,7 @@ static void   popAutoreleasePool( struct _ns_poolconfiguration *config, id aPool
       pool->_storage = NULL;
       if( config->trace & 0x2)
       {
-         fprintf( stderr, "[pool] %p releases objects:\n", pool);
+         fprintf( stderr, "[pool] %p releases objects of storage %p\n", pool, storage);
          
          _mulle_autoreleasepointerarray_dump_objects( storage, static_storage( config, pool));
       }

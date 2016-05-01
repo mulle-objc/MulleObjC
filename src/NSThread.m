@@ -32,7 +32,7 @@
                object:(id) argument
 {
    if( ! target || ! sel)
-      MulleObjCThrowInvalidArgumentException( @"target and selector must not be nil");
+      mulle_objc_throw_invalid_argument_exception( "target and selector must not be nil");
 
    self->_target   = (target == self) ? self : [target retain];
    self->_selector = sel;
@@ -105,7 +105,7 @@ NSThread  *NSThreadInstantiateRuntimeThread()
    config = _ns_get_rootconfiguration();
 
    if( _mulle_atomic_pointer_nonatomic_read( &config->thread.n_threads))
-      MulleObjCThrowInternalInconsistencyException( @"runtime is still or already multithreaded");
+      mulle_objc_throw_internal_inconsistency_exception( "runtime is still or already multithreaded");
    _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 1);
 
    // this should have happened already in the runtime init
@@ -133,7 +133,7 @@ void  NSThreadDeallocateRuntimeThread( NSThread *self)
    config = _ns_get_rootconfiguration();
 
    if( _mulle_atomic_pointer_read( &config->thread.n_threads) != (void *) 1)
-      MulleObjCThrowInternalInconsistencyException( @"runtime is still or already multithreaded");
+      mulle_objc_throw_internal_inconsistency_exception( "runtime is still or already multithreaded");
    _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 0);
    assert( ! config->thread.is_multi_threaded);
    
@@ -272,7 +272,7 @@ static void   *bouncyBounce( NSThread *thread)
    struct _ns_rootconfiguration   *config;
 
    if( self->_thread)
-      MulleObjCThrowInternalInconsistencyException( @"thread already running");
+      mulle_objc_throw_internal_inconsistency_exception( "thread already running");
    
    config = _ns_get_rootconfiguration();
    if( _mulle_atomic_pointer_increment( &config->thread.n_threads) == (void *) 1)
@@ -300,7 +300,7 @@ static void   *bouncyBounce( NSThread *thread)
 - (void) join
 {
    if( self->_isDetached)
-      MulleObjCThrowInternalInconsistencyException( @"can't join a detached thread. Use -startUndetached");
+      mulle_objc_throw_internal_inconsistency_exception( "can't join a detached thread. Use -startUndetached");
    mulle_thread_join( self->_thread);
 }
 

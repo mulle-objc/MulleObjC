@@ -26,7 +26,8 @@ void   _ns_rootconfiguration_add_root( struct _ns_rootconfiguration *config, voi
    assert( mulle_set_get( config->object.singletons, obj) == NULL);
    assert( mulle_set_get( config->object.threads, obj) == NULL);
    
-   mulle_set_set( config->object.roots, obj);
+   if( mulle_set_insert( config->object.roots, obj))
+      mulle_objc_throw_internal_inconsistency_exception( "Object %p is already root", obj);
 }
 
 

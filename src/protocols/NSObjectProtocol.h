@@ -23,25 +23,15 @@
 
 @protocol NSObject
 
-// these are not in the traditional NSObject protocol
-+ (instancetype) new;
-+ (nonnull instancetype) alloc;
-+ (nonnull instancetype) allocWithZone:(NSZone *) zone;  // deprecated
-- (instancetype) init;
-
-
-// traditionals
 - (nonnull instancetype) retain;
 - (void) release;
 - (nonnull instancetype) autorelease;
 - (NSUInteger) retainCount;
-- (NSZone *) zone;
 
-- (BOOL) isEqual:(id) obj;
-- (NSUInteger) hash;
 - (Class) superclass;
 - (nonnull Class) class;
 - (nonnull id) self;
+
 - (id) performSelector:(SEL) sel;
 - (id) performSelector:(SEL) sel
             withObject:(id) obj;
@@ -53,6 +43,16 @@
 - (BOOL) isMemberOfClass:(Class) cls;
 - (BOOL) conformsToProtocol:(PROTOCOL) protocol;
 - (BOOL) respondsToSelector:(SEL) sel;
+
+
+// these are not in the traditional NSObject protocol
++ (instancetype) new;
++ (nonnull instancetype) alloc;
++ (nonnull instancetype) allocWithZone:(NSZone *) zone;  // deprecated
+- (instancetype) init;
+
+- (BOOL) isEqual:(id) obj;
+- (NSUInteger) hash;
 - (id) description;
 
 // mulle additions:
@@ -62,7 +62,7 @@
 - (nonnull instancetype) immutableInstance;
 
 // advanced Autorelease and ObjectGraph support
-- (void) becomeRootObject;
-- (void) pushToParentAutoreleasePool;
+- (void) _becomeRootObject;
+- (void) _pushToParentAutoreleasePool;
 
 @end

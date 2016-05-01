@@ -99,12 +99,6 @@
 + (id) classValueForKey:(id) key;
 
 //
-// At this time, the superclass or all other classes
-// may already be gone. 
-//
-+ (void) dealloc;  // used to clear classValues
-
-//
 // find the implementation that was overridden
 // fairly slow!
 //
@@ -117,10 +111,11 @@ overriddenByImplementation:(IMP) imp;
 
 // advanced Autorelease and ObjectGraph support
 
-- (void) becomeRootObject;        // retains  #1#
+- (void) _becomeRootObject;        // retains  #1#
+- (void) _resignAsRootObject;      // autoreleases
+- (BOOL) _isRootObject;
 
-- (void) resignAsRootObject;      // autoreleases
-- (void) pushToParentAutoreleasePool;
+- (void) _pushToParentAutoreleasePool;
 
 // not part of NSObject protocol
 
@@ -136,6 +131,7 @@ overriddenByImplementation:(IMP) imp;
                         length:(NSUInteger) length;
 
 @end
+
 
 
 @class NSMethodSignature;
@@ -183,10 +179,12 @@ static inline void   *MulleObjCObjectGetObjectWithHeaderFromObject( id p)
    return( (void *)  _mulle_objc_object_get_objectheader( p));
 }
 
+
 #pragma clang diagnostic pop
 
 /*
  * #1# whenever you call [self retain] or don't return an object autoreleased,
  * chances are very high, this object is a root object (or could become one)
  */
+
 

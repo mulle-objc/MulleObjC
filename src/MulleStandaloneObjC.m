@@ -78,13 +78,18 @@ static void  tear_down()
 }
 
 
-static void  tear_down_and_check()
+static void   tear_down_and_check()
 {
    tear_down();
 
    mulle_test_allocator_objc_reset();
 }
 
+
+static void   *return_self( void *p)
+{
+   return( p);
+}
 
 
 __attribute__((const))  // always returns same value (in same thread)
@@ -144,12 +149,15 @@ struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
       }
       config.foundation.exceptiontable = NULL; // pedantic
    
+      rootconfig = _mulle_objc_runtime_get_foundationdata( runtime);
+         
+      rootconfig->string.charsfromobject = (void *) return_self;
+      rootconfig->string.objectfromchars = (void *) return_self;
+   
+      // if we retain zombies, we leak, so no point in looking for leaks
       is_pedantic = getenv( "MULLE_OBJC_PEDANTIC_EXIT") != NULL;
       if( is_pedantic || is_test)
       {
-         rootconfig = _mulle_objc_runtime_get_foundationdata( runtime);
-         
-         // if we retain zombies, we leak, so no point in looking for leaks
          if( rootconfig->object.zombieenabled && ! rootconfig->object.deallocatezombies)
             is_test = 0;
          if( atexit( is_test ? tear_down_and_check : tear_down))

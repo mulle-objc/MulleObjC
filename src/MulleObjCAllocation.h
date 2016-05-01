@@ -89,7 +89,7 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class cls, NSUIntege
    size   = _mulle_objc_class_get_instance_and_header_size( cls) + extra;
    header = _mulle_allocator_malloc( allocator, size);
    
-   _mulle_atomic_pointer_nonatomic_write( &header->retaincount_1, 0);
+   _mulle_atomic_pointer_nonatomic_write( &header->_retaincount_1, 0);
    _mulle_objc_objectheader_set_isa( header, cls);
    return( (id) _mulle_objc_objectheader_get_object( header));
 }
@@ -125,7 +125,7 @@ static inline void   _MulleObjCObjectFree( id obj)
    header    = _mulle_objc_object_get_objectheader( obj);
 #if DEBUG
    // malloc scribble will kill it though
-   header->isa = (void *) (intptr_t) 0xDEADDEADDEADDEAD;
+   header->_isa = (void *) (intptr_t) 0xDEADDEADDEADDEAD;
 #endif
    _mulle_allocator_free( allocator, header);
 }

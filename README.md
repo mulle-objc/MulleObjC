@@ -38,15 +38,17 @@ Foundation using MulleObjC MUST NOT define (#ifdef them out). Anything in
 lowercase like ns_ contains C code, that a Foundation would use and augment
 with objects of it's own. `ns_` files should be includeable with pure C.
 
-Anything prefixed with '_' is not checking it's arguments and is free to crash.
-Everything else should check it's arguments and return an error or raise and
-must not crash (within reason).
+Any C function prefixed with '_' is not checking it's arguments and is free to 
+crash. Everything else should check it's arguments and return an error or raise 
+and must not crash (within reason).
 
 
 ## What about the methods ?
 
 Prefixing all methods with mulle would be tedious and produce ungainly code.
-Instead methods, that are not defined in OS X are adorned with
+Instead methods, that are not defined in OS X are prefixed with a '_'.
+
+And possibly adorned with 
 
 `__attribute__((availability(macosx,unavailable)))`
 

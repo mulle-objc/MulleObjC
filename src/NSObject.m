@@ -44,27 +44,18 @@
 #define _MulleObjCInstantiatePlaceholderHash  0x56154b76  // _MulleObjCInstantiatePlaceholder
 
 // intentonally a root object (!)
-@interface _MulleObjCInstantiatePlaceholder
+@interface _MulleObjCInstantiatePlaceholder < NSObject>
 {
 @public
    Class   _cls;
 }
 @end
 
+#pragma mark -
+#pragma mark ### _MulleObjCInstantiatePlaceholder ###
+#pragma mark -
 
 @implementation _MulleObjCInstantiatePlaceholder
-
-- (void) finalize
-{
-}
-
-
-- (void) dealloc
-{
-   _MulleObjCObjectZeroProperties( self);
-   _MulleObjCObjectFree( self);
-}
-
 
 - (void *) forward:(void *) _param
 {
@@ -98,7 +89,9 @@
 
 @end
 
-
+#pragma mark -
+#pragma mark ### NSObject ###
+#pragma mark -
 
 @implementation NSObject
 
@@ -124,6 +117,21 @@
 }
 
 
++ (instancetype) new
+{
+   id   p;
+   
+   p = [NSAllocateObject( self, 0, NULL) init];
+   return( p);
+}
+
+
+- (NSZone *) zone;  // always NULL
+{
+   return( (NSZone *) 0);
+}
+
+
 - (void) finalize
 {
 }
@@ -136,27 +144,8 @@
 }
 
 
-+ (instancetype) new
-{
-   id   p;
-   
-   p = [NSAllocateObject( self, 0, NULL) init];
-   return( p);
-}
-
 #pragma mark -
-#pragma mark these methods are only called via performSelector: or some such
-
-//
-// these funtions exist, but they are rarely ever called, except when you
-// do performSelector or some such.
-//
-
-- (NSZone *) zone;  // always NULL
-{
-   return( (NSZone *) 0);
-}
-
+#pragma mark lifetime management
 
 - (nonnull instancetype) retain
 {
@@ -164,14 +153,46 @@
 }
 
 
+//
+// this "facility" catches release/autorelease mistakes, but only for
+// single threaded programs. For multithreaded one would need to suspend all
+// other threads and inspect their autorelease pools as well
+//
+#if DEBUG
+static BOOL   MulleObjCSingleThreadedCheckReleaseAndAutorelease = YES;
+
+static void   checkAutoreleaseRelease( NSObject *self)
+{
+   if( MulleObjCSingleThreadedCheckReleaseAndAutorelease)
+   {
+      NSUInteger   autoreleaseCount;
+      NSUInteger   retainCount;
+      
+      autoreleaseCount = [NSAutoreleasePool _countObject:self];
+      retainCount      = [self retainCount];
+      if(  autoreleaseCount >= retainCount)
+         mulle_objc_throw_internal_inconsistency_exception( "object %p would be autoreleased to often", self);
+   }
+}
+#else
+static inline void   checkAutoreleaseRelease( NSObject *self)
+{
+}
+#endif
+
+
 - (void) release
 {
-   mulle_objc_object_release( self);
+   checkAutoreleaseRelease( self);
+
+   _mulle_objc_object_release( self);
 }
 
 
 - (nonnull instancetype) autorelease
 {
+   checkAutoreleaseRelease( self);
+
    _MulleObjCAutoreleaseObject( self);
    return( self);
 }
@@ -183,9 +204,15 @@
 }
 
 
-#pragma mark -
-#pragma mark AAO methods
 
+- (nonnull instancetype) self
+{
+   return( self);
+}
+
+
+#pragma mark -
+#pragma mark aam support
 
 static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( struct _mulle_objc_class  *self, mulle_objc_classid_t classid)
 {
@@ -256,8 +283,8 @@ retry:
 }
 
 
-- (NSUInteger) getRootObjects:(id *) buf
-                       length:(NSUInteger) length
++ (NSUInteger) _getRootObjects:(id *) buf
+                        length:(NSUInteger) length
 {
    struct _ns_rootconfiguration   *config;
    struct _mulle_objc_runtime     *runtime;
@@ -266,7 +293,7 @@ retry:
    id                             obj;
    id                             *sentinel;
    
-   runtime = mulle_objc_inlined_get_runtime();
+   runtime = _mulle_objc_class_get_runtime( self);
    
    _mulle_objc_runtime_lock( runtime);
    {
@@ -290,25 +317,53 @@ retry:
 }
 
 
-- (void) becomeRootObject
+- (BOOL) _isRootObject
+{
+   struct _ns_rootconfiguration   *config;
+   struct _mulle_objc_runtime     *runtime;
+   struct mulle_setenumerator     rover;
+   id                             obj;
+   
+   runtime = _mulle_objc_object_get_runtime( self);
+   obj     = nil;
+   
+   _mulle_objc_runtime_lock( runtime);
+   {
+      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+
+      rover = mulle_set_enumerate( config->object.roots);
+      while( obj = mulle_setenumerator_next( &rover))
+      {
+         if( obj == self)
+            break;
+      }
+      mulle_setenumerator_done( &rover);
+   }
+   _mulle_objc_runtime_unlock( runtime);
+   
+   return( obj ? YES : NO);
+}
+
+
+- (void) _becomeRootObject
 {
    [self retain];
    _ns_add_root( self);
 }
 
 
-- (void) resignAsRootObject
+- (void) _resignAsRootObject
 {
    _ns_remove_root( self);
    [self autorelease];
 }
 
 
-- (void) pushToParentAutoreleasePool
+- (void) _pushToParentAutoreleasePool
 {
    NSAutoreleasePool   *pool;
    
-   pool = [NSAutoreleasePool parentAutoreleasePool];
+   pool = [NSAutoreleasePool _parentAutoreleasePool];
    if( pool)
    {
       [self retain];
@@ -316,13 +371,17 @@ retry:
       return;
    }
    
-   [self becomeRootObject];
+   [self _becomeRootObject];
 }
 
 
 # pragma mark -
 # pragma mark concurrent class "variable" support
 
+/* every value becomes a "root". It is an error to set a "root" object
+   as a value. The classvalues are all taken down when the runtime 
+   collapses. (way before classes are deallocated !)
+ */
 
 + (void) removeClassValueForKey:(id) key
 {
@@ -340,13 +399,13 @@ retry:
       switch( (rval = _mulle_objc_class_remove_cvar( cls, key, old)))
       {
          case 0 :
-            [old resignAsRootObject];
+            [old _resignAsRootObject];
          case ENOENT :
             return;
             
          default :
             errno = rval;
-            MulleObjCThrowErrnoException( @"failed to remove key");
+            mulle_objc_throw_errno_exception( "failed to remove key");
       }
    }
    return;
@@ -359,16 +418,16 @@ retry:
    struct _mulle_objc_class   *cls;
    int                        rval;
    
-   assert( value);
    assert( ! strcmp( "NSConstantString",
                     _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
+   assert( value && ! [value _isRootObject]);
    
    cls = self;
    
    switch( (rval = _mulle_objc_class_set_cvar( cls, key, value)))
    {
    case 0 :
-      [value becomeRootObject];
+      [value _becomeRootObject];
       return( YES);
          
    case EEXIST :
@@ -376,7 +435,7 @@ retry:
 
    default :
       errno = rval;
-      MulleObjCThrowErrnoException( @"failed to insert key");
+      mulle_objc_throw_errno_exception( "failed to insert key");
    }
 }
 
@@ -384,13 +443,6 @@ retry:
 + (void) setClassValue:(id) value
                 forKey:(id) key
 {
-   struct _mulle_objc_class   *cls;
-
-   assert( ! strcmp( "NSConstantString",
-                    _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
-   
-   cls = self;
-   
    if( ! value)
    {
       [self removeClassValueForKey:key];
@@ -417,27 +469,8 @@ retry:
 }
 
 
-+ (void) dealloc
-{
-   id                                          value;
-   struct _mulle_objc_class                    *cls;
-   struct mulle_concurrent_hashmapenumerator   rover;
-
-   cls = self;
-
-   rover = _mulle_objc_class_enumerate_cvars( cls);
-   while( _mulle_concurrent_hashmapenumerator_next( &rover,
-                                                    NULL,
-                                                   (void **) &value))
-   {
-      [value resignAsRootObject];
-   }
-   _mulle_concurrent_hashmapenumerator_done( &rover);
-}
-
-
 # pragma mark -
-# pragma mark normal methods
+# pragma mark regular methods
 
 - (instancetype) init
 {
@@ -487,6 +520,24 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
+#pragma mark -
+#pragma mark object introspection
+
+- (BOOL) isProxy
+{
+   return( NO);
+}
+
+
+- (id) description
+{
+   return( nil);
+}
+
+
+#pragma mark -
+#pragma mark class introspection
+
 - (Class) superclass
 {
    return( _mulle_objc_class_get_superclass( _mulle_objc_object_get_class( self)));
@@ -502,56 +553,6 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
    cls = _mulle_objc_object_get_class( self);
    return( cls);
-}
-
-
-- (nonnull instancetype) self
-{
-   return( self);
-}
-
-
-- (id) performSelector:(SEL) sel
-{
-   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, (void *) 0));
-}
-
-
-- (id) performSelector:(SEL) sel
-            withObject:(id) obj
-{
-   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, (void *) obj));
-}
-
-
-/* this is pretty much the worst case for the META-ABI,
-   since we need to extract sel from _param and have to alloca and reshuffle
-   everything 
- */
-- (id) performSelector:(SEL) sel
-            withObject:(id) obj1
-            withObject:(id) obj2
-{
-   union
-   {
-      struct
-      {
-         id   obj1;
-         id   obj2;
-      } data;
-      void   *space[ 5];      // IMPORTANT!!
-   } param;
-   
-   param.data.obj1 = obj1;
-   param.data.obj2 = obj2;
-   
-   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, &param));
-}
-          
-
-- (BOOL) isProxy
-{
-   return( NO);
 }
 
 
@@ -591,11 +592,55 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
+#pragma mark -
+#pragma mark protocol introspection
+
 - (BOOL) conformsToProtocol:(PROTOCOL) protocol
 {
    return( (BOOL) _mulle_objc_class_conforms_to_protocol( _mulle_objc_object_get_isa( self), (mulle_objc_protocolid_t) protocol));
 }
 
+
+#pragma mark -
+#pragma mark method introspection
+
+- (id) performSelector:(SEL) sel
+{
+   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, (void *) 0));
+}
+
+
+- (id) performSelector:(SEL) sel
+            withObject:(id) obj
+{
+   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, (void *) obj));
+}
+
+
+/* this is pretty much the worst case for the META-ABI,
+   since we need to extract sel from _param and have to alloca and reshuffle
+   everything 
+ */
+- (id) performSelector:(SEL) sel
+            withObject:(id) obj1
+            withObject:(id) obj2
+{
+   union
+   {
+      struct
+      {
+         id   obj1;
+         id   obj2;
+      } data;
+      void   *space[ 5];      // IMPORTANT!!
+   } param;
+   
+   param.data.obj1 = obj1;
+   param.data.obj2 = obj2;
+   
+   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, &param));
+}
+          
 
 - (BOOL) respondsToSelector:(SEL) sel
 {
@@ -608,9 +653,9 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-- (id) description
+- (IMP) methodForSelector:(SEL) sel
 {
-   return( nil);
+   return( (IMP) _mulle_objc_object_lookup_or_search_methodimplementation( (void *) self, (mulle_objc_methodid_t) sel));
 }
 
 
@@ -628,13 +673,6 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    // don't cache the forward entry yet
    return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( self, (mulle_objc_methodid_t) sel));
 }
-
-
-- (IMP) methodForSelector:(SEL) sel
-{
-   return( (IMP) _mulle_objc_object_lookup_or_search_methodimplementation( (void *) self, (mulle_objc_methodid_t) sel));
-}
-
 
 
 //
@@ -722,6 +760,9 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    return( info.n);
 }
 
+
+#pragma mark -
+#pragma mark forwarding
 
 - (id) forwardingTargetForSelector:(SEL) sel
 {

@@ -117,7 +117,6 @@
 		41A9E4FB1BD7F39700210D6E /* ns_debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 41A9E4F91BD7F39700210D6E /* ns_debug.c */; };
 		41A9E4FC1BD7F39700210D6E /* ns_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A9E4FA1BD7F39700210D6E /* ns_debug.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41B200551C8CBC3300588C5E /* libmulle_allocator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41B200541C8CBC3300588C5E /* libmulle_allocator.a */; };
-		41B200571C8CBD6C00588C5E /* autopool.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B200561C8CBD6C00588C5E /* autopool.m */; };
 		41B7F9DA1C6DE60600C74B8A /* NSInvocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DB1C69424B007839D0 /* NSInvocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41B7F9DB1C6DE60600C74B8A /* NSMethodSignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 410B50DE1C69424B007839D0 /* NSMethodSignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41BD6CD11CD35B800094DE1B /* NSCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C851AE1CC3A554003AF1E1 /* NSCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -256,7 +255,6 @@
 		41A9E4F91BD7F39700210D6E /* ns_debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_debug.c; sourceTree = "<group>"; };
 		41A9E4FA1BD7F39700210D6E /* ns_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_debug.h; sourceTree = "<group>"; };
 		41B200541C8CBC3300588C5E /* libmulle_allocator.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_allocator.a; path = dependencies/lib/Debug/libmulle_allocator.a; sourceTree = "<group>"; };
-		41B200561C8CBD6C00588C5E /* autopool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = autopool.m; path = tests/NSAutoreleasePool/autopool.m; sourceTree = SOURCE_ROOT; };
 		41C851AE1CC3A554003AF1E1 /* NSCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSCoding.h; sourceTree = "<group>"; };
 		41D04ABA1C8DEFCD00CC8F11 /* libmulle_concurrent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_concurrent.a; path = dependencies/lib/Debug/libmulle_concurrent.a; sourceTree = "<group>"; };
 		41DB5C361CAD656F001A4CEA /* NSCopying.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSCopying.m; sourceTree = "<group>"; };
@@ -321,7 +319,6 @@
 		41300CA21C87180200D1D1C1 /* sometest */ = {
 			isa = PBXGroup;
 			children = (
-				41B200561C8CBD6C00588C5E /* autopool.m */,
 			);
 			path = sometest;
 			sourceTree = "<group>";
@@ -694,7 +691,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41B200571C8CBD6C00588C5E /* autopool.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

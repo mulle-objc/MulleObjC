@@ -7,6 +7,9 @@
 
 
 @interface Foo : NSObject
+{
+   id  _other;
+}
 @end
 
 static int   n_instances;
@@ -23,9 +26,18 @@ static int   n_instances;
 
 - (void) dealloc
 {
+   [_other autorelease];
+
    --n_instances;
    printf( "-dealloc\n");
    [super dealloc];
+}
+
+
+- (void) setOther:(id) other
+{
+   [_other autorelease];
+   _other = [other retain];
 }
 
 
@@ -39,9 +51,8 @@ static int   n_instances;
    // automatically
 
    foo = [[Foo new] autorelease];
-   printf( "%d\n", n_instances);
    other = [[Foo new] autorelease];
-   printf( "%d\n", n_instances);
+   [foo setOther:other];
 }
 
 @end
@@ -50,13 +61,12 @@ static int   n_instances;
 
 int  main()
 {
-   NSThread   *thread;
-
-   thread = [[NSThread instantiate] initWithTarget:[Foo class]
-                                          selector:@selector( test)
-                                            object:nil];
-   printf( "startUndetached\n");
-   [thread startUndetached];
-   [thread join];
-   printf( "joined\n");
+   // no crash or leak and we iz happy
+   @autoreleasepool
+   {
+      [Foo test];
+      printf( "%d\n", n_instances);  // 2
+   }
+   printf( "%d\n", n_instances);  // 0
+   return( 0);
 }

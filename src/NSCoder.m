@@ -49,19 +49,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 #pragma mark -
-#pragma mark NSUnkeyedArchiver Protocol with default implementations
+#pragma mark MulleObjCUnkeyedArchiver Protocol with default implementations
 
 
-@interface NSUnkeyedArchiver
+@interface MulleObjCUnkeyedArchiver < MulleObjCUnkeyedArchiver>
 @end
 
 
-@interface NSUnkeyedArchiver ( UnkeyedArchiving)
+@interface MulleObjCUnkeyedArchiver ( Declarations)
 
 - (void) encodeValueOfObjCType:(char *) type
                             at:(void *) addr;
 - (void) encodeObject:(id) obj;
-- (void) encodeRootObject:(id) obj;
 - (void) encodeBycopyObject:(id) obj;
 - (void) encodeByrefObject:(id) obj;
 - (void) encodeConditionalObject:(id) obj;
@@ -76,7 +75,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 @end
 
 
-@implementation NSUnkeyedArchiver
+@implementation MulleObjCUnkeyedArchiver
 
 - (void) encodeObject:(id)object
 {
@@ -90,13 +89,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
    [self encodeValueOfObjCType:@encode( id)
                             at:&propertyList];
 }
-
-
-- (void) encodeRootObject:(id) rootObject
-{
-   [self encodeObject:rootObject];
-}
-
 
 - (void) encodeBycopyObject:(id) object
 {
@@ -114,7 +106,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 {
    [self encodeObject:(id) object];
 }
-
 
 
 - (void) encodeArrayOfObjCType:(char *) itemType
@@ -187,17 +178,16 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 
 
 #pragma mark -
-#pragma mark NSUnkeyedUnarchiver Protocol with default implementations
+#pragma mark MulleObjCUnkeyedUnarchiver Protocol with default implementations
 
-@interface NSUnkeyedUnarchiver
+@interface MulleObjCUnkeyedUnarchiver < MulleObjCUnkeyedUnarchiver>
 @end
 
 
-@interface NSUnkeyedUnarchiver ( KeyedUnarchiving)
+@interface MulleObjCUnkeyedUnarchiver ( Declarations)
 
 - (void) decodeValueOfObjCType:(char *) type
                             at:(void *)data;
-- (id) decodeObject;
 - (void) decodeValuesOfObjCTypes:(char *) types, ...;
 - (void) decodeArrayOfObjCType:(char *) itemType
                          count:(NSUInteger) count
@@ -205,12 +195,13 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 
 - (void *) decodeBytesWithReturnedLength:(NSUInteger *) len_p;
 
+- (id) decodeObject;
 - (id) decodePropertyList;
 
 @end
 
 
-@implementation NSUnkeyedUnarchiver
+@implementation MulleObjCUnkeyedUnarchiver
 
 - (void) decodeValuesOfObjCTypes:(char *) types, ...
 {
@@ -227,11 +218,11 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 #pragma mark -
 #pragma mark decoding
 
-
 - (id) decodeObject
 {
    id   object;
    
+   object = nil;  // important for leak detection
    [self decodeValueOfObjCType:@encode(id)
                             at:&object];
    return( [object autorelease]);

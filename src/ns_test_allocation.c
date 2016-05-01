@@ -25,7 +25,7 @@ static void  *test_calloc_or_raise( size_t n, size_t size)
    if( ! size)
       return( p);
    
-   MulleObjCThrowAllocationException( size);
+   mulle_objc_throw_allocation_exception( size);
    return( NULL);
 }
 
@@ -38,7 +38,7 @@ static void  *test_realloc_or_raise( void *block, size_t size)
    if( p || ! size)
       return( p);
    
-   MulleObjCThrowAllocationException( size);
+   mulle_objc_throw_allocation_exception( size);
    return( NULL);
 }
 
