@@ -9,7 +9,6 @@
 #include "ns_exception.h"
 
 
-
 __attribute__ ((noreturn))
 void   MulleObjCThrowAllocationException( size_t bytes)
 {
@@ -81,7 +80,7 @@ void   mulle_objc_throw_internal_inconsistency_exception( char *format, ...)
    
    va_start( args, format);
    s = _ns_string( format);
-   MulleObjCExceptionHandlersGetTable()->internal_inconsistency( format, args);
+   MulleObjCExceptionHandlersGetTable()->internal_inconsistency( s, args);
    va_end( args);
 }
 

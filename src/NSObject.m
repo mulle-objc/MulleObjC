@@ -82,7 +82,7 @@
 #endif
 
    obj = [_cls alloc];
-   obj = mulle_objc_object_inline_variable_selector_call( obj, (mulle_objc_methodid_t) _cmd, _param);
+   obj = mulle_objc_object_inline_variable_methodid_call( obj, (mulle_objc_methodid_t) _cmd, _param);
    [obj autorelease];
    return( obj);
 }
@@ -107,13 +107,13 @@
 
 + (nonnull instancetype) alloc
 {
-   return( _MulleObjCClassAllocateObject( self, 0));
+   return( NSAllocateObject( self, 0, NULL));
 }
 
 
 + (nonnull instancetype) allocWithZone:(NSZone *) zone
 {
-   return( _MulleObjCClassAllocateObject( self, 0));
+   return( NSAllocateObject( self, 0, NULL));
 }
 
 
@@ -137,9 +137,20 @@
 }
 
 
+#if DEBUG
+static BOOL   MulleObjCSingleThreadedCheckReleaseAndAutorelease = YES;
+#endif
+
+
 - (void) dealloc
 {
-   _MulleObjCObjectZeroProperties( self);
+   _MulleObjCObjectReleaseProperties( self);
+
+#if DEBUG
+   if( MulleObjCSingleThreadedCheckReleaseAndAutorelease)
+      if( [NSAutoreleasePool _countObject:self] )
+         mulle_objc_throw_internal_inconsistency_exception( "deallocing object %p still in autoreleasepool", self);
+#endif
    _MulleObjCObjectFree( self);
 }
 
@@ -159,8 +170,6 @@
 // other threads and inspect their autorelease pools as well
 //
 #if DEBUG
-static BOOL   MulleObjCSingleThreadedCheckReleaseAndAutorelease = YES;
-
 static void   checkAutoreleaseRelease( NSObject *self)
 {
    if( MulleObjCSingleThreadedCheckReleaseAndAutorelease)
@@ -347,6 +356,8 @@ retry:
 
 - (void) _becomeRootObject
 {
+   assert( ! [self _isRootObject]);
+   
    [self retain];
    _ns_add_root( self);
 }
@@ -420,7 +431,7 @@ retry:
    
    assert( ! strcmp( "NSConstantString",
                     _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
-   assert( value && ! [value _isRootObject]);
+   assert( value);
    
    cls = self;
    
@@ -606,14 +617,14 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (id) performSelector:(SEL) sel
 {
-   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, (void *) 0));
+   return( mulle_objc_object_inline_variable_methodid_call( self, (mulle_objc_methodid_t) sel, (void *) 0));
 }
 
 
 - (id) performSelector:(SEL) sel
             withObject:(id) obj
 {
-   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, (void *) obj));
+   return( mulle_objc_object_inline_variable_methodid_call( self, (mulle_objc_methodid_t) sel, (void *) obj));
 }
 
 
@@ -638,7 +649,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    param.data.obj1 = obj1;
    param.data.obj2 = obj2;
    
-   return( mulle_objc_object_inline_variable_selector_call( self, (mulle_objc_methodid_t) sel, &param));
+   return( mulle_objc_object_inline_variable_methodid_call( self, (mulle_objc_methodid_t) sel, &param));
 }
           
 
@@ -770,6 +781,12 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 }
 
 
+- (void) doesNotForwardVariadicSelector:(SEL) sel
+{
+   MulleObjCThrowInternalInconsistencyException( @"variadic methods can not be forwarded using invocations");
+}
+
+
 - (void) doesNotRecognizeSelector:(SEL) sel
 {
    struct _mulle_objc_class   *cls;
@@ -792,8 +809,26 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    if( ! method)
       return( nil);
    
+   return( [NSMethodSignature _signatureWithObjCTypes:method->descriptor.signature
+                                 methodDescriptorBits:method->descriptor.bits]);
+}
+
+
++ (NSMethodSignature *) instanceMethodSignatureForSelector:(SEL) sel
+{
+   struct _mulle_objc_method   *method;
+   
+   assert( _mulle_objc_class_is_infraclass( self));
+   method = _mulle_objc_class_search_method( self,
+                                             (mulle_objc_methodid_t) sel,
+                                             NULL,
+                                             _mulle_objc_class_get_inheritance( self));
+   if( ! method)
+      return( nil);
+   
    return( [NSMethodSignature signatureWithObjCTypes:method->descriptor.signature]);
 }
+
 
 //
 // subclasses should just override this, for best performance
@@ -807,7 +842,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    
    target = [self forwardingTargetForSelector:_cmd];
    if( target)
-      return( mulle_objc_object_inline_variable_selector_call( target, (mulle_objc_methodid_t) _cmd, _param));
+      return( mulle_objc_object_inline_variable_methodid_call( target, (mulle_objc_methodid_t) _cmd, _param));
 
    /*
     * the slowness of these operations can not even be charted
@@ -815,11 +850,20 @@ static int   collect( struct _mulle_objc_ivar *ivar,
     */
    signature = [self methodSignatureForSelector:_cmd];
    if( ! signature)
+   {
       [self doesNotRecognizeSelector:_cmd];
-   
+      return( NULL);
+   }
+
+   if( [signature isVariadic])
+   {
+      [self doesNotForwardVariadicSelector:_cmd];
+      return( NULL);
+   }
+
    invocation = [NSInvocation invocationWithMethodSignature:signature];
    [invocation setSelector:_cmd];
-   [invocation setMetaABIFrame:_param];
+   [invocation _setMetaABIFrame:_param];
    [self forwardInvocation:invocation];
    
    switch( [signature methodMetaABIReturnType])

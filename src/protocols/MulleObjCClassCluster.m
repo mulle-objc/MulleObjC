@@ -14,7 +14,7 @@
 // std-c and dependencies
 
 
-@interface MulleObjCClassCluster < NSObject, MulleObjCClassCluster>
+@interface MulleObjCClassCluster < MulleObjCClassCluster>
 @end
 
 

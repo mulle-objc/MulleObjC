@@ -40,9 +40,9 @@
 #pragma mark mulle additions:
 
 + (void) _addObjects:(id *) objects
-              count:(NSUInteger) count;
+               count:(NSUInteger) count;
 - (void) _addObjects:(id *) objects
-              count:(NSUInteger) count;
+               count:(NSUInteger) count;
 
 + (NSAutoreleasePool *) _defaultAutoreleasePool;
 + (NSAutoreleasePool *) _parentAutoreleasePool;

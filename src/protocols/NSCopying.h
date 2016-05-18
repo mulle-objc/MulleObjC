@@ -21,6 +21,11 @@
 //
 @protocol NSCopying 
 
-- (instancetype) copy;
+- (id) copy;
 
 @end
+
+
+
+id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone);
+

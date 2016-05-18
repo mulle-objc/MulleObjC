@@ -22,6 +22,9 @@
 #import "NSDebug.h"
 
 
+extern struct mulle_allocator    mulle_allocator_objc;
+
+
 __attribute__((const))
 static inline struct mulle_allocator   *MulleObjCObjectGetAllocator( id obj)
 {
@@ -53,6 +56,43 @@ static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
    return( &foundation->allocator);
 }
 
+
+#pragma mark -
+#pragma mark allocate memory for objects
+
+static inline void  *MulleObjCObjectAllocateNonZeroedMemory( id self, NSUInteger size)
+{
+   return( _mulle_allocator_malloc( MulleObjCObjectGetAllocator( self), size));
+}
+
+
+static inline void  *MulleObjCObjectReallocateNonZeroedMemory( id self, void *p, NSUInteger size)
+{
+   return( _mulle_allocator_realloc( MulleObjCObjectGetAllocator( self), p, size));
+}
+
+
+static inline void  *MulleObjCObjectAllocateMemory( id self, NSUInteger size)
+{
+   return( _mulle_allocator_calloc( MulleObjCObjectGetAllocator( self), 1, size));
+}
+
+
+static inline void  *MulleObjCObjectDuplicateCString( id self, char *s)
+{
+   return( _mulle_allocator_strdup( MulleObjCObjectGetAllocator( self), s));
+}
+
+
+static inline void  MulleObjCObjectDeallocateMemory( id self, void *p)
+{
+   if( p)
+      _mulle_allocator_free( MulleObjCObjectGetAllocator( self), p);
+}
+
+
+#pragma mark -
+#pragma mark object creation
 
 __attribute__((returns_nonnull))
 static inline id    _MulleObjCClassAllocateObject( Class cls, NSUInteger extra)
@@ -95,14 +135,14 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class cls, NSUIntege
 }
 
 
-static inline void   _MulleObjCObjectZeroProperties( id obj)
+static inline void   _MulleObjCObjectReleaseProperties( id obj)
 {
-   extern int   MulleObjCObjectZeroProperty( struct _mulle_objc_property *, struct _mulle_objc_class *, void *);
+   extern int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *, struct _mulle_objc_class *, void *);
    struct _mulle_objc_class   *cls;
    
    // walk through properties and release them
    cls = _mulle_objc_object_get_isa( obj);
-   _mulle_objc_class_walk_properties( cls, _mulle_objc_class_get_inheritance( cls), MulleObjCObjectZeroProperty, obj);
+   _mulle_objc_class_walk_properties( cls, _mulle_objc_class_get_inheritance( cls), _MulleObjCObjectReleaseProperty, obj);
 }
 
 
@@ -112,8 +152,10 @@ static inline void   _MulleObjCObjectFree( id obj)
    struct _mulle_objc_objectheader   *header;
    struct _ns_rootconfiguration      *config;
    struct mulle_allocator            *allocator;
+   struct _mulle_objc_runtime        *runtime;
    
-   config = _ns_get_rootconfiguration();
+   runtime = _mulle_objc_object_get_runtime( obj);
+   config  = _mulle_objc_runtime_get_foundationdata( runtime);
    if( config->object.zombieenabled)
    {
       MulleObjCZombifyObject( obj);
@@ -125,7 +167,10 @@ static inline void   _MulleObjCObjectFree( id obj)
    header    = _mulle_objc_object_get_objectheader( obj);
 #if DEBUG
    // malloc scribble will kill it though
-   header->_isa = (void *) (intptr_t) 0xDEADDEADDEADDEAD;
+   memset( obj, 0xad, _mulle_objc_class_get_instance_size( header->_isa));
+   
+   header->_isa           = (void *) (intptr_t) 0xDEADDEADDEADDEAD;
+   header->_retaincount_1 = (void *) (intptr_t) 0x0; // sic
 #endif
    _mulle_allocator_free( allocator, header);
 }
@@ -135,6 +180,7 @@ static inline id     NSAllocateObject( Class infra, NSUInteger extra, NSZone *zo
 {
    return( _MulleObjCClassAllocateObject( infra, extra));
 }
+
 
 void   NSDeallocateObject( id obj);  
 

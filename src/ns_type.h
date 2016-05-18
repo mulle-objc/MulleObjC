@@ -14,7 +14,7 @@
 //
 // allow isa with cpp define
 //
-#define isa       (_mulle_objc_object_get_objectheader( obj))->_isa)
+#define isa       ((Class) (_mulle_objc_object_get_objectheader( self))->_isa)
 
 //
 // this should be C readable
@@ -31,8 +31,8 @@ typedef struct _mulle_objc_class      *Class;
 // For other compilers say   `typedef Protocol   *PROTOCOL`
 // and code will work on both sides.
 //
-typedef mulle_objc_propertyid_t       PROTOCOL;
 typedef mulle_objc_methodid_t         SEL;
+typedef SEL                           PROTOCOL;
 typedef struct _mulle_objc_method     *Method;
 typedef void                          *(*IMP)( void *, SEL, void *params);
 // --- compiler defined end ---

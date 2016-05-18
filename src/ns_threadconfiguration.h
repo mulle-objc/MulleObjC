@@ -20,8 +20,10 @@ struct _ns_poolconfiguration
    void   (*autoreleaseObject)( struct _ns_poolconfiguration *, id);
    void   (*autoreleaseObjects)( struct _ns_poolconfiguration *, id *, NSUInteger, NSUInteger);
    
-   id                         tail;     // NSAutoreleasepool
+   id                         tail;        // NSAutoreleasepool
    struct _mulle_objc_class   *poolClass;
+   struct mulle_map           *object_map;
+   struct mulle_map           _object_map;
    
    void   *(*push)( struct _ns_poolconfiguration *);
    void   (*pop)( struct _ns_poolconfiguration *, id pool);
@@ -47,9 +49,16 @@ static inline struct _ns_threadlocalconfiguration   *_ns_get_threadlocalconfigur
 
    assert( S_MULLE_OBJC_THREADCONFIG_FOUNDATION_SPACE >= sizeof( struct _ns_threadlocalconfiguration));
 
-   threadconfig = mulle_objc_get_threadconfig();
-   assert( threadconfig);
-   
+   threadconfig = _mulle_objc_get_threadconfig();
+   if( ! threadconfig)
+   {
+      // looks like we are in a "foreign" thread
+      // make it our own
+      _NSThreadNewRuntimeThread();
+      threadconfig = _mulle_objc_get_threadconfig();
+      if( ! threadconfig)
+         mulle_objc_throw_internal_inconsistency_exception( "could not make the current thread a MulleObjC thread");
+   }
    local = _mulle_objc_threadconfig_get_foundationspace( threadconfig);
    return( local);
 }

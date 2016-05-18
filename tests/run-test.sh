@@ -286,15 +286,12 @@ fail_test()
       "${MULLE_OBJC}" \
       "${m_source}" > "$errput" 2>&1
 
-   echo "MULLE_OBJC_AUTORELEASEPOOL_TRACE=15 \
-   MULLE_OBJC_TEST_ALLOCATOR=1 \
-MULLE_TEST_ALLOCATOR_TRACE=2 \
+# MULLE_OBJC_AUTORELEASEPOOL_TRACE=15 \
+# MULLE_TEST_ALLOCATOR_TRACE=2 \
+   echo "\
+MULLE_OBJC_TEST_ALLOCATOR=1 \
 MallocStackLogging=1 \
-MallocStackLoggingNoCompact=1 \
-MallocScribble=1 \
-MallocPreScribble=1 \
-MallocGuardEdges=1 \
-MallocCheckHeapEach=1 \
+DYLD_INSERT_LIBRARIES=/usr/lib/libgmalloc.dylib \
 DYLD_FALLBACK_LIBRARY_PATH=\"${DYLD_FALLBACK_LIBRARY_PATH}\" \
 LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}\" lldb ${a_out}" >&2
    if [ "${stdin}" != "/dev/null" ]

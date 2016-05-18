@@ -6,21 +6,23 @@
 //  Copyright © 2016 Mulle kybernetiK. All rights reserved.
 //
 
-#import "MulleStandaloneObjC.h"
 
+// other files in this library
+#import "MulleObjC.h"
 #include "ns_test_allocation.h"
 #include "ns_allocation.h"
 
+// std-c and dependencies
 
 static void   versionassert( struct _mulle_objc_runtime *runtime,
                              void *friend,
                              struct mulle_objc_loadversion *version)
 {
-   if( (version->foundation & ~0xFF) != (MULLE_OBJC_STANDALONE_VERSION & ~0xFF))
+   if( (version->foundation & ~0xFF) != (MULLE_OBJC_VERSION & ~0xFF))
       _mulle_objc_runtime_raise_inconsistency_exception( runtime, "mulle_objc_runtime %p: foundation version set to %x but runtime foundation is %x",
                                                         runtime,
                                                         version->foundation,
-                                                        MULLE_OBJC_STANDALONE_VERSION);
+                                                        MULLE_OBJC_VERSION);
 }
 
 
@@ -72,7 +74,7 @@ struct _mulle_objc_method   NSObject_msgForward_method =
 
 static void  tear_down()
 {
-   NSThreadDeallocateMainThread();
+   _NSThreadResignAsMainThread();
 
    // No Objective-C available anymore
 }

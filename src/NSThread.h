@@ -58,10 +58,14 @@ void  _mulle_become_objc_runtime_thread( void);
 void  _mulle_resignas_objc_runtime_thread( void);       // NSThread object should be gone already
 
 
-// don't call these functions
-NSThread  *NSThreadInstantiateRuntimeThread( void);
-void       NSThreadDeallocateRuntimeThread( NSThread *self);
+#pragma mark -
+#pragma mark Internal
 
-void  NSThreadDeallocateMainThread( void);
+// don't call these functions yourself
+NSThread  *_NSThreadNewRuntimeThread( void);
+void       _NSThreadResignAsRuntimeThreadAndDeallocate( NSThread *self);
+
+NSThread  *_NSThreadNewMainThread( void);
+void  _NSThreadResignAsMainThread( void);
 
 @end

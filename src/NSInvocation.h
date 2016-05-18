@@ -50,7 +50,7 @@
 
 // mulle additions
 
-- (void) setMetaABIFrame:(void *) frame;
+- (void) _setMetaABIFrame:(void *) frame;
 
 @end
 
