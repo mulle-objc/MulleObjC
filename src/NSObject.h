@@ -56,7 +56,7 @@
 // if you subclass NSObject and override init, don't bother calling [super init]
 // 
 - (instancetype) init;
-- (void) dealloc;
+- (void) dealloc;  /* ---> #2# */
 
 - (NSUInteger) hash;
 - (BOOL) isEqual:(id) other;
@@ -142,6 +142,7 @@ overriddenByImplementation:(IMP) imp;
 - (id) forwardingTargetForSelector:(SEL) sel;
 - (void) doesNotRecognizeSelector:(SEL) sel;
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) sel;
++ (NSMethodSignature *) instanceMethodSignatureForSelector:(SEL) sel;
 
 //
 // subclasses should just override this, for best performance
@@ -150,8 +151,6 @@ overriddenByImplementation:(IMP) imp;
 - (void) forwardInvocation:(NSInvocation *) anInvocation;
 
 @end
-
-
 
 
 //
@@ -187,4 +186,9 @@ static inline void   *MulleObjCObjectGetObjectWithHeaderFromObject( id p)
  * chances are very high, this object is a root object (or could become one)
  */
 
+/*
+ * #2# dealloc will automatically write "nil/NULL" into your properties setter
+ *     for pointers and objects. properties that are nonnull and properties
+ *     w/o a setter won't be called
+ */
 

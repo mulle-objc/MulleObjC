@@ -27,19 +27,25 @@ typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
 
 @interface NSMethodSignature : NSObject 
 {
-   char                               *_types;
+   char                                *_types;
+   char                                *_prettyTypes;
    uint32_t                            _count;
-   MulleObjCMethodSignatureTypeinfo   *_infos;
+   uint32_t                            _bits; // see method_descriptor
+   MulleObjCMethodSignatureTypeinfo    *_infos;
 }
 
 + (NSMethodSignature *) signatureWithObjCTypes:(char *) types;
 
++ (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
+                           methodDescriptorBits:(NSUInteger) bits;
+
 - (BOOL) isOneway;
+- (BOOL) isVariadic;
+- (NSUInteger) _methodDescriptorBits;
 - (NSUInteger) frameLength;
 
 - (NSUInteger) methodReturnLength;
 - (char *) methodReturnType;
-
 - (char *) getArgumentTypeAtIndex:(NSUInteger) index;
 
 - (NSUInteger) numberOfArguments;

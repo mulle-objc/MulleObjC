@@ -11,7 +11,13 @@
 
 @interface MulleObjCException < MulleObjCException>
 
-- (void) raise  __attribute__((noreturn));
+// don't use __attribute(( noreturn)), the compiler will produce
+// wrong code for
+// exception = nil;
+// ...
+// [exception raise];
+//
+- (void) raise;
 
 @end
 

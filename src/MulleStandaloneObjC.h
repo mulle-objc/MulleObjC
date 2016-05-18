@@ -11,14 +11,12 @@
 #endif
 
 
-#import "MulleObjC.h"
+#import <MulleObjC/MulleObjC.h>
 
 //
 // this is defined here for standalone. a "real" foundation will want to
 // produce their own. This version is compiled into the linked output.
 //
-#define MULLE_OBJC_STANDALONE_VERSION   MULLE_OBJC_VERSION
-
 // the forwarding method in this partiular runtime
 void   *_objc_msgForward( void *self, mulle_objc_methodid_t _cmd, void *_param);
 

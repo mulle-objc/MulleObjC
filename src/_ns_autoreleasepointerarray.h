@@ -40,8 +40,11 @@ static inline struct _mulle_autoreleasepointerarray   *_mulle_autoreleasepointer
 {
    struct _mulle_autoreleasepointerarray  *array;
 
-   array            = MulleObjCAllocateMemory( sizeof( struct _mulle_autoreleasepointerarray));
-#if DEBUG
+   array = mulle_malloc( sizeof( struct _mulle_autoreleasepointerarray));
+   if( ! array)
+      mulle_objc_throw_allocation_exception( sizeof( struct _mulle_autoreleasepointerarray));
+      
+#if AUTORELEASEPOOL_DEBUG
    fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p allocated (previous = %p)\n", array, previous);
 #endif
    
@@ -55,23 +58,48 @@ static inline struct _mulle_autoreleasepointerarray   *_mulle_autoreleasepointer
 static inline void
 _mulle_autoreleasepointerarray_release_and_free(
                             struct _mulle_autoreleasepointerarray *end,
-                            struct _mulle_autoreleasepointerarray *staticStorage)
+                            struct _mulle_autoreleasepointerarray *staticStorage,
+                            struct mulle_map *object_map)
 {
    struct _mulle_autoreleasepointerarray   *p, *q;
+   id                                      *objects;
+   id                                      *sentinel;
+   NSUInteger                              value;
+   id                                      opfer;
    
    for( p = end; p; p = q)
    {
       q            = p->previous_;
       p->previous_ = NULL;
-      
-      _mulle_objc_objects_call_release_and_zero( (void **) p->objects_, p->used_);
+
+      objects = p->objects_;
+      sentinel = &objects[ p->used_];
+      if( object_map)
+      {
+         while( objects < sentinel)
+         {
+            opfer = *objects++;
+            value = (NSUInteger) mulle_map_get( object_map, opfer);
+            assert( value && "object appeared in pool out of nowhere");
+            --value;
+            
+            if( ! value)
+               mulle_map_remove( object_map, opfer);
+            else
+               mulle_map_set( object_map, opfer, (void *) value);
+            mulle_objc_object_release( opfer);
+         }
+      }
+      else
+         while( objects < sentinel)
+            mulle_objc_object_release( *objects++);
 
       if( p != staticStorage)
       {
-#if DEBUG
+#if AUTORELEASEPOOL_DEBUG
          fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p deallocated (previous = %p)\n", p, q);
 #endif
-         MulleObjCDeallocateMemory( p);
+         mulle_free( p);
       }
    }
 }
@@ -96,6 +124,7 @@ _mulle_autoreleasepointerarray_dump_objects(
          fprintf( stderr, "\t%p\n", *objects++);
    }
 }
+
 
 
 static inline BOOL   _mulle_autoreleasepointerarray_is_full( struct _mulle_autoreleasepointerarray *array)
@@ -143,7 +172,7 @@ static inline int   _mulle_autoreleasepointerarray_contains( struct _mulle_autor
 }
 
 
-static inline unsigned int   _mulle_autoreleasepointerarray_count( struct _mulle_autoreleasepointerarray *array, id p)
+static inline unsigned int   _mulle_autoreleasepointerarray_count_object( struct _mulle_autoreleasepointerarray *array, id p)
 {
    id             *q;
    id             *sentinel;

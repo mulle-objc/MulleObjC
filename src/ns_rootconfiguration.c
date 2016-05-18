@@ -12,7 +12,7 @@
 #include "ns_objc_include.h"
 
 #include "ns_rootconfiguration.h"
-#include "_ns_exception.h"
+#include "ns_exception.h"
 #include <assert.h>
 
 
@@ -297,9 +297,12 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
    
    _mulle_objc_runtime_set_foundation( runtime, &us);
 
-   roots->object.debugenabled      = getenv( "MULLE_OBJC_DEBUG_ENABLED") != NULL;
-   roots->object.zombieenabled     = getenv( "MULLE_OBJC_ZOMBIE_ENABLED") != NULL;
-   roots->object.deallocatezombies = getenv( "MULLE_OBJC_DEALLOCATE_ZOMBIES") != NULL;
+   roots->object.debugenabled      = getenv( "MULLE_OBJC_DEBUG_ENABLED") != NULL ||
+         getenv( "NSDebugEnabled") != NULL;
+   roots->object.zombieenabled     = getenv( "MULLE_OBJC_ZOMBIE_ENABLED") != NULL ||
+         getenv( "NSZombieEnabled") != NULL;
+   roots->object.deallocatezombies = getenv( "MULLE_OBJC_DEALLOCATE_ZOMBIES") != NULL ||
+         getenv( "NSDeallocateZombies") != NULL;
    
    return( roots);
 }

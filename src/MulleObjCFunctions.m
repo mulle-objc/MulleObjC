@@ -21,6 +21,12 @@
 #include "ns_rootconfiguration.h"
 
 
+Class   NSClassFromObject( id object)
+{
+   return( [object class]);
+}
+
+
 char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment)
 {
    struct mulle_objc_typeinfo   info;
@@ -50,7 +56,23 @@ char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignme
 }
 
 
-// because of vtab, simpler is faster in this case
+// because of vtab, simpler is faster in these cases
+void   MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n)
+{
+   id   p;
+   id   *sentinel;
+
+   sentinel = &objects[ n];
+   while( objects < sentinel)
+   {
+      p = *objects++;
+      assert( p);
+      
+      [p release];
+   }
+}
+
+
 void   MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n)
 {
    id   p;
@@ -117,7 +139,11 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel,
    id                                  *sentinel;
    mulle_objc_methodimplementation_t   (*lookup)( struct _mulle_objc_class *, mulle_objc_methodid_t);
    mulle_objc_methodimplementation_t   imp;
-   struct { id a; id b; }  _param = { .a = argument, .b = argument2 };
+   mulle_objc_metaabi_param_block_void_return( struct { id a; id b;})  _param;
+
+   _param.p.a = argument;
+   _param.p.b = argument2;
+//   struct { id a; id b; void *spare[3]; }  _param = { .a = argument, .b = argument2 };
    
    memset( lastIsa, 0, sizeof( lastIsa));
    

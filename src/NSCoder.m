@@ -9,6 +9,7 @@
 
 // other files in this library
 #import "MulleObjCFunctions.h"
+#import "MulleObjCAllocation.h"
 
 // std-c and dependencies
 
@@ -123,16 +124,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 - (void) encodeBytes:(void *) byteaddr
-              length:(NSUInteger)length
+              length:(NSUInteger) length
 {
    char   typeBuf[ 128];
    
    sprintf( typeBuf, "[%luc]", (unsigned long) length);
    
-   [self encodeValueOfObjCType:@encode(NSUInteger)
+   [self encodeValueOfObjCType:@encode( NSUInteger)
                             at:&length];
    [self encodeValueOfObjCType:typeBuf at:byteaddr];
 }
+
 
 #pragma mark -
 #pragma mark coding / decoding
@@ -151,14 +153,14 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
    
    imp = [self methodForSelector:sel];
    
-   while( types)
+   while( *types)
    {
-      param.ptr   = mulle_vararg_next_pointer( arguments, void *);
       param.types = types;
+      param.ptr   = mulle_vararg_next_pointer( arguments, void *);
       
       (*imp)( self, sel, &param);
       
-      types = NSGetSizeAndAlignment( types, NULL, NULL);
+      types = NSGetSizeAndAlignment( types, NULL, NULL); // skip over current
    }
 }
 
@@ -260,7 +262,7 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
    [self decodeValueOfObjCType:@encode(NSUInteger)
                             at:len_p];
    
-   buf = MulleObjCAllocateMemory( *len_p);
+   buf = MulleObjCObjectAllocateMemory( self, *len_p);
 
    sprintf( typeBuf, "[%luc]", (unsigned long) *len_p);
    [self decodeValueOfObjCType:typeBuf

@@ -44,6 +44,7 @@ src/ns_objc.h
 src/ns_objc_include.h
 src/ns_range.h
 src/ns_rootconfiguration.h
+src/ns_test_allocation.h
 src/ns_threadconfiguration.h
 src/ns_type.h
 src/ns_zone.h
@@ -77,15 +78,16 @@ src/ns_debug.c
 src/ns_exception.c
 src/ns_range.c
 src/ns_rootconfiguration.c
+src/ns_test_allocation.c
 src/protocols/MulleObjCClassCluster.m
 src/protocols/MulleObjCException.m
 src/protocols/MulleObjCSingleton.m
+src/protocols/NSCoding.m
 src/protocols/NSCopying.m)
 
 
 add_library( MulleStandaloneObjC SHARED
 src/MulleStandaloneObjC.m
-src/ns_test_allocation.c
 )
 
 add_dependencies( MulleStandaloneObjC MulleObjC)
@@ -102,4 +104,4 @@ mulle_test_allocator )
 
 INSTALL( TARGETS MulleObjC MulleStandaloneObjC DESTINATION "lib")
 INSTALL( FILES ${HEADERS} DESTINATION "include/MulleObjC")
-INSTALL( FILES ${HEADERS} src/MulleStandaloneObjC.h src/ns_test_allocation.h DESTINATION "include/MulleStandaloneObjC")
+INSTALL( FILES src/MulleStandaloneObjC.h DESTINATION "include/MulleStandaloneObjC")

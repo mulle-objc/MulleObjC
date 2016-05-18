@@ -13,32 +13,11 @@
  */
 #import "NSDebug.h"
 
+// other files in this library
 #import "NSObject.h"
 #include "ns_type.h"
 
-
-@interface NSObject ( Future)
-
-- (char *) debugMallocedCString;
-
-@end
-
-
-@interface NSObject( NSDebug)
-
-- (void) __checkReferenceCount;
-
-@end
-
-
-
-@implementation NSObject( NSDebug)
-
-- (void) __checkReferenceCount
-{
-}
-
-@end
+// std-c and dependencies
 
 
 char   *_NSPrintForDebugger( id a)
@@ -165,12 +144,14 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 static void   zombifyLargeObject( id obj)
 {
    _MulleObjCLargeZombie   *zombie;
-   Class            cls;
+   Class                   cls;
+   
+   cls = mulle_objc_unfailing_lookup_class( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
+   assert( cls);
    
    zombie = obj;
    zombie->_originalClass = _mulle_objc_object_get_isa( obj);
 
-   cls = mulle_objc_unfailing_lookup_class( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
    _mulle_objc_object_set_isa( obj, cls);
 }
 

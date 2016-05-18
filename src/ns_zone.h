@@ -61,25 +61,26 @@ static inline NSZone   *NSZoneFromPointer( void *p)
 //
 static inline void   *NSZoneMalloc( NSZone *zone, NSUInteger size)
 {
-   return( MulleObjCAllocateNonZeroedMemory( size));
+   return( mulle_malloc( size));
 }
 
 
 static inline void   *NSZoneCalloc( NSZone *zone, NSUInteger numElems, NSUInteger byteSize)
 {
-   return( MulleObjCAllocateMemory( numElems * byteSize));
+   return( mulle_calloc( numElems, byteSize));
 }
 
 
 static inline void   *NSZoneRealloc( NSZone *zone, void *p, NSUInteger size)
 {
-   return( MulleObjCReallocateNonZeroedMemory( p, size));
+   return( mulle_realloc( p, size));
 }
 
 
 static inline void   NSZoneFree( NSZone *zone, void *p)
 {
-   MulleObjCDeallocateMemory( p);
+   if( p)
+      mulle_free( p);
 }
 
 #endif

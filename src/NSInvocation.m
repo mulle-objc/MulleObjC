@@ -24,7 +24,8 @@
 
 - (id) initWithMethodSignature:(NSMethodSignature *) signature
 {
-   size_t   size;
+   size_t                   size;
+   struct mulle_allocator   *allocator;
    
    if( ! signature)
    {
@@ -36,7 +37,8 @@
    size             = [signature frameLength];
    size            += [signature methodReturnLength];
    
-   _storage         = MulleObjCAllocateNonZeroedMemory( size);
+   allocator        = MulleObjCObjectGetAllocator( self);
+   _storage         = mulle_allocator_calloc( allocator, 1, size);
    _methodSignature = [signature retain];
 
    return( self);
@@ -66,7 +68,7 @@
       case _C_CHARPTR :
          [self getArgument:&s 
                   atIndex:i];
-         MulleObjCDeallocateMemory( s);
+         mulle_allocator_free( MulleObjCObjectGetAllocator( self), s);
          break;
       }
    }
@@ -80,10 +82,13 @@
 
 - (void) dealloc
 {
+   struct mulle_allocator  *allocator;
+
    if( _argumentsRetained)
       [self _releaseArguments];
 
-   MulleObjCDeallocateMemory( _storage);
+   allocator = MulleObjCObjectGetAllocator( self);
+   mulle_allocator_free( allocator, _storage);
    [_methodSignature release];
 
    NSDeallocateObject( self);
@@ -177,7 +182,10 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 #endif      
       return;
    }
-      
+   
+   if( [_methodSignature isVariadic])
+      MulleObjCThrowInternalInconsistencyException( @"NSInvocation can not retain the arguments of variadic methods");
+   
    _argumentsRetained = YES;
    
    n = [_methodSignature numberOfArguments];
@@ -203,7 +211,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       case _C_CHARPTR :
          [self getArgument:&s 
                   atIndex:i];
-         dup  = MulleObjCDuplicateCString( s);
+         dup  = mulle_allocator_strdup( MulleObjCObjectGetAllocator( self), s);
          [self setArgument:&dup
                   atIndex:i];
          break;
@@ -222,6 +230,8 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 {
    SEL   result;
 
+   assert( sizeof( SEL) == sizeof( mulle_objc_methodid_t));
+   
    [self getArgument:&result 
              atIndex:1];
 
@@ -262,30 +272,33 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 
 - (void) invokeWithTarget:(id) target
 {
-   SEL                          sel;
+   SEL                                sel;
    MulleObjCMethodSignatureTypeinfo   *info;
-   void                         *param;
-   void                         *rval;
-   void                         *storage;
+   void                               *param;
+   void                               *rval;
+   void                               *storage;
    
-   sel   = [self selector];
+   sel = [self selector];
+   if( ! sel)
+      MulleObjCThrowInternalInconsistencyException( @"selector has not been set yet");
+   
    param = NULL;
    switch( [_methodSignature methodMetaABIParameterType])
    {
    case MulleObjCMetaABITypeVoid           :
-      rval = mulle_objc_object_inline_variable_selector_call( target, sel, target);
+      rval = mulle_objc_object_inline_variable_methodid_call( target, sel, target);
       break;
          
    case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
-      rval  = mulle_objc_object_inline_variable_selector_call( target, sel, *(void **) param);
+      rval  = mulle_objc_object_inline_variable_methodid_call( target, sel, *(void **) param);
       break;
          
    case MulleObjCMetaABITypeParameterBlock :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
-      rval  = mulle_objc_object_inline_variable_selector_call( target, sel, param);
+      rval  = mulle_objc_object_inline_variable_methodid_call( target, sel, param);
       break;
    }
 
@@ -310,10 +323,10 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 }
 
 
-- (void) setMetaABIFrame:(void *) frame
+- (void) _setMetaABIFrame:(void *) frame
 {
    MulleObjCMethodSignatureTypeinfo   *info;
-   void                         *param;
+   void                               *param;
    
    switch( [_methodSignature methodMetaABIParameterType])
    {

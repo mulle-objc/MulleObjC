@@ -17,6 +17,13 @@
 #import "NSObject.h"
 
 
+@interface NSObject ( NSDebug)
+
+- (id) debugDescription;
+
+@end
+
+
 char   *_NSPrintForDebugger( id a);
 void   MulleObjCZombifyObject( id obj);
 

@@ -10,7 +10,6 @@
 
 #include "ns_type.h"
 #include "ns_range.h"
-#include <mulle_container/mulle_container.h>
 
 
 @class NSString;

@@ -13,7 +13,7 @@
 #include "ns_type.h"
 
 
-@interface MulleObjCSingleton < NSObject, MulleObjCSingleton>
+@interface MulleObjCSingleton < MulleObjCSingleton>
 @end
 
 

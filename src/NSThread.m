@@ -58,7 +58,7 @@
 
 + (void) load
 {
-   NSThreadInstantiateRuntimeThread();
+   _NSThreadNewMainThread();
 }
 
 
@@ -97,46 +97,31 @@ void  _mulle_resignas_objc_runtime_thread( void)
 }
 
 
-NSThread  *NSThreadInstantiateRuntimeThread()
+NSThread  *_NSThreadNewRuntimeThread()
 {
    NSThread                       *thread;
    struct _ns_rootconfiguration   *config;
 
    config = _ns_get_rootconfiguration();
 
-   if( _mulle_atomic_pointer_nonatomic_read( &config->thread.n_threads))
-      mulle_objc_throw_internal_inconsistency_exception( "runtime is still or already multithreaded");
-   _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 1);
-
-   // this should have happened already in the runtime init
-   // _mulle_become_objc_runtime_thread();
+   _mulle_become_objc_runtime_thread();
+   _mulle_atomic_pointer_increment( &config->thread.n_threads);
 
    thread = [NSThread new];
    _ns_add_thread( thread);           // does not retain
    [thread _setAsCurrentThread];
    
-   //
-   // why no autorelease (?)
-   // the runtime thread has one big problem, it has to shutdown ObjC and
-   // then it wants to dealloc, but dealloc can't be called anymore.
-   // For that reason it is an error to autorelease the runtime thread, so
-   // it can be turned off deterministically
-   //
    return( thread);
 }
 
 
-void  NSThreadDeallocateRuntimeThread( NSThread *self)
+void  _NSThreadResignAsRuntimeThreadAndDeallocate( NSThread *self)
 {
    struct _ns_rootconfiguration   *config;
 
    config = _ns_get_rootconfiguration();
-
-   if( _mulle_atomic_pointer_read( &config->thread.n_threads) != (void *) 1)
-      mulle_objc_throw_internal_inconsistency_exception( "runtime is still or already multithreaded");
-   _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 0);
-   assert( ! config->thread.is_multi_threaded);
    
+   _mulle_atomic_pointer_decrement( &config->thread.n_threads);
    _ns_remove_thread( self);
 
    assert( ! self->_target);
@@ -147,7 +132,38 @@ void  NSThreadDeallocateRuntimeThread( NSThread *self)
 }
 
 
-void  NSThreadDeallocateMainThread( void)
+
+NSThread  *_NSThreadNewMainThread( void)
+{
+   NSThread                       *thread;
+   struct _ns_rootconfiguration   *config;
+   
+   config = _ns_get_rootconfiguration();
+   
+   if( _mulle_atomic_pointer_nonatomic_read( &config->thread.n_threads))
+      mulle_objc_throw_internal_inconsistency_exception( "runtime is still or already multithreaded");
+   _mulle_atomic_pointer_nonatomic_write( &config->thread.n_threads, (void *) 1);
+   
+   // this should have happened already in the runtime init for the main
+   // thread
+   // _mulle_become_objc_runtime_thread();
+   
+   thread = [NSThread new];
+   _ns_add_thread( thread);           // does not retain
+   [thread _setAsCurrentThread];
+   
+   //
+   // why no autorelease (?)
+   // the main runtime thread has one big problem, it has to shutdown ObjC and
+   // then it wants to dealloc, but dealloc can't be called anymore.
+   // For that reason it is an error to autorelease the runtime thread, so
+   // it can be turned off deterministically
+   //
+   return( thread);
+}
+
+
+void  _NSThreadResignAsMainThread( void)
 {
    NSThread   *thread;
    
@@ -164,7 +180,7 @@ void  NSThreadDeallocateMainThread( void)
    _ns_release_placeholders();
    
    assert( _mulle_atomic_pointer_read( &mulle_objc_get_runtime()->retaincount_1) == 0);
-   NSThreadDeallocateRuntimeThread( thread);
+   _NSThreadResignAsRuntimeThreadAndDeallocate( thread);
    
    _mulle_resignas_objc_runtime_thread();
 }
@@ -293,7 +309,7 @@ static void   *bouncyBounce( NSThread *thread)
 
 - (void) main
 {
-   mulle_objc_object_inline_variable_selector_call( self->_target, self->_selector, self->_argument);
+   mulle_objc_object_inline_variable_methodid_call( self->_target, self->_selector, self->_argument);
 }
 
 

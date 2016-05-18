@@ -14,6 +14,6 @@
 @protocol MulleObjCException
 
 @optional  // MulleObjCException implements this for you
-- (void) raise  __attribute__((noreturn));
+- (void) raise;
 
 @end

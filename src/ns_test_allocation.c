@@ -9,7 +9,6 @@
 #include "ns_test_allocation.h"
 
 #include "ns_exception.h"
-#include <unistd.h>
 #include <mulle_test_allocator/mulle_test_allocator.h>
 
 

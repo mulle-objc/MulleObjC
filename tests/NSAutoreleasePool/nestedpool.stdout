@@ -1,0 +1,12 @@
+autoreleasepool 1 opens 0
++new
+autoreleasepool 2 opens 1
++new
+autoreleasepool 3 opens 2
++new
+autoreleasepool 3 closes 3
+-dealloc
+autoreleasepool 2 closes 2
+-dealloc
+autoreleasepool 1 closes 1
+-dealloc

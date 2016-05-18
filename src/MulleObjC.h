@@ -12,6 +12,7 @@
 # error "do not include mulle_objc_runtime.h before MulleObjC.h"
 #endif
 
+// version is defined in ns_rootconfiguration.h
 
 #import "ns_objc.h"
 
@@ -44,3 +45,10 @@
 #import "MulleObjCAllocation.h"
 #import "MulleObjCFunctions.h"
 
+
+#if MULLE_OBJC_RUNTIME_VERSION < ((1 << 20) | (0 << 8) | 0)
+# error "mulle_object_runtime is too old"
+#endif
+#if MULLE_CONCURRENT_VERSION < ((0 << 20) | (4 << 8) | 0)
+# error "mulle_concurrent is too old"
+#endif

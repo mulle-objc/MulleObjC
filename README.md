@@ -11,6 +11,17 @@ supports the metaABI required for the mulle-objc-runtime.
 > MulleObjC is protocol based
 
 
+## Dependencies
+
+MulleObjC depends on 
+
+* standard C libraries only (f.e. no <unistd.h>)
+* mulle_objc_runtime (and it's dependencies)
+* mulle_container (for now, will move to mulle_concurrent later)
+
+MulleObjC should not depend on `<unistd.h>` or any POSIX headers.
+
+
 ## Why the NS prefix ?
 
 In 2015 my assumption is, that almost all existing ObjC code is NSObject based
