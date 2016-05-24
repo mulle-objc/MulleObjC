@@ -56,7 +56,7 @@ static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *
    config->object_map         = NULL;
    
 #ifndef DEBUG
-   if( getenv( "MULLE_OBJC_AUTORELEASEPOOL_MAP")
+   if( getenv( "MULLE_OBJC_AUTORELEASEPOOL_MAP"))
 #endif
    {
       object_map_callback.keycallback   = mulle_container_keycallback_nonowned_pointer;
