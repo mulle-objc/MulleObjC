@@ -175,7 +175,6 @@
 		4162D5321C63CDF1007EC7DD /* libMulleStandaloneObjC.dylib */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMulleStandaloneObjC.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4162D5351C63CE2E007EC7DD /* MulleStandaloneObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulleStandaloneObjC.h; sourceTree = "<group>"; };
 		4162D5371C63F938007EC7DD /* MulleStandaloneObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleStandaloneObjC.m; sourceTree = "<group>"; };
-		4177F28F1AB1ECBE003A44B2 /* ROOTS.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = ROOTS.md; sourceTree = "<group>"; };
 		417D6E2C1C64B3FE0022660E /* DynamicLibraryOSX.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DynamicLibraryOSX.xcconfig; sourceTree = "<group>"; };
 		417D8ACE1C89A7E500C3EFC9 /* ns_threadconfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_threadconfiguration.h; sourceTree = "<group>"; };
 		418502771C8755A9008C77C4 /* callbenchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = callbenchmark; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -350,7 +349,6 @@
 		41A8279D1AADDFA60017BE29 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				4177F28F1AB1ECBE003A44B2 /* ROOTS.md */,
 				411129F11B063B6900154FB6 /* AUTORELEASE.md */,
 				41A9E4F51BD7E58B00210D6E /* MulleObjC.h */,
 				4162D5351C63CE2E007EC7DD /* MulleStandaloneObjC.h */,
@@ -812,7 +810,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4162D5081C63CBBC007EC7DD /* Debug.xcconfig */;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 0.2;
+				CURRENT_PROJECT_VERSION = 0.2.1;
 				USER_HEADER_SEARCH_PATHS = "src src/protocols";
 				USE_HEADERMAP = NO;
 			};
@@ -822,7 +820,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4162D50B1C63CBBC007EC7DD /* Release.xcconfig */;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 0.2;
+				CURRENT_PROJECT_VERSION = 0.2.1;
 				USER_HEADER_SEARCH_PATHS = "src src/protocols";
 				USE_HEADERMAP = NO;
 			};
