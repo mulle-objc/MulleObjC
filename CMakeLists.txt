@@ -93,13 +93,16 @@ src/MulleStandaloneObjC.m
 add_dependencies( MulleStandaloneObjC MulleObjC)
 
 TARGET_LINK_LIBRARIES( MulleStandaloneObjC
+${BEGIN_ALL_LOAD}
 MulleObjC
 mulle_objc_runtime
 mulle_container
 mulle_concurrent
 mulle_aba
 mulle_allocator
-mulle_test_allocator )
+mulle_test_allocator
+${END_ALL_LOAD}
+)
 
 
 INSTALL( TARGETS MulleObjC MulleStandaloneObjC DESTINATION "lib")
