@@ -14,8 +14,8 @@
 // produce their own.
 //
 #define MULLE_OBJC_VERSION_MAJOR  0
-#define MULLE_OBJC_VERSION_MINOR  2
-#define MULLE_OBJC_VERSION_PATCH  1
+#define MULLE_OBJC_VERSION_MINOR  3
+#define MULLE_OBJC_VERSION_PATCH  0
 
 #define MULLE_OBJC_VERSION               \
      ((MULLE_OBJC_VERSION_MAJOR << 20) | \
