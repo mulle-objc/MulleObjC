@@ -1,5 +1,5 @@
 /*
- *  MulleFoundation - A tiny Foundation replacement
+ *  MulleFoundation - the mulle-objc class library
  *
  *  NSLock.h is a part of MulleFoundation
  *
@@ -15,7 +15,11 @@
 
 #import "NSLocking.h"
 
-
+// it's in MulleObjC because
+//  a) NSThread and NSLock kinda go hand in hand
+//  b) no POSIX dependency
+//  c) no real C stdlib dependency (just mulle_thread)
+//
 @interface NSLock : NSObject < NSLocking>
 {
    mulle_thread_mutex_t    _lock;

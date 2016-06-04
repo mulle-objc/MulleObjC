@@ -235,13 +235,13 @@ static void   nop( struct _mulle_objc_runtime *runtime, void *friend,  struct mu
 extern void   MulleObjCDeterminePageSize( void);
 
 struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runtime *runtime,
-                                                struct _ns_root_setupconfig *config)
+                                                        struct _ns_root_setupconfig *config)
 {
    size_t                          size;
    size_t                          neededsize;
+   struct mulle_allocator          *allocator;
    struct _mulle_objc_foundation   us;
    struct _ns_rootconfiguration    *roots;
-   struct mulle_allocator          *allocator;
    
    MulleObjCDeterminePageSize();
 

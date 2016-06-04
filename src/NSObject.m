@@ -1,5 +1,5 @@
 /*
- *  MulleFoundation - A tiny Foundation replacement
+ *  MulleFoundation - the mulle-objc class library
  *
  *  NSObject.m is a part of MulleFoundation
  *
@@ -211,7 +211,6 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 {
    return( (NSUInteger) _mulle_objc_object_get_retaincount( self));
 }
-
 
 
 - (nonnull instancetype) self
@@ -565,6 +564,16 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    cls = _mulle_objc_object_get_class( self);
    return( cls);
 }
+
+
++ (nonnull Class) class
+{
+   struct _mulle_objc_class  *cls;
+
+   cls = _mulle_objc_object_get_class( self);
+   return( cls);
+}
+
 
 
 + (BOOL)  isSubclassOfClass:(Class) otherClass

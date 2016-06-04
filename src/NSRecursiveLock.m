@@ -1,5 +1,5 @@
 /*
- *  MulleFoundation - A tiny Foundation replacement
+ *  MulleFoundation - the mulle-objc class library
  *
  *  NSRecursiveLock.m is a part of MulleFoundation
  *
@@ -25,7 +25,7 @@
 
 - (void) lock
 {
-   void   *this_thread;
+   mulle_thread_t   this_thread;
    
    this_thread = mulle_thread_self();
    
@@ -46,7 +46,7 @@
 
 - (BOOL) tryLock
 {
-   void   *this_thread;
+   mulle_thread_t   this_thread;
    
    this_thread = mulle_thread_self();
    
