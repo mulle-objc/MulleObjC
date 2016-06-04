@@ -1,5 +1,5 @@
 /*
- *  MulleFoundation - A tiny Foundation replacement
+ *  MulleFoundation - the mulle-objc class library
  *
  *  NSAllocation.c is a part of MulleFoundation
  *
@@ -53,7 +53,7 @@ void   *NSAllocateMemoryPages( NSUInteger size)
 
 void   NSDeallocateMemoryPages( void *ptr, NSUInteger size)
 {
-   return( mulle_free( ptr));
+   mulle_free( ptr);
 }
 
 

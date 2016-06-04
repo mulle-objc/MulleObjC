@@ -811,6 +811,8 @@
 			baseConfigurationReference = 4162D5081C63CBBC007EC7DD /* Debug.xcconfig */;
 			buildSettings = {
 				CURRENT_PROJECT_VERSION = 0.2.1;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_WARN_PEDANTIC = YES;
 				USER_HEADER_SEARCH_PATHS = "src src/protocols";
 				USE_HEADERMAP = NO;
 			};
@@ -821,6 +823,8 @@
 			baseConfigurationReference = 4162D50B1C63CBBC007EC7DD /* Release.xcconfig */;
 			buildSettings = {
 				CURRENT_PROJECT_VERSION = 0.2.1;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_WARN_PEDANTIC = YES;
 				USER_HEADER_SEARCH_PATHS = "src src/protocols";
 				USE_HEADERMAP = NO;
 			};

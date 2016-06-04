@@ -1,5 +1,5 @@
 /*
- *  MulleFoundation - A tiny Foundation replacement
+ *  MulleFoundation - the mulle-objc class library
  *
  *  NSZone.h is a part of MulleFoundation
  *
@@ -25,6 +25,7 @@
 
 typedef struct  
 {
+   void   *unused;  // empty would be not C11
 } NSZone;
 
 

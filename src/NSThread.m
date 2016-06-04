@@ -1,5 +1,5 @@
 /*
- *  MulleFoundation - A tiny Foundation replacement
+ *  MulleFoundation - the mulle-objc class library
  *
  *  NSThread.m is a part of MulleFoundation
  *
@@ -246,7 +246,7 @@ void  _NSThreadResignAsMainThread( void)
       config->thread.is_multi_threaded = NO;
    }
    
-   _thread = NULL;   // allow to start again (in case someone retained us)
+   _thread = (mulle_thread_t) 0;   // allow to start again (in case someone retained us)
    
    if( _isDetached)
    {
@@ -309,7 +309,7 @@ static void   *bouncyBounce( NSThread *thread)
 
 - (void) main
 {
-   mulle_objc_object_inline_variable_methodid_call( self->_target, self->_selector, self->_argument);
+   mulle_objc_object_inline_variable_methodid_call( self->_target, (mulle_objc_methodid_t) self->_selector, self->_argument);
 }
 
 

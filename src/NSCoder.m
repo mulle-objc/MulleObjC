@@ -12,6 +12,7 @@
 #import "MulleObjCAllocation.h"
 
 // std-c and dependencies
+#include <alloca.h>
 
 
 /*

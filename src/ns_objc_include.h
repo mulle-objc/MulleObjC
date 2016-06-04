@@ -15,10 +15,10 @@
 // if the "real" foundation has defined this, don't use the builtin stuff
 
 #ifndef MULLE_OBJC_FASTCLASSHASH_0
-# import "ns_fastclassids.h"
+# include "ns_fastclassids.h"
 #endif
 #ifndef MULLE_OBJC_FASTMETHODHASH_8
-# import "ns_fastmethodids.h"
+# include "ns_fastmethodids.h"
 #endif
 
 // this is the only place where mulle_objc_runtime should be included

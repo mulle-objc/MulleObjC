@@ -26,10 +26,8 @@ static void   versionassert( struct _mulle_objc_runtime *runtime,
 }
 
 
-
 # pragma mark -
 # pragma mark Exceptions
-
 
 static void  perror_abort( char *s)
 {
@@ -120,51 +118,51 @@ struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
    char   *s;
    
    runtime = __mulle_objc_get_runtime();
-   if( ! runtime->version)
+   if( runtime->version)
+      return( runtime);
+   
+   s       = getenv( "MULLE_OBJC_TEST_ALLOCATOR");
+   is_test = s ? atoi( s) : 0;
+   if( is_test)
    {
-      s       = getenv( "MULLE_OBJC_TEST_ALLOCATOR");
-      is_test = s ? atoi( s) : 0;
-      if( is_test)
-      {
-         // call this because we are probably also in +load here
-         mulle_test_allocator_objc_initialize();
-         
-         //
-         // in case of leaks, getting traces of runtime allocatios can be
-         // tedious. Assuming runtime is leak free, run with a test
-         // allocator for objects only (MULLE_OBJC_TEST_ALLOCATOR=1)
-         //
-         if( is_test & 0x1)
-            config.foundation.objectallocator = &mulle_test_allocator_objc;
-         if( is_test & 0x2)
-            config.runtime.allocator          = &mulle_test_allocator_objc;
-#if DEBUG
-         if( is_test & 0x3)
-            fprintf( stderr, "MulleObjC uses \"mulle_test_allocator_objc\" to detect leaks.\n");
-#endif
-      }
+      // call this because we are probably also in +load here
+      mulle_test_allocator_objc_initialize();
       
-      init_ns_exceptionhandlertable( &vectors);
-      config.foundation.exceptiontable = &vectors;
-      {
-         _ns_root_setup( runtime, &config);
-      }
-      config.foundation.exceptiontable = NULL; // pedantic
+      //
+      // in case of leaks, getting traces of runtime allocatios can be
+      // tedious. Assuming runtime is leak free, run with a test
+      // allocator for objects only (MULLE_OBJC_TEST_ALLOCATOR=1)
+      //
+      if( is_test & 0x1)
+         config.foundation.objectallocator = &mulle_test_allocator_objc;
+      if( is_test & 0x2)
+         config.runtime.allocator          = &mulle_test_allocator_objc;
+#if DEBUG
+      if( is_test & 0x3)
+         fprintf( stderr, "MulleObjC uses \"mulle_test_allocator_objc\" to detect leaks.\n");
+#endif
+   }
    
-      rootconfig = _mulle_objc_runtime_get_foundationdata( runtime);
-         
-      rootconfig->string.charsfromobject = (void *) return_self;
-      rootconfig->string.objectfromchars = (void *) return_self;
+   init_ns_exceptionhandlertable( &vectors);
+   config.foundation.exceptiontable = &vectors;
+   {
+      _ns_root_setup( runtime, &config);
+   }
+   config.foundation.exceptiontable = NULL; // pedantic
    
-      // if we retain zombies, we leak, so no point in looking for leaks
-      is_pedantic = getenv( "MULLE_OBJC_PEDANTIC_EXIT") != NULL;
-      if( is_pedantic || is_test)
-      {
-         if( rootconfig->object.zombieenabled && ! rootconfig->object.deallocatezombies)
-            is_test = 0;
-         if( atexit( is_test ? tear_down_and_check : tear_down))
-            perror( "atexit:");
-      }
+   rootconfig = _mulle_objc_runtime_get_foundationdata( runtime);
+   
+   rootconfig->string.charsfromobject = (void *) return_self;
+   rootconfig->string.objectfromchars = (void *) return_self;
+   
+   // if we retain zombies, we leak, so no point in looking for leaks
+   is_pedantic = getenv( "MULLE_OBJC_PEDANTIC_EXIT") != NULL;
+   if( is_pedantic || is_test)
+   {
+      if( rootconfig->object.zombieenabled && ! rootconfig->object.deallocatezombies)
+         is_test = 0;
+      if( atexit( is_test ? tear_down_and_check : tear_down))
+         perror( "atexit:");
    }
    return( runtime);
 }

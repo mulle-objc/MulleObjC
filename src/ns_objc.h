@@ -9,12 +9,12 @@
 #ifndef ns_objc__h__
 #define ns_objc__h__
 
-#import "ns_rootconfiguration.h"
+#include "ns_rootconfiguration.h"
 
-#import "ns_allocation.h"
-#import "ns_exception.h"
-#import "ns_range.h"
-#import "ns_zone.h"
+#include "ns_allocation.h"
+#include "ns_exception.h"
+#include "ns_range.h"
+#include "ns_zone.h"
 
 
 #endif /* mulle_objc_root_h */

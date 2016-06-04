@@ -1,5 +1,5 @@
 /*
- *  MulleFoundation - A tiny Foundation replacement
+ *  MulleFoundation - the mulle-objc class library
  *
  *  NSDebug.c is a part of MulleFoundation
  *
@@ -30,19 +30,19 @@ char   *_NSPrintForDebugger( id a)
    struct _mulle_objc_method   *m;
    
    if( ! a)
-      return( strdup( "*nil*"));
+      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*nil*"));
    
    m   = 0;
    cls = _mulle_objc_object_get_isa( a);
    if( ! cls)
-      return( strdup( "*not an object (anymore ?)*"));
+      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*not an object (anymore ?)*"));
    
    // typical "released" isa values
    if( cls == (void *) (intptr_t) 0xDEADDEADDEADDEAD || // our scribble
        cls == (void *) (intptr_t) 0xAAAAAAAAAAAAAAAA)   // malloc scribble
    {
       sprintf( buf, "<%p dealloced,(%p)>", a, cls);
-      return( strdup( buf));  // hmm hmm, what's the interface here anyway ?
+      return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
    }
 
    imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, @selector( debugDescription));
@@ -71,7 +71,7 @@ char   *_NSPrintForDebugger( id a)
    }
   
    sprintf( buf, "<%p %.100s%s%.100s>", a, _mulle_objc_class_get_name( cls), spacer, aux);
-   return( strdup( buf));  // hmm hmm, what's the interface here anyway ?
+   return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
 }
 
 

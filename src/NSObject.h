@@ -1,5 +1,5 @@
 /*
- *  MulleFoundation - A tiny Foundation replacement
+ *  MulleFoundation - the mulle-objc class library
  *
  *  NSObject.h is a part of MulleFoundation
  *
@@ -151,32 +151,6 @@ overriddenByImplementation:(IMP) imp;
 - (void) forwardInvocation:(NSInvocation *) anInvocation;
 
 @end
-
-
-//
-// HACKISH stuff
-//
-//
-// this can be useful for creating placeholder objects
-// TODO: make this a runtime struct like classpair
-//
-struct MulleObjCObjectWithHeader
-{
-   struct _mulle_objc_objectheader   header;
-   struct _mulle_objc_object         object;
-};
-
-
-static inline void   *MulleObjCObjectWithHeaderGetObject( struct MulleObjCObjectWithHeader *p)
-{
-   return( &p->object);
-}
-
-
-static inline void   *MulleObjCObjectGetObjectWithHeaderFromObject( id p)
-{
-   return( (void *)  _mulle_objc_object_get_objectheader( p));
-}
 
 
 #pragma clang diagnostic pop

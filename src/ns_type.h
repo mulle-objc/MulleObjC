@@ -58,10 +58,8 @@ typedef intptr_t    NSInteger;
 #endif
 
 
-enum
-{
-   NSNotFound = NSIntegerMax
-};
+// enum can't hold it
+#define NSNotFound    NSIntegerMax
 
 
 typedef enum

@@ -1,5 +1,5 @@
 /*
- *  MulleFoundation - A tiny Foundation replacement
+ *  MulleFoundation - the mulle-objc class library
  *
  *  NSAutoreleasePool.m is a part of MulleFoundation
  *
@@ -502,7 +502,7 @@ static void   *pushAutoreleasePool( struct _ns_poolconfiguration *config)
    config->releasing = 0;
 
    if( config->trace & 0x4)
-      fprintf( stderr, "[pool] pushed %p in thread %p\n", pool, mulle_thread_self());
+      fprintf( stderr, "[pool] pushed %p in thread 0x%lx\n", pool, (long) mulle_thread_self());
    
    return( pool);
 }
@@ -529,7 +529,7 @@ static void   popAutoreleasePool( struct _ns_poolconfiguration *config, id aPool
    config->releasing = 1;
 
    if( config->trace & 0x4)
-      fprintf( stderr, "[pool] popping %p in thread %p\n", pool, mulle_thread_self());
+      fprintf( stderr, "[pool] popping %p in thread 0x%lx\n", pool, (long) mulle_thread_self());
 
 //   exception = nil;
 //NS_DURING
