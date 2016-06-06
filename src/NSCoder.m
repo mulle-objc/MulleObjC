@@ -12,7 +12,6 @@
 #import "MulleObjCAllocation.h"
 
 // std-c and dependencies
-#include <alloca.h>
 
 
 /*
@@ -246,9 +245,9 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
                          count:(NSUInteger) count
                             at:(void *)ptr
 {
-   char   *typeBuf;
+   char   typeBuf[ 128 + strlen( itemType)];
    
-   typeBuf = alloca( 128 + strlen(itemType));
+   //   typeBuf = alloca( 128 + strlen( itemType));
    
    sprintf(typeBuf, "[%lu%s]", (unsigned long) count, itemType);
    [self decodeValueOfObjCType:typeBuf at:ptr];
