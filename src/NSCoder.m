@@ -111,28 +111,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 - (void) encodeArrayOfObjCType:(char *) itemType
                          count:(NSUInteger) count
-                            at:(void *) ptr
+                            at:(void *) bytes
 {
-   char   *typeBuf;
-   
-   typeBuf = alloca( 128 + strlen( itemType));
+   char   typeBuf[ 64 + strlen( itemType)];
    
    sprintf(typeBuf, "[%lu%s]",  (unsigned long) count, itemType);
    [self encodeValueOfObjCType:typeBuf
-                            at:ptr];
+                            at:bytes];
 }
 
 
-- (void) encodeBytes:(void *) byteaddr
+- (void) encodeBytes:(void *) bytes
               length:(NSUInteger) length
 {
-   char   typeBuf[ 128];
+   char   typeBuf[ 64];
    
    sprintf( typeBuf, "[%luc]", (unsigned long) length);
    
    [self encodeValueOfObjCType:@encode( NSUInteger)
                             at:&length];
-   [self encodeValueOfObjCType:typeBuf at:byteaddr];
+   [self encodeValueOfObjCType:typeBuf
+                            at:bytes];
 }
 
 
