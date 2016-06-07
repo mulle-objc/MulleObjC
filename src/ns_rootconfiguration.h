@@ -105,7 +105,6 @@ struct _ns_root_foundationconfig
    size_t                             configurationsize;
    struct mulle_allocator             *objectallocator;
    struct _ns_exceptionhandlertable   *exceptiontable;  // must be set
-   size_t                             pagesize;
 };
 
 

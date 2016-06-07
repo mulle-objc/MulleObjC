@@ -11,7 +11,6 @@
 
 #include "ns_rootconfiguration.h"
 
-#include "ns_allocation.h"
 #include "ns_exception.h"
 #include "ns_range.h"
 #include "ns_zone.h"
