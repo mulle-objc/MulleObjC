@@ -13,6 +13,7 @@
 
 #include "ns_rootconfiguration.h"
 #include "ns_exception.h"
+#include "ns_allocation.h"
 #include <assert.h>
 
 
@@ -232,8 +233,6 @@ static void   nop( struct _mulle_objc_runtime *runtime, void *friend,  struct mu
  * This function sets up a Foundation on a per thread
  * basis.
  */
-extern void   MulleObjCDeterminePageSize( void);
-
 struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runtime *runtime,
                                                         struct _ns_root_setupconfig *config)
 {
@@ -242,8 +241,8 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
    struct mulle_allocator          *allocator;
    struct _mulle_objc_foundation   us;
    struct _ns_rootconfiguration    *roots;
-   
-   MulleObjCDeterminePageSize();
+
+   _MulleObjCSetPageSize( config->foundation.pagesize);
 
    __mulle_objc_runtime_setup( runtime, config->runtime.allocator);
    
