@@ -10,7 +10,6 @@
 // other files in this library
 #import "MulleObjC.h"
 #include "ns_test_allocation.h"
-#include "ns_allocation.h"
 
 // std-c and dependencies
 

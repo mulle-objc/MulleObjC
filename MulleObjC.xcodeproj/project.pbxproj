@@ -66,8 +66,6 @@
 		418B6E951C9FFEF30080FABD /* MulleObjCSingleton.h in Headers */ = {isa = PBXBuildFile; fileRef = 418B6E931C9FFEF30080FABD /* MulleObjCSingleton.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		418B6E961C9FFEF30080FABD /* MulleObjCSingleton.m in Sources */ = {isa = PBXBuildFile; fileRef = 418B6E941C9FFEF30080FABD /* MulleObjCSingleton.m */; };
 		41A41E521AB097CE00A92452 /* _ns_exception.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E501AB097CE00A92452 /* _ns_exception.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		41A41E571AB097EC00A92452 /* ns_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E541AB097EC00A92452 /* ns_allocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		41A41E581AB097EC00A92452 /* ns_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 41A41E551AB097EC00A92452 /* ns_allocation.c */; };
 		41A41E5C1AB09C2A00A92452 /* ns_zone.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E5A1AB09C2A00A92452 /* ns_zone.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A41E601AB0A18600A92452 /* ns_range.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E5E1AB0A18600A92452 /* ns_range.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A41E611AB0A18600A92452 /* ns_range.c in Sources */ = {isa = PBXBuildFile; fileRef = 41A41E5F1AB0A18600A92452 /* ns_range.c */; };
@@ -188,8 +186,6 @@
 		419C58311BCFF33200731B64 /* NSThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSThread.h; sourceTree = "<group>"; };
 		419FE8001C981C020094A915 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Common.xcconfig; path = "../../mulle-concurrent/mulle-configuration/Common.xcconfig"; sourceTree = "<group>"; };
 		41A41E501AB097CE00A92452 /* _ns_exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _ns_exception.h; sourceTree = "<group>"; };
-		41A41E541AB097EC00A92452 /* ns_allocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_allocation.h; sourceTree = "<group>"; };
-		41A41E551AB097EC00A92452 /* ns_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_allocation.c; sourceTree = "<group>"; };
 		41A41E5A1AB09C2A00A92452 /* ns_zone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_zone.h; sourceTree = "<group>"; };
 		41A41E5E1AB0A18600A92452 /* ns_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_range.h; sourceTree = "<group>"; };
 		41A41E5F1AB0A18600A92452 /* ns_range.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_range.c; sourceTree = "<group>"; };
@@ -363,8 +359,6 @@
 				41A827C01AADE14F0017BE29 /* ns_rootconfiguration.h */,
 				419C582D1BCFE50C00731B64 /* ns_rootconfiguration.c */,
 				41A827B71AADE0720017BE29 /* protocols */,
-				41A41E541AB097EC00A92452 /* ns_allocation.h */,
-				41A41E551AB097EC00A92452 /* ns_allocation.c */,
 				41A41E621AB0BD5700A92452 /* MulleObjCAllocation.h */,
 				41872A291C67870F0087DFB1 /* MulleObjCAllocation.m */,
 				41A827A11AADE01D0017BE29 /* NSAutoreleasePool.h */,
@@ -475,7 +469,6 @@
 				41A827C21AADE14F0017BE29 /* ns_rootconfiguration.h in Headers */,
 				41C851AF1CC3A554003AF1E1 /* NSCoding.h in Headers */,
 				412ED7D91CC3C3AC00E64506 /* NSCoder.h in Headers */,
-				41A41E571AB097EC00A92452 /* ns_allocation.h in Headers */,
 				41A41E5C1AB09C2A00A92452 /* ns_zone.h in Headers */,
 				417D8AD01C89A7E500C3EFC9 /* ns_threadconfiguration.h in Headers */,
 				41A827C61AADE30E0017BE29 /* ns_type.h in Headers */,
@@ -644,7 +637,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				41A51C251BD54BA8004CADE9 /* ns_rootconfiguration.c in Sources */,
-				41A41E581AB097EC00A92452 /* ns_allocation.c in Sources */,
 				41A9E4FB1BD7F39700210D6E /* ns_debug.c in Sources */,
 				41A41E611AB0A18600A92452 /* ns_range.c in Sources */,
 				415A023A1CB04154003C4ACF /* NSRecursiveLock.m in Sources */,

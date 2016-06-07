@@ -35,7 +35,6 @@ src/NSProxy.h
 src/NSRecursiveLock.h
 src/NSThread.h
 src/_ns_exception.h
-src/ns_allocation.h
 src/ns_debug.h
 src/ns_exception.h
 src/ns_fastclassids.h
@@ -73,7 +72,6 @@ src/NSObject+NSCoding.m
 src/NSProxy.m
 src/NSRecursiveLock.m
 src/NSThread.m
-src/ns_allocation.c
 src/ns_debug.c
 src/ns_exception.c
 src/ns_range.c

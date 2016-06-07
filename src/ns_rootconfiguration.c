@@ -13,7 +13,6 @@
 
 #include "ns_rootconfiguration.h"
 #include "ns_exception.h"
-#include "ns_allocation.h"
 #include <assert.h>
 
 
@@ -241,8 +240,6 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
    struct mulle_allocator          *allocator;
    struct _mulle_objc_foundation   us;
    struct _ns_rootconfiguration    *roots;
-
-   _MulleObjCSetPageSize( config->foundation.pagesize);
 
    __mulle_objc_runtime_setup( runtime, config->runtime.allocator);
    
