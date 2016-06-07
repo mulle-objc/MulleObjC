@@ -22,14 +22,11 @@
 NSUInteger     _ns_page_size;
 NSUInteger     _ns_log_page_size;
 
-void  MulleObjCDeterminePageSize( void);
-void  MulleObjCDeterminePageSize( void)
+void  _MulleObjCSetPageSize( size_t pagesize)
 {
    size_t   size;
    
-   /* figure out _ns_page_size for ns_allocation */
-   size = getpagesize();
-   size = size ? size : 0x1000;
+   size = pagesize ? pagesize : 0x1000;
    
    _ns_page_size     = size;
    _ns_log_page_size = 1;

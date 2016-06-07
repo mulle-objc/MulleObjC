@@ -105,6 +105,7 @@ struct _ns_root_foundationconfig
    size_t                             configurationsize;
    struct mulle_allocator             *objectallocator;
    struct _ns_exceptionhandlertable   *exceptiontable;  // must be set
+   size_t                             pagesize;
 };
 
 
@@ -116,7 +117,7 @@ struct _ns_root_setupconfig
 
 
 struct _ns_rootconfiguration   *__mulle_objc_root_setup( struct _mulle_objc_runtime *runtime,
-                                                 struct _ns_root_setupconfig *config);
+                                                         struct _ns_root_setupconfig *config);
 
 // this also sets up exception vectors
 void   _ns_root_setup( struct _mulle_objc_runtime *runtime,

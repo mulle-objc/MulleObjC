@@ -51,4 +51,8 @@ static inline NSUInteger   NSRoundUpToMultipleOfPageSize( NSUInteger bytes)
    return( NSRoundDownToMultipleOfPageSize( bytes + NSPageSize() - 1));
 }
 
+
+// used by initer once
+void  _MulleObjCSetPageSize( size_t pagesize);
+
 #endif
