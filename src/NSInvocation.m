@@ -115,6 +115,16 @@
 }
 
 
+static int   frameRangeCheck( NSInvocation *self, char *adr, size_t size)
+{
+   if( &adr[ size] < (char *) self->_storage)
+      return( -1);
+   if( &adr[ size] > (char *) self->_sentinel)
+      return( -1);
+   return( 0);
+}
+
+
 static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteger i, void **p_adr, size_t *p_size)
 {
    MulleObjCMethodSignatureTypeinfo   *p;
@@ -125,10 +135,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    adr  = &((char *) self->_storage)[ p->offset];
    size = p->natural_size;
    
-   if( &adr[ size] < (char *) self->_storage)
-      MulleObjCThrowInvalidIndexException( i);
-
-   if( &adr[ size] > (char *) self->_sentinel)
+   if( frameRangeCheck( self, adr, size))
       MulleObjCThrowInvalidIndexException( i);
    
    *p_adr  = adr;
@@ -295,7 +302,6 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    MulleObjCMethodSignatureTypeinfo   *info;
    void                               *param;
    void                               *rval;
-   void                               *storage;
    
    sel = [self selector];
    if( ! sel)
@@ -341,6 +347,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 {
    MulleObjCMethodSignatureTypeinfo   *info;
    void                               *param;
+   size_t                             size;
    
    switch( [_methodSignature methodMetaABIParameterType])
    {
@@ -350,13 +357,18 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
+      assert( ! frameRangeCheck( self, param, sizeof( void *)));
+      
       *((void **) param) = frame;
       break;
       
    case MulleObjCMetaABITypeParameterBlock :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
-      memcpy( param, frame, [_methodSignature frameLength]);
+      size  = [_methodSignature frameLength];
+      assert( ! frameRangeCheck( self, param, size));
+      
+      memcpy( param, frame, size);
       break;
    }
 }
