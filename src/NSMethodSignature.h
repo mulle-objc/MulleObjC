@@ -52,8 +52,8 @@ typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
 
 // mulle additions
 
-- (MulleObjCMetaABIType) methodMetaABIReturnType;
-- (MulleObjCMetaABIType) methodMetaABIParameterType;
+- (MulleObjCMetaABIType) _methodMetaABIReturnType;
+- (MulleObjCMetaABIType) _methodMetaABIParameterType;
 
 @end
 

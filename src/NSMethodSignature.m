@@ -229,34 +229,38 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 }
 
 
-- (MulleObjCMetaABIType) methodMetaABIParameterType
+- (MulleObjCMetaABIType) _methodMetaABIParameterType
 {
    MulleObjCMetaABIType               paramType;
+   MulleObjCMetaABIType               rvalType;
    MulleObjCMethodSignatureTypeinfo  *info;
-   char                              *type;
 
    if( _bits & _mulle_objc_method_variadic)
       return( MulleObjCMetaABITypeParameterBlock);
 
-   info = &get_infos( self)[ 0];
-   type = info->type;
-   if( mulle_objc_signature_get_metaabireturntype( type) == MulleObjCMetaABITypeParameterBlock)
+   if( self->_count == 3)
+      return( MulleObjCMetaABITypeVoid);
+   
+   info     = &get_infos( self)[ 0];
+   rvalType = _mulle_objc_signature_metaabireturntype( info->type);
+   if( rvalType == MulleObjCMetaABITypeParameterBlock)
       return( MulleObjCMetaABITypeParameterBlock);
    
-   paramType = mulle_objc_signature_get_metaabiparamtype( _types);
+   info      = &get_infos( self)[ 3];
+   paramType = _mulle_objc_signature_metaabiparamtype( info->type);
+   assert( paramType != (MulleObjCMetaABIType) -1);
    return( paramType);
 }
 
 
-- (MulleObjCMetaABIType) methodMetaABIReturnType
+- (MulleObjCMetaABIType) _methodMetaABIReturnType
 {
    MulleObjCMetaABIType               rvalType;
    MulleObjCMethodSignatureTypeinfo   *info;
-   char                               *type;
    
    info     = &get_infos( self)[ 0];
-   type     = info->type;
-   rvalType = mulle_objc_signature_get_metaabireturntype( type);
+   rvalType = _mulle_objc_signature_metaabireturntype( info->type);
+   assert( rvalType != (MulleObjCMetaABIType) -1);
    return( rvalType);
 }
 

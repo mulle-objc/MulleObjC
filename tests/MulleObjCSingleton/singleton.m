@@ -46,9 +46,10 @@ main()
    Foo      *foo;
    Bar      *bar;
    Foobar   *foobar;
+   struct _ns_exceptionhandlertable   *exceptions;
 
-   MulleObjCExceptionHandlersGetTable()->internal_inconsistency =
-   (void *) count_exception;
+   exceptions = MulleObjCExceptionHandlersGetTable();
+   exceptions->internal_inconsistency = (void *) count_exception;
 
    foo    = [Foo sharedInstance]; // this alloc makes the placeholder
    foobar = [Foobar sharedInstance]; // this alloc makes the placeholder

@@ -875,7 +875,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    [invocation _setMetaABIFrame:_param];
    [self forwardInvocation:invocation];
    
-   switch( [signature methodMetaABIReturnType])
+   switch( [signature _methodMetaABIReturnType])
    {
    case MulleObjCMetaABITypeVoid :
       return( NULL);

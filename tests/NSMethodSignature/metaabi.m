@@ -52,7 +52,7 @@ static void  test_param( SEL sel, MulleObjCMetaABIType expect)
 
    signature = [Foo instanceMethodSignatureForSelector:sel];
    assert( signature);
-   type = [signature methodMetaABIParameterType];
+   type = [signature _methodMetaABIParameterType];
    if( type != expect)
    {
       printf( "%s failed with %d (expect %d)\n", mulle_objc_lookup_methodname( sel), type, expect);
@@ -86,7 +86,7 @@ static void  test_rval( SEL sel, MulleObjCMetaABIType expect)
 
    signature = [Foo instanceMethodSignatureForSelector:sel];
    assert( signature);
-   type = [signature methodMetaABIReturnType];
+   type = [signature _methodMetaABIReturnType];
    if( type != expect) //  != )
    {
       printf( "%s failed with %d (expect %d)\n",  mulle_objc_lookup_methodname( sel), type, expect);
@@ -173,8 +173,7 @@ static void  test_pointer_return()
 
 static void  test_double_return()
 {
-   // sic! void promotes to struct param
-   test_struct_param( @selector( doubleReturnNoParam));
+   test_void_param( @selector( doubleReturnNoParam));
    test_struct_rval( @selector( doubleReturnNoParam));
 
    test_struct_param( @selector( doubleReturnIntParam:));
@@ -194,8 +193,7 @@ static void  test_double_return()
 
 static void  test_struct_return()
 {
-   // sic! void promotes to struct param
-   test_struct_param( @selector( structReturnNoParam));
+   test_void_param( @selector( structReturnNoParam));
    test_struct_rval( @selector( structReturnNoParam));
 
    test_struct_param( @selector( structReturnIntParam:));
