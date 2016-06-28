@@ -1,3 +1,2 @@
 https://www.mulle-kybernetik.com/repositories/mulle-container
-ssh://nat@mulle-kybernetik.com:23/mulle-objc-runtime
-
+ssh://git@mulle-kybernetik.com:23/mulle-objc-runtime
