@@ -163,24 +163,6 @@
 #pragma mark -
 #pragma mark more accessors
 
-- (NSUInteger) frameLength
-{
-   MulleObjCMethodSignatureTypeinfo  *info;
-   size_t                      voidptr5;
-   size_t                      overflow;
-   size_t                      len;
-   
-   info     = &get_infos( self)[ _count - 1];
-   voidptr5 = sizeof( void *) * 5;
-   len      = info->offset + info->natural_size;
-   
-   overflow = len % voidptr5;
-   if( ! overflow)
-      return( len);
-   return( len + voidptr5 - overflow);
-}
-
-
 //
 // do _infos lazily, as they use a bit of memory
 //
@@ -248,16 +230,6 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 }
 
 
-- (NSUInteger) methodReturnLength
-{
-   MulleObjCMethodSignatureTypeinfo  *info;
-   
-   info = &get_infos( self)[ 0];
-   return( info->natural_size);
-}
-
-
-
 - (MulleObjCMetaABIType) methodMetaABIParameterType
 {
    MulleObjCMetaABIType               paramType;
@@ -283,10 +255,30 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    MulleObjCMethodSignatureTypeinfo   *info;
    char                               *type;
    
-   info = &get_infos( self)[ 0];
-   type = info->type;
+   info     = &get_infos( self)[ 0];
+   type     = info->type;
    rvalType = mulle_objc_signature_get_metaabireturntype( type);
    return( rvalType);
+}
+
+
+// this method does not round up for MetaABI
+- (NSUInteger) frameLength
+{
+   MulleObjCMethodSignatureTypeinfo   *info;
+   
+   info     = &get_infos( self)[ _count - 1];    // get last argument
+   return( info->offset + info->natural_size);
+}
+
+
+// this method does not round up for MetaABI
+- (NSUInteger) methodReturnLength
+{
+   MulleObjCMethodSignatureTypeinfo  *info;
+   
+   info = &get_infos( self)[ 0];
+   return( info->natural_size);
 }
 
 @end

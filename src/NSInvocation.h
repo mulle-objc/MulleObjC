@@ -21,6 +21,7 @@
 {
    NSMethodSignature   *_methodSignature;
    void                *_storage;
+   void                *_sentinel;
    BOOL                _argumentsRetained;
 }
 
