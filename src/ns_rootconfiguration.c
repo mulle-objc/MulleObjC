@@ -179,6 +179,26 @@ void  _ns_rootconfiguration_locked_call1( void (*f)( struct _ns_rootconfiguratio
 }
 
 
+// ugliness
+int   _ns_rootconfiguration_is_debug_enabled( void)
+{
+   // get foundation add to roots
+   struct _ns_rootconfiguration   *config;
+   struct _mulle_objc_runtime     *runtime;
+   int                            flag;
+   
+   runtime = mulle_objc_get_runtime();
+   _mulle_objc_runtime_lock( runtime);
+   {
+      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      flag = config->object.debugenabled;
+   }
+   _mulle_objc_runtime_unlock( runtime);
+   
+   return( flag);
+}
+
+
 # pragma mark -
 # pragma mark Configuration of the North Shore
 

@@ -739,7 +739,7 @@
 			buildSettings = {
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/dependencies/lib/Debug",
+					"$(PROJECT_DIR)/dependencies/lib",
 					"$(SDKROOT)/usr/lib/system",
 				);
 				OTHER_CFLAGS = (
@@ -752,7 +752,7 @@
 					"-force_load",
 					"$(CONFIGURATION_BUILD_DIR)/libMulleObjC.a",
 					"-force_load",
-					"$(DEPENDENCIES_DIR)/lib/$(CONFIGURATION)/libmulle_objc_runtime.a",
+					"$(DEPENDENCIES_DIR)/lib/libmulle_objc_runtime.a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -764,7 +764,7 @@
 			buildSettings = {
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/dependencies/lib/Debug",
+					"$(PROJECT_DIR)/dependencies/lib",
 					"$(SDKROOT)/usr/lib/system",
 				);
 				OTHER_CFLAGS = (
@@ -778,7 +778,7 @@
 					"-force_load",
 					"$(CONFIGURATION_BUILD_DIR)/libMulleObjC.a",
 					"-force_load",
-					"$(DEPENDENCIES_DIR)/lib/$(CONFIGURATION)/libmulle_objc_runtime.a",
+					"$(DEPENDENCIES_DIR)/lib/libmulle_objc_runtime.a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
