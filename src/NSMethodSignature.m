@@ -52,7 +52,6 @@
 }
 
 
-
 - (void) dealloc
 {
    struct mulle_allocator   *allocator;
@@ -267,7 +266,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 {
    MulleObjCMethodSignatureTypeinfo   *info;
    
-   info     = &get_infos( self)[ _count - 1];    // get last argument
+   info = &get_infos( self)[ _count - 1];    // get last argument
    return( info->offset + info->natural_size);
 }
 
