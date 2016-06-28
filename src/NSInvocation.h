@@ -20,8 +20,8 @@
 @interface NSInvocation : NSObject 
 {
    NSMethodSignature   *_methodSignature;
-   void                *_storage;
-   void                *_sentinel;
+   char                *_storage;
+   char                *_sentinel;
    BOOL                _argumentsRetained;
 }
 

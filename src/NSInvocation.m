@@ -117,9 +117,9 @@
 
 static int   frameRangeCheck( NSInvocation *self, char *adr, size_t size)
 {
-   if( &adr[ size] < (char *) self->_storage)
+   if( &adr[ size] < self->_storage)
       return( -1);
-   if( &adr[ size] > (char *) self->_sentinel)
+   if( &adr[ size] > self->_sentinel)
       return( -1);
    return( 0);
 }
@@ -302,32 +302,45 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    MulleObjCMethodSignatureTypeinfo   *info;
    void                               *param;
    void                               *rval;
+   MulleObjCMetaABIType               pType;
+   MulleObjCMetaABIType               rType;
    
    sel = [self selector];
    if( ! sel)
       MulleObjCThrowInternalInconsistencyException( @"selector has not been set yet");
    
+   pType = [_methodSignature _methodMetaABIParameterType];
+   rType = [_methodSignature _methodMetaABIReturnType];
+   
    param = NULL;
-   switch( [_methodSignature methodMetaABIParameterType])
+   switch( pType)
    {
    case MulleObjCMetaABITypeVoid           :
+      if( rType == MulleObjCMetaABITypeParameterBlock)
+      {
+         info  = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
+         param = &self->_storage[ info->offset];
+         rval  = mulle_objc_object_inline_variable_methodid_call( target, sel, param);
+         break;
+      }
+      
       rval = mulle_objc_object_inline_variable_methodid_call( target, sel, target);
       break;
          
    case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
-      param = &((char *) self->_storage)[ info->offset];
+      param = &self->_storage[ info->offset];
       rval  = mulle_objc_object_inline_variable_methodid_call( target, sel, *(void **) param);
       break;
          
    case MulleObjCMetaABITypeParameterBlock :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
-      param = &((char *) self->_storage)[ info->offset];
+      param = &self->_storage[ info->offset];
       rval  = mulle_objc_object_inline_variable_methodid_call( target, sel, param);
       break;
    }
 
-   switch( [_methodSignature methodMetaABIReturnType])
+   switch( rType)
    {
    case MulleObjCMetaABITypeVoid           :
       break;
@@ -349,7 +362,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    void                               *param;
    size_t                             size;
    
-   switch( [_methodSignature methodMetaABIParameterType])
+   switch( [_methodSignature _methodMetaABIParameterType])
    {
    case MulleObjCMetaABITypeVoid           :
       break;
