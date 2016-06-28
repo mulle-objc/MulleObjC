@@ -26,6 +26,8 @@
 {
    size_t                   size;
    struct mulle_allocator   *allocator;
+   size_t                   s_voidptr5;
+   size_t                   underflow;
    
    if( ! signature)
    {
@@ -34,11 +36,17 @@
       return( nil);
    }
 
-   size             = [signature frameLength];
-   size            += [signature methodReturnLength];
+   size       = [signature frameLength];
+   size      += [signature methodReturnLength];
+   s_voidptr5 = sizeof( void *) * 5;
+   underflow  = size % s_voidptr5;
+   if( underflow)
+      size  += s_voidptr5 - underflow;
    
-   allocator        = MulleObjCObjectGetAllocator( self);
-   _storage         = mulle_allocator_calloc( allocator, 1, size);
+   allocator = MulleObjCObjectGetAllocator( self);
+   _storage  = mulle_allocator_calloc( allocator, 1, size);
+   _sentinel = &((char *) _storage)[ size];
+   
    _methodSignature = [signature retain];
 
    return( self);
@@ -107,13 +115,24 @@
 }
 
 
-static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteger i, void **adr, size_t *size)
+static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteger i, void **p_adr, size_t *p_size)
 {
    MulleObjCMethodSignatureTypeinfo   *p;
+   char      *adr;
+   size_t    size;
    
-   p     = [self->_methodSignature _runtimeTypeInfoAtIndex:i];
-   *adr  = &((char *) self->_storage)[ p->offset];
-   *size = p->natural_size;
+   p    = [self->_methodSignature _runtimeTypeInfoAtIndex:i];
+   adr  = &((char *) self->_storage)[ p->offset];
+   size = p->natural_size;
+   
+   if( &adr[ size] < (char *) self->_storage)
+      MulleObjCThrowInvalidIndexException( i);
+
+   if( &adr[ size] > (char *) self->_sentinel)
+      MulleObjCThrowInvalidIndexException( i);
+   
+   *p_adr  = adr;
+   *p_size = size;
 }
 
 
@@ -308,16 +327,11 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       break;
       
    case MulleObjCMetaABITypeVoidPointer    :
-      info    = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
-      storage = &((char *) self->_storage)[ info->offset];
-      *(void **) storage = rval;
+      [self setReturnValue:&rval];
       break;
       
    case MulleObjCMetaABITypeParameterBlock :
-      assert( param);
-      info    = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
-      storage = &((char *) self->_storage)[ info->offset];
-      memcpy( storage, param, [self->_methodSignature methodReturnLength]);
+      [self setReturnValue:param];
       break;
    }
 }
