@@ -9,6 +9,19 @@
 
 set -m
 
+if [ -z "${DEBUGGER}" ]
+then
+   DEBUGGER=lldb
+fi
+
+DEBUGGER="`which "${DEBUGGER}"`"
+
+if [ -z "${DEBUGGER_LIBRARY_PATH}" ]
+then
+   DEBUGGER_LIBRARY_PATH="`dirname "${DEBUGGER}"`/../lib"
+fi
+
+
 SOURCE_EXTENSION=".m"
 
 LIBRARY_SHORTNAME="ObjC"
@@ -298,7 +311,7 @@ MallocStackLogging=1 \
 MALLOC_FILL_SPACE=1 \
 DYLD_INSERT_LIBRARIES=/usr/lib/libgmalloc.dylib \
 DYLD_FALLBACK_LIBRARY_PATH=\"${DYLD_FALLBACK_LIBRARY_PATH}\" \
-LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}\" lldb ${a_out}.debug" >&2
+LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH}:${DEBUGGER_LIBRARY_PATH}\" ${DEBUGGER} ${a_out}.debug" >&2
    if [ "${stdin}" != "/dev/null" ]
    then
       echo "run < ${stdin}" >&2
