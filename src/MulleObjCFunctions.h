@@ -8,16 +8,16 @@
 #import "ns_type.h"
 
 
-char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
+char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
 
-void   MulleObjCMakeObjectsPerformSelector( id *objects, NSUInteger n, SEL sel, id argument);
-void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel, id argument, id argument2);
+void    MulleObjCMakeObjectsPerformSelector( id *objects, NSUInteger n, SEL sel, id argument);
+void    MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel, id argument, id argument2);
 
-void   MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n);
-void   MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n);
+void    MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n);
+void    MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n);
 
-void   *MulleObjCClassGetName( Class cls);
-void   *MulleObjCSelectorGetName( SEL sel);
+void    *MulleObjCClassGetName( Class cls);
+void    *MulleObjCSelectorGetName( SEL sel);
 Class   MulleObjCLookupClassByName( id obj);
 SEL     MulleObjCCreateSelector( id obj);
 

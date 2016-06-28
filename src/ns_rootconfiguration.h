@@ -84,7 +84,6 @@ struct _ns_rootconfiguration
    struct _ns_stringconfiguration     string;
    struct _ns_threadconfiguration     thread;
    struct _ns_autoreleasepool         pool;
-
    struct _mulle_objc_runtime         *runtime;
 };
 
@@ -148,6 +147,8 @@ static inline struct _ns_rootconfiguration   *_ns_object_get_rootconfiguration( 
 
 
 // these functions do not retain/release
+// currently these functions use locking, that could change in the future
+//
 void   _ns_rootconfiguration_add_root( struct _ns_rootconfiguration *config, void *obj);
 void   _ns_rootconfiguration_remove_root( struct _ns_rootconfiguration *config, void *obj);
 void   _ns_rootconfiguration_release_roots( struct _ns_rootconfiguration *config);
@@ -166,6 +167,7 @@ void  _ns_rootconfiguration_locked_call( void (*f)( struct _ns_rootconfiguration
 void  _ns_rootconfiguration_locked_call1( void (*f)( struct _ns_rootconfiguration*, void *),
                                           void *obj);
 
+int   _ns_rootconfiguration_is_debug_enabled( void);
 
 # pragma mark -
 # pragma mark root object conveniences

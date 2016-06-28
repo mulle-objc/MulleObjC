@@ -166,6 +166,7 @@ NSThread  *_NSThreadNewMainThread( void)
 void  _NSThreadResignAsMainThread( void)
 {
    NSThread   *thread;
+   int         debug;
    
    //
    // keep current thread around, which is a root
@@ -175,13 +176,27 @@ void  _NSThreadResignAsMainThread( void)
    
    thread = [NSThread currentThread];
 
+   debug = _ns_rootconfiguration_is_debug_enabled();
+   if( debug)
+      fprintf( stderr, "Releasing Root objects...\n");
    _ns_release_roots();          //
+
+   if( debug)
+      fprintf( stderr, "Releasing Singleton objects...\n");
    _ns_release_singletons();     //
+
+   if( debug)
+      fprintf( stderr, "Releasing Placeholder objects...\n");
    _ns_release_placeholders();
    
    assert( _mulle_atomic_pointer_read( &mulle_objc_get_runtime()->retaincount_1) == 0);
+
+   if( debug)
+      fprintf( stderr, "Resigning as main NSThread...\n");
    _NSThreadResignAsRuntimeThreadAndDeallocate( thread);
    
+   if( debug)
+      fprintf( stderr, "Resign as main Objective-C thread...\n");
    _mulle_resignas_objc_runtime_thread();
 }
 

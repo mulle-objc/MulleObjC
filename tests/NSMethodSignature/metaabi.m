@@ -173,7 +173,8 @@ static void  test_pointer_return()
 
 static void  test_double_return()
 {
-   test_void_param( @selector( doubleReturnNoParam));
+   // sic! void promotes to struct param
+   test_struct_param( @selector( doubleReturnNoParam));
    test_struct_rval( @selector( doubleReturnNoParam));
 
    test_struct_param( @selector( doubleReturnIntParam:));
@@ -193,7 +194,8 @@ static void  test_double_return()
 
 static void  test_struct_return()
 {
-   test_void_param( @selector( structReturnNoParam));
+   // sic! void promotes to struct param
+   test_struct_param( @selector( structReturnNoParam));
    test_struct_rval( @selector( structReturnNoParam));
 
    test_struct_param( @selector( structReturnIntParam:));
