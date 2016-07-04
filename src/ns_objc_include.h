@@ -52,7 +52,7 @@
 #if MULLE_ALLOCATOR_VERSION < ((1 << 20) | (3 << 8) | 0)
 # error "mulle_allocator is too old"
 #endif
-#if MULLE_VARARG_VERSION < ((0 << 20) | (1 << 8) | 0)
+#if MULLE_VARARG_VERSION < ((0 << 20) | (4 << 8) | 0)
 # error "mulle_allocator is too old"
 #endif
 

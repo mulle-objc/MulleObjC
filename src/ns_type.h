@@ -41,6 +41,15 @@ typedef void                          *(*IMP)( void *, SEL, void *params);
 #pragma clang diagnostic ignored "-Wcast-of-sel-type"
 
 
+//
+// in AAM define some harmless syntax sugar, so more stuff compiles
+//
+#ifdef __OBJC_AAM__
+# define __bridge
+# define __unsafe_unretained
+#endif
+
+
 #ifndef NSINTEGER_DEFINED
 
 // resist the temptation to typedef(!)
