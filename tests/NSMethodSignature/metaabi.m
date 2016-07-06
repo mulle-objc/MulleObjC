@@ -2,7 +2,7 @@
 # import <Foundation/Foundation.h>
 extern void  *_objc_msgForward( id, SEL, ...);
 #else
-# import <MulleStandaloneObjC/MulleStandaloneObjC.h>
+# import <MulleObjC/MulleObjC.h>
 #endif
 
 

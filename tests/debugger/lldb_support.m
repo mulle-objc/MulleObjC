@@ -1,4 +1,4 @@
-#import <MulleStandaloneObjC/MulleStandaloneObjC.h>
+#import <MulleObjC/MulleObjC.h>
 
 #ifndef DEBUG
 #define DEBUG 1

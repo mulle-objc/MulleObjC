@@ -3,15 +3,16 @@
 dependencies/
 .repos/
 mulle-configuration/
-.repos/
 build/
 xcuserdata/
 project.xcworkspace/
 *~.*
 *.dSYM/
 *.exe
+*.exe.debug
 call-benchmark/
 old/
 tmp/
+/lib/
+/include/
 
-.repos/gitolite.mulle-kybernetik/mulle-configuration/
