@@ -2,7 +2,7 @@
 # import <Foundation/Foundation.h>
 # pragma message "this test does not work with Apple Foundation"
 #else
-# import <MulleStandaloneObjC/MulleStandaloneObjC.h>
+# import <MulleObjC/MulleObjC.h>
 #endif
 
 
