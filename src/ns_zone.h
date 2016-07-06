@@ -18,6 +18,15 @@
 #include "ns_exception.h"
 
 
+//
+// this is created by the compiler when using
+// -zone
+//
+static inline void  *mulle_objc_object_zone( void)
+{
+   return( NULL);
+}
+
 
 // these are just here for compatibilty, they pretty much vanish due to
 // inlining
