@@ -19,15 +19,27 @@
 int  MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index);
 
 
-static inline void   *MulleObjCCreateTaggedPointerWithValueAndIndex( NSUInteger value, NSUInteger index)
+static inline void   *MulleObjCCreateTaggedPointerWithIntegerValueAndIndex( NSInteger value, NSUInteger index)
 {
-   return( mulle_objc_create_taggedpointer( value, (unsigned int) index));
+   return( mulle_objc_create_signed_taggedpointer( value, (unsigned int) index));
 }
 
 
-static inline NSUInteger  MulleObjCTaggedPointerGetValue( void *pointer)
+static inline void   *MulleObjCCreateTaggedPointerWithUnsignedIntegerValueAndIndex( NSUInteger value, NSUInteger index)
 {
-   return( mulle_objc_taggedpointer_get_value( pointer));
+   return( mulle_objc_create_unsigned_taggedpointer( value, (unsigned int) index));
+}
+
+
+static inline NSInteger  MulleObjCTaggedPointerGetIntegerValue( void *pointer)
+{
+   return( mulle_objc_taggedpointer_get_signed_value( pointer));
+}
+
+
+static inline NSUInteger  MulleObjCTaggedPointerGetUnsignedIntegerValue( void *pointer)
+{
+   return( mulle_objc_taggedpointer_get_unsigned_value( pointer));
 }
 
 
