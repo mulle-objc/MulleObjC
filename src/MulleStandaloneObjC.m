@@ -37,12 +37,12 @@ static void  perror_abort( char *s)
 
 static void  init_ns_exceptionhandlertable ( struct _ns_exceptionhandlertable *table)
 {
-   table->errno_error            = (void *) perror_abort;
-   table->allocation_error       = (void *) abort;
-   table->internal_inconsistency = (void *) abort;
-   table->invalid_argument       = (void *) abort;
-   table->invalid_index          = (void *) abort;
-   table->invalid_range          = (void *) abort;
+   table->errno_error            = (void (*)()) perror_abort;
+   table->allocation_error       = (void (*)()) abort;
+   table->internal_inconsistency = (void (*)()) abort;
+   table->invalid_argument       = (void (*)()) abort;
+   table->invalid_index          = (void (*)()) abort;
+   table->invalid_range          = (void (*)()) abort;
 }
 
 
@@ -151,8 +151,8 @@ struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
    
    rootconfig = _mulle_objc_runtime_get_foundationdata( runtime);
    
-   rootconfig->string.charsfromobject = (void *) return_self;
-   rootconfig->string.objectfromchars = (void *) return_self;
+   rootconfig->string.charsfromobject = (char *(*)()) return_self;
+   rootconfig->string.objectfromchars = (void *(*)()) return_self;
    
    // if we retain zombies, we leak, so no point in looking for leaks
    is_pedantic = getenv( "MULLE_OBJC_PEDANTIC_EXIT") != NULL;
