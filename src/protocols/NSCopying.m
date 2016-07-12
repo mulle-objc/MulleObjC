@@ -75,6 +75,7 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
    return( self);
 }
 
+
 + (id) copyWithZone:(NSZone *) zone
 {
    return( self);

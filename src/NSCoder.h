@@ -30,8 +30,8 @@
 //
 @interface NSCoder : NSObject
 
-- (NSInteger) systemVersion;
 - (BOOL) allowsKeyedCoding;
+- (NSInteger) systemVersion;
 
 @end
 

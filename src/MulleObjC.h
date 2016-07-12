@@ -8,8 +8,8 @@
 
 // because standalone versions must define FASTIDs
 
-#ifdef MULLE_OBJC_RUNTIME_VERSION
-# error "do not include mulle_objc_runtime.h before MulleObjC.h"
+#ifdef MULLE_OBJC_VERSION
+# error "do not include mulle_objc.h before MulleObjC.h"
 #endif
 
 // version is defined in ns_rootconfiguration.h
@@ -32,6 +32,7 @@
 #import "MulleObjCClassCluster.h"
 #import "MulleObjCException.h"
 #import "MulleObjCSingleton.h"
+#import "MulleObjCTaggedPointer.h"
 #import "NSCopying.h"
 #import "NSCoding.h"
 #import "NSFastEnumeration.h"
@@ -47,7 +48,7 @@
 
 
 #if MULLE_OBJC_RUNTIME_VERSION < ((1 << 20) | (0 << 8) | 0)
-# error "mulle_object_runtime is too old"
+# error "mulle_object is too old"
 #endif
 #if MULLE_CONCURRENT_VERSION < ((0 << 20) | (4 << 8) | 0)
 # error "mulle_concurrent is too old"

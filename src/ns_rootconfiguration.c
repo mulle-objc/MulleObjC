@@ -232,10 +232,10 @@ static void  *describe_object( struct mulle_container_keycallback *callback,
 
 static const struct mulle_container_keycallback   default_root_object_callback =
 {
-   (void *) mulle_hash_pointer,
-   (void *) mulle_container_callback_pointer_is_equal,
-   (void *) mulle_container_callback_self,
-   (void *) mulle_container_callback_nop,
+   mulle_container_keycallback_pointer_hash,
+   mulle_container_keycallback_pointer_is_equal,
+   (void *(*)()) mulle_container_callback_self,
+   (void (*)()) mulle_container_callback_nop,
    describe_object,
 
    NULL,
@@ -265,7 +265,7 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
    
    runtime->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
    runtime->classdefaults.forwardmethod = config->runtime.forward;
-   runtime->failures.uncaughtexception  = (void *) config->runtime.uncaughtexception;
+   runtime->failures.uncaughtexception  = (void (*)()) config->runtime.uncaughtexception;
    
    neededsize = config->foundation.configurationsize;
    if( ! neededsize)
@@ -287,8 +287,7 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
                   ? config->foundation.objectallocator
                   : &mulle_default_allocator;
 
-   us.allocator = *allocator;
-   
+   us.allocator   = *allocator;
    roots->runtime = runtime;
    
    /* the callback is copied anyway, but the allocator needs to be stored
@@ -296,18 +295,18 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
       then for the runtime. The roots->allocator is used to create instances.
     */
    
-   roots->exception.vectors = *config->foundation.exceptiontable;
+   roots->exception.vectors   = *config->foundation.exceptiontable;
 
-   roots->object.roots = mulle_set_create( 32,
+   roots->object.roots        = mulle_set_create( 32,
                                            (void *) &default_root_object_callback,
                                            config->runtime.allocator);
-   roots->object.singletons = mulle_set_create( 8,
+   roots->object.singletons   = mulle_set_create( 8,
                                                 (void *) &default_root_object_callback,
                                                 config->runtime.allocator);
    roots->object.placeholders = mulle_set_create( 32,
                                                   (void *) &default_root_object_callback,
                                                   config->runtime.allocator);
-   roots->object.threads = mulle_set_create( 4,
+   roots->object.threads      = mulle_set_create( 4,
                                             (void *) &default_root_object_callback,
                                             config->runtime.allocator);
    

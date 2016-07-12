@@ -50,6 +50,7 @@ src/ns_zone.h
 src/protocols/MulleObjCClassCluster.h
 src/protocols/MulleObjCException.h
 src/protocols/MulleObjCSingleton.h
+src/protocols/MulleObjCTaggedPointer.h
 src/protocols/NSCoding.h
 src/protocols/NSCopying.h
 src/protocols/NSFastEnumeration.h
@@ -80,6 +81,7 @@ src/ns_test_allocation.c
 src/protocols/MulleObjCClassCluster.m
 src/protocols/MulleObjCException.m
 src/protocols/MulleObjCSingleton.m
+src/protocols/MulleObjCTaggedPointer.m
 src/protocols/NSCoding.m
 src/protocols/NSCopying.m)
 
@@ -93,7 +95,7 @@ add_dependencies( MulleStandaloneObjC MulleObjC)
 TARGET_LINK_LIBRARIES( MulleStandaloneObjC
 ${BEGIN_ALL_LOAD}
 MulleObjC
-mulle_objc_runtime
+mulle_objc
 mulle_container
 mulle_concurrent
 mulle_aba

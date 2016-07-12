@@ -17,7 +17,7 @@
 #import "NSObjectProtocol.h"
 
 // std-c and dependencies
-#include <mulle_objc_runtime/mulle_objc_runtime.h>
+#include <mulle_objc/mulle_objc.h>
 #include "ns_rootconfiguration.h"
 
 

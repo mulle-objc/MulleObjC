@@ -23,7 +23,7 @@
 
 // this is the only place where mulle_objc_runtime should be included
 
-#include <mulle_objc_runtime/mulle_objc_runtime.h>
+#include <mulle_objc/mulle_objc.h>
 #include <mulle_container/mulle_container.h>
 #include <mulle_allocator/mulle_allocator.h>
 
@@ -44,7 +44,7 @@
 #endif
 
 #if MULLE_OBJC_RUNTIME_VERSION < ((1 << 20) | (0 << 8) | 0)
-# error "mulle_objc_runtime is too old"
+# error "mulle_objc is too old"
 #endif
 #if MULLE_CONTAINER_VERSION < ((0 << 20) | (3 << 8) | 0)
 # error "mulle_container is too old"

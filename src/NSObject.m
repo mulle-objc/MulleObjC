@@ -775,7 +775,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    cls = _mulle_objc_object_get_isa( self);
    _mulle_objc_class_walk_ivars( cls,
                                  _mulle_objc_class_get_inheritance( cls),
-                                 (void *) collect,
+                                 (int (*)()) collect,
                                  &info);
    return( info.n);
 }
