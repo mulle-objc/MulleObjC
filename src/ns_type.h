@@ -14,7 +14,7 @@
 //
 // allow isa with cpp define
 //
-#define isa       ((Class) (_mulle_objc_object_get_objectheader( self))->_isa)
+#define isa       ((Class) _mulle_objc_object_get_isa( self))
 
 //
 // this should be C readable
