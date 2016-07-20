@@ -11,7 +11,7 @@ set -m
 
 SOURCE_EXTENSION=".m"
 
-LIBRARY_SHORTNAME="ObjC"
+LIBRARY_SHORTNAME="MulleObjC"
 SHLIB_PREFIX="lib"
 SHLIB_EXTENSION=".so"
 STANDALONE_SUFFIX="Standalone"
@@ -25,7 +25,7 @@ case `uname` in
      LDFLAGS="-ldl -lpthread"
 esac
 
-LIBRARY_FILENAME="${SHLIB_PREFIX}Mulle${LIBRARY_SHORTNAME}${STANDALONE_SUFFIX}${SHLIB_EXTENSION}"
+LIBRARY_FILENAME="${SHLIB_PREFIX}${LIBRARY_SHORTNAME}${STANDALONE_SUFFIX}${SHLIB_EXTENSION}"
 
 
 if [ -z "${DEBUGGER}" ]
@@ -352,7 +352,7 @@ run()
    local fail
    local match
 
-   random=`mktemp -t "MulleObjCOSFoundation.XXXX"`
+   random=`mktemp -t "${LIBRARY_SHORTNAME}.XXXX"`
    output="$random.stdout"
    errput="$random.stderr"
    errors=`basename $m_source .m`.errors
