@@ -1,4 +1,4 @@
-#ifndef __MULLE_OBJC_RUNTIME__
+#ifndef __MULLE_OBJC__
 # import <Foundation/Foundation.h>
 #else
 # import <MulleObjC/MulleObjC.h>
@@ -11,7 +11,7 @@
 
 @implementation Foo
 
-#ifdef __MULLE_OBJC_RUNTIME__
+#ifdef __MULLE_OBJC__
 + (id) new
 {
    return( (Foo *) _mulle_objc_class_unfailing_alloc_instance( (void *) self, calloc));
