@@ -386,7 +386,7 @@ retry:
 
 
 # pragma mark -
-# pragma mark concurrent class "variable" support
+# pragma mark class "variable" support
 
 /* every value becomes a "root". It is an error to set a "root" object
    as a value. The classvalues are all taken down when the runtime 
