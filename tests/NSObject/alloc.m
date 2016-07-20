@@ -1,4 +1,4 @@
-#ifndef __MULLE_OBJC_RUNTIME__
+#ifndef __MULLE_OBJC__
 # import <Foundation/Foundation.h>
 # pragma message "this test does not work with Apple Foundation"
 #else

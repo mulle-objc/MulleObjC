@@ -30,6 +30,7 @@ src/NSInvocation.h
 src/NSLock.h
 src/NSMethodSignature.h
 src/NSObject+NSCoding.h
+src/NSObject+KVCSupport.h
 src/NSObject.h
 src/NSProxy.h
 src/NSRecursiveLock.h
@@ -70,6 +71,7 @@ src/NSLock.m
 src/NSMethodSignature.m
 src/NSObject.m
 src/NSObject+NSCoding.m
+src/NSObject+KVCSupport.m
 src/NSProxy.m
 src/NSRecursiveLock.m
 src/NSThread.m
@@ -86,13 +88,13 @@ src/protocols/NSCoding.m
 src/protocols/NSCopying.m)
 
 
-add_library( MulleStandaloneObjC SHARED
-src/MulleStandaloneObjC.m
+add_library( MulleObjCStandalone SHARED
+src/MulleObjCStandalone.m
 )
 
-add_dependencies( MulleStandaloneObjC MulleObjC)
+add_dependencies( MulleObjCStandalone MulleObjC)
 
-TARGET_LINK_LIBRARIES( MulleStandaloneObjC
+TARGET_LINK_LIBRARIES( MulleObjCStandalone
 ${BEGIN_ALL_LOAD}
 MulleObjC
 mulle_objc
@@ -105,6 +107,5 @@ ${END_ALL_LOAD}
 )
 
 
-INSTALL( TARGETS MulleObjC MulleStandaloneObjC DESTINATION "lib")
+INSTALL( TARGETS MulleObjC MulleObjCStandalone DESTINATION "lib")
 INSTALL( FILES ${HEADERS} DESTINATION "include/MulleObjC")
-INSTALL( FILES src/MulleStandaloneObjC.h DESTINATION "include/MulleStandaloneObjC")
