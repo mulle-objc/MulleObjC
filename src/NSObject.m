@@ -399,8 +399,9 @@ retry:
    id                         old;
    int                        rval;
 
-   assert( ! strcmp( "NSConstantString",
-                    _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
+   assert( cls = _mulle_objc_object_get_isa( key));
+   assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
+           ! strcmp( "_MulleObjCChar5String", _mulle_objc_class_get_name( cls)));
    
    cls = self;
 
@@ -428,8 +429,9 @@ retry:
    struct _mulle_objc_class   *cls;
    int                        rval;
    
-   assert( ! strcmp( "NSConstantString",
-                    _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
+   assert( cls = _mulle_objc_object_get_isa( key));
+   assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
+           ! strcmp( "_MulleObjCChar5String", _mulle_objc_class_get_name( cls)));
    assert( value);
    
    cls = self;
@@ -471,8 +473,9 @@ retry:
 {
    struct _mulle_objc_class   *cls;
    
-   assert( ! strcmp( "NSConstantString",
-                    _mulle_objc_class_get_name( _mulle_objc_object_get_isa( key))));
+   assert( cls = _mulle_objc_object_get_isa( key));
+   assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
+           ! strcmp( "_MulleObjCChar5String", _mulle_objc_class_get_name( cls)));
    
    cls = self;
    return( _mulle_objc_class_get_cvar( cls, key));
