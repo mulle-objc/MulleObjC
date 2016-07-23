@@ -279,6 +279,12 @@ retry:
 }
 
 
++ (instancetype) instantiatedObject // alloc + autorelease + init
+{
+   return( [[self instantiate] init]);
+}
+
+
 - (nonnull instancetype) immutableInstance
 {
    return( [[self copy] autorelease]);
