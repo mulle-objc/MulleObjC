@@ -109,6 +109,9 @@ overriddenByImplementation:(IMP) imp;
 + (nonnull instancetype) instantiate;        // alloc + autorelease
 - (nonnull instancetype) immutableInstance;  // copy + autorelease
 
++ (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
+
+
 // advanced Autorelease and ObjectGraph support
 
 - (void) _becomeRootObject;        // retains  #1#
