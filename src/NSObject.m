@@ -801,7 +801,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 
 - (void) doesNotForwardVariadicSelector:(SEL) sel
 {
-   MulleObjCThrowInternalInconsistencyException( @"variadic methods can not be forwarded using invocations");
+   mulle_objc_throw_internal_inconsistency_exception( "variadic methods can not be forwarded using invocations");
 }
 
 

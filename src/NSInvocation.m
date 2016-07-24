@@ -210,7 +210,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    }
    
    if( [_methodSignature isVariadic])
-      MulleObjCThrowInternalInconsistencyException( @"NSInvocation can not retain the arguments of variadic methods");
+      mulle_objc_throw_internal_inconsistency_exception( "NSInvocation can not retain the arguments of variadic methods");
    
    _argumentsRetained = YES;
    
@@ -307,7 +307,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    
    sel = [self selector];
    if( ! sel)
-      MulleObjCThrowInternalInconsistencyException( @"selector has not been set yet");
+      mulle_objc_throw_internal_inconsistency_exception( "NSInvocation: selector has not been set yet");
    
    pType = [_methodSignature _methodMetaABIParameterType];
    rType = [_methodSignature _methodMetaABIReturnType];
