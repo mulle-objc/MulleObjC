@@ -407,7 +407,7 @@ retry:
 
    assert( cls = _mulle_objc_object_get_isa( key));
    assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
-           ! strcmp( "_MulleObjCChar5String", _mulle_objc_class_get_name( cls)));
+           ! strstr( "TaggedPointer", _mulle_objc_class_get_name( cls)));
    
    cls = self;
 
@@ -437,7 +437,7 @@ retry:
    
    assert( cls = _mulle_objc_object_get_isa( key));
    assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
-           ! strcmp( "_MulleObjCChar5String", _mulle_objc_class_get_name( cls)));
+           ! strstr( "TaggedPointer", _mulle_objc_class_get_name( cls)));
    assert( value);
    
    cls = self;
@@ -481,7 +481,7 @@ retry:
    
    assert( cls = _mulle_objc_object_get_isa( key));
    assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
-           ! strcmp( "_MulleObjCChar5String", _mulle_objc_class_get_name( cls)));
+           ! strstr( "TaggedPointer", _mulle_objc_class_get_name( cls)));
    
    cls = self;
    return( _mulle_objc_class_get_cvar( cls, key));
