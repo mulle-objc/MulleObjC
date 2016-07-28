@@ -455,7 +455,7 @@ static inline void   autoreleaseObjects( id *objects, NSUInteger count)
    
    for( pool = config->tail; pool; pool = pool->_owner)
       if( _containsObject( pool, p))
-      return( YES);
+         return( YES);
 
    return( NO);
 }
