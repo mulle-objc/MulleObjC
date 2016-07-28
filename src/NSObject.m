@@ -44,7 +44,7 @@
 #define _MulleObjCInstantiatePlaceholderHash  0x56154b76  // _MulleObjCInstantiatePlaceholder
 
 // intentonally a root object (!)
-@interface _MulleObjCInstantiatePlaceholder < NSObject>
+@interface _MulleObjCInstantiatePlaceholder 
 {
 @public
    Class   _cls;
@@ -582,7 +582,6 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    cls = _mulle_objc_object_get_class( self);
    return( cls);
 }
-
 
 
 + (BOOL)  isSubclassOfClass:(Class) otherClass
