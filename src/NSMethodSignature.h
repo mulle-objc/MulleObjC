@@ -27,15 +27,21 @@ typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
 
 @interface NSMethodSignature : NSObject 
 {
+   uint32_t                            _bits;    // see method_descriptor
+   uint16_t                            _count;
+   uint16_t                            _extra;
    char                                *_types;
    char                                *_prettyTypes;
-   uint32_t                            _count;
-   uint32_t                            _bits; // see method_descriptor
    MulleObjCMethodSignatureTypeinfo    *_infos;
+   // careful when adding stuff below !! (#X#)
 }
 
 + (NSMethodSignature *) signatureWithObjCTypes:(char *) types;
 
+//
+// this does not call init, for performance reasons. It's used by the
+// forwarding mechanism
+//
 + (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
                            methodDescriptorBits:(NSUInteger) bits;
 

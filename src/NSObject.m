@@ -80,11 +80,27 @@
       }
    }
 #endif
-
+   
    obj = [_cls alloc];
    obj = mulle_objc_object_inline_variable_methodid_call( obj, (mulle_objc_methodid_t) _cmd, _param);
    [obj autorelease];
    return( obj);
+}
+
+- (void) dealloc
+{
+   _MulleObjCObjectFree( self);
+}
+
+
+- (void) finalize
+{
+}
+
+
+- (void) release
+{
+   _mulle_objc_object_release( self);
 }
 
 @end
