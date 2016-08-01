@@ -19,6 +19,19 @@
 
 @implementation NSMethodSignature
 
+//  (#X#)
+static inline void   *getExtraMemory( NSMethodSignature *self)
+{
+   return( (void *) &(&self->_infos)[ 1]);
+}
+
+
+static inline BOOL   hasExtraMemory( NSMethodSignature *self)
+{
+   return( self->_extra);
+}
+
+
 - (id) initWithObjCTypes:(char *) types
 {
    _count = mulle_objc_signature_count_typeinfos( types);
@@ -31,23 +44,10 @@
    _types = mulle_allocator_strdup( MulleObjCObjectGetAllocator( self), types);
    _bits  = 0;
 
-   return( self);
-}
+   fprintf( stderr, "%s: %p has %sextra memory\n", __PRETTY_FUNCTION__, self, hasExtraMemory( self) ? "" : "no ");
+   fprintf( stderr, "%p\n", self->_types);
+   fprintf( stderr, "%p\n", getExtraMemory( self));
 
-
-- (id) _initWithObjCTypes:(char *) types
-     methodDescriptorBits:(NSUInteger) bits
-{
-   _count = mulle_objc_signature_count_typeinfos( types);
-   if( _count < 3)  // rval, self, _cmd
-   {
-      [self release];
-      return( nil);
-   }
-
-   _types = mulle_allocator_strdup( MulleObjCObjectGetAllocator( self), types);
-   _bits  = (uint32_t) bits;
-   
    return( self);
 }
 
@@ -57,12 +57,17 @@
    struct mulle_allocator   *allocator;
 
    allocator = MulleObjCObjectGetAllocator( self);
-   mulle_allocator_free( allocator, _types);
-   mulle_allocator_free( allocator, _prettyTypes);
-   mulle_allocator_free( allocator, _infos);
-
+   
+   fprintf( stderr, "%s: %p has %sextra memory\n", __PRETTY_FUNCTION__, self, hasExtraMemory( self) ? "" : "no ");
+   if( ! hasExtraMemory( self))
+   {
+      mulle_allocator_free( allocator, _types);
+      mulle_allocator_free( allocator, _prettyTypes);
+      mulle_allocator_free( allocator, _infos);
+   }
    NSDeallocateObject( self);
 }
+
 
 #pragma mark -
 #pragma mark convenience constructors
@@ -70,22 +75,48 @@
 + (NSMethodSignature *) signatureWithObjCTypes:(char *) types
 {
    id   obj;
-   
+
    obj = [[[NSMethodSignature alloc] initWithObjCTypes:types] autorelease];
    return( obj);
 }
 
 
 + (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
-                           methodDescriptorBits:(NSUInteger) bits;
+                           methodDescriptorBits:(NSUInteger) bits
 
 {
-   id   obj;
+   NSMethodSignature   *obj;
+   NSUInteger          extra;
+   NSUInteger          size;
+   NSUInteger          count;
+
+   if( ! types)
+      return( nil);
+
+   count  = mulle_objc_signature_count_typeinfos( types);
+   if( count < 3)
+      return( nil);
    
-   obj = [[[NSMethodSignature alloc] _initWithObjCTypes:types
-                                   methodDescriptorBits:bits] autorelease];
-   return( obj);
+   size   = strlen( types) + 1;
+   extra  = size * 2;
+   extra += count * sizeof( MulleObjCMethodSignatureTypeinfo);
+
+   assert( extra < 0x10000);
+   assert( count < 0x10000);
+   
+   obj               = NSAllocateObject( self, extra, NULL);
+   obj->_count       = (uint16_t) count;
+   obj->_extra       = (uint16_t) extra;
+   obj->_bits        = (uint32_t) bits;
+   obj->_types       = getExtraMemory( obj);
+   obj->_prettyTypes = &((char *) obj->_types)[ size];
+   obj->_infos       = (void *) &((char *) obj->_prettyTypes)[ size];
+   
+   memcpy( obj->_types, types, size);
+   
+   return( [obj autorelease]);
 }
+
 
 #pragma mark -
 #pragma mark NSObject
@@ -119,7 +150,6 @@
 
    return( ! strcmp( _types, ((NSMethodSignature *) other)->_types));   //hmm
 }
-
 
 
 #pragma mark -
@@ -173,13 +203,20 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    struct mulle_allocator            *allocator;
    
    assert( self->_count);
-   if( self->_infos)
+   
+   // already run ?
+   if( self->_prettyTypes && self->_prettyTypes[ 0])
       return( self->_infos);
 
-   allocator          = MulleObjCObjectGetAllocator( self);
-   self->_infos       = mulle_allocator_calloc( allocator, self->_count, sizeof( MulleObjCMethodSignatureTypeinfo));
-   self->_prettyTypes = mulle_allocator_strdup( allocator, self->_types);
-   
+   if( ! hasExtraMemory( self))
+   {
+      allocator    = MulleObjCObjectGetAllocator( self);
+      self->_infos = mulle_allocator_calloc( allocator, self->_count, sizeof( MulleObjCMethodSignatureTypeinfo));
+      self->_prettyTypes = mulle_allocator_strdup( allocator, self->_types);
+   }
+   else
+      strcpy( self->_prettyTypes, self->_types);
+
    p        = &self->_infos[ 0];
    sentinel = &p[ self->_count];
    
@@ -197,7 +234,6 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    assert( p == sentinel);
    return( self->_infos);
 }
-
 
 
 - (char *) getArgumentTypeAtIndex:(NSUInteger) i
