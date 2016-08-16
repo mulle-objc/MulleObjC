@@ -26,6 +26,7 @@
 #include "ns_type.h"
 #include "_ns_exception.h"
 
+
 #pragma mark -
 #pragma mark per thread runtime configuration
 
@@ -103,7 +104,16 @@ struct _ns_root_foundationconfig
 {
    size_t                             configurationsize;
    struct mulle_allocator             *objectallocator;
-   struct _ns_exceptionhandlertable   *exceptiontable;  // must be set
+   struct _ns_exceptionhandlertable   exceptiontable;    
+};
+
+
+struct _ns_setup_callbacks
+{
+   void  (*setup)( struct _mulle_objc_runtime *runtime, void *config);
+   void  (*tear_down)( void);
+   void  (*tear_down_and_check)( void);
+   void  (*post_create)( struct _mulle_objc_runtime *runtime);
 };
 
 
@@ -111,6 +121,7 @@ struct _ns_root_setupconfig
 {
    struct _ns_root_runtimeconfig     runtime;
    struct _ns_root_foundationconfig  foundation;
+   struct _ns_setup_callbacks        callbacks;
 };
 
 

@@ -122,3 +122,26 @@ void   mulle_objc_throw_errno_exception( char *format, ...)
    MulleObjCExceptionHandlersGetTable()->errno_error( s, args);
    va_end( args);
 }
+
+
+#pragma mark -
+#pragma mark Uncaught Exceptions
+
+NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void)
+{
+   struct _mulle_objc_runtime      *runtime;
+   
+   runtime    = mulle_objc_get_runtime();
+   return( (NSUncaughtExceptionHandler *) runtime->failures.uncaughtexception);
+}
+
+
+void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler)
+{
+   struct _mulle_objc_runtime      *runtime;
+   
+   runtime  = mulle_objc_get_runtime();
+   runtime->failures.uncaughtexception = (void (*)()) handler;
+}
+
+

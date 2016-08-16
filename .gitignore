@@ -13,6 +13,6 @@ project.xcworkspace/
 call-benchmark/
 old/
 tmp/
-/lib/
-/include/
+/tests/lib/
+/tests/include/
 
