@@ -41,7 +41,9 @@ src/ns_exception.h
 src/ns_fastclassids.h
 src/ns_fastmethodids.h
 src/ns_objc.h
+src/ns_objc_compatibility.h
 src/ns_objc_include.h
+src/ns_objc_setup.h
 src/ns_range.h
 src/ns_rootconfiguration.h
 src/ns_test_allocation.h
@@ -77,6 +79,7 @@ src/NSRecursiveLock.m
 src/NSThread.m
 src/ns_debug.c
 src/ns_exception.c
+src/ns_objc_setup.c
 src/ns_range.c
 src/ns_rootconfiguration.c
 src/ns_test_allocation.c

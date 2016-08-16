@@ -68,4 +68,13 @@ void   mulle_objc_throw_errno_exception( char *format, ...);
 __attribute__ ((noreturn))
 void   mulle_objc_throw_internal_inconsistency_exception( char *format, ...);
 
+
+#pragma mark -
+#pragma mark Uncaught Exceptions
+
+typedef void   NSUncaughtExceptionHandler( void *exception);
+
+NSUncaughtExceptionHandler *NSGetUncaughtExceptionHandler( void);
+void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler);
+
 #endif

@@ -295,7 +295,7 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
       then for the runtime. The roots->allocator is used to create instances.
     */
    
-   roots->exception.vectors   = *config->foundation.exceptiontable;
+   roots->exception.vectors   = config->foundation.exceptiontable;
 
    roots->object.roots        = mulle_set_create( 32,
                                            (void *) &default_root_object_callback,
