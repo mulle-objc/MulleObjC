@@ -1,3 +1,5 @@
+#! /bin/sh -x
+
 LIBRARY_SHORTNAME="MulleObjC"
 
 . "../mulle-tests/test-m-common.sh"
