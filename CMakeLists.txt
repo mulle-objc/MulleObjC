@@ -106,6 +106,7 @@ mulle_concurrent
 mulle_aba
 mulle_allocator
 mulle_test_allocator
+mulle_thread
 ${END_ALL_LOAD}
 )
 
