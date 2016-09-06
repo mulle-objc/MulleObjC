@@ -168,8 +168,8 @@ static inline void   _MulleObjCObjectFree( id obj)
    // malloc scribble will kill it though
    memset( obj, 0xad, _mulle_objc_class_get_instance_size( header->_isa));
    
-   header->_isa           = (void *) (intptr_t) 0xDEADDEADDEADDEAD;
-   header->_retaincount_1 = (void *) (intptr_t) 0x0; // sic
+   header->_isa = (void *) (intptr_t) 0xDEADDEADDEADDEAD;
+   _mulle_atomic_pointer_nonatomic_write( &header->_retaincount_1, 0x0); // sic
 #endif
    _mulle_allocator_free( allocator, header);
 }

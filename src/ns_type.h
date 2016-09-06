@@ -83,12 +83,24 @@ typedef enum
 #define Nil   ((Class) 0)
 
 
-typedef enum
+enum _MulleBool
 {
    YES = 1,
    NO  = 0
-} BOOL;     // the hated BOOL, here it is an enum (-> int. it's C!)
+};	     
 
+//
+// the hated BOOL. here it is an int 
+// on windows it unfortunately already exists in "minwindef.h"
+// so don't typedef it
+//
+#if defined( _WIN32) 
+# ifndef _MINWINDEF_
+#  error "#include <minwindef.h> missing"
+# endif
+#else 
+typedef enum _MulleBool   BOOL;
+#endif
 
 enum
 {
