@@ -132,7 +132,6 @@ const struct _ns_root_setupconfig   *ns_objc_get_default_setupconfig( void)
 }
 
 
-__attribute__((const))  // always returns same value (in same thread)
 struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig *setup)
 {
    BOOL                         is_pedantic;
