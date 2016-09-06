@@ -90,16 +90,16 @@ src/protocols/MulleObjCTaggedPointer.m
 src/protocols/NSCoding.m
 src/protocols/NSCopying.m)
 
+if( MSVC)
+	set( DEF_FILE MulleObjCStandalone.def)
+endif()
 
 add_library( MulleObjCStandalone SHARED
 src/MulleObjCStandalone.m
+${DEF_FILE}
 )
 
-add_dependencies( MulleObjCStandalone MulleObjC)
-
-TARGET_LINK_LIBRARIES( MulleObjCStandalone
-${BEGIN_ALL_LOAD}
-MulleObjC
+set( DEPENDENCY_LIBRARIES
 mulle_objc
 mulle_container
 mulle_concurrent
@@ -107,6 +107,27 @@ mulle_aba
 mulle_allocator
 mulle_test_allocator
 mulle_thread
+)
+
+
+
+add_dependencies( MulleObjCStandalone MulleObjC)
+
+if( MSVC)
+	add_custom_command( OUTPUT ${DEF_FILE}
+                 	    COMMAND "C:/Program Files/Git/usr/bin/sh.exe" mulle-mingw-dumpdef.sh -o "${DEF_FILE}" -n MulleObjCStandalone --directory "${BUILD_RELATIVE_DEPENDENCIES_DIR}/lib" --prefix "mulle" --prefix Mulle --prefix ns --prefix NS ${DEPENDENCY_LIBRARIES} $<TARGET_FILE:MulleObjC>
+                 	    DEPENDS "${SOURCES}" "${HEADERS}"
+                   		VERBATIM)
+endif()
+
+if( MSVC)
+  set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEF:${DEF_FILE} /NODEFAULTLIB")
+endif()
+
+TARGET_LINK_LIBRARIES( MulleObjCStandalone
+${BEGIN_ALL_LOAD}
+MulleObjC
+${DEPENDENCY_LIBRARIES}
 ${END_ALL_LOAD}
 )
 
