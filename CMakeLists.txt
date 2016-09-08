@@ -1,11 +1,19 @@
 cmake_minimum_required (VERSION 3.0)
 
+// https://stackoverflow.com/questions/13054451/cmake-problems-specifying-the-compiler-2
+// don't do that: 
+//    set( CMAKE_C_COMPILER
+// instead 
+//    cmake -DCMAKE_C_COMPILER=mulle-clang -DCMAKE_CXX_COMPILER=mulle-clang
+//
 project (MulleObjC)
-
 
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/mulle-configuration)
 message(STATUS "CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
 message(STATUS "CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
+
+set( MULLE_LANGUAGE "ObjC")
+
 if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   include( Debug)
 else()
