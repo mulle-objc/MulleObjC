@@ -1,11 +1,11 @@
 cmake_minimum_required (VERSION 3.0)
 
-// https://stackoverflow.com/questions/13054451/cmake-problems-specifying-the-compiler-2
-// don't do that: 
-//    set( CMAKE_C_COMPILER
-// instead 
-//    cmake -DCMAKE_C_COMPILER=mulle-clang -DCMAKE_CXX_COMPILER=mulle-clang
-//
+# https://stackoverflow.com/questions/13054451/cmake-problems-specifying-the-compiler-2
+# don't do that: 
+#    set( CMAKE_C_COMPILER
+# instead 
+#    cmake -DCMAKE_C_COMPILER=mulle-clang -DCMAKE_CXX_COMPILER=mulle-clang
+#
 project (MulleObjC)
 
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/mulle-configuration)
@@ -99,7 +99,11 @@ src/protocols/NSCoding.m
 src/protocols/NSCopying.m)
 
 if( MSVC)
-	set( DEF_FILE MulleObjCStandalone.def)
+   set( DEF_FILE MulleObjCStandalone.def)
+   set_source_files_properties( ${DEF_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
+   set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS OFF)
+   set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEF:${DEF_FILE}")  
+   # /NODEFAULTLIB:MSVCRT") 
 endif()
 
 add_library( MulleObjCStandalone SHARED
@@ -118,19 +122,15 @@ mulle_thread
 )
 
 
-
 add_dependencies( MulleObjCStandalone MulleObjC)
 
 if( MSVC)
-	add_custom_command( OUTPUT ${DEF_FILE}
-                 	    COMMAND "C:/Program Files/Git/usr/bin/sh.exe" mulle-mingw-dumpdef.sh -o "${DEF_FILE}" -n MulleObjCStandalone --directory "${BUILD_RELATIVE_DEPENDENCIES_DIR}/lib" --prefix "mulle" --prefix Mulle --prefix ns --prefix NS ${DEPENDENCY_LIBRARIES} $<TARGET_FILE:MulleObjC>
-                 	    DEPENDS "${SOURCES}" "${HEADERS}"
-                   		VERBATIM)
+   add_custom_command( OUTPUT ${DEF_FILE}
+                       COMMAND mulle-mingw-dumpdef.bat -o "${DEF_FILE}" --directory "${BUILD_RELATIVE_DEPENDENCIES_DIR}/lib" --prefix "mulle" --prefix Mulle --prefix ns --prefix NS ${DEPENDENCY_LIBRARIES} $<TARGET_FILE:MulleObjC>
+                       DEPENDS "${SOURCES}" "${HEADERS}"
+                       VERBATIM)
 endif()
 
-if( MSVC)
-  set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEF:${DEF_FILE} /NODEFAULTLIB")
-endif()
 
 TARGET_LINK_LIBRARIES( MulleObjCStandalone
 ${BEGIN_ALL_LOAD}
