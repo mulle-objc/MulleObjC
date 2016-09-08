@@ -140,8 +140,7 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
    struct _mulle_objc_runtime   *runtime;
    
    runtime = __mulle_objc_get_runtime();
-   if( runtime->version)
-      return( runtime);
+   assert( ! _mulle_objc_runtime_is_initalized( runtime));
    
    is_pedantic = getenv( "MULLE_OBJC_PEDANTIC_EXIT") != NULL;
    s           = getenv( "MULLE_OBJC_TEST_ALLOCATOR");

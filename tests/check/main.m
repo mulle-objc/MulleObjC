@@ -31,8 +31,6 @@
 
 #endif
 
-#include <sys/time.h>
-
 
 #define LOOPS   10
 
