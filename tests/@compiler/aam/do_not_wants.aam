@@ -1,0 +1,25 @@
+#include <mulle_objc/mulle_objc.h>
+
+
+@interface Foo
+@end
+
+
+@implementation Foo
+@end
+
+
+main()
+{
+   Foo  *foo;
+
+   foo = [Foo allocWithZone:NULL];
+   foo = [Foo new];
+   [foo autorelease];
+   [foo release];
+   [foo retain];
+   [foo dealloc];
+   [foo zone];
+   [foo copyWithZone:NULL];
+   [foo mutableCopyWithZone:NULL];
+}

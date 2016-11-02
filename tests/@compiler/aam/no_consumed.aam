@@ -1,0 +1,24 @@
+#include <mulle_objc/mulle_objc.h>
+
+
+@interface Foo
+
++ (void) foo:(id __attribute(( ns_consumed))) unused;
+
+@end
+
+
+@implementation Foo
+
++ (id) foo:(id) unused
+{
+   return ( self);
+}
+
+@end
+
+
+main()
+{
+   [Foo foo:(id) 0];
+}

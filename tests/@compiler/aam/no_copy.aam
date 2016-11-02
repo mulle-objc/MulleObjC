@@ -1,0 +1,21 @@
+#include <mulle_objc/mulle_objc.h>
+
+
+@interface Foo
+@end
+
+
+@implementation Foo
+
++ (id) copy
+{
+   return ( self);
+}
+
+@end
+
+
+main()
+{
+   return( 0);
+}
