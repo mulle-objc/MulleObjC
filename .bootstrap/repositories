@@ -1,2 +1,3 @@
-https://www.mulle-kybernetik.com/repositories/mulle-container
-ssh://git@mulle-kybernetik.com:23/mulle-objc
+${MULLE_REPOSITORIES}/mulle-container;;${MULLE_CONTAINER_BRANCH:-release}
+${MULLE_PRIVATE_REPOSITORIES}/mulle-objc;;${MULLE_OBJC_RUNTIME_BRANCH:-release}
+

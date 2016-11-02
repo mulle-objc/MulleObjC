@@ -1,0 +1,19 @@
+#include <mulle_objc/mulle_objc.h>
+
+
+@interface Foo
+{
+	int  _foo;
+}
+@end
+
+
+@implementation Foo
+
+- (int) foo
+{
+	return( _foo);  // foo ? no can doo
+}
+
+@end
+

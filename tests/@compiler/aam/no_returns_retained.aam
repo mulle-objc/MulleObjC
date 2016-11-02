@@ -1,0 +1,24 @@
+#include <mulle_objc/mulle_objc.h>
+
+
+@interface Foo
+
++ (id) foo   __attribute(( ns_returns_retained));
+
+@end
+
+
+@implementation Foo
+
++ (id) foo
+{
+   return ( self);
+}
+
+@end
+
+
+main()
+{
+   [Foo foo];
+}

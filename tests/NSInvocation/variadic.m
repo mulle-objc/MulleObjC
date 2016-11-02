@@ -52,7 +52,7 @@
    obj2 = nil;
    mulle_vararg_start( args, obj1);
    if( obj1)
-      obj2  = mulle_vararg_next( args);
+      obj2  = mulle_vararg_next_object( args);
    mulle_vararg_end( args);
 
    [obj1 print];

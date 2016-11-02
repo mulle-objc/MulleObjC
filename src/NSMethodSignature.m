@@ -34,7 +34,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 
 - (id) initWithObjCTypes:(char *) types
 {
-   _count = mulle_objc_signature_count_typeinfos( types);
+   _count = (uint16_t) mulle_objc_signature_count_typeinfos( types);
    if( _count < 3)  // rval, self, _cmd
    {
       [self release];
@@ -287,7 +287,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 {
    MulleObjCMetaABIType   rvalType;
 
-   rvalType = _mulle_objc_signature_get_metaabireturntype( _types);
+   rvalType = mulle_objc_signature_get_metaabireturntype( _types);
    assert( rvalType != (MulleObjCMetaABIType) -1);
    return( rvalType);
 }

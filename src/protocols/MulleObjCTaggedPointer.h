@@ -19,6 +19,18 @@
 int  MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index);
 
 
+static inline int   MulleObjCTaggedPointerClassGetIndex( Class cls)
+{
+   if( ! cls)
+   {
+      errno = EINVAL;
+      return( -1);
+   }
+
+   return( (int) _mulle_objc_class_get_taggedpointerindex( cls));
+}
+
+
 static inline BOOL   MulleObjCTaggedPointerIsIntegerValue( NSInteger value)
 {
    return( (BOOL) mulle_objc_taggedpointer_is_valid_signed_value( value));

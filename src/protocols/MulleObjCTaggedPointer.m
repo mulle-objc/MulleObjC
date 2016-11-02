@@ -52,10 +52,9 @@
 /* 
    MEMO:
  
-   If the compiler doesn't produce tagged pointer strings. It's not a problem.
+   If the compiler doesn't produce tagged pointers. It's not a problem.
    The compiler must produce tagged pointer aware method calls, when inlining
-   code. Code compiled with -O0 is tagged-pointer compatible, even if not
-   compiled with tagged pointers.
+   code.
 */
 + (BOOL) isTaggedPointerEnabled
 {
@@ -69,12 +68,22 @@
 int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
 {
    struct _mulle_objc_runtime  *runtime;
+   int                         rval;
+   
+   if( ! cls)
+   {
+      errno = EINVAL;
+      return( -1);
+   }
    
    runtime = _mulle_objc_class_get_runtime( cls);
    if( ! index)
       MulleObjCThrowInvalidIndexException( index);
    
-   return( _mulle_objc_runtime_set_taggedpointerclass_at_index( runtime, cls, index));
+   rval = _mulle_objc_runtime_set_taggedpointerclass_at_index( runtime, cls, index);
+   if( ! rval)
+      _mulle_objc_class_set_taggedpointerindex( cls, index);
+   return( rval);
 }
 
 @end

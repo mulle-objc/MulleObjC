@@ -1,9 +1,9 @@
 cmake_minimum_required (VERSION 3.0)
 
 # https://stackoverflow.com/questions/13054451/cmake-problems-specifying-the-compiler-2
-# don't do that: 
+# don't do that:
 #    set( CMAKE_C_COMPILER
-# instead 
+# instead
 #    cmake -DCMAKE_C_COMPILER=mulle-clang -DCMAKE_CXX_COMPILER=mulle-clang
 #
 project (MulleObjC)
@@ -102,8 +102,8 @@ if( MSVC)
    set( DEF_FILE MulleObjCStandalone.def)
    set_source_files_properties( ${DEF_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
    set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS OFF)
-   set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEF:${DEF_FILE}")  
-   # /NODEFAULTLIB:MSVCRT") 
+   set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEF:${DEF_FILE}")
+   # /NODEFAULTLIB:MSVCRT")
 endif()
 
 add_library( MulleObjCStandalone SHARED

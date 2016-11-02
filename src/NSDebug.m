@@ -183,7 +183,7 @@ static void   zombifyObject( id obj)
       super_class = _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
       
       pair = mulle_objc_unfailing_new_classpair( classid, buf, sizeof( id), super_class);
-      cls  = mulle_objc_classpair_get_class( pair);
+      cls  = mulle_objc_classpair_get_infraclass( pair);
       
       mulle_objc_class_unfailing_add_methodlist( cls, NULL);
       mulle_objc_class_unfailing_add_methodlist( _mulle_objc_class_get_metaclass( cls), NULL);

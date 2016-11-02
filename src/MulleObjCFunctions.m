@@ -56,122 +56,38 @@ char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignme
 }
 
 
-// because of vtab, simpler is faster in these cases
 void   MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n)
 {
-   id   p;
-   id   *sentinel;
-
-   sentinel = &objects[ n];
-   while( objects < sentinel)
+   if( ! objects)
    {
-      p = *objects++;
-      assert( p);
-      
-      [p release];
+      assert( ! n);
+      return;
    }
+   
+   _mulle_objc_objects_call_release( (void **) objects, (unsigned int) n);
 }
 
 
 void   MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n)
 {
-   id   p;
-   id   *sentinel;
-
-   sentinel = &objects[ n];
-   while( objects < sentinel)
+   if( ! objects)
    {
-      p = *objects++;
-      assert( p);
-      
-      [p retain];
+      assert( ! n);
+      return;
    }
-}
-
-
-void   MulleObjCMakeObjectsPerformSelector( id *objects, NSUInteger n, SEL sel, id argument)
-{
-   mulle_objc_methodimplementation_t   lastSelIMP[ 16];
-   struct _mulle_objc_class            *lastIsa[ 16];
-   struct _mulle_objc_class            *thisIsa;
-   NSUInteger                          i;
-   id                                  p;
-   id                                  *sentinel;
-   mulle_objc_methodimplementation_t   (*lookup)( struct _mulle_objc_class *, mulle_objc_methodid_t);
-   mulle_objc_methodimplementation_t   imp;
    
-   memset( lastIsa, 0, sizeof( lastIsa));
-   
-   lookup   = _mulle_objc_class_lookup_or_search_methodimplementation_no_forward;
-   sentinel = &objects[ n];
-   
-   while( objects < sentinel)
-   {
-      p = *objects++;
-      assert( p);
-      
-      // our IMP cacheing thing
-      thisIsa = _mulle_objc_object_get_isa( p);
-      i       = ((uintptr_t) thisIsa >> 4) & 15;
-      
-      if( lastIsa[ i] != thisIsa)
-      {
-         imp = (*lookup)( thisIsa, (mulle_objc_methodid_t) sel);
-         if( ! imp)
-            imp = mulle_objc_object_call;
-         
-         lastIsa[ i]    = thisIsa;
-         lastSelIMP[ i] = imp;
-      }
-      
-      (*lastSelIMP[ i])( p, (mulle_objc_methodid_t) sel, argument);
-   }
+   _mulle_objc_objects_call_retain( (void **) objects, (unsigned int) n);
 }
 
 
 void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel, id argument, id argument2)
 {
-   mulle_objc_methodimplementation_t   lastSelIMP[ 16];
-   Class                               lastIsa[ 16];
-   Class                               thisIsa;
-   NSUInteger                          i;
-   id                                  p;
-   id                                  *sentinel;
-   mulle_objc_methodimplementation_t   (*lookup)( struct _mulle_objc_class *, mulle_objc_methodid_t);
-   mulle_objc_methodimplementation_t   imp;
    mulle_objc_metaabi_param_block_void_return( struct { id a; id b;})  _param;
 
    _param.p.a = argument;
    _param.p.b = argument2;
-//   struct { id a; id b; void *spare[3]; }  _param = { .a = argument, .b = argument2 };
    
-   memset( lastIsa, 0, sizeof( lastIsa));
-   
-   // assume compiler can do unrolling
-   lookup   = _mulle_objc_class_lookup_or_search_methodimplementation_no_forward;
-   sentinel = &objects[ n];
-   
-   while( objects < sentinel)
-   {
-      p = *objects++;
-      assert( p);
-      
-      // our IMP cacheing thing
-      thisIsa = _mulle_objc_object_get_isa( p);
-      i       = ((uintptr_t) thisIsa >> 4) & 15;
-      
-      if( lastIsa[ i] != thisIsa)
-      {
-         imp = (*lookup)( thisIsa, (mulle_objc_methodid_t) sel);
-         if( ! imp)
-            imp = mulle_objc_object_call;
-         
-         lastIsa[ i]    = thisIsa;
-         lastSelIMP[ i] = imp;
-      }
-      
-      (*lastSelIMP[ i])( p, (mulle_objc_methodid_t) sel, &_param);
-   }
+   mulle_objc_objects_call( (void **) objects, (unsigned int) n, (mulle_objc_methodid_t) sel, &_param);
 }
 
 
@@ -221,7 +137,7 @@ Class   MulleObjCLookupClassByName( id obj)
 }
 
 
-SEL     MulleObjCCreateSelector( id obj)
+SEL   MulleObjCCreateSelector( id obj)
 {
    char                    *s;
    mulle_objc_methodid_t   methodid;
@@ -232,5 +148,5 @@ SEL     MulleObjCCreateSelector( id obj)
    s        = _ns_characters( obj);
    methodid = mulle_objc_classid_from_string( s);
    
-   return( (SEL) methodid);
+   return( (SEL) (uintptr_t) methodid);
 }

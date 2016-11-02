@@ -13,6 +13,16 @@ project.xcworkspace/
 call-benchmark/
 old/
 tmp/
-/tests/lib/
-/tests/include/
 
+/mulle-configuration/
+/.bootstrap.auto/
+/.bootstrap.local/
+/dependencies/
+/addictions/
+/.repos/
+
+/bin/mulle-homebrew/
+
+# boring tests
+# ignore everything, force add it with git add -f
+/tests

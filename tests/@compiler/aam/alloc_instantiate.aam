@@ -1,0 +1,44 @@
+#include <mulle_objc/mulle_objc.h>
+
+
+@interface Foo
+
++ (id) instantiate;
+- (id) immutableInstance;
+- (id) mutableInstance;
+
+@end
+
+
+@implementation Foo
+
++ (id) instantiate
+{
+   printf( "instantiate\n");
+   return( mulle_objc_class_alloc_instance( self, calloc));
+}
+
+
+- (id) immutableInstance
+{
+   printf( "immutableInstance\n");
+   return( self);
+}
+
+
+- (id) mutableInstance
+{
+   printf( "mutableInstance\n");
+   return( self);
+}
+
+@end
+
+
+main()
+{
+   Foo  *foo;
+   foo = [Foo alloc];
+   [foo copy];
+   [foo mutableCopy];
+}
