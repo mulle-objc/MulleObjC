@@ -14,7 +14,6 @@
 #import "NSDebug.h"
 
 // other files in this library
-#import "NSObject.h"
 #include "ns_type.h"
 
 // std-c and dependencies

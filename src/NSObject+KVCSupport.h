@@ -9,6 +9,8 @@
 #import "NSObject.h"
 
 
+// TODO: real caching needed
+
 enum _MulleObjCKVCMethodType
 {
    _MulleObjCKVCValueForKeyIndex           = 0,

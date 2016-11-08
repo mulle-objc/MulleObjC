@@ -11,9 +11,6 @@
  *  $Id$
  *
  */
-#import "ns_type.h"
-
-#import "ns_debug.h"
 #import "NSObject.h"
 
 
@@ -26,11 +23,3 @@
 
 char   *_NSPrintForDebugger( id a);
 void   MulleObjCZombifyObject( id obj);
-
-//
-// move all DEBUG stuff out into a "mulleDebug.dylib" we can dynamically
-// add
-//
-
-
-

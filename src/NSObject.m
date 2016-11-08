@@ -519,16 +519,12 @@ retry:
 }
 
 
-// why it's code like this
-// stipulation is, we have:  
-//    unsigned int for retainCount
+//
+// stipulation is, that small instance size is:
+//    uintptr_t for retainCount
 //    isa for objc
 // + 2 ivars -> 16 bytes (32 bit) or
 //  32 bytes (64 bit)
-//
-// compiler should optimize this to
-// a single inlined rotation instruction since this
-// can be all computed at compile time
 //
 static inline int   shift_factor( void)
 {
@@ -542,6 +538,10 @@ static inline int   max_factor( void)
 }
 
 
+// compiler should optimize this to
+// a single inlined rotation instruction since this
+// can be all computed at compile time
+//
 static inline uintptr_t   rotate_uintptr( uintptr_t x)
 {
    
@@ -921,5 +921,3 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 }
 
 @end
-
-

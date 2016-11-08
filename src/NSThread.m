@@ -272,7 +272,7 @@ void  _NSThreadResignAsMainThread( void)
 }
 
 
-static mulle_thread_rval_t   bouncyBounce( void *arg)
+static void   bouncyBounce( void *arg)
 {
    NSThread   *thread;
 
@@ -288,7 +288,6 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    _mulle_resignas_objc_runtime_thread();
 
    mulle_thread_exit( 0); // must call this
-   return( 0);
 }
 
 

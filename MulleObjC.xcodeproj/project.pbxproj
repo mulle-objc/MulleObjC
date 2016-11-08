@@ -151,7 +151,6 @@
 		410B50E01C69424B007839D0 /* NSMethodSignature+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMethodSignature+Private.h"; sourceTree = "<group>"; };
 		410FA2581C6624AF00927C72 /* ns_fastclassids.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_fastclassids.h; sourceTree = "<group>"; };
 		410FA25B1C6624F500927C72 /* ns_fastmethodids.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_fastmethodids.h; sourceTree = "<group>"; };
-		411129F11B063B6900154FB6 /* AUTORELEASE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AUTORELEASE.md; sourceTree = "<group>"; };
 		411C19221C86FDC600B09881 /* libmulle_test_allocator.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_test_allocator.a; path = dependencies/lib/libmulle_test_allocator.a; sourceTree = "<group>"; };
 		411C19241C86FDFD00B09881 /* ns_test_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_test_allocation.c; sourceTree = "<group>"; };
 		411C19261C86FE0500B09881 /* ns_test_allocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_test_allocation.h; sourceTree = "<group>"; };
@@ -360,7 +359,6 @@
 		41A8279D1AADDFA60017BE29 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				411129F11B063B6900154FB6 /* AUTORELEASE.md */,
 				41A9E4F51BD7E58B00210D6E /* MulleObjC.h */,
 				4162D5371C63F938007EC7DD /* MulleObjCStandalone.m */,
 				411C19261C86FE0500B09881 /* ns_test_allocation.h */,
