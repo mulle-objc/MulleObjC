@@ -2,7 +2,7 @@
 
 MulleObjC supplies the most basic runtime components to build a foundation
 on top of it. MulleObjC fundamentally depends on standard C libraries only
-(f.e. no <unistd.h>)
+(f.e. no `<unistd.h>`)
 
 
 ### Objects
