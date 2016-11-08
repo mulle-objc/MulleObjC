@@ -13,14 +13,12 @@
 // this is defined here for standalone. a "real" foundation will want to
 // produce their own.
 //
+#define MULLE_OBJC_VERSION        ((0 << 20) | (4 << 8) | 1)
+
 #define MULLE_OBJC_VERSION_MAJOR  0
 #define MULLE_OBJC_VERSION_MINOR  4
-#define MULLE_OBJC_VERSION_PATCH  0
+#define MULLE_OBJC_VERSION_PATCH  1
 
-#define MULLE_OBJC_VERSION               \
-     ((MULLE_OBJC_VERSION_MAJOR << 20) | \
-      (MULLE_OBJC_VERSION_MINOR << 8)  | \
-       MULLE_OBJC_VERSION_PATCH)
 
 #include "ns_objc_include.h"
 #include "ns_type.h"

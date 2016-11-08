@@ -205,6 +205,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    struct mulle_allocator            *allocator;
 
    assert( self->_count);
+   assert( self->_types);
 
    // already run ?
    if( self->_prettyTypes && self->_prettyTypes[ 0])

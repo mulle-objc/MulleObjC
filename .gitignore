@@ -26,3 +26,5 @@ tmp/
 # boring tests
 # ignore everything, force add it with git add -f
 /tests
+
+/tests/mulle-tests/
