@@ -4,6 +4,14 @@ MulleObjC supplies the most basic runtime components to build a foundation
 on top of it. MulleObjC fundamentally depends on standard C libraries only
 (f.e. no `<unistd.h>`)
 
+Fork         | Branch  | Version | Build Status
+-------------|-------- |---------|----------------
+[Mulle kybernetiK](//github.com/mulle-nat/MulleObjC)  | release | ![GitHub version](https://badge.fury.io/gh/mulle-nat%2FMulleObjC.svg) | [![Build Status](https://travis-ci.org/mulle-nat/MulleObjC.svg?branch=release)](https://travis-ci.org/mulle-nat/MulleObjC)
+[Community](https://github.com/mulle-objc/MulleObjC/tree/release)      | release | ![GitHub version](https://badge.fury.io/gh/mulle-objc%2FMulleObjC.svg) |  [![Build Status](https://travis-ci.org/mulle-objc/MulleObjC.svg?branch=release)](https://travis-ci.org/mulle-objc/MulleObjC)
+[Community](//github.com/mulle-objc/MulleObjC)    | master | current |  [![Build Status](https://travis-ci.org/mulle-objc/MulleObjC.svg?branch=master)](https://travis-ci.org/mulle-objc/MulleObjC)
+
+
+
 
 ### Objects
 

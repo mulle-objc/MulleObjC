@@ -1,6 +1,6 @@
 #! /bin/sh
 
-PROJECT="MulleObjC"                   # requires camel-case
+PROJECT="Mulleobjc"                   # sic (Homebrew weirdness)
 DESC="Objective-C root classes using the mulle-objc runtime"
 DEPENDENCIES='${DEPENDENCY_TAP}/mulle-objc
 ${DEPENDENCY_TAP}/mulle-container'    # no camel case, will be evaled later!
