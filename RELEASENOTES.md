@@ -1,8 +1,12 @@
+0.1.6
+=====
+
+Fix dependency
+
 0.1.4
 =====
 
 Community release of 0.1.3
-
 
 0.1.3
 =====

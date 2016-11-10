@@ -2,7 +2,7 @@
 
 PROJECT="Mulleobjc"                   # sic (Homebrew weirdness)
 DESC="Objective-C root classes using the mulle-objc runtime"
-DEPENDENCIES='${DEPENDENCY_TAP}/mulle-objc
+DEPENDENCIES='${DEPENDENCY_TAP}/mulle-objc-runtime
 ${DEPENDENCY_TAP}/mulle-container'    # no camel case, will be evaled later!
 LANGUAGE=objc                         # c,cpp, objc
 
