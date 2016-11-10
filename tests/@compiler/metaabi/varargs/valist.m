@@ -27,13 +27,13 @@
 
 + (id) alloc
 {
-   return( mulle_objc_class_alloc_instance( self, calloc));
+   return( mulle_objc_class_alloc_instance( self, NULL));
 }
 
 
 - (void) dealloc
 {
-   mulle_objc_object_free( self, free);
+   mulle_objc_object_free( self, NULL);
 }
 
 

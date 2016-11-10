@@ -17,7 +17,7 @@
 
 + (id) new
 {
-   return( mulle_objc_class_alloc_instance( self, calloc));
+   return( mulle_objc_class_alloc_instance( self, NULL));
 }
 
 

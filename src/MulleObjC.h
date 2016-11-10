@@ -45,13 +45,3 @@
 // functions
 #import "MulleObjCAllocation.h"
 #import "MulleObjCFunctions.h"
-
-#if MULLE_OBJC_RUNTIME_VERSION < ((1 << 20) | (1 << 8) | 0)
-# error "mulle_object is too old"
-#endif
-#if MULLE_THREAD_VERSION < ((3 << 20) | (0 << 8) | 0)
-# error "mulle_thread is too old"
-#endif
-#if MULLE_CONCURRENT_VERSION < ((0 << 20) | (4 << 8) | 0)
-# error "mulle_concurrent is too old"
-#endif
