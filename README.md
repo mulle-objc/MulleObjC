@@ -4,13 +4,11 @@ MulleObjC supplies the most basic runtime components to build a foundation
 on top of it. MulleObjC fundamentally depends on standard C libraries only
 (f.e. no `<unistd.h>`)
 
-Fork         | Branch  | Version | Build Status
--------------|-------- |---------|----------------
-[Mulle kybernetiK](//github.com/mulle-nat/MulleObjC)  | release | ![GitHub version](https://badge.fury.io/gh/mulle-nat%2FMulleObjC.svg) | [![Build Status](https://travis-ci.org/mulle-nat/MulleObjC.svg?branch=release)](https://travis-ci.org/mulle-nat/MulleObjC)
-[Community](https://github.com/mulle-objc/MulleObjC/tree/release)      | release | ![GitHub version](https://badge.fury.io/gh/mulle-objc%2FMulleObjC.svg) |  [![Build Status](https://travis-ci.org/mulle-objc/MulleObjC.svg?branch=release)](https://travis-ci.org/mulle-objc/MulleObjC)
-[Community](//github.com/mulle-objc/MulleObjC)    | master | current |  [![Build Status](https://travis-ci.org/mulle-objc/MulleObjC.svg?branch=master)](https://travis-ci.org/mulle-objc/MulleObjC)
 
-
+Fork      |  Build Status | Release Version
+----------|---------------|-----------------------------------
+[Mulle kybernetiK](//github.com/mulle-nat/MulleObjC) | [![Build Status](https://travis-ci.org/mulle-nat/MulleObjC.svg?branch=release)](https://travis-ci.org/mulle-nat/MulleObjC) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-nat/MulleObjC.svg) [![Build Status](https://travis-ci.org/mulle-nat/MulleObjC.svg?branch=release)](https://travis-ci.org/mulle-nat/MulleObjC)
+[Community](https://github.com/MulleObjC/MulleObjC/tree/release) | [![Build Status](https://travis-ci.org/MulleObjC/MulleObjC.svg)](https://travis-ci.org/MulleObjC/MulleObjC) | ![Community tag](https://img.shields.io/github/tag/MulleObjC/MulleObjC.svg) [![Build Status](https://travis-ci.org/MulleObjC/MulleObjC.svg?branch=release)](https://travis-ci.org/MulleObjC/MulleObjC)
 
 
 ### Objects
@@ -86,11 +84,11 @@ brew install mulle-clang
 ```
 
 On other platforms you can use **mulle-install** from
-[mulle-build](//www.mulle-kybernetik.com/software/git/mulle-build)
+[mulle-build](//github.com/mulle-nat/mulle-build)
 to install the library:
 
 ```
-mulle-install --prefix /usr/local --branch release https://github.com/mulle-objc/MulleObjC.git
+mulle-install --prefix /usr/local --branch release https://github.com/mulle-objc/MulleObjC
 ```
 
 Otherwise read:

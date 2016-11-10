@@ -1,8 +1,3 @@
-.bootstrap.auto/
-.bootstrap.local/
-dependencies/
-.repos/
-mulle-configuration
 build/
 xcuserdata/
 project.xcworkspace/
@@ -16,15 +11,23 @@ tmp/
 
 /.bootstrap.auto/
 /.bootstrap.local/
-/dependencies/
-/addictions/
 /.repos/
 
-/bin/mulle-homebrew/
+/dependencies/
+/addictions/
+
+/.bootstrap.auto/
+/.bootstrap.local/
+/dependencies/
+/addictions/
+
+/bin/mulle-homebrew
+/tests/mulle-tests
+/bin/mulle-homebrew
+/mulle-configuration
 
 # boring tests
 # ignore everything, force add it with git add -f
 /tests
-/tests/mulle-tests/
-some-test
-bin/mulle-homebrew
+/some-test/
+
