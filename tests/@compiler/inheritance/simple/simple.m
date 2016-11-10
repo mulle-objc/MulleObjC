@@ -12,7 +12,7 @@
 
 + (id) new
 {
-   return( (Bar *) mulle_objc_class_alloc_instance( self, calloc));
+   return( (Bar *) mulle_objc_class_alloc_instance( self, NULL));
 }
 
 

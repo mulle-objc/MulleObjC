@@ -91,7 +91,7 @@ static void   print_struct_abc( struct abc x)
 
 + (id) new
 {
-   return( mulle_objc_class_alloc_instance( self, calloc));
+   return( mulle_objc_class_alloc_instance( self, NULL));
 }
 
 @end

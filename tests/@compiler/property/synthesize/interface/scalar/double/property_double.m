@@ -36,7 +36,7 @@ static void   print_double( double x)
 
 + (id) new
 {
-   return( mulle_objc_class_alloc_instance( self, calloc));
+   return( mulle_objc_class_alloc_instance( self, NULL));
 }
 
 @end

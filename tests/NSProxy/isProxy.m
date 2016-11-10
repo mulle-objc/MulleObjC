@@ -14,12 +14,12 @@
 #ifdef __MULLE_OBJC__
 + (id) new
 {
-   return( (Foo *) _mulle_objc_class_unfailing_alloc_instance( (void *) self, calloc));
+   return( (Foo *) _mulle_objc_class_alloc_instance( (void *) self, NULL));
 }
 
 - (void) dealloc
 {
-   _mulle_objc_object_free( (void *) self, free);
+   _mulle_objc_object_free( (void *) self, NULL);
 }
 #endif
 
