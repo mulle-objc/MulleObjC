@@ -2,7 +2,7 @@
 .bootstrap.local/
 dependencies/
 .repos/
-mulle-configuration/
+mulle-configuration
 build/
 xcuserdata/
 project.xcworkspace/
@@ -14,7 +14,6 @@ call-benchmark/
 old/
 tmp/
 
-/mulle-configuration/
 /.bootstrap.auto/
 /.bootstrap.local/
 /dependencies/
@@ -26,5 +25,6 @@ tmp/
 # boring tests
 # ignore everything, force add it with git add -f
 /tests
-
 /tests/mulle-tests/
+some-test
+bin/mulle-homebrew

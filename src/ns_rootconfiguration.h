@@ -13,10 +13,10 @@
 // this is defined here for standalone. a "real" foundation will want to
 // produce their own.
 //
-#define MULLE_OBJC_VERSION        ((0 << 20) | (4 << 8) | 1)
+#define MULLE_OBJC_VERSION        ((0 << 20) | (1 << 8) | 1)
 
 #define MULLE_OBJC_VERSION_MAJOR  0
-#define MULLE_OBJC_VERSION_MINOR  4
+#define MULLE_OBJC_VERSION_MINOR  1
 #define MULLE_OBJC_VERSION_PATCH  1
 
 
@@ -36,7 +36,7 @@ struct _ns_objectconfiguration
    struct mulle_set         *placeholders;
    struct mulle_set         *singletons;
    struct mulle_set         *threads;
-   
+
    unsigned char            debugenabled;
    unsigned char            zombieenabled;
    unsigned char            deallocatezombies;
@@ -102,7 +102,7 @@ struct _ns_root_foundationconfig
 {
    size_t                             configurationsize;
    struct mulle_allocator             *objectallocator;
-   struct _ns_exceptionhandlertable   exceptiontable;    
+   struct _ns_exceptionhandlertable   exceptiontable;
 };
 
 
@@ -134,7 +134,7 @@ __attribute__((const, returns_nonnull))  // always returns same value (in same t
 static inline struct _ns_rootconfiguration   *_ns_get_rootconfiguration( void)
 {
    struct _mulle_objc_runtime     *runtime;
-   
+
    runtime = mulle_objc_inlined_get_runtime();
    return( _mulle_objc_runtime_get_foundationdata( runtime));
 }
@@ -148,7 +148,7 @@ __attribute__((const, returns_nonnull))  // always returns same value (in same t
 static inline struct _ns_rootconfiguration   *_ns_object_get_rootconfiguration( void *obj)
 {
    struct _mulle_objc_runtime     *runtime;
-   
+
    runtime = _mulle_objc_object_get_runtime( obj);
    return( _mulle_objc_runtime_get_foundationdata( runtime));
 }
@@ -236,10 +236,10 @@ static inline void  _ns_remove_thread( void *obj)
 static inline void   *_ns_string( char *s)
 {
    struct _ns_rootconfiguration   *config;
- 
+
    if( ! s)
       return( NULL);
-   
+
    config = _ns_get_rootconfiguration();
    return( config->string.objectfromchars( s));
 }
@@ -248,10 +248,10 @@ static inline void   *_ns_string( char *s)
 static inline char   *_ns_characters( void *obj)
 {
    struct _ns_rootconfiguration   *config;
- 
+
    if( ! obj)
       return( "*nil*");
-   
+
    config = _ns_get_rootconfiguration();
    return( config->string.charsfromobject( obj));
 }
