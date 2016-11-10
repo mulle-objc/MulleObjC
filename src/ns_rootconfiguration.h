@@ -13,7 +13,7 @@
 // this is defined here for standalone. a "real" foundation will want to
 // produce their own.
 //
-#define MULLE_OBJC_VERSION        ((0 << 20) | (1 << 8) | 2)
+#define MULLE_OBJC_VERSION        ((0 << 20) | (1 << 8) | 4)
 
 #define MULLE_OBJC_VERSION_MAJOR  0
 #define MULLE_OBJC_VERSION_MINOR  1
