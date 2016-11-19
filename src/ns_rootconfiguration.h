@@ -13,19 +13,11 @@
 // this is defined here for standalone. a "real" foundation will want to
 // produce their own.
 //
-<<<<<<< Updated upstream
-#define MULLE_OBJC_VERSION        ((0 << 20) | (1 << 8) | 2)
+#define MULLE_OBJC_VERSION        ((0 << 20) | (1 << 8) | 7)
 
 #define MULLE_OBJC_VERSION_MAJOR  0
 #define MULLE_OBJC_VERSION_MINOR  1
-#define MULLE_OBJC_VERSION_PATCH  2
-=======
-#define MULLE_OBJC_VERSION        ((0 << 20) | (1 << 8) | 3)
-
-#define MULLE_OBJC_VERSION_MAJOR  0
-#define MULLE_OBJC_VERSION_MINOR  1
-#define MULLE_OBJC_VERSION_PATCH  3
->>>>>>> Stashed changes
+#define MULLE_OBJC_VERSION_PATCH  7
 
 
 #include "ns_objc_include.h"
