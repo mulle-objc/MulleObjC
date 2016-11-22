@@ -59,28 +59,18 @@ When using static libraries, `-ObjC` doesn't work, because the compiler doesn't
 produce ObjC segments. Use `-all_load`.
 
 
-## Dependencies
-
-
-
 ## Install
 
-On OS X and Linux you can use
-[homebrew](//brew.sh), respectively
-[linuxbrew](//linuxbrew.sh)
-to install the library:
+On OS X you can use [homebrew](//brew.sh) to install the library:
 
 ```
-brew tap mulle-kybernetik/software
-brew tap mulle-objc/software
-brew install MulleObjC
+brew install mulle-objc/software/mulleobjc
 ```
 
 to install the compiler:
 
 ```
-brew tap codeon-gmbh/software
-brew install mulle-clang
+brew install codeon-gmbh/software/mulle-clang
 ```
 
 On other platforms you can use **mulle-install** from
