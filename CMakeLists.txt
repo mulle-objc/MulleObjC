@@ -108,6 +108,7 @@ endif()
 
 add_library( MulleObjCStandalone SHARED
 src/MulleObjCStandalone.m
+${HEADERS}
 ${DEF_FILE}
 )
 
