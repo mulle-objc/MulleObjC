@@ -1,9 +1,37 @@
 //
-//  NSCoder.h
+//  NSCoder.m
 //  MulleObjC
 //
-//  Created by Nat! on 20/4/16.
-//  Copyright © 2016 Mulle kybernetiK. All rights reserved.
+//  Copyright (c) 2007 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2007 Codeon GmbH.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 //
 #import "NSCoder.h"
 
@@ -114,7 +142,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                             at:(void *) bytes
 {
    char   typeBuf[ 64 + strlen( itemType)];
-   
+
    sprintf(typeBuf, "[%lu%s]",  (unsigned long) count, itemType);
    [self encodeValueOfObjCType:typeBuf
                             at:bytes];
@@ -125,9 +153,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
               length:(NSUInteger) length
 {
    char   typeBuf[ 64];
-   
+
    sprintf( typeBuf, "[%luc]", (unsigned long) length);
-   
+
    [self encodeValueOfObjCType:@encode( NSUInteger)
                             at:&length];
    [self encodeValueOfObjCType:typeBuf
@@ -149,16 +177,16 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
       char  *types;
       void  *ptr;
    } param;
-   
+
    imp = [self methodForSelector:sel];
-   
+
    while( *types)
    {
       param.types = types;
       param.ptr   = mulle_vararg_next_pointer( arguments, void *);
-      
+
       (*imp)( self, sel, &param);
-      
+
       types = NSGetSizeAndAlignment( types, NULL, NULL); // skip over current
    }
 }
@@ -167,11 +195,11 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 - (void) encodeValuesOfObjCTypes:(char *) types, ...
 {
    mulle_vararg_list     arguments;
-   
+
    mulle_vararg_start(arguments,types);
-   
+
    codecValuesOfObjCTypes( (NSCoder< NSObject> *) self, types, arguments, @selector(encodeValueOfObjCType:at:));
-   
+
    mulle_vararg_end(arguments);
 }
 
@@ -207,11 +235,11 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 - (void) decodeValuesOfObjCTypes:(char *) types, ...
 {
    mulle_vararg_list     arguments;
-   
+
    mulle_vararg_start(arguments,types);
-   
+
    codecValuesOfObjCTypes( (NSCoder< NSObject> *) self, types, arguments, @selector(decodeValueOfObjCType:at:));
-   
+
    mulle_vararg_end(arguments);
 }
 
@@ -222,7 +250,7 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 - (id) decodeObject
 {
    id   object;
-   
+
    object = nil;  // important for leak detection
    [self decodeValueOfObjCType:@encode(id)
                             at:&object];
@@ -233,7 +261,7 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 - (id) decodePropertyList
 {
    id   object;
-   
+
    [self decodeValueOfObjCType:@encode(id)
                             at:&object];
    return( [object autorelease]);
@@ -245,9 +273,9 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
                             at:(void *)ptr
 {
    char   typeBuf[ 128 + strlen( itemType)];
-   
+
    //   typeBuf = alloca( 128 + strlen( itemType));
-   
+
    sprintf(typeBuf, "[%lu%s]", (unsigned long) count, itemType);
    [self decodeValueOfObjCType:typeBuf at:ptr];
 }
@@ -257,10 +285,10 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 {
    char    typeBuf[ 128];
    void    *buf;
-   
+
    [self decodeValueOfObjCType:@encode(NSUInteger)
                             at:len_p];
-   
+
    buf = MulleObjCObjectAllocateMemory( self, *len_p);
 
    sprintf( typeBuf, "[%luc]", (unsigned long) *len_p);
@@ -270,5 +298,3 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 }
 
 @end
-
-
