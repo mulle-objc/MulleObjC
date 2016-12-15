@@ -43,8 +43,13 @@
 
 #define _MulleObjCInstantiatePlaceholderHash  0x56154b76  // _MulleObjCInstantiatePlaceholder
 
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 // intentonally a root object (!)
-@interface _MulleObjCInstantiatePlaceholder 
+@interface _MulleObjCInstantiatePlaceholder
 {
 @public
    Class   _cls;
@@ -104,6 +109,10 @@
 }
 
 @end
+
+
+#pragma clang diagnostic pop
+
 
 #pragma mark -
 #pragma mark ### NSObject ###
