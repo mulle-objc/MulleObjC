@@ -13,6 +13,10 @@
 #include "ns_type.h"
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 @interface MulleObjCSingleton < MulleObjCSingleton>
 @end
 
@@ -68,3 +72,6 @@ id  MulleObjCSingletonCreate( Class self)
 
 
 @end
+
+
+#pragma clang diagnostic pop
