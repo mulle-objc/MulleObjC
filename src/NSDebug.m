@@ -74,6 +74,9 @@ char   *_NSPrintForDebugger( id a)
 }
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
 
 @interface _MulleObjCZombie
 {
@@ -118,6 +121,9 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 }
 
 @end
+
+
+#pragma clang diagnostic pop
 
 
 #define MULLE_ZOMBIE_HASH              0x057fc0af  // _MulleObjCZombie

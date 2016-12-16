@@ -17,6 +17,10 @@
 #import "ns_threadconfiguration.h"
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 //
 // if you feel the need to subclass this, change the
 // NSAutoreleasePoolConfiguration, to use your functions
@@ -59,6 +63,9 @@
 + (NSUInteger) _countObject:(id) p;
 
 @end
+
+
+#pragma clang diagnostic pop
 
 
 //

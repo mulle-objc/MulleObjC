@@ -49,6 +49,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 @end
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 #pragma mark -
 #pragma mark MulleObjCUnkeyedArchiver Protocol with default implementations
 
@@ -74,6 +78,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - (void) encodePropertyList:(id) aPropertyList;
 
 @end
+
+
+#pragma clang diagnostic pop
 
 
 @implementation MulleObjCUnkeyedArchiver
@@ -178,6 +185,10 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 @end
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 #pragma mark -
 #pragma mark MulleObjCUnkeyedUnarchiver Protocol with default implementations
 
@@ -200,6 +211,9 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 - (id) decodePropertyList;
 
 @end
+
+
+#pragma clang diagnostic pop
 
 
 @implementation MulleObjCUnkeyedUnarchiver
