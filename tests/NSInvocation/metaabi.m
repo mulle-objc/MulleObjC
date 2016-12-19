@@ -428,7 +428,7 @@ static void  test_struct_return()
 }
 
 
-main()
+int   main( void)
 {
    test_no_return();
    test_int_return();

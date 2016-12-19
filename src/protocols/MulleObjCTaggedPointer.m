@@ -40,6 +40,10 @@
 #include <mulle_objc/mulle_objc.h>
 
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+#pragma clang diagnostic ignored "-Wprotocol"
+
+
 @interface MulleObjCTaggedPointer < MulleObjCTaggedPointer>
 @end
 

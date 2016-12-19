@@ -40,6 +40,11 @@
 // std-c and dependencies
 
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+#pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
+#pragma clang diagnostic ignored "-Wprotocol"
+
+
 @implementation NSProxy
 
 + (void) initialize

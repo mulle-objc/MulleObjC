@@ -44,6 +44,10 @@
 #include <stdlib.h>
 
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+#pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
+
+
 @implementation NSThread
 
 

@@ -42,8 +42,8 @@
 // std-c and dependencies
 
 
-#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-root-class"
+#pragma clang diagnostic ignored "-Wprotocol"
 
 
 @interface MulleObjCClassCluster < MulleObjCClassCluster>
@@ -113,8 +113,3 @@ static id   MulleObjCNewClassClusterPlaceholder( struct _mulle_objc_class  *self
 }
 
 @end
-
-
-#pragma clang diagnostic pop
-
-
