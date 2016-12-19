@@ -39,6 +39,9 @@
 #import "MulleObjCAllocation.h"
 
 
+#pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
+
+
 @implementation NSMethodSignature
 
 //  (#X#)

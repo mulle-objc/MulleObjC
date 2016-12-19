@@ -39,7 +39,14 @@
 
 // proxy inherits all methods from NSObject protocol
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-completeness"
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 @interface NSProxy < NSObject>
 {
 }
 @end
+
+#pragma clang diagnostic pop

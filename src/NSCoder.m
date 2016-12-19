@@ -41,6 +41,8 @@
 
 // std-c and dependencies
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+#pragma clang diagnostic ignored "-Wprotocol"
 
 /*
 Copyright (c) 2006-2007 Christopher J. W. Lloyd
@@ -77,10 +79,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 @end
 
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-root-class"
-
-
 #pragma mark -
 #pragma mark MulleObjCUnkeyedArchiver Protocol with default implementations
 
@@ -106,9 +104,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - (void) encodePropertyList:(id) aPropertyList;
 
 @end
-
-
-#pragma clang diagnostic pop
 
 
 @implementation MulleObjCUnkeyedArchiver
@@ -213,8 +208,6 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 @end
 
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
 #pragma mark -
@@ -239,9 +232,6 @@ static void   codecValuesOfObjCTypes( NSCoder< NSObject> *self,
 - (id) decodePropertyList;
 
 @end
-
-
-#pragma clang diagnostic pop
 
 
 @implementation MulleObjCUnkeyedUnarchiver

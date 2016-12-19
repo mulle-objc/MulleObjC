@@ -40,6 +40,11 @@
 #import "MulleObjCAllocation.h"
 
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+#pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
+#pragma clang diagnostic ignored "-Wprotocol"
+
+
 @interface NSObject (NSCopyCompatibility)
 
 - (id) copyWithZone:(NSZone *) null;
@@ -47,8 +52,6 @@
 @end
 
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
 // what is this ?
@@ -72,9 +75,6 @@
 }
 
 @end
-
-
-#pragma clang diagnostic pop
 
 
 //

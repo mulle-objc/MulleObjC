@@ -42,6 +42,9 @@
 #import "NSCopying.h"
 
 
+#pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
+
+
 @implementation NSInvocation
 
 - (id) initWithMethodSignature:(NSMethodSignature *) signature

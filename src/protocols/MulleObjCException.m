@@ -37,7 +37,6 @@
 #import "MulleObjCException.h"
 
 
-#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
@@ -63,5 +62,3 @@
 
 @end
 
-
-#pragma clang diagnostic pop

@@ -48,6 +48,9 @@
 #import <mulle_concurrent/mulle_concurrent.h>
 
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 @interface NSObject ( NSCopying)
 
 - (instancetype) copy;
@@ -64,10 +67,6 @@
 // desperately need @classid( ) compiler support in clang
 
 #define _MulleObjCInstantiatePlaceholderHash  0x56154b76  // _MulleObjCInstantiatePlaceholder
-
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
 // intentonally a root object (!)
@@ -131,9 +130,6 @@
 }
 
 @end
-
-
-#pragma clang diagnostic pop
 
 
 #pragma mark -
@@ -770,7 +766,7 @@ overriddenByImplementation:(IMP) imp
          return( (IMP) 0);
       
       previous = method;
-      if( previous->implementation == (mulle_objc_methodimplementation_t) imp)
+      if( previous->value == (mulle_objc_methodimplementation_t) imp)
          break;
    }
 

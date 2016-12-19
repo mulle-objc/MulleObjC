@@ -39,6 +39,10 @@
 #import "NSObjectProtocol.h"
 
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+#pragma clang diagnostic ignored "-Wprotocol"
+
+
 @interface NSCoding <NSCoding>
 @end
 
