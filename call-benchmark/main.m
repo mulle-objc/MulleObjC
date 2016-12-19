@@ -8,7 +8,7 @@
 #ifndef __MULLE_OBJC__
 # import <Foundation/Foundation.h>
 #else
-# import <MulleStandaloneObjC/MulleStandaloneObjC.h>
+# import <MulleObjC/MulleObjC.h>
 
 //
 // this class is fast in MulleObjC but not in Apple

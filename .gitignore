@@ -8,6 +8,7 @@ project.xcworkspace/
 call-benchmark/
 old/
 tmp/
+*.old
 
 /.bootstrap.auto/
 /.bootstrap.local/
@@ -31,3 +32,13 @@ tmp/
 /tests
 /some-test/
 
+
+/.bootstrap.auto
+
+/.bootstrap.local
+
+/dependencies
+
+/addictions
+
+/.repos
