@@ -37,6 +37,10 @@
 #import "MulleObjCException.h"
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 @interface MulleObjCException < MulleObjCException>
 
 // don't use __attribute(( noreturn)), the compiler will produce
@@ -58,3 +62,6 @@
 }
 
 @end
+
+
+#pragma clang diagnostic pop

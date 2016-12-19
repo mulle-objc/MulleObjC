@@ -46,6 +46,11 @@
 
 @end
 
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 // what is this ?
 // by default NSObject does not implement copyWithZone:
 // I want to keep it this way.
@@ -67,6 +72,9 @@
 }
 
 @end
+
+
+#pragma clang diagnostic pop
 
 
 //
