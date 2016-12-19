@@ -62,7 +62,6 @@
 #define MULLE_OBJC_FASTMETHODHASH_21    0x65c6a26b  // respondsToSelector:
 
 // candidates:
-// methodForSelector:
 // performSelector:
 // sharedInstance
 
