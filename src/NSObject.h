@@ -42,6 +42,8 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 #pragma clang diagnostic ignored "-Wcast-of-sel-type"
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
 
 //
 // +load: mulle-objc-runtime guarantees, that the class and therefore the
