@@ -831,7 +831,6 @@
 				CURRENT_PROJECT_VERSION = 0.2.1;
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_VERSION = "de.codeon.compilers.mulle-clang";
-				GCC_WARN_PEDANTIC = YES;
 				USER_HEADER_SEARCH_PATHS = "src src/protocols";
 				USE_HEADERMAP = NO;
 			};
@@ -844,7 +843,6 @@
 				CURRENT_PROJECT_VERSION = 0.2.1;
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_VERSION = "de.codeon.compilers.mulle-clang";
-				GCC_WARN_PEDANTIC = YES;
 				USER_HEADER_SEARCH_PATHS = "src src/protocols";
 				USE_HEADERMAP = NO;
 			};

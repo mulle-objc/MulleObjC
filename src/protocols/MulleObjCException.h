@@ -42,6 +42,8 @@
 @protocol MulleObjCException
 
 @optional  // MulleObjCException implements this for you
+           // Tip: Never mark an ObjC method (like: f.e. -raise) with `__attribute__(( noreturn))
+           // Because of self == nil, it's wrong.
 - (void) raise;
 
 @end
