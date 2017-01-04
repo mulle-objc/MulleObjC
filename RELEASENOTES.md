@@ -1,3 +1,8 @@
+0.2.1
+====
+
+Adapt to changes in the mulle_objc_runtime
+
 0.1.7
 =====
 

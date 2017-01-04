@@ -36,7 +36,7 @@
 
 // because standalone versions must define FASTIDs
 
-#ifdef MULLE_OBJC_VERSION
+#ifdef MULLE_OBJC_RUNTIME_VERSION
 # error "do not include mulle_objc.h before MulleObjC.h"
 #endif
 
@@ -75,6 +75,6 @@
 #import "MulleObjCFunctions.h"
 
 
-#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (2 << 8) | 3)
+#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (3 << 8) | 0)
 # error "mulle_objc runtime is too old"
 #endif

@@ -1,5 +1,5 @@
 //
-//  ns_exception.c
+//  ns_exception.m
 //  MulleObjC
 //
 //  Copyright (c) 2016 Nat! - Mulle kybernetiK.
@@ -159,7 +159,7 @@ NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void)
 {
    struct _mulle_objc_runtime      *runtime;
    
-   runtime    = mulle_objc_get_runtime();
+   runtime = mulle_objc_get_runtime();
    return( (NSUncaughtExceptionHandler *) runtime->failures.uncaughtexception);
 }
 
@@ -168,6 +168,6 @@ void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler)
 {
    struct _mulle_objc_runtime      *runtime;
    
-   runtime  = mulle_objc_get_runtime();
+   runtime = mulle_objc_get_runtime();
    runtime->failures.uncaughtexception = (void (*)()) handler;
 }

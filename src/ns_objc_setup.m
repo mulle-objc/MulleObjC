@@ -1,5 +1,5 @@
 //
-//  ns_objc_setup.c
+//  ns_objc_setup.m
 //  MulleObjC
 //
 //  Copyright (c) 2016 Nat! - Mulle kybernetiK.

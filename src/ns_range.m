@@ -1,5 +1,5 @@
 //
-//  ns_range.c
+//  ns_range.m
 //  MulleObjC
 //
 //  Copyright (c) 2011 Nat! - Mulle kybernetiK.
