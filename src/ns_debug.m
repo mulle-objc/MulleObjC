@@ -1,9 +1,9 @@
 //
-//  ns_test_allocation.c
+//  ns_debug.m
 //  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2016 Codeon GmbH.
+//  Copyright (c) 2015 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2015 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -34,54 +34,22 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "ns_test_allocation.h"
-
-#include "ns_exception.h"
-#include <mulle_test_allocator/mulle_test_allocator.h>
+#include "ns_debug.h"
 
 
-static void  *test_calloc_or_raise( size_t n, size_t size)
+void   *NSFrameAddress( NSUInteger frame)
 {
-   void     *p;
-   
-   p = _mulle_allocator_calloc( &mulle_test_allocator, n, size);
-   if( p)
-      return( p);
-
-   size *= n;
-   if( ! size)
-      return( p);
-   
-   mulle_objc_throw_allocation_exception( size);
    return( NULL);
 }
 
 
-static void  *test_realloc_or_raise( void *block, size_t size)
+void   *NSReturnAddress( NSUInteger frame)
 {
-   void   *p;
-   
-   p = _mulle_allocator_realloc( &mulle_test_allocator, block, size);
-   if( p || ! size)
-      return( p);
-   
-   mulle_objc_throw_allocation_exception( size);
    return( NULL);
 }
 
 
-static void  test_free( void *block)
+NSUInteger   NSCountFrames( void)
 {
-   _mulle_allocator_free( &mulle_test_allocator, block);
+   return( 0);
 }
-
-
-struct mulle_allocator    mulle_test_allocator_objc =
-{
-   test_calloc_or_raise,
-   test_realloc_or_raise,
-   test_free,
-   mulle_objc_allocator_fail,
-   0,
-   NULL
-};

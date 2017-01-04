@@ -52,7 +52,7 @@
 		415A0A101C4E98B700290E05 /* _ns_autoreleasepointerarray.h in Headers */ = {isa = PBXBuildFile; fileRef = 415A0A0F1C4E98B700290E05 /* _ns_autoreleasepointerarray.h */; };
 		415A34D31CE7B011008951A5 /* NSCoding.m in Sources */ = {isa = PBXBuildFile; fileRef = 415A34D21CE7B011008951A5 /* NSCoding.m */; };
 		4162D5381C63F938007EC7DD /* MulleObjCStandalone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4162D5371C63F938007EC7DD /* MulleObjCStandalone.m */; };
-		4174E7241CDCAB6C00506320 /* ns_test_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 411C19241C86FDFD00B09881 /* ns_test_allocation.c */; };
+		4174E7241CDCAB6C00506320 /* ns_test_allocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 411C19241C86FDFD00B09881 /* ns_test_allocation.m */; };
 		4177A9751D32B5E4007DC3D8 /* libmulle_objc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4177A9741D32B5E4007DC3D8 /* libmulle_objc.a */; };
 		41791B6A1D339E0E00D4D502 /* MulleObjCTaggedPointer.h in Headers */ = {isa = PBXBuildFile; fileRef = 41791B681D339E0E00D4D502 /* MulleObjCTaggedPointer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41791B6B1D339E0E00D4D502 /* MulleObjCTaggedPointer.m in Sources */ = {isa = PBXBuildFile; fileRef = 41791B691D339E0E00D4D502 /* MulleObjCTaggedPointer.m */; };
@@ -72,9 +72,9 @@
 		41A41E521AB097CE00A92452 /* _ns_exception.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E501AB097CE00A92452 /* _ns_exception.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A41E5C1AB09C2A00A92452 /* ns_zone.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E5A1AB09C2A00A92452 /* ns_zone.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A41E601AB0A18600A92452 /* ns_range.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E5E1AB0A18600A92452 /* ns_range.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		41A41E611AB0A18600A92452 /* ns_range.c in Sources */ = {isa = PBXBuildFile; fileRef = 41A41E5F1AB0A18600A92452 /* ns_range.c */; };
+		41A41E611AB0A18600A92452 /* ns_range.m in Sources */ = {isa = PBXBuildFile; fileRef = 41A41E5F1AB0A18600A92452 /* ns_range.m */; };
 		41A41E631AB0BD5700A92452 /* MulleObjCAllocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E621AB0BD5700A92452 /* MulleObjCAllocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		41A51C251BD54BA8004CADE9 /* ns_rootconfiguration.c in Sources */ = {isa = PBXBuildFile; fileRef = 419C582D1BCFE50C00731B64 /* ns_rootconfiguration.c */; };
+		41A51C251BD54BA8004CADE9 /* ns_rootconfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 419C582D1BCFE50C00731B64 /* ns_rootconfiguration.m */; };
 		41A827A31AADE01D0017BE29 /* NSAutoreleasePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827A11AADE01D0017BE29 /* NSAutoreleasePool.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A827A41AADE01D0017BE29 /* NSAutoreleasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 41A827A21AADE01D0017BE29 /* NSAutoreleasePool.m */; };
 		41A827A91AADE0400017BE29 /* NSDebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827A71AADE0400017BE29 /* NSDebug.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -88,16 +88,16 @@
 		41A827C21AADE14F0017BE29 /* ns_rootconfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827C01AADE14F0017BE29 /* ns_rootconfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A827C31AADE14F0017BE29 /* ns_objc_include.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827C11AADE14F0017BE29 /* ns_objc_include.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A827C61AADE30E0017BE29 /* ns_type.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827C41AADE30E0017BE29 /* ns_type.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		41A9E4FB1BD7F39700210D6E /* ns_debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 41A9E4F91BD7F39700210D6E /* ns_debug.c */; };
+		41A9E4FB1BD7F39700210D6E /* ns_debug.m in Sources */ = {isa = PBXBuildFile; fileRef = 41A9E4F91BD7F39700210D6E /* ns_debug.m */; };
 		41A9E4FC1BD7F39700210D6E /* ns_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A9E4FA1BD7F39700210D6E /* ns_debug.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41B200551C8CBC3300588C5E /* libmulle_allocator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41B200541C8CBC3300588C5E /* libmulle_allocator.a */; };
 		41C851AF1CC3A554003AF1E1 /* NSCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 41C851AE1CC3A554003AF1E1 /* NSCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41D04ABB1C8DEFCD00CC8F11 /* libmulle_concurrent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41D04ABA1C8DEFCD00CC8F11 /* libmulle_concurrent.a */; };
 		41D3FBE21D231D9D0096CBCB /* metaabi.m in Sources */ = {isa = PBXBuildFile; fileRef = 41D3FBE11D231D9D0096CBCB /* metaabi.m */; };
-		41D6EA161D622BB200221D7A /* ns_objc_setup.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D6EA131D62240800221D7A /* ns_objc_setup.c */; };
+		41D6EA161D622BB200221D7A /* ns_objc_setup.m in Sources */ = {isa = PBXBuildFile; fileRef = 41D6EA131D62240800221D7A /* ns_objc_setup.m */; };
 		41D6EA171D622BBD00221D7A /* ns_objc_setup.h in Headers */ = {isa = PBXBuildFile; fileRef = 41D6EA151D62273300221D7A /* ns_objc_setup.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41DB5C381CAD656F001A4CEA /* NSCopying.m in Sources */ = {isa = PBXBuildFile; fileRef = 41DB5C361CAD656F001A4CEA /* NSCopying.m */; };
-		41E9C65D1CC4E87F00ED4145 /* ns_exception.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E9C65C1CC4E87F00ED4145 /* ns_exception.c */; };
+		41E9C65D1CC4E87F00ED4145 /* ns_exception.m in Sources */ = {isa = PBXBuildFile; fileRef = 41E9C65C1CC4E87F00ED4145 /* ns_exception.m */; };
 		41EA8D841C9F60DE007CEAE8 /* MulleObjCException.h in Headers */ = {isa = PBXBuildFile; fileRef = 41EA8D821C9F60DE007CEAE8 /* MulleObjCException.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41EA8D851C9F60DE007CEAE8 /* MulleObjCException.m in Sources */ = {isa = PBXBuildFile; fileRef = 41EA8D831C9F60DE007CEAE8 /* MulleObjCException.m */; };
 		41F896861C9C3EC700971F63 /* MulleObjCFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 41F896851C9C3EC700971F63 /* MulleObjCFunctions.m */; };
@@ -152,7 +152,7 @@
 		410FA2581C6624AF00927C72 /* ns_fastclassids.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_fastclassids.h; sourceTree = "<group>"; };
 		410FA25B1C6624F500927C72 /* ns_fastmethodids.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_fastmethodids.h; sourceTree = "<group>"; };
 		411C19221C86FDC600B09881 /* libmulle_test_allocator.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_test_allocator.a; path = dependencies/lib/libmulle_test_allocator.a; sourceTree = "<group>"; };
-		411C19241C86FDFD00B09881 /* ns_test_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_test_allocation.c; sourceTree = "<group>"; };
+		411C19241C86FDFD00B09881 /* ns_test_allocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ns_test_allocation.m; sourceTree = "<group>"; };
 		411C19261C86FE0500B09881 /* ns_test_allocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_test_allocation.h; sourceTree = "<group>"; };
 		41280D501BD4EBBD00E81F91 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		412ED7D31CC3C34E00E64506 /* NSObject+NSCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+NSCoding.h"; sourceTree = "<group>"; };
@@ -192,14 +192,14 @@
 		418B6E901C9FFEAF0080FABD /* MulleObjCClassCluster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleObjCClassCluster.m; sourceTree = "<group>"; };
 		418B6E931C9FFEF30080FABD /* MulleObjCSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulleObjCSingleton.h; sourceTree = "<group>"; };
 		418B6E941C9FFEF30080FABD /* MulleObjCSingleton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleObjCSingleton.m; sourceTree = "<group>"; };
-		419C582D1BCFE50C00731B64 /* ns_rootconfiguration.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_rootconfiguration.c; sourceTree = "<group>"; };
+		419C582D1BCFE50C00731B64 /* ns_rootconfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ns_rootconfiguration.m; sourceTree = "<group>"; };
 		419C582F1BCFF32000731B64 /* NSThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSThread.m; sourceTree = "<group>"; };
 		419C58311BCFF33200731B64 /* NSThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSThread.h; sourceTree = "<group>"; };
 		419FE8001C981C020094A915 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Common.xcconfig; path = "../../mulle-concurrent/mulle-configuration/Common.xcconfig"; sourceTree = "<group>"; };
 		41A41E501AB097CE00A92452 /* _ns_exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _ns_exception.h; sourceTree = "<group>"; };
 		41A41E5A1AB09C2A00A92452 /* ns_zone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_zone.h; sourceTree = "<group>"; };
 		41A41E5E1AB0A18600A92452 /* ns_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_range.h; sourceTree = "<group>"; };
-		41A41E5F1AB0A18600A92452 /* ns_range.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_range.c; sourceTree = "<group>"; };
+		41A41E5F1AB0A18600A92452 /* ns_range.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ns_range.m; sourceTree = "<group>"; };
 		41A41E621AB0BD5700A92452 /* MulleObjCAllocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulleObjCAllocation.h; sourceTree = "<group>"; };
 		41A51C261BD557AB004CADE9 /* libmulle_aba.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_aba.a; path = dependencies/lib/libmulle_aba.a; sourceTree = "<group>"; };
 		41A51C271BD557AB004CADE9 /* libmulle_container.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_container.a; path = dependencies/lib/libmulle_container.a; sourceTree = "<group>"; };
@@ -223,16 +223,16 @@
 		41A9E4F51BD7E58B00210D6E /* MulleObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MulleObjC.h; sourceTree = "<group>"; };
 		41A9E4F71BD7E6D300210D6E /* ns_exception.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ns_exception.h; sourceTree = "<group>"; };
 		41A9E4F81BD7EE4600210D6E /* ns_objc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ns_objc.h; sourceTree = "<group>"; };
-		41A9E4F91BD7F39700210D6E /* ns_debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_debug.c; sourceTree = "<group>"; };
+		41A9E4F91BD7F39700210D6E /* ns_debug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ns_debug.m; sourceTree = "<group>"; };
 		41A9E4FA1BD7F39700210D6E /* ns_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_debug.h; sourceTree = "<group>"; };
 		41B200541C8CBC3300588C5E /* libmulle_allocator.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_allocator.a; path = dependencies/lib/libmulle_allocator.a; sourceTree = "<group>"; };
 		41C851AE1CC3A554003AF1E1 /* NSCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSCoding.h; sourceTree = "<group>"; };
 		41D04ABA1C8DEFCD00CC8F11 /* libmulle_concurrent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_concurrent.a; path = dependencies/lib/libmulle_concurrent.a; sourceTree = "<group>"; };
 		41D3FBE11D231D9D0096CBCB /* metaabi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = metaabi.m; path = tests/NSInvocation/metaabi.m; sourceTree = SOURCE_ROOT; };
-		41D6EA131D62240800221D7A /* ns_objc_setup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_objc_setup.c; sourceTree = "<group>"; };
+		41D6EA131D62240800221D7A /* ns_objc_setup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ns_objc_setup.m; sourceTree = "<group>"; };
 		41D6EA151D62273300221D7A /* ns_objc_setup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ns_objc_setup.h; sourceTree = "<group>"; };
 		41DB5C361CAD656F001A4CEA /* NSCopying.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSCopying.m; sourceTree = "<group>"; };
-		41E9C65C1CC4E87F00ED4145 /* ns_exception.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_exception.c; sourceTree = "<group>"; };
+		41E9C65C1CC4E87F00ED4145 /* ns_exception.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ns_exception.m; sourceTree = "<group>"; };
 		41EA8D821C9F60DE007CEAE8 /* MulleObjCException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulleObjCException.h; sourceTree = "<group>"; };
 		41EA8D831C9F60DE007CEAE8 /* MulleObjCException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleObjCException.m; sourceTree = "<group>"; };
 		41F896851C9C3EC700971F63 /* MulleObjCFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleObjCFunctions.m; sourceTree = "<group>"; };
@@ -362,7 +362,7 @@
 				41A9E4F51BD7E58B00210D6E /* MulleObjC.h */,
 				4162D5371C63F938007EC7DD /* MulleObjCStandalone.m */,
 				411C19261C86FE0500B09881 /* ns_test_allocation.h */,
-				411C19241C86FDFD00B09881 /* ns_test_allocation.c */,
+				411C19241C86FDFD00B09881 /* ns_test_allocation.m */,
 				41A827C41AADE30E0017BE29 /* ns_type.h */,
 				410FA2581C6624AF00927C72 /* ns_fastclassids.h */,
 				410FA25B1C6624F500927C72 /* ns_fastmethodids.h */,
@@ -370,9 +370,9 @@
 				41A827C11AADE14F0017BE29 /* ns_objc_include.h */,
 				4104ECEC1D579287008F41A1 /* ns_objc_compatibility.h */,
 				41D6EA151D62273300221D7A /* ns_objc_setup.h */,
-				41D6EA131D62240800221D7A /* ns_objc_setup.c */,
+				41D6EA131D62240800221D7A /* ns_objc_setup.m */,
 				41A827C01AADE14F0017BE29 /* ns_rootconfiguration.h */,
-				419C582D1BCFE50C00731B64 /* ns_rootconfiguration.c */,
+				419C582D1BCFE50C00731B64 /* ns_rootconfiguration.m */,
 				41A827B71AADE0720017BE29 /* protocols */,
 				41A41E621AB0BD5700A92452 /* MulleObjCAllocation.h */,
 				41872A291C67870F0087DFB1 /* MulleObjCAllocation.m */,
@@ -405,12 +405,12 @@
 				419C582F1BCFF32000731B64 /* NSThread.m */,
 				415A0A0F1C4E98B700290E05 /* _ns_autoreleasepointerarray.h */,
 				41A9E4FA1BD7F39700210D6E /* ns_debug.h */,
-				41A9E4F91BD7F39700210D6E /* ns_debug.c */,
+				41A9E4F91BD7F39700210D6E /* ns_debug.m */,
 				41A41E501AB097CE00A92452 /* _ns_exception.h */,
 				41A9E4F71BD7E6D300210D6E /* ns_exception.h */,
-				41E9C65C1CC4E87F00ED4145 /* ns_exception.c */,
+				41E9C65C1CC4E87F00ED4145 /* ns_exception.m */,
 				41A41E5E1AB0A18600A92452 /* ns_range.h */,
-				41A41E5F1AB0A18600A92452 /* ns_range.c */,
+				41A41E5F1AB0A18600A92452 /* ns_range.m */,
 				417D8ACE1C89A7E500C3EFC9 /* ns_threadconfiguration.h */,
 				41A41E5A1AB09C2A00A92452 /* ns_zone.h */,
 			);
@@ -659,16 +659,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41A51C251BD54BA8004CADE9 /* ns_rootconfiguration.c in Sources */,
-				41D6EA161D622BB200221D7A /* ns_objc_setup.c in Sources */,
-				41A9E4FB1BD7F39700210D6E /* ns_debug.c in Sources */,
-				41A41E611AB0A18600A92452 /* ns_range.c in Sources */,
-				4174E7241CDCAB6C00506320 /* ns_test_allocation.c in Sources */,
+				41A51C251BD54BA8004CADE9 /* ns_rootconfiguration.m in Sources */,
+				41D6EA161D622BB200221D7A /* ns_objc_setup.m in Sources */,
+				41A9E4FB1BD7F39700210D6E /* ns_debug.m in Sources */,
+				41A41E611AB0A18600A92452 /* ns_range.m in Sources */,
+				4174E7241CDCAB6C00506320 /* ns_test_allocation.m in Sources */,
 				415A023A1CB04154003C4ACF /* NSRecursiveLock.m in Sources */,
 				41EA8D851C9F60DE007CEAE8 /* MulleObjCException.m in Sources */,
 				412ED7D61CC3C34E00E64506 /* NSObject+NSCoding.m in Sources */,
 				418B6E921C9FFEAF0080FABD /* MulleObjCClassCluster.m in Sources */,
-				41E9C65D1CC4E87F00ED4145 /* ns_exception.c in Sources */,
+				41E9C65D1CC4E87F00ED4145 /* ns_exception.m in Sources */,
 				418B6E961C9FFEF30080FABD /* MulleObjCSingleton.m in Sources */,
 				412ED7DA1CC3C3AC00E64506 /* NSCoder.m in Sources */,
 				41872A2A1C67870F0087DFB1 /* MulleObjCAllocation.m in Sources */,

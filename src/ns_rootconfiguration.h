@@ -36,15 +36,8 @@
 #ifndef ns_rootconfiguration__h__
 #define ns_rootconfiguration__h__
 
-//
-// this is defined here for standalone. a "real" foundation will want to
-// produce their own.
-//
-#define MULLE_OBJC_VERSION        ((0 << 20) | (1 << 8) | 7)
 
-#define MULLE_OBJC_VERSION_MAJOR  0
-#define MULLE_OBJC_VERSION_MINOR  1
-#define MULLE_OBJC_VERSION_PATCH  7
+#define MULLE_OBJC_VERSION    ((0 << 20) | (1 << 8) | 7)
 
 
 #include "ns_objc_include.h"

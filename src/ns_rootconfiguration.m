@@ -1,5 +1,5 @@
 //
-//  ns_rootconfiguration.c
+//  ns_rootconfiguration.m
 //  MulleObjC
 //
 //  Copyright (c) 2016 Nat! - Mulle kybernetiK.
