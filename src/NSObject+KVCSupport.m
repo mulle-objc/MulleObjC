@@ -57,13 +57,13 @@
    unsigned int                 i;
    auto char                    buf[ 256];
    char                         *s;
-   
+
    cls    = _mulle_objc_object_get_isa( self);
    size   = sizeof( buf);
    s      = buf;
    length = [key _getUTF8String:s
                      bufferSize:size];
-   
+
    if( length >= size)
    {
       size      = length + 1;
@@ -72,13 +72,13 @@
       [key _getUTF8String:s
                bufferSize:size];
    }
-   
+
    info = _mulle_objc_class_lookup_kvcinfo( cls, buf);
    if( info)
    {
       if( s != buf)
          mulle_allocator_free( allocator, buf);
-      
+
       if( info != MULLE_OBJC_KVCINFO_CONFLICT)
       {
          kvcInfo->key            = key;
@@ -88,21 +88,21 @@
          kvcInfo->valueType      = info->valueType;
          return;
       }
-      
+
       // cache don't work, just divine the info for this manually
       [self _divineKVCInformation:kvcInfo
                            forKey:key
                        methodType:type];
       return;
    }
-   
+
    allocator = _mulle_objc_class_get_kvcinfo_allocator( cls);
    info      = _mulle_objc_kvcinfo_new( buf, allocator);
    if( s != buf)
       mulle_allocator_free( allocator, buf);
-   
+
    assert( info->valueType == _C_ID);
-   
+
    //
    // ok, divine the info for all 4 cases and put it into the cache
    // divine the one we want last
@@ -113,27 +113,27 @@
          continue;
       if( i == 5)
          i = type;
-      
+
       [self _divineKVCInformation:kvcInfo
                            forKey:key
                        methodType:i];
-      
+
       if( kvcInfo->offset)
       {
          assert( info->offset == kvcInfo->offset || ! info->offset);
          info->offset = kvcInfo->offset;
       }
-      
+
       if( kvcInfo->valueType != _C_ID)
       {
          assert( (info->valueType == kvcInfo->valueType) || (info->valueType == _C_ID));
          info->valueType = kvcInfo->valueType;
       }
-      
+
       info->methodid[ i]       = (mulle_objc_methodid_t) kvcInfo->selector;
       info->implementation[ i] = (mulle_objc_methodimplementation_t) kvcInfo->implementation;
    }
-   
+
    _mulle_objc_class_set_kvcinfo( cls, info);
 }
 

@@ -47,7 +47,7 @@ typedef enum
 typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
 
 
-@interface NSMethodSignature : NSObject 
+@interface NSMethodSignature : NSObject
 {
    uint32_t                            _bits;    // see method_descriptor
    uint16_t                            _count;

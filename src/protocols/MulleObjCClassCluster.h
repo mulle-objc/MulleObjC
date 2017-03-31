@@ -34,7 +34,8 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "ns_type.h"
+#import "ns_objc_type.h"
+#import "ns_int_type.h"
 
 
 //
@@ -49,9 +50,13 @@
 // When you call +alloc you get a retained placeholder back. In your
 // init method, you should release it.
 //
-@protocol MulleObjCClassCluster 
+@protocol MulleObjCClassCluster
 
 @optional
 + (mulle_objc_classid_t) __instantiatePlaceholderClassid;
 
 @end
+
+@class MulleObjCClassCluster; // needed for the compiler to understand this is
+                              // protocol class
+

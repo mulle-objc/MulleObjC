@@ -53,7 +53,7 @@
    // so don't do much/anything here (or protect against it)
 #if DEBUG_INITIALIZE
    printf( "+[%s initialize] handled by %s\n", _mulle_objc_class_get_name( self), __PRETTY_FUNCTION__);
-#endif 
+#endif
 }
 
 

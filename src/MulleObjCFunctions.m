@@ -53,9 +53,9 @@ char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignme
 {
    struct mulle_objc_typeinfo   info;
    char                         *next;
-   
+
    assert( type);
-   
+
    if( ! type)
    {
       memset( &info, 0, sizeof( info));
@@ -65,15 +65,15 @@ char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignme
    {
       if( ! size && ! alignment)
          return( mulle_objc_signature_supply_next_typeinfo( type, NULL));
-      
+
       next = mulle_objc_signature_supply_next_typeinfo( type, &info);
    }
-   
+
    if( size)
       *size      = info.bits_size >> 3;
    if( alignment)
       *alignment = info.natural_alignment;
-   
+
    return( next);
 }
 
@@ -85,7 +85,7 @@ void   MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n)
       assert( ! n);
       return;
    }
-   
+
    _mulle_objc_objects_call_release( (void **) objects, (unsigned int) n);
 }
 
@@ -97,7 +97,7 @@ void   MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n)
       assert( ! n);
       return;
    }
-   
+
    _mulle_objc_objects_call_retain( (void **) objects, (unsigned int) n);
 }
 
@@ -108,7 +108,7 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel,
 
    _param.p.a = argument;
    _param.p.b = argument2;
-   
+
    mulle_objc_objects_call( (void **) objects, (unsigned int) n, (mulle_objc_methodid_t) sel, &_param);
 }
 
@@ -116,59 +116,67 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel,
 # pragma mark -
 # pragma mark String Functions
 
-void   *MulleObjCClassGetName( Class cls)
+char  *MulleObjCClassGetName( Class cls)
 {
    if( ! cls)
       return( NULL);
 
-   return( _ns_string( _mulle_objc_class_get_name( cls)));
+   return( _mulle_objc_class_get_name( cls));
 }
 
 
-void   *MulleObjCSelectorGetName( SEL sel)
+char   *MulleObjCSelectorGetName( SEL sel)
 {
-   char                                  *s;
    struct _mulle_objc_methoddescriptor   *desc;
    struct _mulle_objc_runtime            *runtime;
-   
+
    runtime = mulle_objc_get_runtime();
    desc    = _mulle_objc_runtime_lookup_methoddescriptor( runtime, (mulle_objc_methodid_t) sel);
-   s       = desc ? _mulle_objc_methoddescriptor_get_name( desc) : "<invalid selector>";
-   
-   return( _ns_string( s));
+   return( _mulle_objc_methoddescriptor_get_name( desc));
 }
 
 
-Class   MulleObjCLookupClassByName( id obj)
+Class   MulleObjCLookupClassByName( char *name)
 {
-   char                         *s;
    struct _mulle_objc_runtime   *runtime;
    struct _mulle_objc_class     *cls;
    mulle_objc_classid_t         classid;
-   
-   if( ! obj)
+
+   if( ! name)
       return( Nil);
-   
-   s       = _ns_characters( obj);
-   classid = mulle_objc_classid_from_string( s);
+
+   classid = mulle_objc_classid_from_string( name);
 
    runtime = mulle_objc_get_runtime();
    cls     = _mulle_objc_runtime_lookup_class( runtime, classid);
-   
+
    return( (Class) cls);
 }
 
 
-SEL   MulleObjCCreateSelector( id obj)
+SEL   MulleObjCCreateSelector( char *name)
 {
-   char                    *s;
    mulle_objc_methodid_t   methodid;
-   
-   if( ! obj)
+
+   if( ! name)
       return( 0);
-   
-   s        = _ns_characters( obj);
-   methodid = mulle_objc_classid_from_string( s);
-   
+
+   methodid = mulle_objc_classid_from_string( name);
+
    return( (SEL) (uintptr_t) methodid);
 }
+
+
+void    MulleObjCSetClass( id obj, Class cls)
+{
+   if( ! obj)
+      mulle_objc_throw_invalid_argument_exception( "object can't be NULL");
+   if( ! cls)
+      mulle_objc_throw_invalid_argument_exception( "class can't be NULL");
+   
+   if( _mulle_objc_class_is_taggedpointerclass( cls))
+      mulle_objc_throw_invalid_argument_exception( "class \"%s\" is a tagged pointer class", _mulle_objc_class_get_name( cls));
+   
+   _mulle_objc_object_set_isa( obj, cls);
+}
+

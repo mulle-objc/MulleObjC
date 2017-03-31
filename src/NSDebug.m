@@ -36,7 +36,9 @@
 #import "NSDebug.h"
 
 // other files in this library
-#include "ns_type.h"
+#include "ns_objc_type.h"
+#include "ns_int_type.h"
+#include "ns_rootconfiguration.h"
 
 // std-c and dependencies
 
@@ -52,15 +54,15 @@ char   *_NSPrintForDebugger( id a)
    char                        buf[ 256];
    struct _mulle_objc_class    *cls;
    struct _mulle_objc_method   *m;
-   
+
    if( ! a)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*nil*"));
-   
+
    m   = 0;
    cls = _mulle_objc_object_get_isa( a);
    if( ! cls)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*not an object (anymore ?)*"));
-   
+
    // typical "released" isa values
    if( cls == (void *) (intptr_t) 0xDEADDEADDEADDEAD || // our scribble
        cls == (void *) (intptr_t) 0xAAAAAAAAAAAAAAAA)   // malloc scribble
@@ -73,7 +75,7 @@ char   *_NSPrintForDebugger( id a)
    if( imp)
    {
       void   *s;
-      
+
       s = (*imp)( a, @selector( debugDescription), NULL);
       return( _ns_characters( s));
    }
@@ -84,7 +86,7 @@ char   *_NSPrintForDebugger( id a)
    if( imp)
    {
       void   *s;
-      
+
       s = (*imp)( a, @selector( description), NULL);
       if( s)
       {
@@ -93,7 +95,7 @@ char   *_NSPrintForDebugger( id a)
             spacer=" ";
       }
    }
-  
+
    sprintf( buf, "<%p %.100s%s%.100s>", a, _mulle_objc_class_get_name( cls), spacer, aux);
    return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
 }
@@ -126,11 +128,11 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 - (void) forward:(SEL) sel :(void *) _params
 {
    int    isMeta;
-   
+
    // possibly bullshit ;)
    isMeta = _mulle_objc_class_is_metaclass( _mulle_objc_object_get_isa( self));
-   
-   fprintf( stderr, zombie_format, self, isMeta ? "meta" : "", [self _originalClassName], mulle_objc_search_debughashname( sel));
+
+   fprintf( stderr, zombie_format, self, isMeta ? "meta" : "", [self _originalClassName], mulle_objc_search_debughashname( (mulle_objc_methodid_t) sel));
    abort();
 }
 
@@ -164,15 +166,15 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
    return( _mulle_objc_class_get_name( _originalClass));
 }
 
-   
+
 static void   zombifyLargeObject( id obj)
 {
    _MulleObjCLargeZombie   *zombie;
    Class                   cls;
-   
+
    cls = mulle_objc_unfailing_lookup_class( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
    assert( cls);
-   
+
    zombie = obj;
    zombie->_originalClass = _mulle_objc_object_get_isa( obj);
 
@@ -190,25 +192,25 @@ static void   zombifyObject( id obj)
    struct _mulle_objc_class       *cls;
    struct _mulle_objc_class       *super_class;
    struct _mulle_objc_runtime     *runtime;
-   
+
    if( ! obj)
       return;
-   
+
    cls     = _mulle_objc_object_get_isa( obj);
    runtime = _mulle_objc_class_get_runtime( cls);
-   
+
    sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_class_get_name( cls));
-   
+
    classid = mulle_objc_classid_from_string( buf);
    cls      = _mulle_objc_runtime_lookup_class( runtime, classid);
-   
+
    if( ! cls)
    {
       super_class = _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
-      
+
       pair = mulle_objc_unfailing_new_classpair( classid, buf, sizeof( id), super_class);
       cls  = mulle_objc_classpair_get_infraclass( pair);
-      
+
       mulle_objc_class_unfailing_add_methodlist( cls, NULL);
       mulle_objc_class_unfailing_add_methodlist( _mulle_objc_class_get_metaclass( cls), NULL);
       mulle_objc_runtime_add_class( runtime, cls);
@@ -221,14 +223,14 @@ void   MulleObjCZombifyObject( id obj)
 {
    struct _mulle_objc_class    *cls;
    size_t                      size;
-   
+
    cls  = _mulle_objc_object_get_isa( obj);
-   size = _mulle_objc_class_get_instance_size( cls);
+   size = _mulle_objc_class_get_instancesize( cls);
    if( size >= sizeof( Class)) // sizeof( _MulleObjCLargeZombie)
    {
       zombifyLargeObject( obj);
       return;
    }
-      
+
    zombifyObject( obj);
 }

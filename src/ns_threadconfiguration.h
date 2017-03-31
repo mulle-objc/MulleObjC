@@ -37,7 +37,8 @@
 #ifndef ns_threadconfiguration_h__
 #define ns_threadconfiguration_h__
 
-#include "ns_type.h"
+#include "ns_objc_type.h"
+#include "ns_int_type.h"
 
 
 //
@@ -47,15 +48,15 @@ struct _ns_poolconfiguration
 {
    void   (*autoreleaseObject)( struct _ns_poolconfiguration *, id);
    void   (*autoreleaseObjects)( struct _ns_poolconfiguration *, id *, NSUInteger, NSUInteger);
-   
+
    id                         tail;        // NSAutoreleasepool
    struct _mulle_objc_class   *poolClass;
    struct mulle_map           *object_map;
    struct mulle_map           _object_map;
-   
+
    void   *(*push)( struct _ns_poolconfiguration *);
    void   (*pop)( struct _ns_poolconfiguration *, id pool);
-   
+
    int    releasing;
    int    trace;
 };

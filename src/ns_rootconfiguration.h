@@ -41,7 +41,8 @@
 
 
 #include "ns_objc_include.h"
-#include "ns_type.h"
+#include "ns_objc_type.h"
+#include "ns_int_type.h"
 #include "_ns_exception.h"
 
 
@@ -114,7 +115,7 @@ struct _ns_root_runtimeconfig
    struct mulle_allocator                     *allocator;
    mulle_objc_runtimefriend_versionassert_t   *versionassert;
    struct _mulle_objc_method                  *forward;
-   void                                       (*uncaughtexception)( void *exception) __attribute__ ((noreturn));
+   void                                       (*uncaughtexception)( void *exception) MULLE_C_NO_RETURN;
 };
 
 
@@ -250,10 +251,21 @@ static inline void  _ns_remove_thread( void *obj)
 }
 
 
+static inline struct _ns_exceptionhandlertable   *_ns_get_exceptionhandlertable( void)
+{
+   return( &_ns_get_rootconfiguration()->exception.vectors);
+}
+
+
 # pragma mark -
 # pragma mark string conveniences
 
-static inline void   *_ns_string( char *s)
+// foundation can substitute this with a proper type
+#ifndef MULLE_OBJC_STRING_CLASS_P
+# define MULLE_OBJC_STRING_CLASS_P id
+#endif
+
+static inline MULLE_OBJC_STRING_CLASS_P   _ns_string( char *s)
 {
    struct _ns_rootconfiguration   *config;
 
@@ -265,7 +277,7 @@ static inline void   *_ns_string( char *s)
 }
 
 
-static inline char   *_ns_characters( void *obj)
+static inline char   *_ns_characters( MULLE_OBJC_STRING_CLASS_P obj)
 {
    struct _ns_rootconfiguration   *config;
 

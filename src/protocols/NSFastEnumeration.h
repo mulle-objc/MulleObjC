@@ -33,7 +33,8 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "ns_type.h"
+#import "ns_objc_type.h"
+#import "ns_int_type.h"
 
 
 typedef struct

@@ -33,7 +33,8 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "ns_type.h"
+#import "ns_objc_type.h"
+#import "ns_int_type.h"
 
 #import "NSObjectProtocol.h"
 #import "ns_zone.h"
@@ -78,7 +79,7 @@
 
 //
 // if you subclass NSObject and override init, don't bother calling [super init]
-// 
+//
 - (instancetype) init;
 - (void) dealloc;  /* ---> #2# */
 
@@ -94,9 +95,9 @@
 - (BOOL) conformsToProtocol:(PROTOCOL) protocol;
 - (BOOL) respondsToSelector:(SEL) sel;
 - (id) performSelector:(SEL) sel;
-- (id) performSelector:(SEL) sel 
+- (id) performSelector:(SEL) sel
             withObject:(id) obj;
-- (id) performSelector:(SEL) sel 
+- (id) performSelector:(SEL) sel
             withObject:(id) obj1
             withObject:(id) obj2;
 
@@ -122,13 +123,6 @@
 
 + (id) classValueForKey:(id) key;
 
-//
-// find the implementation that was overridden
-// fairly slow!
-//
-- (IMP) methodWithSelector:(SEL) sel
-overriddenByImplementation:(IMP) imp;
-
 // AAO suport
 + (nonnull instancetype) instantiate;        // alloc + autorelease
 - (nonnull instancetype) immutableInstance;  // copy + autorelease
@@ -146,16 +140,16 @@ overriddenByImplementation:(IMP) imp;
 
 // not part of NSObject protocol
 
-/* 
+/*
    Returns all objects, retained by this instance.
    This is not deep!
- 
+
    Every class that stores objects in C-arrays, must
-   implement this. Oherwise the default implementation 
+   implement this. Oherwise the default implementation
    is good enough.
  */
-- (NSUInteger) getOwnedObjects:(id *) objects
-                        length:(NSUInteger) length;
+- (NSUInteger) _getOwnedObjects:(id *) objects
+                         length:(NSUInteger) length;
 
 @end
 

@@ -88,10 +88,10 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
 {
    id      clone;
    Class   cls;
-   
+
    cls   = [object class];
    clone = NSAllocateObject( cls, extraBytes, NULL);
-   memcpy( clone, object, extraBytes + _mulle_objc_class_get_instance_size( cls));
+   memcpy( clone, object, extraBytes + _mulle_objc_class_get_instancesize( cls));
    return( clone);
 }
 

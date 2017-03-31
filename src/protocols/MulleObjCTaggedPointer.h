@@ -34,7 +34,8 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "ns_type.h"
+#import "ns_objc_type.h"
+#import "ns_int_type.h"
 
 
 @protocol MulleObjCTaggedPointer
@@ -43,6 +44,10 @@
 + (BOOL) isTaggedPointerEnabled;
 
 @end
+
+@class MulleObjCTaggedPointer; // needed for the compiler to understand this is
+                               // protocol class
+
 
 int  MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index);
 

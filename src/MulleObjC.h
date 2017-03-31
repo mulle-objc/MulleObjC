@@ -46,7 +46,6 @@
 
 // objects
 #import "NSAutoreleasePool.h"
-#import "NSCoder.h"
 #import "NSInvocation.h"
 #import "NSMethodSignature.h"
 #import "NSObject.h"

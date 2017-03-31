@@ -33,7 +33,8 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "ns_type.h"
+#include "ns_objc_type.h"
+#include "ns_int_type.h"
 
 #import "ns_zone.h"
 
@@ -41,11 +42,14 @@
 //
 // the old copyWithZone: still works, but it's gone from the protocol
 //
-@protocol NSCopying 
+@protocol NSCopying
 
 - (id) copy;
 
 @end
+
+@class NSCopying; // needed for the compiler to understand this is
+                  // protocol class
 
 
 

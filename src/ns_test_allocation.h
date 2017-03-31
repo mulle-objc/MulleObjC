@@ -46,7 +46,7 @@ extern struct mulle_allocator    mulle_test_allocator_objc;
 static inline void  mulle_test_allocator_objc_initialize()
 {
    extern void   mulle_test_allocator_initialize();
-   
+
    mulle_test_allocator_initialize();
 }
 
@@ -54,7 +54,7 @@ static inline void  mulle_test_allocator_objc_initialize()
 static inline void  mulle_test_allocator_objc_reset()
 {
    extern void   mulle_test_allocator_reset();
-   
+
    mulle_test_allocator_reset();
 }
 

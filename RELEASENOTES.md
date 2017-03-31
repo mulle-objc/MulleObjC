@@ -1,3 +1,9 @@
+0.4.1
+
+* Moved NSCoder to MulleObjCFoundation
+* Adapt to changes in the mulle_objc_runtime
+* The Foundation can configure the exception type if so desired
+
 0.2.1
 ====
 
@@ -18,12 +24,6 @@ Fix dependency
 =====
 
 Community release of 0.1.3
-=======
-0.1.4
-=====
-
-Community merge
->>>>>>> Stashed changes
 
 0.1.3
 =====

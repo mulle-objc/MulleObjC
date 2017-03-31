@@ -64,7 +64,7 @@ void   NSDeallocateObject( id self)
 static void  *calloc_or_raise( size_t n, size_t size)
 {
    void     *p;
-   
+
    p = calloc( n, size);
    if( p)
       return( p);
@@ -72,8 +72,8 @@ static void  *calloc_or_raise( size_t n, size_t size)
    size *= n;
    if( ! size)
       return( p);
-   
-   MulleObjCThrowAllocationException( size);
+
+   mulle_objc_throw_allocation_exception( size);
    return( NULL);
 }
 
@@ -81,15 +81,15 @@ static void  *calloc_or_raise( size_t n, size_t size)
 static void  *realloc_or_raise( void *block, size_t size)
 {
    void   *p;
-   
+
    p = realloc( block, size);
    if( p)
       return( p);
 
    if( ! size)
       return( p);
-   
-   MulleObjCThrowAllocationException( size);
+
+   mulle_objc_throw_allocation_exception( size);
    return( NULL);
 }
 

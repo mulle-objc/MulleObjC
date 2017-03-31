@@ -23,6 +23,28 @@ typedef intptr_t    NSInteger;
 #define NSINTEGER_DEFINED
 
 
+typedef struct
+{
+   unsigned char   *bytes;
+   size_t          length;
+} MulleObjCMemoryRegion;
+
+
+static inline MulleObjCMemoryRegion   MulleObjCMakeMemoryRegion( void *p, NSUInteger length)
+{
+    MulleObjCMemoryRegion    region;
+
+    region.bytes  = p;
+    region.length = length;
+    return( region);
+}
+
+
+static inline int   MulleObjCEqualMemoryRegions( MulleObjCMemoryRegion region1, MulleObjCMemoryRegion region2)
+{
+    return( region1.bytes == region2.bytes && region1.length == region2.length);
+}
+
 
 typedef struct   _NSRange
 {
@@ -50,6 +72,7 @@ static inline int   NSEqualRanges( NSRange range1, NSRange range2)
 }
 
 
+
 @interface Foo
 
 + (id) new;
@@ -73,6 +96,7 @@ static inline int   NSEqualRanges( NSRange range1, NSRange range2)
 - (float) returnAFloat        { return( FLT_MIN); }
 - (double) returnADouble      { return( DBL_MAX); }
 - (NSRange) returnARange      { return( NSMakeRange( LONG_MAX, LONG_MIN)); }
+- (MulleObjCMemoryRegion) returnAMemoryRegion      { return( MulleObjCMakeMemoryRegion( (void *) 1848, LONG_MIN)); }
 
 - (char) returnSameChar:(char) v                   { return( v); }
 - (short) returnSameShort:(short) v                { return( v); }
@@ -83,6 +107,8 @@ static inline int   NSEqualRanges( NSRange range1, NSRange range2)
 - (double) returnSameDouble:(double) v             { return( v); }
 - (NSRange) returnSameRange:(NSRange) v            { return( v); }
 - (NSRange) returnJuxtaposedRange:(NSRange) v      { return( NSMakeRange( v.length, v.location)); }
+- (MulleObjCMemoryRegion) returnSameMemoryRegion:(MulleObjCMemoryRegion) v       { return( v); }
+- (MulleObjCMemoryRegion) returnJuxtaposedMemoryRegion:(MulleObjCMemoryRegion) v { return( MulleObjCMakeMemoryRegion( (void *) v.length, (intptr_t) v.bytes)); }
 
 @end
 
@@ -127,7 +153,11 @@ int main(int argc, const char * argv[])
 
    print_assert( NSEqualRanges( [foo returnARange], NSMakeRange( LONG_MAX, LONG_MIN)));
    print_assert( NSEqualRanges( [foo returnSameRange:NSMakeRange( LONG_MIN, LONG_MAX)], NSMakeRange( LONG_MIN, LONG_MAX)));
-
    print_assert( NSEqualRanges( [foo returnJuxtaposedRange:NSMakeRange( LONG_MAX, LONG_MIN)], NSMakeRange( LONG_MIN, LONG_MAX)));
+
+   print_assert( MulleObjCEqualMemoryRegions( [foo returnAMemoryRegion], MulleObjCMakeMemoryRegion( (void *) 1848, LONG_MIN)));
+   print_assert( MulleObjCEqualMemoryRegions( [foo returnSameMemoryRegion:MulleObjCMakeMemoryRegion( (void *) 1848, LONG_MAX)], MulleObjCMakeMemoryRegion( (void *)  1848, LONG_MAX)));
+   print_assert( MulleObjCEqualMemoryRegions( [foo returnJuxtaposedMemoryRegion:MulleObjCMakeMemoryRegion( (void *) 1848, LONG_MIN)], MulleObjCMakeMemoryRegion( (void *)  LONG_MIN, 1848)));
+
    return 0;
 }

@@ -37,20 +37,20 @@
 #define _ns_exception__h__
 
 #include "ns_range.h"
-#include "ns_type.h"
+#include "ns_objc_type.h"
 
 //
 // these exceptions are kinda lazy shortcuts for the foundation
 // user code just uses NSException and ignores this
 //
-struct _ns_exceptionhandlertable 
+struct _ns_exceptionhandlertable
 {
-   void (*errno_error)( id format, va_list args)            __attribute__ ((noreturn));
-   void (*allocation_error)( size_t bytes)                  __attribute__ ((noreturn));
-   void (*internal_inconsistency)( id format, va_list args) __attribute__ ((noreturn));
-   void (*invalid_argument)( id format, va_list args)       __attribute__ ((noreturn));
-   void (*invalid_index)( NSUInteger i)                     __attribute__ ((noreturn));
-   void (*invalid_range)( NSRange range)                    __attribute__ ((noreturn));
+   void (*errno_error)( id format, va_list args)            MULLE_C_NO_RETURN;
+   void (*allocation_error)( size_t bytes)                  MULLE_C_NO_RETURN;
+   void (*internal_inconsistency)( id format, va_list args) MULLE_C_NO_RETURN;
+   void (*invalid_argument)( id format, va_list args)       MULLE_C_NO_RETURN;
+   void (*invalid_index)( NSUInteger i)                     MULLE_C_NO_RETURN;
+   void (*invalid_range)( NSRange range)                    MULLE_C_NO_RETURN;
 };
 
 #endif

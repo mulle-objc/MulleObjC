@@ -39,7 +39,7 @@
 @class NSMethodSignature;
 
 
-@interface NSInvocation : NSObject 
+@interface NSInvocation : NSObject
 {
    NSMethodSignature   *_methodSignature;
    char                *_storage;
@@ -54,9 +54,9 @@
 - (void) getReturnValue:(void *) value_p;
 - (void) setReturnValue:(void *) value_p;
 
-- (void) getArgument:(void *) value_p 
+- (void) getArgument:(void *) value_p
              atIndex:(NSUInteger) i;
-- (void) setArgument:(void *) value_p 
+- (void) setArgument:(void *) value_p
              atIndex:(NSUInteger) i;
 
 - (void) retainArguments;

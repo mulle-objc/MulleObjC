@@ -36,119 +36,128 @@
 
 #include "ns_exception.h"
 
+#include "ns_rootconfiguration.h"
 
-__attribute__ ((noreturn))
-void   MulleObjCThrowAllocationException( size_t bytes)
-{
-   MulleObjCExceptionHandlersGetTable()->allocation_error( bytes);
-}
+#include <stdio.h>
 
 
-__attribute__ ((noreturn))
+#pragma mark - C
+
+MULLE_C_NO_RETURN
 void   mulle_objc_throw_allocation_exception( size_t bytes)
 {
-   MulleObjCExceptionHandlersGetTable()->allocation_error( bytes);
+   struct _ns_exceptionhandlertable   *vectors;
+
+   vectors = _ns_get_exceptionhandlertable();
+   if( ! vectors)
+   {
+      fprintf( stderr, "Out of memory allocating %lu bytes\n", bytes);
+      exit( 1);
+   }
+   vectors->allocation_error( bytes);
 }
 
 
-__attribute__ ((noreturn))
-void   MulleObjCThrowInvalidArgumentException( id format, ...)
+MULLE_C_NO_RETURN
+void   mulle_objc_throw_invalid_argument_exception_v( char *format, va_list args)
 {
-   va_list  args;
+   id                                 s;
+   struct _ns_exceptionhandlertable   *vectors;
+
+   vectors = _ns_get_exceptionhandlertable();
+   if( ! vectors)
+   {
+      vfprintf( stderr, format, args);
+      exit( 1);
+   }
    
-   va_start( args, format);
-   MulleObjCExceptionHandlersGetTable()->invalid_argument( format, args);
-   va_end( args);
+   s = _ns_string( format);
+   vectors->invalid_argument( s, args);
 }
 
 
-__attribute__ ((noreturn))
+MULLE_C_NO_RETURN
 void   mulle_objc_throw_invalid_argument_exception( char *format, ...)
 {
-   va_list  args;
-   id       s;
-   
-   va_start( args, format);
-   s = _ns_string( format);
-   MulleObjCExceptionHandlersGetTable()->invalid_argument( s, args);
-   va_end( args);
-}
-
-
-__attribute__ ((noreturn))
-void   MulleObjCThrowInvalidIndexException( NSUInteger index)
-{
-   MulleObjCExceptionHandlersGetTable()->invalid_index( index);
-}
-
-
-__attribute__ ((noreturn))
-void   mulle_objc_throw_invalid_index_exception( NSUInteger index)
-{
-   MulleObjCExceptionHandlersGetTable()->invalid_index( index);
-}
-
-
-__attribute__ ((noreturn))
-void   MulleObjCThrowInternalInconsistencyException( id format, ...)
-{
    va_list   args;
-   
+
    va_start( args, format);
-   MulleObjCExceptionHandlersGetTable()->internal_inconsistency( format, args);
+   mulle_objc_throw_invalid_argument_exception_v( format, args);
    va_end( args);
 }
 
 
-__attribute__ ((noreturn))
+MULLE_C_NO_RETURN
+void   mulle_objc_throw_internal_inconsistency_exception_v( char *format, va_list args)
+{
+   id                                 s;
+   struct _ns_exceptionhandlertable   *vectors;
+
+   vectors = _ns_get_exceptionhandlertable();
+   if( ! vectors)
+   {
+      vfprintf( stderr, format, args);
+      exit( 1);
+   }
+   s = _ns_string( format);
+   
+   vectors->internal_inconsistency( s, args);
+}
+
+
+MULLE_C_NO_RETURN
 void   mulle_objc_throw_internal_inconsistency_exception( char *format, ...)
 {
    va_list   args;
-   id        s;
+
+   va_start( args, format);
+   mulle_objc_throw_internal_inconsistency_exception_v( format, args);
+   va_end( args);
+}
+
+
+MULLE_C_NO_RETURN
+void   mulle_objc_throw_errno_exception_v( char *format, va_list args)
+{
+   id                                 s;
+   struct _ns_exceptionhandlertable   *vectors;
+
+   vectors = _ns_get_exceptionhandlertable();
+   if( ! vectors)
+   {
+      vfprintf( stderr, format, args);
+      exit( 1);
+   }
    
-   va_start( args, format);
    s = _ns_string( format);
-   MulleObjCExceptionHandlersGetTable()->internal_inconsistency( s, args);
-   va_end( args);
+   vectors->errno_error( s, args);
 }
 
 
-__attribute__ ((noreturn))
-void   MulleObjCThrowInvalidRangeException( NSRange range)
-{
-   MulleObjCExceptionHandlersGetTable()->invalid_range( range);
-}
-
-
-__attribute__ ((noreturn))
-void   mulle_objc_throw_invalid_range_exception( NSRange range)
-{
-   MulleObjCExceptionHandlersGetTable()->invalid_range( range);
-}
-
-
-__attribute__ ((noreturn))
-void   MulleObjCThrowErrnoException( id format, ...)
-{
-   va_list  args;
-
-   va_start( args, format);
-
-   MulleObjCExceptionHandlersGetTable()->errno_error( format, args);
-   va_end( args);
-}
-
-
-__attribute__ ((noreturn))
+MULLE_C_NO_RETURN
 void   mulle_objc_throw_errno_exception( char *format, ...)
 {
    va_list  args;
-   id       s;
-   
+
    va_start( args, format);
-   s = _ns_string( format);
-   MulleObjCExceptionHandlersGetTable()->errno_error( s, args);
+   mulle_objc_throw_errno_exception_v( format, args);
    va_end( args);
+}
+
+
+MULLE_C_NO_RETURN
+void   mulle_objc_throw_invalid_index( NSUInteger index)
+{
+   struct _ns_exceptionhandlertable   *vectors;
+
+   vectors = _ns_get_exceptionhandlertable();
+   if( ! vectors)
+   {
+      fprintf( stderr, "invalid index %lu\n", index);
+      exit( 1);
+   }
+   
+   vectors->invalid_index( index);
 }
 
 
@@ -157,8 +166,8 @@ void   mulle_objc_throw_errno_exception( char *format, ...)
 
 NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void)
 {
-   struct _mulle_objc_runtime      *runtime;
-   
+   struct _mulle_objc_runtime   *runtime;
+
    runtime = mulle_objc_get_runtime();
    return( (NSUncaughtExceptionHandler *) runtime->failures.uncaughtexception);
 }
@@ -167,7 +176,7 @@ NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void)
 void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler)
 {
    struct _mulle_objc_runtime      *runtime;
-   
+
    runtime = mulle_objc_get_runtime();
    runtime->failures.uncaughtexception = (void (*)()) handler;
 }

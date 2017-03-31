@@ -38,7 +38,8 @@
 
 #import "MulleObjCAllocation.h"
 
-#include "ns_type.h"
+#import "ns_objc_type.h"
+#import "ns_int_type.h"
 
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
@@ -57,24 +58,17 @@
 }
 
 
-
 id  MulleObjCSingletonCreate( Class self)
 {
    id <NSObject>  singleton;
    Class          cls;
-   
-   assert( ! _mulle_objc_class_get_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER));
 
-#if 0
-   for( cls = self; cls; cls = [cls superclass])
-      if( _mulle_objc_class_get_state_bit( cls, MULLE_OBJC_IS_SINGLETON))
-         break;
-#endif
+   assert( ! _mulle_objc_class_get_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER));
 
    cls = self;
    if( ! _mulle_objc_class_get_state_bit( cls, MULLE_OBJC_IS_SINGLETON))
-      mulle_objc_throw_internal_inconsistency_exception( "missing MULLE_OBJC_IS_CLASSCLUSTER bit on class %p", self);
-   
+      mulle_objc_throw_internal_inconsistency_exception( "MULLE_OBJC_IS_SINGLETON bit is missing on class \"%s\" with id %x", _mulle_objc_class_get_name( cls), _mulle_objc_class_get_classid( cls));
+
    singleton = (id) _mulle_objc_class_get_auxplaceholder( cls);
    if( ! singleton)
    {
@@ -97,6 +91,5 @@ id  MulleObjCSingletonCreate( Class self)
 {
    return( MulleObjCSingletonCreate( self));
 }
-
 
 @end

@@ -47,3 +47,7 @@
 - (void) raise;
 
 @end
+
+@class MulleObjCException; // needed for the compiler to understand this is
+                           // protocol class
+

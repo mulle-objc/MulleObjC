@@ -32,7 +32,6 @@ src/MulleObjC.h
 src/MulleObjCAllocation.h
 src/MulleObjCFunctions.h
 src/NSAutoreleasePool.h
-src/NSCoder.h
 src/NSDebug.h
 src/NSInvocation.h
 src/NSLock.h
@@ -48,7 +47,11 @@ src/ns_debug.h
 src/ns_exception.h
 src/ns_fastclassids.h
 src/ns_fastmethodids.h
+src/ns_byteorder.h
+src/ns_int_type.h
+src/ns_objc_type.h
 src/ns_objc.h
+src/ns_objc_compiler.h
 src/ns_objc_compatibility.h
 src/ns_objc_include.h
 src/ns_objc_setup.h
@@ -56,7 +59,6 @@ src/ns_range.h
 src/ns_rootconfiguration.h
 src/ns_test_allocation.h
 src/ns_threadconfiguration.h
-src/ns_type.h
 src/ns_zone.h
 src/protocols/MulleObjCClassCluster.h
 src/protocols/MulleObjCException.h
@@ -74,7 +76,6 @@ add_library(MulleObjC STATIC
 src/MulleObjCAllocation.m
 src/MulleObjCFunctions.m
 src/NSAutoreleasePool.m
-src/NSCoder.m
 src/NSDebug.m
 src/NSInvocation.m
 src/NSLock.m

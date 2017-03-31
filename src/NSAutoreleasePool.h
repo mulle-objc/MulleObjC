@@ -97,7 +97,7 @@
 static inline NSAutoreleasePool   *NSPushAutoreleasePool()
 {
    struct _ns_poolconfiguration   *config;
-   
+
    config = _ns_get_poolconfiguration();
    return( (*config->push)( config));
 }
@@ -106,7 +106,7 @@ static inline NSAutoreleasePool   *NSPushAutoreleasePool()
 static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
 {
    struct _ns_poolconfiguration   *config;
-   
+
    config = _ns_get_poolconfiguration();
    (*config->pop)( config, pool);
 }
@@ -115,7 +115,7 @@ static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
 static inline void   _MulleObjCAutoreleaseObject( id obj)
 {
    struct _ns_poolconfiguration   *config;
-   
+
    config = _ns_get_poolconfiguration();
    (*config->autoreleaseObject)( config, obj);
 }
@@ -134,7 +134,7 @@ static inline id   NSAutoreleaseObject( id obj)
 static inline void   _MulleObjCAutoreleaseObjects( id *objects, NSUInteger count)
 {
    struct _ns_poolconfiguration   *config;
-   
+
    config = _ns_get_poolconfiguration();
    (*config->autoreleaseObjects)( config, objects, count, sizeof( id));
 }
@@ -143,7 +143,7 @@ static inline void   _MulleObjCAutoreleaseObjects( id *objects, NSUInteger count
 static inline void   _MulleObjCAutoreleaseSpacedObjects( id *objects, NSUInteger count, NSUInteger step)
 {
    struct _ns_poolconfiguration   *config;
-   
+
    config = _ns_get_poolconfiguration();
    (*config->autoreleaseObjects)( config, objects, count, step);
 }

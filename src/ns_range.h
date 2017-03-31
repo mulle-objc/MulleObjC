@@ -36,7 +36,7 @@
 #ifndef ns_range__h__
 #define ns_range__h__
 
-#include "ns_type.h"
+#include "ns_int_type.h"
 
 
 typedef struct
@@ -49,29 +49,29 @@ typedef struct
 typedef NSRange   *NSRangePointer;
 
 
-static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length) 
+static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
 {
     NSRange    range;
-      
+
     range.location = location;
     range.length   = length;
     return( range);
 }
 
 
-static inline   NSUInteger NSMaxRange( NSRange range) 
+static inline   NSUInteger NSMaxRange( NSRange range)
 {
    return( range.location + range.length);
 }
 
 
-static inline BOOL  NSLocationInRange( NSUInteger location, NSRange range) 
+static inline BOOL  NSLocationInRange( NSUInteger location, NSRange range)
 {
    return( location - range.location < range.length);
 }
 
 
-static inline BOOL   NSEqualRanges( NSRange range1, NSRange range2) 
+static inline BOOL   NSEqualRanges( NSRange range1, NSRange range2)
 {
     return( range1.location == range2.location && range1.length == range2.length);
 }
@@ -86,7 +86,7 @@ static inline BOOL  MulleObjCRangeContainsRange( NSRange big, NSRange small)
 {
    if( ! small.length)
       return( NO);
-   
+
    if( ! NSLocationInRange( small.location, big))
       return( NO);
    return( NSLocationInRange( small.location + small.length - 1, big));

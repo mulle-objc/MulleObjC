@@ -1,4 +1,4 @@
-#define MULLE_OBJC_NO_TAGGED_POINTERS
+#define __MULLE_OBJC_NO_TPS__
 
 #include <mulle_objc/mulle_objc.h>
 

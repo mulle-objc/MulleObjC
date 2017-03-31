@@ -107,11 +107,11 @@ int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
       return( -1);
    }
 
-   runtime = _mulle_objc_class_get_runtime( cls);
    if( ! index)
-      MulleObjCThrowInvalidIndexException( index);
+      mulle_objc_throw_invalid_index( index);
 
-   rval = _mulle_objc_runtime_set_taggedpointerclass_at_index( runtime, cls, index);
+   runtime = _mulle_objc_class_get_runtime( cls);
+   rval    = _mulle_objc_runtime_set_taggedpointerclass_at_index( runtime, cls, index);
    if( ! rval)
       _mulle_objc_class_set_taggedpointerindex( cls, index);
    return( rval);

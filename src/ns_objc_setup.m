@@ -76,6 +76,7 @@ void   *_objc_msgForward( void *self, mulle_objc_methodid_t _cmd, void *_param)
    return( NULL);
 }
 
+
 struct _mulle_objc_method   NSObject_msgForward_method =
 {
    MULLE_OBJC_FORWARD_METHODID,  // forward:

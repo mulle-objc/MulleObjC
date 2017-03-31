@@ -65,14 +65,14 @@ static inline struct _mulle_autoreleasepointerarray   *_mulle_autoreleasepointer
    array = mulle_malloc( sizeof( struct _mulle_autoreleasepointerarray));
    if( ! array)
       mulle_objc_throw_allocation_exception( sizeof( struct _mulle_autoreleasepointerarray));
-      
+
 #if AUTORELEASEPOOL_DEBUG
    fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p allocated (previous = %p)\n", array, previous);
 #endif
-   
+
    array->used_     = 0;
-   array->previous_ = previous;  
-   
+   array->previous_ = previous;
+
    return( array);
 }
 
@@ -88,7 +88,7 @@ _mulle_autoreleasepointerarray_release_and_free(
    id                                      *sentinel;
    NSUInteger                              value;
    id                                      opfer;
-   
+
    for( p = end; p; p = q)
    {
       q            = p->previous_;
@@ -104,7 +104,7 @@ _mulle_autoreleasepointerarray_release_and_free(
             value = (NSUInteger) mulle_map_get( object_map, opfer);
             assert( value && "object appeared in pool out of nowhere");
             --value;
-            
+
             if( ! value)
                mulle_map_remove( object_map, opfer);
             else
@@ -135,7 +135,7 @@ _mulle_autoreleasepointerarray_dump_objects(
    id                                      *objects;
    id                                      *sentinel;
    struct _mulle_autoreleasepointerarray   *p, *q;
-   
+
    for( p = end; p; p = q)
    {
       q = p->previous_;
@@ -179,7 +179,7 @@ static inline int   _mulle_autoreleasepointerarray_contains( struct _mulle_autor
 {
    id   *q;
    id   *sentinel;
-   
+
    do
    {
       sentinel = array->objects_;
@@ -189,7 +189,7 @@ static inline int   _mulle_autoreleasepointerarray_contains( struct _mulle_autor
             return( 1);
    }
    while( array = array->previous_);
-   
+
    return( 0);
 }
 
@@ -199,7 +199,7 @@ static inline unsigned int   _mulle_autoreleasepointerarray_count_object( struct
    id             *q;
    id             *sentinel;
    unsigned int   count;
-   
+
    count = 0;
    do
    {
@@ -210,7 +210,7 @@ static inline unsigned int   _mulle_autoreleasepointerarray_count_object( struct
             ++count;
    }
    while( array = array->previous_);
-   
+
    return( count);
 }
 

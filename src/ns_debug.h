@@ -37,8 +37,7 @@
 #ifndef ns_debug__h__
 #define ns_debug__h__
 
-#include "ns_type.h"
-
+#import "ns_int_type.h"
 
 extern void         *NSFrameAddress( NSUInteger frame);
 extern void         *NSReturnAddress( NSUInteger frame);
