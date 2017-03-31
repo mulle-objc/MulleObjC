@@ -39,64 +39,50 @@
 // the "C" interface to NSException
 // by default these all just call abort
 
-#include "ns_type.h"
+#include "ns_int_type.h"
 #include "ns_range.h"
-
-#include "ns_rootconfiguration.h"
-
-
-static inline struct _ns_exceptionhandlertable   *MulleObjCExceptionHandlersGetTable( void)
-{
-   return( &_ns_get_rootconfiguration()->exception.vectors);
-}
-
-__attribute__ ((noreturn))
-void   MulleObjCThrowAllocationException( size_t bytes);
-
-__attribute__ ((noreturn))
-void   MulleObjCThrowInvalidArgumentException( id format, ...);
-
-__attribute__ ((noreturn))
-void   MulleObjCThrowInvalidIndexException( NSUInteger index);
-
-__attribute__ ((noreturn))
-void   MulleObjCThrowInternalInconsistencyException( id format, ...);
-
-__attribute__ ((noreturn))
-void   MulleObjCThrowInvalidRangeException( NSRange range);
-
-__attribute__ ((noreturn))
-void   MulleObjCThrowErrnoException( id s, ...);
+#include <mulle_c11/mulle_c11.h>
+#include <stdarg.h>
 
 
 #pragma mark -
-#pragma mark Some C Interfaces with char * (and some just for completeness)
+#pragma mark Some C Interfaces with char *
 
-__attribute__ ((noreturn))
+MULLE_C_NO_RETURN
 void   mulle_objc_throw_allocation_exception( size_t bytes);
 
-__attribute__ ((noreturn))
-void   mulle_objc_throw_invalid_index_exception( NSUInteger index);
-
-__attribute__ ((noreturn))
-void   mulle_objc_throw_invalid_range_exception( NSRange range);
-
-__attribute__ ((noreturn))
+MULLE_C_NO_RETURN
 void   mulle_objc_throw_invalid_argument_exception( char *format, ...);
 
-__attribute__ ((noreturn))
+MULLE_C_NO_RETURN
 void   mulle_objc_throw_errno_exception( char *format, ...);
 
-__attribute__ ((noreturn))
+MULLE_C_NO_RETURN
 void   mulle_objc_throw_internal_inconsistency_exception( char *format, ...);
+
+MULLE_C_NO_RETURN
+void   mulle_objc_throw_invalid_index( NSUInteger index);
+
+MULLE_C_NO_RETURN
+void   mulle_objc_throw_invalid_argument_exception_v( char *format, va_list args);
+
+MULLE_C_NO_RETURN
+void   mulle_objc_throw_errno_exception_v( char *format, va_list args);
+
+MULLE_C_NO_RETURN
+void   mulle_objc_throw_internal_inconsistency_exception_v( char *format, va_list args);
 
 
 #pragma mark -
 #pragma mark Uncaught Exceptions
 
-typedef void   NSUncaughtExceptionHandler( void *exception);
+#ifndef MULLE_OBJC_EXCEPTION_CLASS_P
+# define MULLE_OBJC_EXCEPTION_CLASS_P  void *
+#endif
 
-NSUncaughtExceptionHandler *NSGetUncaughtExceptionHandler( void);
+typedef void   NSUncaughtExceptionHandler( MULLE_OBJC_EXCEPTION_CLASS_P exception);
+
+NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void);
 void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler);
 
 #endif

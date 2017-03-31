@@ -39,7 +39,6 @@
 
 @protocol NSCoding
 
-
 - (void) encodeWithCoder:(NSCoder *) aCoder;
 - (instancetype) initWithCoder:(NSCoder *) aDecoder;
 
@@ -60,3 +59,7 @@
 //- (void) encodeDecodeWithCoder:(NSCoder *) aDecoder;
 
 @end
+
+@class NSCoding; // needed for the compiler to understand this is
+                 // protocol class
+

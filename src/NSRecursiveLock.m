@@ -46,9 +46,9 @@
 - (void) lock
 {
    mulle_thread_t   this_thread;
-   
+
    this_thread = mulle_thread_self();
-   
+
    if( [super tryLock])
    {
       _thread = this_thread;
@@ -57,7 +57,7 @@
 
    if( this_thread == _thread)
       return;
-   
+
    [super lock];
 
    _thread = this_thread;
@@ -67,9 +67,9 @@
 - (BOOL) tryLock
 {
    mulle_thread_t   this_thread;
-   
+
    this_thread = mulle_thread_self();
-   
+
    if( [super tryLock])
    {
       _thread = this_thread;
@@ -78,7 +78,7 @@
 
    if( this_thread == _thread)
       return( YES);
-      
+
    return( NO);
 }
 

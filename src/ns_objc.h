@@ -37,8 +37,16 @@
 #ifndef ns_objc__h__
 #define ns_objc__h__
 
+#include "ns_objc_compiler.h"
 #include "ns_rootconfiguration.h"
 
+#include "ns_objc_type.h"
+#include "ns_objc_include.h"
+#include "ns_int_type.h"
+
+//#include "_ns_exception.h"
+
+#include "ns_byteorder.h"
 #include "ns_exception.h"
 #include "ns_range.h"
 #include "ns_zone.h"

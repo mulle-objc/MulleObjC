@@ -47,5 +47,9 @@
 
 @end
 
+@class MulleObjCSingleton; // needed for the compiler to understand this is
+                           // protocol class
+
+
 // for subclasses, who don't use sharedInstance
-id  MulleObjCSingletonCreate( Class self);
+id   MulleObjCSingletonCreate( Class self);

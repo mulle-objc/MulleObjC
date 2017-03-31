@@ -34,6 +34,7 @@ static void print_bool( BOOL flag)
 }
 
 
+
 static void   count_exception( void *format, va_list args)
 {
    printf( "exception\n");
@@ -48,16 +49,17 @@ main()
    Foobar   *foobar;
    struct _ns_exceptionhandlertable   *exceptions;
 
-   exceptions = MulleObjCExceptionHandlersGetTable();
-   exceptions->internal_inconsistency = (void *) count_exception;
-
    foo    = [Foo sharedInstance]; // this alloc makes the placeholder
    foobar = [Foobar sharedInstance]; // this alloc makes the placeholder
 
+   // if this doesn't show up, the
    print_bool( [foo isKindOfClass:[Foo class]]);
    print_bool( foo != foobar);
 
-   bar = [Bar sharedInstance]; // this is wrong
+   exceptions = MulleObjCExceptionHandlersGetTable();
+   exceptions->internal_inconsistency = (void *) count_exception;
 
-   return( 0);
+   bar = [Bar sharedInstance];      // this is wrong
+
+   return( 1);
 }

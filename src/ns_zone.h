@@ -35,9 +35,11 @@
 //
 #ifndef ns_zone__h__
 #define ns_zone__h__
- 
-#include "ns_type.h"
+
+#include "ns_int_type.h"
 #include "ns_exception.h"
+
+#include <mulle_allocator/mulle_allocator.h>
 
 
 //
@@ -53,7 +55,7 @@ static inline void  *mulle_objc_object_zone( void)
 // these are just here for compatibilty, they pretty much vanish due to
 // inlining
 
-typedef struct  
+typedef struct
 {
    void   *unused;  // empty would be not C11
 } NSZone;

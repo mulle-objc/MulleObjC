@@ -73,7 +73,7 @@ static void   testInstanceMethodForSelector( id self, SEL sel)
 {
    IMP   imp;
    id    obj;
-   
+
    imp = [self instanceMethodForSelector:sel];
    if( _mulle_objc_class_is_forwardmethodimplementation( self, imp))
    {
@@ -82,7 +82,7 @@ static void   testInstanceMethodForSelector( id self, SEL sel)
    }
 
    assert( imp);
-   
+
    obj = [self new];
    (*imp)( obj, sel, NULL);
    [obj release];
