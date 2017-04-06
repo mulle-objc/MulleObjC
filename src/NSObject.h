@@ -130,6 +130,8 @@
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
 
+- (void) _performFinalize;
+
 // advanced Autorelease and ObjectGraph support
 
 - (void) _becomeRootObject;        // retains  #1#
