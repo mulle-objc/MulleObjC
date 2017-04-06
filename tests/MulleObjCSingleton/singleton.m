@@ -56,7 +56,7 @@ main()
    print_bool( [foo isKindOfClass:[Foo class]]);
    print_bool( foo != foobar);
 
-   exceptions = MulleObjCExceptionHandlersGetTable();
+   exceptions = _ns_get_exceptionhandlertable();
    exceptions->internal_inconsistency = (void *) count_exception;
 
    bar = [Bar sharedInstance];      // this is wrong

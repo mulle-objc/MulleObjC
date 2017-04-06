@@ -121,6 +121,7 @@
 }
 
 
+// finalize exists, but it is not adverised
 - (void) finalize
 {
 }
@@ -177,6 +178,14 @@
 }
 
 
+
+- (void) _performFinalize
+{
+   _mulle_objc_object_perform_finalize( self);
+}
+
+
+// not advertise to the outside world
 - (void) finalize
 {
 }
@@ -254,7 +263,13 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 
 - (NSUInteger) retainCount
 {
+   intptr_t    retaincount_1;
    return( (NSUInteger) _mulle_objc_object_get_retaincount( self));
+   if( retaincount_1 == MULLE_OBJC_NEVER_RELEASE)
+      return( MULLE_OBJC_NEVER_RELEASE);
+   if( retaincount_1 < -1)
+      return( -retaincount_1);  // make it positive
+   return( retaincount_1 + 1);
 }
 
 
@@ -273,7 +288,7 @@ static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( st
    struct _mulle_objc_class            *cls;
    _MulleObjCInstantiatePlaceholder    *placeholder;
    struct _mulle_objc_method           *method;
-   SEL                                  initSel;
+   SEL                                 initSel;
 
    assert( classid);
 

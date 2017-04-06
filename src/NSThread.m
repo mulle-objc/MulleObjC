@@ -68,14 +68,19 @@
 }
 
 
+- (void) finalize
+{
+   [self->_userInfo autorelease];
+   self->_userInfo = nil;
+}
+
+
 - (void) dealloc
 {
    if( self->_target != self)
       [self->_target release];
    if( self->_argument != self)
       [self->_argument release];
-
-   [self->_userInfo release];
 
    _MulleObjCObjectFree( self);
 }
@@ -147,6 +152,8 @@ void  _NSThreadResignAsRuntimeThreadAndDeallocate( NSThread *self)
 
    config = _ns_get_rootconfiguration();
 
+   [self _performFinalize]; // get rid of NSThreadDictionary
+   
    _mulle_atomic_pointer_decrement( &config->thread.n_threads);
    _ns_remove_thread( self);
 
