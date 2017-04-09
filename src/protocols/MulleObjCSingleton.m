@@ -54,28 +54,26 @@
 
 + (void) initialize
 {
-   _mulle_objc_class_set_state_bit( self, MULLE_OBJC_IS_SINGLETON);
+   _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_SINGLETON);
 }
 
 
-id  MulleObjCSingletonCreate( Class self)
+id  MulleObjCSingletonCreate( Class infraCls)
 {
    id <NSObject>  singleton;
-   Class          cls;
 
-   assert( ! _mulle_objc_class_get_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER));
+   assert( ! _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_IS_CLASSCLUSTER));
 
-   cls = self;
-   if( ! _mulle_objc_class_get_state_bit( cls, MULLE_OBJC_IS_SINGLETON))
-      mulle_objc_throw_internal_inconsistency_exception( "MULLE_OBJC_IS_SINGLETON bit is missing on class \"%s\" with id %x", _mulle_objc_class_get_name( cls), _mulle_objc_class_get_classid( cls));
+   if( ! _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_IS_SINGLETON))
+      mulle_objc_throw_internal_inconsistency_exception( "MULLE_OBJC_IS_SINGLETON bit is missing on class \"%s\" with id %x", _mulle_objc_infraclass_get_name( infraCls), _mulle_objc_infraclass_get_classid( infraCls));
 
-   singleton = (id) _mulle_objc_class_get_auxplaceholder( cls);
+   singleton = (id) _mulle_objc_infraclass_get_auxplaceholder( infraCls);
    if( ! singleton)
    {
       // avoid +alloc here so that subclass can "abort" on alloc if desired
-      singleton = [NSAllocateObject( self, 0, NULL) init];
+      singleton = [NSAllocateObject( infraCls, 0, NULL) init];
       _ns_add_singleton( singleton);
-      _mulle_objc_class_set_auxplaceholder( cls, (void *) singleton);
+      _mulle_objc_infraclass_set_auxplaceholder( infraCls, (void *) singleton);
    }
 
    return( (id) singleton);

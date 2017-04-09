@@ -12,13 +12,13 @@
 
 + (id) new
 {
-   return( (Bar *) mulle_objc_class_alloc_instance( self, NULL));
+   return( (Bar *) mulle_objc_infraclass_alloc_instance( self, NULL));
 }
 
 
 - (void) print
 {
-   printf( "Bar: %s\n", _mulle_objc_class_get_name( _mulle_objc_object_get_class( self)));
+   printf( "Bar: %s\n", _mulle_objc_class_get_name( _mulle_objc_object_get_infraclass( self)));
 }
 
 @end

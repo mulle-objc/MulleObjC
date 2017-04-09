@@ -163,7 +163,7 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 
 - (char *) _originalClassName
 {
-   return( _mulle_objc_class_get_name( _originalClass));
+   return( _mulle_objc_infraclass_get_name( _originalClass));
 }
 
 
@@ -172,13 +172,13 @@ static void   zombifyLargeObject( id obj)
    _MulleObjCLargeZombie   *zombie;
    Class                   cls;
 
-   cls = mulle_objc_unfailing_lookup_class( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
+   cls = mulle_objc_unfailing_lookup_infraclass( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
    assert( cls);
 
    zombie = obj;
-   zombie->_originalClass = _mulle_objc_object_get_isa( obj);
+   zombie->_originalClass = (Class) _mulle_objc_object_get_isa( obj);
 
-   _mulle_objc_object_set_isa( obj, cls);
+   _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
 }
 
 @end
@@ -189,33 +189,42 @@ static void   zombifyObject( id obj)
    mulle_objc_classid_t           classid;
    static char                    buf[ 1024];
    struct _mulle_objc_classpair   *pair;
-   struct _mulle_objc_class       *cls;
-   struct _mulle_objc_class       *super_class;
+   struct _mulle_objc_infraclass  *cls;
+   struct _mulle_objc_metaclass   *meta;
+   struct _mulle_objc_infraclass  *infra;
+   struct _mulle_objc_infraclass  *super_class;
    struct _mulle_objc_runtime     *runtime;
 
    if( ! obj)
       return;
 
-   cls     = _mulle_objc_object_get_isa( obj);
-   runtime = _mulle_objc_class_get_runtime( cls);
+   cls   = (struct _mulle_objc_infraclass *) _mulle_objc_object_get_isa( obj);
+   if( _mulle_objc_class_is_metaclass( (void *) cls))
+   {
+      fprintf( stderr, "not zombiying class object %p\n", obj);
+      abort();
+   }
+   
+   runtime = _mulle_objc_infraclass_get_runtime( cls);
 
-   sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_class_get_name( cls));
+   sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_infraclass_get_name( cls));
 
    classid = mulle_objc_classid_from_string( buf);
-   cls      = _mulle_objc_runtime_lookup_class( runtime, classid);
+   cls     = _mulle_objc_runtime_lookup_infraclass( runtime, classid);
 
    if( ! cls)
    {
-      super_class = _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
+      super_class = _mulle_objc_runtime_lookup_infraclass( runtime, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
 
-      pair = mulle_objc_unfailing_new_classpair( classid, buf, sizeof( id), super_class);
-      cls  = mulle_objc_classpair_get_infraclass( pair);
-
-      mulle_objc_class_unfailing_add_methodlist( cls, NULL);
-      mulle_objc_class_unfailing_add_methodlist( _mulle_objc_class_get_metaclass( cls), NULL);
-      mulle_objc_runtime_add_class( runtime, cls);
+      pair  = mulle_objc_unfailing_new_classpair( classid, buf, sizeof( id), super_class);
+      infra = mulle_objc_classpair_get_infraclass( pair);
+      meta  = mulle_objc_classpair_get_metaclass( pair);
+      mulle_objc_infraclass_unfailing_add_methodlist( infra, NULL);
+      mulle_objc_metaclass_unfailing_add_methodlist( meta, NULL);
+      mulle_objc_runtime_unfailing_add_infraclass( runtime, infra);
    }
-   _mulle_objc_object_set_isa( obj, cls);
+   
+   _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
 }
 
 

@@ -60,7 +60,7 @@ static inline int   MulleObjCTaggedPointerClassGetIndex( Class cls)
       return( -1);
    }
 
-   return( (int) _mulle_objc_class_get_taggedpointerindex( cls));
+   return( (int) _mulle_objc_infraclass_get_taggedpointerindex( cls));
 }
 
 

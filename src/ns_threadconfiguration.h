@@ -50,9 +50,9 @@ struct _ns_poolconfiguration
    void   (*autoreleaseObjects)( struct _ns_poolconfiguration *, id *, NSUInteger, NSUInteger);
 
    id                         tail;        // NSAutoreleasepool
-   struct _mulle_objc_class   *poolClass;
-   struct mulle_map           *object_map;
-   struct mulle_map           _object_map;
+   struct _mulle_objc_infraclass   *poolClass;
+   struct mulle_map                *object_map;
+   struct mulle_map                _object_map;
 
    void   *(*push)( struct _ns_poolconfiguration *);
    void   (*pop)( struct _ns_poolconfiguration *, id pool);
@@ -123,7 +123,7 @@ static inline struct _ns_poolconfiguration   *_ns_get_poolconfiguration( void)
 }
 
 
-static inline struct _mulle_objc_class   *_ns_get_autoreleasepoolclass( void)
+static inline struct _mulle_objc_infraclass   *_ns_get_autoreleasepoolclass( void)
 {
    return( _ns_get_threadlocalconfiguration()->poolconfig.poolClass);
 }

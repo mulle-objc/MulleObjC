@@ -91,7 +91,7 @@
 {
    struct _mulle_objc_runtime  *runtime;
 
-   runtime = _mulle_objc_class_get_runtime( self);
+   runtime = _mulle_objc_infraclass_get_runtime( self);
    return( ! runtime->config.no_tagged_pointers);
 }
 
@@ -110,10 +110,10 @@ int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
    if( ! index)
       mulle_objc_throw_invalid_index( index);
 
-   runtime = _mulle_objc_class_get_runtime( cls);
+   runtime = _mulle_objc_infraclass_get_runtime( cls);
    rval    = _mulle_objc_runtime_set_taggedpointerclass_at_index( runtime, cls, index);
    if( ! rval)
-      _mulle_objc_class_set_taggedpointerindex( cls, index);
+      _mulle_objc_infraclass_set_taggedpointerindex( cls, index);
    return( rval);
 }
 

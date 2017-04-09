@@ -36,7 +36,7 @@ static void   print_long( long x)
 
 + (id) new
 {
-   return( [mulle_objc_class_alloc_instance( self, NULL) init]);
+   return( [mulle_objc_infraclass_alloc_instance( self, NULL) init]);
 }
 
 

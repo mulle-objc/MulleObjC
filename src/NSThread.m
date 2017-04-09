@@ -105,7 +105,7 @@ void   _mulle_become_objc_runtime_thread( void)
    _mulle_objc_runtime_retain( runtime);
    mulle_objc_set_thread_runtime( runtime);
    _mulle_objc_runtime_register_current_thread_if_needed( runtime);
-   if( _mulle_objc_runtime_lookup_class( runtime, MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH))) // NSAutoreleasePool
+   if( _mulle_objc_runtime_lookup_infraclass( runtime, MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH))) // NSAutoreleasePool
       _ns_poolconfiguration_set_thread();
 }
 

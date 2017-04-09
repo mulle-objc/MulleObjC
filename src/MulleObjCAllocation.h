@@ -118,25 +118,26 @@ static inline void  MulleObjCObjectDeallocateMemory( id self, void *p)
 #pragma mark object creation
 
 __attribute__((returns_nonnull))
-static inline id    _MulleObjCClassAllocateObject( Class cls, NSUInteger extra)
+static inline id    _MulleObjCClassAllocateObject( Class infraCls, NSUInteger extra)
 {
-   struct mulle_allocator   *allocator;
+   struct mulle_allocator     *allocator;
 
-   assert( cls);
-   assert( _mulle_objc_class_is_infraclass( cls));
-
-   allocator = _mulle_objc_class_get_allocator( cls);
-   return( (id) _mulle_objc_class_alloc_instance_extra( cls, extra, allocator));
+   allocator = _mulle_objc_infraclass_get_allocator( infraCls);
+   return( (id) _mulle_objc_infraclass_alloc_instance_extra( infraCls, extra, allocator));
 }
 
 
 __attribute__((returns_nonnull))
-static inline id    _MulleObjCClassAllocateNonZeroedObject( Class cls, NSUInteger extra)
+static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
+                                                            NSUInteger extra)
 {
    struct _mulle_objc_objectheader   *header;
    struct mulle_allocator            *allocator;
    NSUInteger                        size;
-
+   struct _mulle_objc_class          *cls;
+   
+   cls = _mulle_objc_infraclass_as_class( infraCls);
+   
    assert( cls);
    assert( _mulle_objc_class_is_infraclass( cls));
 
@@ -153,12 +154,26 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class cls, NSUIntege
 
 static inline void   _MulleObjCObjectReleaseProperties( id obj)
 {
-   extern int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *, struct _mulle_objc_class *, void *);
-   struct _mulle_objc_class   *cls;
+   extern int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *,
+                                                 struct _mulle_objc_infraclass *cls,
+                                                 void *);
+   struct _mulle_objc_class        *cls;
+   struct _mulle_objc_infraclass   *infra;
 
    // walk through properties and release them
-   cls = _mulle_objc_object_get_isa( obj);
-   _mulle_objc_class_walk_properties( cls, _mulle_objc_class_get_inheritance( cls), _MulleObjCObjectReleaseProperty, obj);
+   cls  = _mulle_objc_object_get_isa( obj);
+   
+   // if it's a meta class it's an error during debug
+   assert( _mulle_objc_class_is_infraclass( cls));
+   
+   if( _mulle_objc_class_is_infraclass( cls))
+   {
+      infra = _mulle_objc_class_as_infraclass( cls);
+      _mulle_objc_infraclass_walk_properties( infra,
+                                             _mulle_objc_class_get_inheritance( cls),
+                                             _MulleObjCObjectReleaseProperty,
+                                             obj);
+   }
 }
 
 
