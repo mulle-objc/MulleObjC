@@ -37,7 +37,7 @@
 
 + (id) new
 {
-   return( mulle_objc_class_alloc_instance( self, NULL));
+   return( mulle_objc_infraclass_alloc_instance( self, NULL));
 }
 
 @end
@@ -49,21 +49,21 @@ main()
    Class   cls;
 
    foo = [Foo new];
-   cls =  mulle_objc_object_get_class( foo);
+   cls =  mulle_objc_object_get_infraclass( foo);
    printf( "A: %s\n",
-       mulle_objc_class_conforms_to_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocol( cls,
                                               @protocol( A)) ? "YES" : "NO");
    printf( "B: %s\n",
-       mulle_objc_class_conforms_to_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocol( cls,
                                               @protocol( B)) ? "YES" : "NO");
    printf( "C: %s\n",
-       mulle_objc_class_conforms_to_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocol( cls,
                                               @protocol( C)) ? "YES" : "NO");
    printf( "D: %s\n",
-       mulle_objc_class_conforms_to_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocol( cls,
                                               @protocol( D)) ? "YES" : "NO");
    printf( "E: %s\n",
-       mulle_objc_class_conforms_to_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocol( cls,
                                               @protocol( E)) ? "YES" : "NO");
    mulle_objc_runtime_dump_graphviz_tmp();
 }

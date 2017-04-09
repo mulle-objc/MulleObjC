@@ -58,21 +58,21 @@
 //
 + (void) initialize
 {
-   _mulle_objc_class_set_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER);
+   _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER);
 }
 
 
-static id   MulleObjCNewClassClusterPlaceholder( struct _mulle_objc_class  *self)
+static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 {
    struct _mulle_objc_method    *method;
    id                           placeholder;
 
-   placeholder = NSAllocateObject( self, 0, NULL);
-   method      = _mulle_objc_class_search_method( self,
+   placeholder = NSAllocateObject( infraCls, 0, NULL);
+   method      = _mulle_objc_class_search_method( _mulle_objc_infraclass_as_class( infraCls),
                                                   @selector( __initPlaceholder),
                                                  NULL,
                                                  MULLE_OBJC_ANY_OWNER,
-                                                 _mulle_objc_class_get_inheritance( self));
+                                                 _mulle_objc_infraclass_get_inheritance( infraCls));
    if( method)
       (*method->implementation)( placeholder, @selector( __initPlaceholder), NULL);
 
@@ -90,17 +90,17 @@ static id   MulleObjCNewClassClusterPlaceholder( struct _mulle_objc_class  *self
    // the class being a classcluster marks itself during
    // +initialize
    //
-   if( ! _mulle_objc_class_get_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER))
+   if( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER))
       return( NSAllocateObject( self, 0, NULL));
 
-   assert( ! _mulle_objc_class_get_state_bit( self, MULLE_OBJC_IS_SINGLETON));
+   assert( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_IS_SINGLETON));
 
-   placeholder = _mulle_objc_class_get_auxplaceholder( self);
+   placeholder = _mulle_objc_infraclass_get_auxplaceholder( self);
    if( ! placeholder)
    {
       placeholder = (struct _mulle_objc_object *) MulleObjCNewClassClusterPlaceholder( self);
       _ns_add_placeholder( placeholder);
-      _mulle_objc_class_set_auxplaceholder( self, placeholder);
+      _mulle_objc_infraclass_set_auxplaceholder( self, placeholder);
    }
 
    // retain the placeholder

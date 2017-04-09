@@ -41,13 +41,15 @@
 
 + (NSInteger) version
 {
-   return( _mulle_objc_class_get_coderversion( self));
+   assert( _mulle_objc_class_is_infraclass( (void *) self));
+   return( _mulle_objc_infraclass_get_coderversion( self));
 }
 
 
 + (void) setVersion:(NSInteger) value
 {
-   if( ! _mulle_objc_class_set_coderversion( self, value))
+   assert( _mulle_objc_class_is_infraclass( (void *) self));
+   if( ! _mulle_objc_infraclass_set_coderversion( self, value))
       abort();  // how likely is that ?
 }
 

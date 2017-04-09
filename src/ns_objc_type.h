@@ -52,8 +52,8 @@
 // compiler. So you can't really change them.
 //
 // --- compiler defined begin ---
-typedef void                          *id;
-typedef struct _mulle_objc_class      *Class;
+typedef void                               *id;
+typedef struct _mulle_objc_infraclass      *Class;  // the meta-class is not "visible" to Class users
 
 //
 // Protocol as a valid keyword and a pseudo-class does not exist
@@ -86,8 +86,8 @@ typedef mulle_objc_methodimplementation_t   IMP;
 
 enum
 {
-   MULLE_OBJC_IS_CLASSCLUSTER = (MULLE_OBJC_FOUNDATION_BIT0 << 0),
-   MULLE_OBJC_IS_SINGLETON    = (MULLE_OBJC_FOUNDATION_BIT0 << 1)
+   MULLE_OBJC_IS_CLASSCLUSTER = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 0),
+   MULLE_OBJC_IS_SINGLETON    = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 1)
 };
 
 #endif

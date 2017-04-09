@@ -96,11 +96,11 @@
       struct _mulle_objc_method             *method;
       struct _mulle_objc_methoddescriptor   *desc;
 
-      method = _mulle_objc_class_search_method( _cls,
-                                               (mulle_objc_methodid_t) _cmd,
-                                               NULL,
-                                               MULLE_OBJC_ANY_OWNER,
-                                               _mulle_objc_class_get_inheritance( _cls));
+      method = _mulle_objc_infraclass_search_method( _cls,
+                                                     (mulle_objc_methodid_t) _cmd,
+                                                     NULL,
+                                                     MULLE_OBJC_ANY_OWNER,
+                                                     _mulle_objc_infraclass_get_inheritance( _cls));
       if( method)
       {
          desc = _mulle_objc_method_get_methoddescriptor( method);
@@ -263,13 +263,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 
 - (NSUInteger) retainCount
 {
-   intptr_t    retaincount_1;
    return( (NSUInteger) _mulle_objc_object_get_retaincount( self));
-   if( retaincount_1 == MULLE_OBJC_NEVER_RELEASE)
-      return( MULLE_OBJC_NEVER_RELEASE);
-   if( retaincount_1 < -1)
-      return( -retaincount_1);  // make it positive
-   return( retaincount_1 + 1);
 }
 
 
@@ -282,28 +276,29 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 #pragma mark -
 #pragma mark aam support
 
-static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( struct _mulle_objc_class  *self, mulle_objc_classid_t classid)
+static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Class infraCls,
+                                                                              mulle_objc_classid_t classid)
 {
    struct _mulle_objc_runtime          *runtime;
-   struct _mulle_objc_class            *cls;
+   struct _mulle_objc_infraclass       *cls;
    _MulleObjCInstantiatePlaceholder    *placeholder;
    struct _mulle_objc_method           *method;
    SEL                                 initSel;
 
    assert( classid);
 
-   runtime = _mulle_objc_class_get_runtime( self);
-   cls     = _mulle_objc_runtime_unfailing_get_or_lookup_class( runtime, classid);
+   runtime = _mulle_objc_infraclass_get_runtime( infraCls);
+   cls     = _mulle_objc_runtime_unfailing_get_or_lookup_infraclass( runtime, classid);
 
    placeholder       = _MulleObjCClassAllocateObject( cls, 0);
-   placeholder->_cls = self;
+   placeholder->_cls = infraCls;
 
    initSel = @selector( __initPlaceholder);
-   method = _mulle_objc_class_search_method( cls,
-                                             (mulle_objc_methodid_t) initSel,
-                                             NULL,
-                                             MULLE_OBJC_ANY_OWNER,
-                                             _mulle_objc_class_get_inheritance( cls));
+   method = _mulle_objc_infraclass_search_method( cls,
+                                                 (mulle_objc_methodid_t) initSel,
+                                                 NULL,
+                                                 MULLE_OBJC_ANY_OWNER,
+                                                 _mulle_objc_infraclass_get_inheritance( cls));
    if( method)
       (*method->implementation)( placeholder,
                                  (mulle_objc_methodid_t) initSel,
@@ -324,13 +319,13 @@ static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( st
    struct _mulle_objc_object   *placeholder;
 
 retry:
-   placeholder = _mulle_objc_class_get_placeholder( self);
+   placeholder = _mulle_objc_infraclass_get_placeholder( self);
    if( ! placeholder)
    {
       placeholder = _MulleObjCClassNewInstantiatePlaceholder( self, [self __instantiatePlaceholderClassid]);
       _ns_add_placeholder( placeholder);
 
-      if( ! _mulle_objc_class_set_placeholder( self, placeholder))
+      if( ! _mulle_objc_infraclass_set_placeholder( self, placeholder))
       {
          _MulleObjCObjectFree( (id) placeholder);
          goto retry;
@@ -368,7 +363,7 @@ retry:
    id                             obj;
    id                             *sentinel;
 
-   runtime = _mulle_objc_class_get_runtime( self);
+   runtime = _mulle_objc_infraclass_get_runtime( self);
 
    _mulle_objc_runtime_lock( runtime);
    {
@@ -455,6 +450,22 @@ retry:
 # pragma mark -
 # pragma mark class "variable" support
 
+#ifdef NDEBUG
+
+# define assert_key( key)
+
+#else
+static void   assert_key( id key)
+{
+   struct _mulle_objc_class   *cls;
+
+   assert( cls = _mulle_objc_object_get_isa( key));
+   assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
+           ! strstr( "TaggedPointer", _mulle_objc_class_get_name( cls)));
+}
+#endif
+
+
 /* every value becomes a "root". It is an error to set a "root" object
    as a value. The classvalues are all taken down when the runtime
    collapses. (way before classes are deallocated !)
@@ -462,19 +473,14 @@ retry:
 
 + (void) removeClassValueForKey:(id) key
 {
-   struct _mulle_objc_class   *cls;
-   id                         old;
-   int                        rval;
+   id      old;
+   int     rval;
 
-   assert( cls = _mulle_objc_object_get_isa( key));
-   assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
-           ! strstr( "TaggedPointer", _mulle_objc_class_get_name( cls)));
+   assert_key( key);
 
-   cls = self;
-
-   while( old = _mulle_objc_class_get_cvar( cls, key))
+   while( old = _mulle_objc_infraclass_get_cvar( self, key))
    {
-      switch( (rval = _mulle_objc_class_remove_cvar( cls, key, old)))
+      switch( (rval = _mulle_objc_infraclass_remove_cvar( self, key, old)))
       {
          case 0 :
             [old _resignAsRootObject];
@@ -493,17 +499,12 @@ retry:
 + (BOOL) insertClassValue:(id) value
                    forKey:(id) key
 {
-   struct _mulle_objc_class   *cls;
-   int                        rval;
+   int      rval;
 
-   assert( cls = _mulle_objc_object_get_isa( key));
-   assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
-           ! strstr( "TaggedPointer", _mulle_objc_class_get_name( cls)));
    assert( value);
+   assert_key( key);
 
-   cls = self;
-
-   switch( (rval = _mulle_objc_class_set_cvar( cls, key, value)))
+   switch( (rval = _mulle_objc_infraclass_set_cvar( self, key, value)))
    {
    case 0 :
       [value _becomeRootObject];
@@ -538,15 +539,11 @@ retry:
 
 + (id) classValueForKey:(id) key
 {
-   struct _mulle_objc_class   *cls;
+   assert_key( key);
 
-   assert( cls = _mulle_objc_object_get_isa( key));
-   assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
-           ! strstr( "TaggedPointer", _mulle_objc_class_get_name( cls)));
-
-   cls = self;
-   return( _mulle_objc_class_get_cvar( cls, key));
+   return( _mulle_objc_infraclass_get_cvar( self, key));
 }
+
 
 
 # pragma mark -
@@ -620,7 +617,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (Class) superclass
 {
-   return( _mulle_objc_class_get_superclass( _mulle_objc_object_get_class( self)));
+   return( _mulle_objc_infraclass_get_superclass( _mulle_objc_object_get_infraclass( self)));
 }
 
 
@@ -629,18 +626,18 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 //
 - (nonnull Class) class
 {
-   struct _mulle_objc_class  *cls;
+   Class  cls;
 
-   cls = _mulle_objc_object_get_class( self);
+   cls = _mulle_objc_object_get_infraclass( self);
    return( cls);
 }
 
 
 + (nonnull Class) class
 {
-   struct _mulle_objc_class  *cls;
+   Class  cls;
 
-   cls = _mulle_objc_object_get_class( self);
+   cls = _mulle_objc_object_get_infraclass( self);
    return( cls);
 }
 
@@ -655,19 +652,19 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
       if( cls == otherClass)
          return( YES);
    }
-   while( cls = _mulle_objc_class_get_superclass( cls));
+   while( cls = _mulle_objc_infraclass_get_superclass( cls));
    return( NO);
 }
 
 
 - (BOOL) isKindOfClass:(Class) otherClass
 {
-   Class   cls;
+   struct _mulle_objc_class   *cls;
 
    cls = _mulle_objc_object_get_isa( self);
    do
    {
-      if( cls == otherClass)
+      if( cls == _mulle_objc_infraclass_as_class( otherClass))
          return( YES);
    }
    while( cls = _mulle_objc_class_get_superclass( cls));
@@ -675,9 +672,9 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-- (BOOL) isMemberOfClass:(Class) cls
+- (BOOL) isMemberOfClass:(Class) otherClass
 {
-   return( (Class) _mulle_objc_object_get_isa( self) == cls);
+   return( _mulle_objc_object_get_isa( self) == _mulle_objc_infraclass_as_class( otherClass));
 }
 
 
@@ -686,7 +683,13 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (BOOL) conformsToProtocol:(PROTOCOL) protocol
 {
-   return( (BOOL) _mulle_objc_class_conformsto_protocol( _mulle_objc_object_get_isa( self), (mulle_objc_protocolid_t) protocol));
+   struct _mulle_objc_class       *cls;
+   struct _mulle_objc_classpair   *pair;
+   
+   cls  = _mulle_objc_object_get_isa( self);
+   pair = _mulle_objc_class_get_classpair( cls);
+   return( (BOOL) _mulle_objc_classpair_conformsto_protocol( pair,
+                                                             (mulle_objc_protocolid_t) protocol));
 }
 
 
@@ -730,8 +733,8 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (BOOL) respondsToSelector:(SEL) sel
 {
-   Class   cls;
-   IMP     imp;
+   struct _mulle_objc_class   *cls;
+   IMP                        imp;
 
    cls = _mulle_objc_object_get_isa( self);
    imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, (mulle_objc_methodid_t) sel);
@@ -747,17 +750,21 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 + (BOOL) instancesRespondToSelector:(SEL) sel
 {
-   IMP   imp;
+   struct _mulle_objc_class   *cls;
+   IMP                        imp;
 
-   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( self, (mulle_objc_methodid_t) sel);
+   cls = _mulle_objc_infraclass_as_class( self);
+   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
 
 
 + (IMP) instanceMethodForSelector:(SEL) sel
 {
-   // don't cache the forward entry yet
-   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( self, (mulle_objc_methodid_t) sel));
+   struct _mulle_objc_class   *cls;
+
+   cls = _mulle_objc_infraclass_as_class( self);
+   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( cls, (mulle_objc_methodid_t) sel));
 }
 
 
@@ -799,8 +806,8 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 - (NSUInteger) _getOwnedObjects:(id *) objects
                          length:(NSUInteger) length
 {
-   Class                 cls;
-   struct collect_info   info;
+   struct _mulle_objc_class   *cls;
+   struct collect_info        info;
 
    assert( (! objects && ! length) || objects);
 
@@ -810,10 +817,15 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    info.sentinel = &objects[ length];
 
    cls = _mulle_objc_object_get_isa( self);
-   _mulle_objc_class_walk_ivars( cls,
-                                 _mulle_objc_class_get_inheritance( cls),
-                                 (int (*)()) collect,
-                                 &info);
+   if( _mulle_objc_class_is_metaclass( cls))
+   {
+      // could actually put class vars in maybe ?
+      return( 0);
+   }
+   _mulle_objc_infraclass_walk_ivars( _mulle_objc_class_as_infraclass( cls),
+                                      _mulle_objc_class_get_inheritance( cls),
+                                      (int (*)()) collect,
+                                       &info);
    return( info.n);
 }
 
@@ -865,12 +877,12 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 {
    struct _mulle_objc_method   *method;
 
-   assert( _mulle_objc_class_is_infraclass( self));
-   method = _mulle_objc_class_search_method( self,
-                                             (mulle_objc_methodid_t) sel,
-                                             NULL,
-                                             MULLE_OBJC_ANY_OWNER,
-                                             _mulle_objc_class_get_inheritance( self));
+   assert( _mulle_objc_class_is_infraclass( (void *)  self));
+   method = _mulle_objc_infraclass_search_method( self,
+                                                  (mulle_objc_methodid_t) sel,
+                                                   NULL,
+                                                   MULLE_OBJC_ANY_OWNER,
+                                                   _mulle_objc_infraclass_get_inheritance( self));
    if( ! method)
       return( nil);
 

@@ -14,7 +14,7 @@
 #ifdef __MULLE_OBJC__
 + (id) new
 {
-   return( (Foo *) _mulle_objc_class_alloc_instance( (void *) self, NULL));
+   return( (Foo *) _mulle_objc_infraclass_alloc_instance( (void *) self, NULL));
 }
 
 - (void) dealloc

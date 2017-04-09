@@ -70,7 +70,7 @@ static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *
 {
    char   *s;
 
-   config->poolClass          = mulle_objc_unfailing_get_or_lookup_class( MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH));
+   config->poolClass          = mulle_objc_unfailing_get_or_lookup_infraclass( MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH));
    config->autoreleaseObject  = _autoreleaseObject;
    config->autoreleaseObjects = _autoreleaseObjects;
    config->push               = pushAutoreleasePool;
@@ -144,7 +144,7 @@ static inline struct _mulle_autoreleasepointerarray   *static_storage( struct _n
 {
    size_t   size;
 
-   size = _mulle_objc_class_get_instancesize( config->poolClass);
+   size = _mulle_objc_infraclass_get_instancesize( config->poolClass);
    return( (struct _mulle_autoreleasepointerarray *) &((char *) pool)[ size]);
 }
 
@@ -187,8 +187,8 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
    assert( p != nil);
    assert( _mulle_objc_object_get_isa( p));
    assert( _mulle_objc_class_get_runtime( _mulle_objc_object_get_isa( p)) ==
-           _mulle_objc_class_get_runtime( _ns_get_autoreleasepoolclass())) ;
-   assert( _mulle_objc_object_get_isa( p) != _ns_get_autoreleasepoolclass());
+           _mulle_objc_infraclass_get_runtime( _ns_get_autoreleasepoolclass())) ;
+   assert( _mulle_objc_object_get_infraclass( p) != _ns_get_autoreleasepoolclass());
    assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
 
    array = (struct _mulle_autoreleasepointerarray *) self->_storage;
@@ -236,7 +236,7 @@ static inline void   addObjects( NSAutoreleasePool *self,
          p += step;
 
          assert( q != nil);
-         assert( _mulle_objc_object_get_isa( q) !=_ns_get_autoreleasepoolclass());
+         assert( _mulle_objc_object_get_infraclass( q) !=_ns_get_autoreleasepoolclass());
          assert( [q isProxy] || [q respondsToSelector:@selector( release)]);
       }
    }

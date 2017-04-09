@@ -17,7 +17,7 @@
 
 + (id) new
 {
-   return( mulle_objc_class_alloc_instance( self, NULL));
+   return( mulle_objc_infraclass_alloc_instance( self, NULL));
 }
 
 
@@ -34,11 +34,11 @@ main()
    Class   cls;
 
    foo = [Foo new];
-   cls =  mulle_objc_object_get_class( foo);
+   cls =  mulle_objc_object_get_infraclass( foo);
    printf( "Baz: %s\n",
-       mulle_objc_class_conforms_to_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocol( cls,
                                               @protocol( Baz)) ? "YES" : "NO");
    printf( "Bar: %s\n",
-       mulle_objc_class_conforms_to_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocol( cls,
                                               @protocol( Bar)) ? "YES" : "NO");
 }

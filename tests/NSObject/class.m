@@ -29,13 +29,17 @@ main()
    Foo   *foo;
    Bar   *bar;
 
+   printf("NSObject:\n");
    print_bool( [NSObject class] != Nil);
    print_bool( [NSObject class] == [NSObject class]);
+   print_bool( [[NSObject class] class] == [NSObject class]);
 
+   printf("\nFoo:\n");
    print_bool( [Foo class] != Nil);
    print_bool( [Foo class] != [NSObject class]);
    print_bool( [Foo class] == [Foo class]);
 
+   printf("\nBar:\n");
    print_bool( [Bar class] != Nil);
    print_bool( [Bar class] != [NSObject class]);
    print_bool( [Bar class] != [Foo class]);
@@ -43,6 +47,7 @@ main()
 
    foo = [Foo new];
 
+   printf("\nfoo:\n");
    print_bool( [foo class] != Nil);
    print_bool( [foo class] != [NSObject class]);
    print_bool( [foo class] != [Bar class]);
@@ -50,6 +55,7 @@ main()
 
    bar = [Bar new];
 
+   printf("\nbar:\n");
    print_bool( [bar class] != Nil);
    print_bool( [bar class] != [NSObject class]);
    print_bool( [bar class] != [Foo class]);

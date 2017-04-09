@@ -121,7 +121,7 @@ char  *MulleObjCClassGetName( Class cls)
    if( ! cls)
       return( NULL);
 
-   return( _mulle_objc_class_get_name( cls));
+   return( _mulle_objc_infraclass_get_name( cls));
 }
 
 
@@ -138,9 +138,9 @@ char   *MulleObjCSelectorGetName( SEL sel)
 
 Class   MulleObjCLookupClassByName( char *name)
 {
-   struct _mulle_objc_runtime   *runtime;
-   struct _mulle_objc_class     *cls;
-   mulle_objc_classid_t         classid;
+   struct _mulle_objc_runtime     *runtime;
+   Class                          cls;
+   mulle_objc_classid_t           classid;
 
    if( ! name)
       return( Nil);
@@ -148,9 +148,9 @@ Class   MulleObjCLookupClassByName( char *name)
    classid = mulle_objc_classid_from_string( name);
 
    runtime = mulle_objc_get_runtime();
-   cls     = _mulle_objc_runtime_lookup_class( runtime, classid);
+   cls     = _mulle_objc_runtime_lookup_infraclass( runtime, classid);
 
-   return( (Class) cls);
+   return( cls);
 }
 
 
@@ -174,9 +174,9 @@ void    MulleObjCSetClass( id obj, Class cls)
    if( ! cls)
       mulle_objc_throw_invalid_argument_exception( "class can't be NULL");
    
-   if( _mulle_objc_class_is_taggedpointerclass( cls))
-      mulle_objc_throw_invalid_argument_exception( "class \"%s\" is a tagged pointer class", _mulle_objc_class_get_name( cls));
+   if( _mulle_objc_infraclass_is_taggedpointerclass( cls))
+      mulle_objc_throw_invalid_argument_exception( "class \"%s\" is a tagged pointer class", _mulle_objc_infraclass_get_name( cls));
    
-   _mulle_objc_object_set_isa( obj, cls);
+   _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
 }
 

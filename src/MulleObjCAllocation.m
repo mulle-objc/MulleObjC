@@ -41,9 +41,13 @@
 // std-c and dependencies
 
 
-int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self);
+int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *property,
+                                       struct _mulle_objc_infraclass *cls,
+                                       void *self);
 
-int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *property, struct _mulle_objc_class *cls, void *self)
+int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *property,
+                                       struct _mulle_objc_infraclass *cls,
+                                       void *self)
 {
    if( property->clearer)
       mulle_objc_object_inline_variable_methodid_call( self, property->clearer, NULL);
