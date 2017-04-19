@@ -45,3 +45,7 @@
 
 char   *_NSPrintForDebugger( id a);
 void   MulleObjCZombifyObject( id obj);
+
+extern int   _ns_rootconfiguration_is_debug_enabled( void);
+
+#define NSDebugEnabled   _ns_rootconfiguration_is_debug_enabled()

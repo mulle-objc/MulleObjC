@@ -65,5 +65,5 @@ main()
    printf( "E: %s\n",
        _mulle_objc_infraclass_conformsto_protocol( cls,
                                               @protocol( E)) ? "YES" : "NO");
-   mulle_objc_runtime_dump_graphviz_tmp();
+   mulle_objc_dotdump_runtime_to_tmp();
 }
