@@ -45,7 +45,7 @@ main()
 
    _mulle_objc_runtime_set_staticstringclass( runtime, [SomeString class]);
 
-   mulle_objc_runtime_dump_graphviz_tmp();
+   mulle_objc_dotdump_runtime_to_tmp();
 
    [foo print];
    [bar print];

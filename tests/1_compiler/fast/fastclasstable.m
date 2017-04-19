@@ -36,7 +36,7 @@ main()
 
    printf( "%d\n", mulle_objc_get_fastclasstable_index( MULLE_OBJC_FASTCLASSID_31));
 
-   mulle_objc_runtime_dump_graphviz_tmp();
+   mulle_objc_dotdump_runtime_to_tmp();
 
    foo = [Foo new];
 }
