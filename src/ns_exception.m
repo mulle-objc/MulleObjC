@@ -48,6 +48,7 @@ void   mulle_objc_throw_allocation_exception( size_t bytes)
 {
    struct _ns_exceptionhandlertable   *vectors;
 
+   mulle_objc_break_exception();
    vectors = _ns_get_exceptionhandlertable();
    if( ! vectors)
    {
@@ -64,6 +65,7 @@ void   mulle_objc_throw_invalid_argument_exception_v( char *format, va_list args
    id                                 s;
    struct _ns_exceptionhandlertable   *vectors;
 
+   mulle_objc_break_exception();
    vectors = _ns_get_exceptionhandlertable();
    if( ! vectors)
    {
@@ -93,6 +95,7 @@ void   mulle_objc_throw_internal_inconsistency_exception_v( char *format, va_lis
    id                                 s;
    struct _ns_exceptionhandlertable   *vectors;
 
+   mulle_objc_break_exception();
    vectors = _ns_get_exceptionhandlertable();
    if( ! vectors)
    {
@@ -122,6 +125,7 @@ void   mulle_objc_throw_errno_exception_v( char *format, va_list args)
    id                                 s;
    struct _ns_exceptionhandlertable   *vectors;
 
+   mulle_objc_break_exception();
    vectors = _ns_get_exceptionhandlertable();
    if( ! vectors)
    {
@@ -150,6 +154,7 @@ void   mulle_objc_throw_invalid_index( NSUInteger index)
 {
    struct _ns_exceptionhandlertable   *vectors;
 
+   mulle_objc_break_exception();
    vectors = _ns_get_exceptionhandlertable();
    if( ! vectors)
    {
@@ -158,6 +163,14 @@ void   mulle_objc_throw_invalid_index( NSUInteger index)
    }
    
    vectors->invalid_index( index);
+}
+
+
+MULLE_C_NO_RETURN
+void   mulle_objc_throw( void *exception)
+{
+   mulle_objc_break_exception();
+   _mulle_objc_runtime_throw( mulle_objc_get_runtime(), exception);
 }
 
 

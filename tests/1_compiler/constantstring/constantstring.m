@@ -1,4 +1,9 @@
-#define __MULLE_OBJC_NO_TPS__
+// Hackery for low level test don't do this otherwise
+#ifdef __MULLE_OBJC_TPS__
+# undef __MULLE_OBJC_TPS__
+#endif
+#define __MULLE_OBJC_NO_TPS__   1
+
 
 #include <mulle_objc/mulle_objc.h>
 

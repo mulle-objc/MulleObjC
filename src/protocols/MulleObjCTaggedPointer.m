@@ -52,6 +52,7 @@
 
 - (void) dealloc
 {
+   //   fprintf( stderr, "-dealloc on a tagged pointer is wrong\n");
    abort();
 }
 

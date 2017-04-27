@@ -43,6 +43,7 @@
 // version is defined in ns_rootconfiguration.h
 
 #import "ns_objc.h"
+#import "ns_objc_setup.h"
 
 // objects
 #import "NSAutoreleasePool.h"

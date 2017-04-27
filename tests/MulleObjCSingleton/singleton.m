@@ -61,5 +61,7 @@ main()
 
    bar = [Bar sharedInstance];      // this is wrong
 
+   mulle_objc_dotdump_runtime_to_tmp();
+
    return( 1);
 }

@@ -44,7 +44,7 @@ enum _MulleObjCKVCMethodType
    _MulleObjCKVCValueForKeyIndex           = 0,
    _MulleObjCKVCTakeValueForKeyIndex       = 1,
    _MulleObjCKVCStoredValueForKeyIndex     = 2,
-   _MulleObjCKVCTakeStoredValueForKeyIndex = 3,
+   _MulleObjCKVCTakeStoredValueForKeyIndex = 3
 };
 
 

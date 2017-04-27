@@ -41,6 +41,33 @@
 
 @implementation NSObject ( KVCSupport)
 
+
+static void  divine_info( NSObject *self,
+                          struct _MulleObjCKVCInformation *kvcInfo,
+                          id <NSStringFuture> key,
+                          struct _mulle_objc_kvcinfo *info,
+                          enum _MulleObjCKVCMethodType type)
+{
+   [self _divineKVCInformation:kvcInfo
+                        forKey:key
+                    methodType:type];
+   
+   if( kvcInfo->offset)
+   {
+      assert( info->offset == kvcInfo->offset || ! info->offset);
+      info->offset = kvcInfo->offset;
+   }
+   
+   if( kvcInfo->valueType != _C_ID)
+   {
+      assert( (info->valueType == kvcInfo->valueType) || (info->valueType == _C_ID));
+      info->valueType = kvcInfo->valueType;
+   }
+   
+   info->methodid[ type]       = (mulle_objc_methodid_t) kvcInfo->selector;
+   info->implementation[ type] = (mulle_objc_methodimplementation_t) kvcInfo->implementation;
+}
+
 //
 // it's just a cache, if it's not there it's not a problem
 // if there is a very unlikely collision, ignore the cache
@@ -107,32 +134,15 @@
    // ok, divine the info for all 4 cases and put it into the cache
    // divine the one we want last
    //
-   for( i = 0; i < 5; i++)
+   for( i = _MulleObjCKVCValueForKeyIndex; i <= _MulleObjCKVCTakeStoredValueForKeyIndex; i++)
    {
       if( i == type)
          continue;
-      if( i == 5)
-         i = type;
 
-      [self _divineKVCInformation:kvcInfo
-                           forKey:key
-                       methodType:i];
-
-      if( kvcInfo->offset)
-      {
-         assert( info->offset == kvcInfo->offset || ! info->offset);
-         info->offset = kvcInfo->offset;
-      }
-
-      if( kvcInfo->valueType != _C_ID)
-      {
-         assert( (info->valueType == kvcInfo->valueType) || (info->valueType == _C_ID));
-         info->valueType = kvcInfo->valueType;
-      }
-
-      info->methodid[ i]       = (mulle_objc_methodid_t) kvcInfo->selector;
-      info->implementation[ i] = (mulle_objc_methodimplementation_t) kvcInfo->implementation;
+      divine_info( self, kvcInfo, key, info, i);
    }
+
+   divine_info( self, kvcInfo, key, info, type);
 
    _mulle_objc_class_set_kvcinfo( cls, info);
 }

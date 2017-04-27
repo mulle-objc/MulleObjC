@@ -74,6 +74,7 @@
 		41A41E601AB0A18600A92452 /* ns_range.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E5E1AB0A18600A92452 /* ns_range.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A41E611AB0A18600A92452 /* ns_range.m in Sources */ = {isa = PBXBuildFile; fileRef = 41A41E5F1AB0A18600A92452 /* ns_range.m */; };
 		41A41E631AB0BD5700A92452 /* MulleObjCAllocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A41E621AB0BD5700A92452 /* MulleObjCAllocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		41A473F01EAA2E2A00ECB6D6 /* ns_breakpoint.c in Sources */ = {isa = PBXBuildFile; fileRef = 41A473EF1EAA2E2A00ECB6D6 /* ns_breakpoint.c */; };
 		41A51C251BD54BA8004CADE9 /* ns_rootconfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 419C582D1BCFE50C00731B64 /* ns_rootconfiguration.m */; };
 		41A827A31AADE01D0017BE29 /* NSAutoreleasePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A827A11AADE01D0017BE29 /* NSAutoreleasePool.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A827A41AADE01D0017BE29 /* NSAutoreleasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 41A827A21AADE01D0017BE29 /* NSAutoreleasePool.m */; };
@@ -201,6 +202,7 @@
 		41A41E5E1AB0A18600A92452 /* ns_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ns_range.h; sourceTree = "<group>"; };
 		41A41E5F1AB0A18600A92452 /* ns_range.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ns_range.m; sourceTree = "<group>"; };
 		41A41E621AB0BD5700A92452 /* MulleObjCAllocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulleObjCAllocation.h; sourceTree = "<group>"; };
+		41A473EF1EAA2E2A00ECB6D6 /* ns_breakpoint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ns_breakpoint.c; sourceTree = "<group>"; };
 		41A51C261BD557AB004CADE9 /* libmulle_aba.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_aba.a; path = dependencies/lib/libmulle_aba.a; sourceTree = "<group>"; };
 		41A51C271BD557AB004CADE9 /* libmulle_container.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_container.a; path = dependencies/lib/libmulle_container.a; sourceTree = "<group>"; };
 		41A51C291BD557AB004CADE9 /* libmulle_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmulle_thread.a; path = dependencies/lib/libmulle_thread.a; sourceTree = "<group>"; };
@@ -372,8 +374,8 @@
 				41A9E4F81BD7EE4600210D6E /* ns_objc.h */,
 				41A827C11AADE14F0017BE29 /* ns_objc_include.h */,
 				4104ECEC1D579287008F41A1 /* ns_objc_compatibility.h */,
-				41D6EA151D62273300221D7A /* ns_objc_setup.h */,
 				41C50EBB1E5F0564006D2673 /* ns_objc_compiler.h */,
+				41D6EA151D62273300221D7A /* ns_objc_setup.h */,
 				41D6EA131D62240800221D7A /* ns_objc_setup.m */,
 				41A827C01AADE14F0017BE29 /* ns_rootconfiguration.h */,
 				419C582D1BCFE50C00731B64 /* ns_rootconfiguration.m */,
@@ -411,6 +413,7 @@
 				41A41E501AB097CE00A92452 /* _ns_exception.h */,
 				41A9E4F71BD7E6D300210D6E /* ns_exception.h */,
 				41E9C65C1CC4E87F00ED4145 /* ns_exception.m */,
+				41A473EF1EAA2E2A00ECB6D6 /* ns_breakpoint.c */,
 				41A41E5E1AB0A18600A92452 /* ns_range.h */,
 				41A41E5F1AB0A18600A92452 /* ns_range.m */,
 				417D8ACE1C89A7E500C3EFC9 /* ns_threadconfiguration.h */,
@@ -673,6 +676,7 @@
 				418B6E921C9FFEAF0080FABD /* MulleObjCClassCluster.m in Sources */,
 				41E9C65D1CC4E87F00ED4145 /* ns_exception.m in Sources */,
 				418B6E961C9FFEF30080FABD /* MulleObjCSingleton.m in Sources */,
+				41A473F01EAA2E2A00ECB6D6 /* ns_breakpoint.c in Sources */,
 				41872A2A1C67870F0087DFB1 /* MulleObjCAllocation.m in Sources */,
 				41F896861C9C3EC700971F63 /* MulleObjCFunctions.m in Sources */,
 				41A827A41AADE01D0017BE29 /* NSAutoreleasePool.m in Sources */,

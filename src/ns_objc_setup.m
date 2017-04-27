@@ -39,6 +39,14 @@
 #include "ns_rootconfiguration.h"
 #include "ns_test_allocation.h"
 
+// clang speciality
+#ifdef __has_include
+# if __has_include( <dlfcn.h>)
+#  include <dlfcn.h>
+#  define HAVE_DLSYM  1
+# endif
+#endif
+
 
 // std-c and dependencies
 
@@ -172,8 +180,12 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
    struct _mulle_objc_runtime   *runtime;
 
    runtime = __mulle_objc_get_runtime();
-   assert( ! _mulle_objc_runtime_is_initalized( runtime));
-
+   if( _mulle_objc_runtime_is_initialized( runtime))
+   {
+      fprintf( stderr, "The runtime %p is already initialized. Do not call \"ns_objc_create_runtime\" twice.\n", runtime);
+      abort();
+   }
+   
    is_pedantic = getenv( "MULLE_OBJC_PEDANTIC_EXIT") != NULL;
    s           = getenv( "MULLE_OBJC_TEST_ALLOCATOR");
    is_test     = s ? atoi( s) : 0;
@@ -215,6 +227,25 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
                           : setup->callbacks.tear_down))
          perror( "atexit:");
    }
+
+
+//
+// this is for the test generator wedge
+// so we only search in MAIN so that the search is hopefully not that slow
+//
+#if HAVE_DLSYM
+   {
+      extern void  *dlsym( void* handle, const char* symbol);
+      void         *function;
+      
+      function = dlsym( RTLD_MAIN_ONLY, "__mulle_objc_loadinfo_callback");
+      if( function)
+      {
+         runtime->loadcallbacks.should_load_loadinfo = (int (*)()) function;
+         fprintf( stderr, "mulle_objc_runtime %p: __mulle_objc_loadinfo_callback and set to %p\n", runtime, function);
+      }
+   }
+#endif
 
    return( runtime);
 }

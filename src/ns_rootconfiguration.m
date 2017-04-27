@@ -310,7 +310,8 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
    us.runtimefriend.destructor    = runtime_dies;
    us.runtimefriend.data          = roots;
    us.runtimefriend.versionassert = config->runtime.versionassert ? config->runtime.versionassert : nop;
-
+   us.rootclassid                 = @selector( NSObject);
+   
    allocator = config->foundation.objectallocator
                   ? config->foundation.objectallocator
                   : &mulle_default_allocator;

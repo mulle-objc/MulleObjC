@@ -54,7 +54,12 @@
 
 + (void) initialize
 {
-   _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_SINGLETON);
+   struct _mulle_objc_classpair   *pair;
+   
+   // has is shallow, conforms is deep
+   pair = _mulle_objc_infraclass_get_classpair( self);
+   if( _mulle_objc_classpair_has_protocol( pair, @protocol( MulleObjCSingleton)))
+      _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_SINGLETON);
 }
 
 
