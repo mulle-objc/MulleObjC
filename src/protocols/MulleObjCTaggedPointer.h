@@ -38,6 +38,7 @@
 #import "ns_int_type.h"
 
 
+@class MulleObjCTaggedPointer; // to make this a protocolclass
 @protocol MulleObjCTaggedPointer
 
 @optional
@@ -45,8 +46,6 @@
 
 @end
 
-@class MulleObjCTaggedPointer; // needed for the compiler to understand this is
-                               // protocol class
 
 
 int  MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index);

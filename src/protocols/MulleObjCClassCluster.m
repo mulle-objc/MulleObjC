@@ -53,12 +53,17 @@
 @implementation MulleObjCClassCluster
 
 //
-// this gets inherited by the class, that implements the protocol
-// but JUST that class
+// MULLE_OBJC_IS_CLASSCLUSTER gets inherited by the class, that implements the
+// protocol but JUST that class
 //
 + (void) initialize
 {
-   _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER);
+   struct _mulle_objc_classpair   *pair;
+   
+   // has is shallow, conforms is deep
+   pair = _mulle_objc_infraclass_get_classpair( self);
+   if( _mulle_objc_classpair_has_protocol( pair, @protocol( MulleObjCClassCluster)))
+      _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER);
 }
 
 

@@ -50,6 +50,7 @@
 // When you call +alloc you get a retained placeholder back. In your
 // init method, you should release it.
 //
+@class MulleObjCClassCluster; // to make this a protocolclass
 @protocol MulleObjCClassCluster
 
 @optional
@@ -57,6 +58,5 @@
 
 @end
 
-@class MulleObjCClassCluster; // needed for the compiler to understand this is
                               // protocol class
 

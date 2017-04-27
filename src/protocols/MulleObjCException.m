@@ -57,7 +57,7 @@
 
 - (void) raise
 {
-   _mulle_objc_runtime_throw( mulle_objc_get_runtime(), self);
+   mulle_objc_throw( self);
 }
 
 @end

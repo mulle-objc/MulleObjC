@@ -44,15 +44,14 @@ struct _mulle_objc_runtime  *__get_or_create_objc_runtime( void)
    struct _mulle_objc_runtime  *runtime;
 
    runtime = __mulle_objc_get_runtime();
-   if( _mulle_objc_runtime_is_initalized( runtime))
-      return( runtime);
-
+   if( ! _mulle_objc_runtime_is_initialized( runtime))
    {
       struct _ns_root_setupconfig   config;
 
       memcpy( &config, ns_objc_get_default_setupconfig(), sizeof( config));
-      return( ns_objc_create_runtime( &config));
+      runtime = ns_objc_create_runtime( &config);
    }
+   return( runtime);
 }
 
 

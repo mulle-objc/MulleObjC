@@ -88,6 +88,7 @@ src/NSRecursiveLock.m
 src/NSThread.m
 src/ns_debug.m
 src/ns_exception.m
+src/ns_breakpoint.c
 src/ns_objc_setup.m
 src/ns_range.m
 src/ns_rootconfiguration.m

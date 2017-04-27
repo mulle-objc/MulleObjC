@@ -132,7 +132,7 @@ char   *MulleObjCSelectorGetName( SEL sel)
 
    runtime = mulle_objc_get_runtime();
    desc    = _mulle_objc_runtime_lookup_methoddescriptor( runtime, (mulle_objc_methodid_t) sel);
-   return( _mulle_objc_methoddescriptor_get_name( desc));
+   return( desc ? _mulle_objc_methoddescriptor_get_name( desc) : NULL);
 }
 
 
@@ -154,15 +154,77 @@ Class   MulleObjCLookupClassByName( char *name)
 }
 
 
+static char  *fake_signatures[ 16] =
+{
+   "@@:",
+   "@@:@",
+   "@@:@@",
+   "@@:@@@",
+   "@@:@@@@",
+   "@@:@@@@@",
+   "@@:@@@@@@",
+   "@@:@@@@@@@",
+   "@@:@@@@@@@@",
+   "@@:@@@@@@@@@",
+   "@@:@@@@@@@@@@",
+   "@@:@@@@@@@@@@@",
+   "@@:@@@@@@@@@@@@",
+   "@@:@@@@@@@@@@@@@",
+   "@@:@@@@@@@@@@@@@@",
+   "@@:@@@@@@@@@@@@@@@"
+};
+
+
+static unsigned int   count_params( char *name)
+{
+   unsigned int   n;
+   int            c;
+   
+   n = 0;
+   while( c = *name++)
+      n += c == ':';
+   return( n);
+}
+         
+         
 SEL   MulleObjCCreateSelector( char *name)
 {
-   mulle_objc_methodid_t   methodid;
-
+   mulle_objc_methodid_t                methodid;
+   struct _mulle_objc_runtime           *runtime;
+   struct _mulle_objc_methoddescriptor  *desc;
+   unsigned int                         n;
+   
    if( ! name)
-      return( 0);
+      return( (SEL) MULLE_OBJC_NO_METHODID);
 
-   methodid = mulle_objc_classid_from_string( name);
+   methodid = mulle_objc_uniqueid_from_string( name);
+   // if method is not known register a descriptor
+   // so that NSStringFromSelector can get something
+   
+   runtime = mulle_objc_get_runtime();
+   desc    = _mulle_objc_runtime_lookup_methoddescriptor( runtime, methodid);
+   if( ! desc)
+   {
+      desc = mulle_objc_runtime_calloc( runtime, 1, sizeof( struct _mulle_objc_methoddescriptor));
 
+      desc->methodid  = methodid;
+      desc->bits      = _mulle_objc_method_guessed_signature;
+      desc->name      = mulle_objc_runtime_strdup( runtime, name);
+
+      n = count_params( name);
+      if( n < 16)
+         desc->signature = fake_signatures[ n];  // could do better I guess
+      else
+      {
+         n += 3;  // add "@@:"
+
+         desc->signature = mulle_objc_runtime_calloc( runtime, 1, n + 1);
+         memset( desc->signature, '@', n);
+         desc->signature[ 2] = ':';
+      }
+      
+      mulle_objc_runtime_unfailing_add_methoddescriptor( runtime, desc);
+   }
    return( (SEL) (uintptr_t) methodid);
 }
 

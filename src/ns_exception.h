@@ -72,6 +72,13 @@ void   mulle_objc_throw_errno_exception_v( char *format, va_list args);
 MULLE_C_NO_RETURN
 void   mulle_objc_throw_internal_inconsistency_exception_v( char *format, va_list args);
 
+MULLE_C_NO_RETURN
+void   mulle_objc_throw( void *exception);
+
+//
+// the function to set breakpoints to, to catch all exceptions
+//
+void  mulle_objc_break_exception( void);
 
 #pragma mark -
 #pragma mark Uncaught Exceptions

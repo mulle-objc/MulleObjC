@@ -1,4 +1,5 @@
 build/
+build*.d/
 xcuserdata/
 project.xcworkspace/
 *~.*

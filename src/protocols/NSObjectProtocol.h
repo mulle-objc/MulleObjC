@@ -43,7 +43,7 @@
 # warning NSObject protocol included
 #endif
 
-
+@class NSObject;
 @protocol NSObject
 
 - (nonnull instancetype) retain;

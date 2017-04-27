@@ -111,14 +111,6 @@ char   *_NSPrintForDebugger( id a)
 
 static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was sent a \"%s\" message\n";
 
-+ (void) initialize
-{
-#if DEBUG_INITIALIZE
-   printf( "+[%s initialize] handled by %s\n", _mulle_objc_class_get_name( self), __PRETTY_FUNCTION__);
-#endif
-}
-
-
 - (char *) _originalClassName
 {
    return( _mulle_objc_class_get_name( _mulle_objc_object_get_isa( self)) + 11);

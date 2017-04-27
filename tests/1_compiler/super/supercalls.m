@@ -91,7 +91,7 @@
 
 int  main( void)
 {
-   mulle_objc_check_runtimewaitqueues();
+   mulle_objc_check_runtime();
 
    printf( "A:\n");
    [A a0];

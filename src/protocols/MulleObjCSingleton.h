@@ -40,15 +40,13 @@
 // singletons are expected to be created through "sharedInstance"
 // and not through alloc, if you use alloc you get another instance
 //
-@protocol MulleObjCSingleton < NSObject>
+@class MulleObjCSingleton; // to make this a protocolclass
+@protocol MulleObjCSingleton 
 
 @optional  // MulleObjCSingleton implements this for you
 + (instancetype) sharedInstance;
 
 @end
-
-@class MulleObjCSingleton; // needed for the compiler to understand this is
-                           // protocol class
 
 
 // for subclasses, who don't use sharedInstance

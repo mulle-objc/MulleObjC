@@ -141,16 +141,6 @@
 
 @implementation NSObject
 
-+ (void) initialize
-{
-   // this is called by all subclasses, that don't implement #initialize
-   // so don't do much/anything here (or protect against it)
-#if DEBUG_INITIALIZE
-   printf( "+[%s initialize] handled by %s\n", _mulle_objc_class_get_name( self), __PRETTY_FUNCTION__);
-#endif
-}
-
-
 + (nonnull instancetype) alloc
 {
    return( NSAllocateObject( self, 0, NULL));
@@ -176,7 +166,6 @@
 {
    return( (NSZone *) 0);
 }
-
 
 
 - (void) _performFinalize
