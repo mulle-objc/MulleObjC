@@ -4,10 +4,8 @@
 language: objective-c
 
 before_install:
-   - brew tap mulle-kybernetik/software
-   - brew install mulle-build
-   - brew tap codeon-gmbh/software
-   - brew install mulle-clang
+   - brew install mulle-kybernetik/alpha/mulle-build
+   - brew install codeon-gmbh/software/mulle-clang
 
 script:
    - mulle-build
