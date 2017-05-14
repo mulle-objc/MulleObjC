@@ -37,6 +37,7 @@
 #import "ns_int_type.h"
 
 #import "ns_zone.h"
+#import "MulleObjCRuntimeObject.h"
 
 
 #ifdef TRACE_INCLUDE_MULLE_FOUNDATION
@@ -44,16 +45,11 @@
 #endif
 
 @class NSObject;
-@protocol NSObject
-
-- (nonnull instancetype) retain;
-- (void) release;
-- (nonnull instancetype) autorelease;
-- (NSUInteger) retainCount;
+@protocol NSObject < MulleObjCRuntimeObject>
 
 - (Class) superclass;
-- (nonnull Class) class;
-- (nonnull id) self;
+- (Class) class;
+- (id) self;
 
 - (id) performSelector:(SEL) sel;
 - (id) performSelector:(SEL) sel
@@ -67,25 +63,14 @@
 - (BOOL) conformsToProtocol:(PROTOCOL) protocol;
 - (BOOL) respondsToSelector:(SEL) sel;
 
-
 // these are not in the traditional NSObject protocol
 + (instancetype) new;
-+ (nonnull instancetype) alloc;
-+ (nonnull instancetype) allocWithZone:(NSZone *) zone;  // deprecated
++ (instancetype) alloc;
++ (instancetype) allocWithZone:(NSZone *) zone;  // deprecated
 - (instancetype) init;
 
-- (BOOL) isEqual:(id) obj;
+// for collections. isEqual: determines set membership
 - (NSUInteger) hash;
-- (id) description;
-
-// mulle additions:
-
-// AAO suport
-+ (nonnull instancetype) instantiate;
-- (nonnull instancetype) immutableInstance;
-
-// advanced Autorelease and ObjectGraph support
-- (void) _becomeRootObject;
-- (void) _pushToParentAutoreleasePool;
+- (BOOL) isEqual:(id) obj;
 
 @end

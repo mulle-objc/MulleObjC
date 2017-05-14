@@ -50,6 +50,13 @@
 
 @implementation MulleObjCTaggedPointer
 
++ (id) alloc
+{
+   //   fprintf( stderr, "+alloc on a tagged pointer is wrong\n");
+   abort();
+}
+
+
 - (void) dealloc
 {
    //   fprintf( stderr, "-dealloc on a tagged pointer is wrong\n");

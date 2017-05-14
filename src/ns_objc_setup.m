@@ -75,6 +75,8 @@ static void  perror_abort( char *s)
 /*
  * it's just too convenient, to have this as the old name (really ?)
  */
+void   *_objc_msgForward( void *self, mulle_objc_methodid_t _cmd, void *_param);
+
 void   *_objc_msgForward( void *self, mulle_objc_methodid_t _cmd, void *_param)
 {
    struct _mulle_objc_class   *cls;
@@ -175,7 +177,6 @@ const struct _ns_root_setupconfig   *ns_objc_get_default_setupconfig( void)
 struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig *setup)
 {
    BOOL                         is_pedantic;
-   char                         *s;
    int                          is_test;
    struct _mulle_objc_runtime   *runtime;
 
@@ -185,10 +186,9 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
       fprintf( stderr, "The runtime %p is already initialized. Do not call \"ns_objc_create_runtime\" twice.\n", runtime);
       abort();
    }
-   
-   is_pedantic = getenv( "MULLE_OBJC_PEDANTIC_EXIT") != NULL;
-   s           = getenv( "MULLE_OBJC_TEST_ALLOCATOR");
-   is_test     = s ? atoi( s) : 0;
+
+   is_pedantic = mulle_objc_getenv_yes_no( "MULLE_OBJC_PEDANTIC_EXIT");
+   is_test     = mulle_objc_getenv_yes_no( "MULLE_OBJC_TEST_ALLOCATOR");
 
    if( is_test)
    {
@@ -237,12 +237,13 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
    {
       extern void  *dlsym( void* handle, const char* symbol);
       void         *function;
-      
+
       function = dlsym( RTLD_MAIN_ONLY, "__mulle_objc_loadinfo_callback");
       if( function)
       {
          runtime->loadcallbacks.should_load_loadinfo = (int (*)()) function;
-         fprintf( stderr, "mulle_objc_runtime %p: __mulle_objc_loadinfo_callback and set to %p\n", runtime, function);
+         fprintf( stderr, "mulle_objc_runtime %p: "
+                 "__mulle_objc_loadinfo_callback set to %p\n", runtime, function);
       }
    }
 #endif

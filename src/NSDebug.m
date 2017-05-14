@@ -196,7 +196,7 @@ static void   zombifyObject( id obj)
       fprintf( stderr, "not zombiying class object %p\n", obj);
       abort();
    }
-   
+
    runtime = _mulle_objc_infraclass_get_runtime( cls);
 
    sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_infraclass_get_name( cls));
@@ -215,7 +215,7 @@ static void   zombifyObject( id obj)
       mulle_objc_metaclass_unfailing_add_methodlist( meta, NULL);
       mulle_objc_runtime_unfailing_add_infraclass( runtime, infra);
    }
-   
+
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
 }
 

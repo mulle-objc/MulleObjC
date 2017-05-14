@@ -92,7 +92,7 @@ static inline id   MulleObjCCallIMPWithLong( IMP imp, id obj, SEL sel, long argu
 
    if( sizeof( long) <= sizeof( void *))
       return( MulleObjCCallIMP( imp, obj, sel, (void *) (intptr_t) argument));
-      
+
    _param.p.a = argument;
 
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &_param));
@@ -105,7 +105,7 @@ static inline id   MulleObjCCallIMPWithUnsignedLong( IMP imp, id obj, SEL sel, u
 
    if( sizeof( unsigned long) <= sizeof( void *))
       return( MulleObjCCallIMP( imp, obj, sel, (void *) (intptr_t) argument));
-      
+
    _param.p.a = argument;
 
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &_param));

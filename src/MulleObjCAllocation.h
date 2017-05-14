@@ -135,9 +135,9 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
    struct mulle_allocator            *allocator;
    NSUInteger                        size;
    struct _mulle_objc_class          *cls;
-   
+
    cls = _mulle_objc_infraclass_as_class( infraCls);
-   
+
    assert( cls);
    assert( _mulle_objc_class_is_infraclass( cls));
 
@@ -162,10 +162,10 @@ static inline void   _MulleObjCObjectReleaseProperties( id obj)
 
    // walk through properties and release them
    cls  = _mulle_objc_object_get_isa( obj);
-   
+
    // if it's a meta class it's an error during debug
    assert( _mulle_objc_class_is_infraclass( cls));
-   
+
    if( _mulle_objc_class_is_infraclass( cls))
    {
       infra = _mulle_objc_class_as_infraclass( cls);

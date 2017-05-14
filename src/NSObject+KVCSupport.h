@@ -81,10 +81,7 @@ static inline void   _MulleObjCKVCInformationDone( struct _MulleObjCKVCInformati
 @end
 
 
-//
-// the cache is not 100% but more like 99.99%
-//
-@interface NSObject (KVCSupport)
+@interface NSObject( KVCSupport)
 
 - (void) _getKVCInformation:(struct _MulleObjCKVCInformation *) kvcInfo
                      forKey:(id <NSStringFuture>) key
@@ -93,7 +90,7 @@ static inline void   _MulleObjCKVCInformationDone( struct _MulleObjCKVCInformati
 @end
 
 
-@interface NSObject (KVCSupportFuture)
+@interface NSObject( KVCSupportFuture)
 
 - (void) _divineKVCInformation:(struct _MulleObjCKVCInformation *) info
                         forKey:(id) key

@@ -46,6 +46,7 @@
 #import "ns_objc_setup.h"
 
 // objects
+#import "MulleObjCLoader.h"
 #import "NSAutoreleasePool.h"
 #import "NSInvocation.h"
 #import "NSMethodSignature.h"
@@ -54,7 +55,6 @@
 #import "NSRecursiveLock.h"
 #import "NSProxy.h"
 #import "NSThread.h"
-
 
 // protocols
 #import "MulleObjCClassCluster.h"
@@ -68,13 +68,13 @@
 #import "NSObjectProtocol.h"
 
 // categories
-#import "NSObject+NSCoding.h"
+#import "NSObject+NSCodingSupport.h"
 
 // functions
 #import "MulleObjCAllocation.h"
 #import "MulleObjCFunctions.h"
 
 
-#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (5 << 8) | 0)
+#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (6 << 8) | 0)
 # error "mulle_objc runtime is too old"
 #endif

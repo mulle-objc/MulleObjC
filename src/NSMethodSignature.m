@@ -85,7 +85,6 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 
    allocator = MulleObjCObjectGetAllocator( self);
 
-   fprintf( stderr, "%s: %p has %sextra memory\n", __PRETTY_FUNCTION__, self, hasExtraMemory( self) ? "" : "no ");
    if( ! hasExtraMemory( self))
    {
       mulle_allocator_free( allocator, _types);

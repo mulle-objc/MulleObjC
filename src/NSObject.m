@@ -39,9 +39,10 @@
 #import "ns_objc_type.h"
 #import "ns_int_type.h"
 #import "ns_debug.h"
+#import "MulleObjCAllocation.h"
+#import "MulleObjCSingleton.h"
 #import "NSCopying.h"
 #import "NSAutoreleasePool.h"
-#import "MulleObjCAllocation.h"
 #import "NSMethodSignature.h"
 #import "NSInvocation.h"
 
@@ -141,13 +142,13 @@
 
 @implementation NSObject
 
-+ (nonnull instancetype) alloc
++ (instancetype) alloc
 {
    return( NSAllocateObject( self, 0, NULL));
 }
 
 
-+ (nonnull instancetype) allocWithZone:(NSZone *) zone
++ (instancetype) allocWithZone:(NSZone *) zone
 {
    return( NSAllocateObject( self, 0, NULL));
 }
@@ -201,7 +202,7 @@ static BOOL   MulleObjCSingleThreadedCheckReleaseAndAutorelease = YES;
 #pragma mark -
 #pragma mark lifetime management
 
-- (nonnull instancetype) retain
+- (instancetype) retain
 {
    return( (id) mulle_objc_object_retain( (struct _mulle_objc_object *) self));
 }
@@ -241,7 +242,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-- (nonnull instancetype) autorelease
+- (instancetype) autorelease
 {
    checkAutoreleaseRelease( self);
 
@@ -256,7 +257,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-- (nonnull instancetype) self
+- (instancetype) self
 {
    return( self);
 }
@@ -303,7 +304,7 @@ static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Cl
 }
 
 
-+ (nonnull instancetype) instantiate
++ (instancetype) instantiate
 {
    struct _mulle_objc_object   *placeholder;
 
@@ -330,13 +331,13 @@ retry:
 }
 
 
-- (nonnull instancetype) immutableInstance
+- (instancetype) immutableInstance
 {
    return( [[self copy] autorelease]);
 }
 
 
-- (nonnull instancetype) mutableInstance
+- (instancetype) mutableInstance
 {
    return( [[self mutableCopy] autorelease]);
 }
@@ -472,7 +473,8 @@ static void   assert_key( id key)
       switch( (rval = _mulle_objc_infraclass_remove_cvar( self, key, old)))
       {
          case 0 :
-            [old _resignAsRootObject];
+            if( ! _mulle_objc_object_is_permanent( old) && ! MulleObjCIsSingleton( old))
+               [old _resignAsRootObject];
          case ENOENT :
             return;
 
@@ -496,7 +498,8 @@ static void   assert_key( id key)
    switch( (rval = _mulle_objc_infraclass_set_cvar( self, key, value)))
    {
    case 0 :
-      [value _becomeRootObject];
+      if( ! _mulle_objc_object_is_permanent( value) && ! MulleObjCIsSingleton( value))
+         [value _becomeRootObject];
       return( YES);
 
    case EEXIST :
@@ -595,12 +598,6 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-- (id) description
-{
-   return( nil);
-}
-
-
 #pragma mark -
 #pragma mark class introspection
 
@@ -613,7 +610,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 //
 // +class loops around to - class
 //
-- (nonnull Class) class
+- (Class) class
 {
    Class  cls;
 
@@ -622,7 +619,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-+ (nonnull Class) class
++ (Class) class
 {
    Class  cls;
 
@@ -674,7 +671,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 {
    struct _mulle_objc_class       *cls;
    struct _mulle_objc_classpair   *pair;
-   
+
    cls  = _mulle_objc_object_get_isa( self);
    pair = _mulle_objc_class_get_classpair( cls);
    return( (BOOL) _mulle_objc_classpair_conformsto_protocol( pair,

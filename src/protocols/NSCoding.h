@@ -49,7 +49,7 @@
 // not. But both MUST implement decodeWithCoder:
 
 @optional
-- (Class) classForCoder;  // you get this for free
+- (Class) classForCoder;  // NSObject usually gives you this for free later
 - (void) decodeWithCoder:(NSCoder *) aDecoder;
 
 // tired of writing basically the same code in encodeWithCoder:
@@ -59,7 +59,4 @@
 //- (void) encodeDecodeWithCoder:(NSCoder *) aDecoder;
 
 @end
-
-@class NSCoding; // needed for the compiler to understand this is
-                 // protocol class
 

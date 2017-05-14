@@ -51,19 +51,19 @@ static void  divine_info( NSObject *self,
    [self _divineKVCInformation:kvcInfo
                         forKey:key
                     methodType:type];
-   
+
    if( kvcInfo->offset)
    {
       assert( info->offset == kvcInfo->offset || ! info->offset);
       info->offset = kvcInfo->offset;
    }
-   
+
    if( kvcInfo->valueType != _C_ID)
    {
       assert( (info->valueType == kvcInfo->valueType) || (info->valueType == _C_ID));
       info->valueType = kvcInfo->valueType;
    }
-   
+
    info->methodid[ type]       = (mulle_objc_methodid_t) kvcInfo->selector;
    info->implementation[ type] = (mulle_objc_methodimplementation_t) kvcInfo->implementation;
 }

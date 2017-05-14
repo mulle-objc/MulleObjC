@@ -311,7 +311,7 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
    us.runtimefriend.data          = roots;
    us.runtimefriend.versionassert = config->runtime.versionassert ? config->runtime.versionassert : nop;
    us.rootclassid                 = @selector( NSObject);
-   
+
    allocator = config->foundation.objectallocator
                   ? config->foundation.objectallocator
                   : &mulle_default_allocator;
@@ -341,12 +341,12 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
 
    _mulle_objc_runtime_set_foundation( runtime, &us);
 
-   roots->object.debugenabled      = getenv( "MULLE_OBJC_DEBUG_ENABLED") != NULL ||
-         getenv( "NSDebugEnabled") != NULL;
-   roots->object.zombieenabled     = getenv( "MULLE_OBJC_ZOMBIE_ENABLED") != NULL ||
-         getenv( "NSZombieEnabled") != NULL;
-   roots->object.deallocatezombies = getenv( "MULLE_OBJC_DEALLOCATE_ZOMBIES") != NULL ||
-         getenv( "NSDeallocateZombies") != NULL;
+   roots->object.debugenabled      = mulle_objc_getenv_yes_no( "MULLE_OBJC_DEBUG_ENABLED") ||
+         mulle_objc_getenv_yes_no( "NSDebugEnabled");
+   roots->object.zombieenabled     = mulle_objc_getenv_yes_no( "MULLE_OBJC_ZOMBIE_ENABLED") ||
+         mulle_objc_getenv_yes_no( "NSZombieEnabled");
+   roots->object.deallocatezombies = mulle_objc_getenv_yes_no( "MULLE_OBJC_DEALLOCATE_ZOMBIES") ||
+         mulle_objc_getenv_yes_no( "NSDeallocateZombies");
 
    return( roots);
 }

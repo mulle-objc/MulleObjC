@@ -13,11 +13,11 @@
     printf( "Foo( C2)\n");
 }
 
-+ (SEL *) categoryDependencies
++ (struct _mulle_objc_dependency *) dependencies
 {
-   static SEL  dependencies[] =
+   static struct _mulle_objc_dependency  dependencies[] =
    {
-      @selector( C3),
+      { @selector( Foo), @selector( C3) },
       0
    };
 

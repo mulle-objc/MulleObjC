@@ -41,6 +41,7 @@
 
 //
 // allow isa with cpp define
+// The cast is not really type correct, as isa can be the metaclass
 //
 #ifdef MULLE_OBJC_ISA_HACK
 # define isa   ((Class) _mulle_objc_object_get_isa( self))
@@ -57,7 +58,7 @@ typedef struct _mulle_objc_infraclass      *Class;  // the meta-class is not "vi
 
 //
 // Protocol as a valid keyword and a pseudo-class does not exist
-// @protocol( Foo) returns an unsigned long
+// @protocol( Foo) returns an unsigned int
 // For other compilers say   `typedef Protocol   *PROTOCOL`
 // and code will work on both sides.
 //
@@ -65,7 +66,8 @@ typedef mulle_objc_methodid_t               SEL;
 typedef SEL                                 PROTOCOL;
 typedef struct _mulle_objc_method           *Method;
 typedef struct _mulle_objc_ivar             *Ivar;
-typedef mulle_objc_methodimplementation_t   IMP;
+typedef id                                  (*IMP)( id, SEL, void *);
+
 // --- compiler defined end ---
 
 // turn off this warning, because it's wrong for us
@@ -86,8 +88,8 @@ typedef mulle_objc_methodimplementation_t   IMP;
 
 enum
 {
-   MULLE_OBJC_IS_CLASSCLUSTER = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 0),
-   MULLE_OBJC_IS_SINGLETON    = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 1)
+   MULLE_OBJC_IS_CLASSCLUSTER   = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 0),
+   MULLE_OBJC_IS_SINGLETON      = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 1)
 };
 
 #endif
