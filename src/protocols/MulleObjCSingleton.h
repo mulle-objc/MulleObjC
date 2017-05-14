@@ -41,7 +41,7 @@
 // and not through alloc, if you use alloc you get another instance
 //
 @class MulleObjCSingleton; // to make this a protocolclass
-@protocol MulleObjCSingleton 
+@protocol MulleObjCSingleton
 
 @optional  // MulleObjCSingleton implements this for you
 + (instancetype) sharedInstance;
@@ -50,4 +50,14 @@
 
 
 // for subclasses, who don't use sharedInstance
-id   MulleObjCSingletonCreate( Class self);
+id     MulleObjCSingletonCreate( Class self);
+
+static inline BOOL   MulleObjCIsSingleton( id obj)
+{
+   Class  infraCls;
+   
+   if( ! obj)
+      return( NO);
+   infraCls = mulle_objc_object_get_infraclass( obj);
+   return( _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_IS_CLASSCLUSTER) ? YES : NO);
+}

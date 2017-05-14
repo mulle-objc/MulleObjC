@@ -59,7 +59,7 @@
 + (void) initialize
 {
    struct _mulle_objc_classpair   *pair;
-   
+
    // has is shallow, conforms is deep
    pair = _mulle_objc_infraclass_get_classpair( self);
    if( _mulle_objc_classpair_has_protocol( pair, @protocol( MulleObjCClassCluster)))
@@ -85,7 +85,7 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 }
 
 
-+ (nonnull instancetype) alloc
++ (instancetype) alloc
 {
    struct _mulle_objc_object   *placeholder;
 
@@ -96,8 +96,14 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
    // +initialize
    //
    if( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER))
+   {
+#if DEBUG
+      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of MulleObjCClassCluster but gets allocated directly. (Non classcluster subclasses should implement +alloc)\n",
+                 _mulle_objc_infraclass_get_classid( self),
+                 _mulle_objc_infraclass_get_name( self));
+#endif
       return( NSAllocateObject( self, 0, NULL));
-
+   }
    assert( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_IS_SINGLETON));
 
    placeholder = _mulle_objc_infraclass_get_auxplaceholder( self);
@@ -113,7 +119,7 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 }
 
 
-+ (nonnull instancetype) new
++ (instancetype) new
 {
    return( [[self alloc] init]);
 }

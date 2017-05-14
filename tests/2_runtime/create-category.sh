@@ -129,19 +129,19 @@ EOF
    then
 
       cat <<EOF
-+ (SEL *) categoryDependencies
++ (struct _mulle_objc_dependency *) dependencies
 {
-   static SEL  dependencies[] =
+   static struct _mulle_objc_dependency  dependencies[] =
    {
 EOF
 
       for dependency in $DEPENDENCIES
       do
-         echo "      @selector( ${dependency}),"
+         echo "   { @selector( ${CLASS}), @selector( ${dependency}) },"
       done
 
       cat <<EOF
-      0
+      { 0, 0 }
    };
 
    return( dependencies);

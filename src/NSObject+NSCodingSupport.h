@@ -1,5 +1,5 @@
 //
-//  NSObject+NSCoding.m
+//  NSObject+NSCoding.h
 //  MulleObjC
 //
 //  Copyright (c) 2016 Nat! - Mulle kybernetiK.
@@ -34,41 +34,18 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#import "NSObject+NSCoding.h"
+#import "NSObject.h"
 
+@class NSCoder;
 
-@implementation NSObject (NSCoding)
+// NSObject has helper methods, but doesn't implement NSCoding itself
 
-+ (NSInteger) version
-{
-   assert( _mulle_objc_class_is_infraclass( (void *) self));
-   return( _mulle_objc_infraclass_get_coderversion( self));
-}
+@interface NSObject( NSCodingSupport)
 
-
-+ (void) setVersion:(NSInteger) value
-{
-   assert( _mulle_objc_class_is_infraclass( (void *) self));
-   if( ! _mulle_objc_infraclass_set_coderversion( self, value))
-      abort();  // how likely is that ?
-}
-
-
-+ (Class) classForCoder
-{
-   return( self);
-}
-
-
-- (id) replacementObjectForCoder:(NSCoder *) coder
-{
-   return( self);
-}
-
-
-- (id) awakeAfterUsingCoder:(NSCoder *) decoder
-{
-   return( self);
-}
++ (NSInteger) version;
++ (void) setVersion:(NSInteger) aVersion;
++ (Class) classForCoder;
+- (id) replacementObjectForCoder:(NSCoder *) coder;
+- (id) awakeAfterUsingCoder:(NSCoder *) decoder;
 
 @end

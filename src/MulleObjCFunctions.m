@@ -179,28 +179,28 @@ static unsigned int   count_params( char *name)
 {
    unsigned int   n;
    int            c;
-   
+
    n = 0;
    while( c = *name++)
       n += c == ':';
    return( n);
 }
-         
-         
+
+
 SEL   MulleObjCCreateSelector( char *name)
 {
    mulle_objc_methodid_t                methodid;
    struct _mulle_objc_runtime           *runtime;
    struct _mulle_objc_methoddescriptor  *desc;
    unsigned int                         n;
-   
+
    if( ! name)
       return( (SEL) MULLE_OBJC_NO_METHODID);
 
    methodid = mulle_objc_uniqueid_from_string( name);
    // if method is not known register a descriptor
    // so that NSStringFromSelector can get something
-   
+
    runtime = mulle_objc_get_runtime();
    desc    = _mulle_objc_runtime_lookup_methoddescriptor( runtime, methodid);
    if( ! desc)
@@ -222,7 +222,7 @@ SEL   MulleObjCCreateSelector( char *name)
          memset( desc->signature, '@', n);
          desc->signature[ 2] = ':';
       }
-      
+
       mulle_objc_runtime_unfailing_add_methoddescriptor( runtime, desc);
    }
    return( (SEL) (uintptr_t) methodid);
@@ -235,10 +235,10 @@ void    MulleObjCSetClass( id obj, Class cls)
       mulle_objc_throw_invalid_argument_exception( "object can't be NULL");
    if( ! cls)
       mulle_objc_throw_invalid_argument_exception( "class can't be NULL");
-   
+
    if( _mulle_objc_infraclass_is_taggedpointerclass( cls))
       mulle_objc_throw_invalid_argument_exception( "class \"%s\" is a tagged pointer class", _mulle_objc_infraclass_get_name( cls));
-   
+
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
 }
 

@@ -48,7 +48,18 @@
 #pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
 
 
+
 @implementation NSThread
+
++ (struct _mulle_objc_dependency *) dependencies
+{
+   static struct _mulle_objc_dependency   dependencies[] =
+   {
+      { @selector( NSAutoreleasePool), 0 },
+      { 0, 0 }
+   };
+   return( dependencies);
+}
 
 
 /*
@@ -153,7 +164,7 @@ void  _NSThreadResignAsRuntimeThreadAndDeallocate( NSThread *self)
    config = _ns_get_rootconfiguration();
 
    [self _performFinalize]; // get rid of NSThreadDictionary
-   
+
    _mulle_atomic_pointer_decrement( &config->thread.n_threads);
    _ns_remove_thread( self);
 

@@ -72,7 +72,7 @@ void   mulle_objc_throw_invalid_argument_exception_v( char *format, va_list args
       vfprintf( stderr, format, args);
       exit( 1);
    }
-   
+
    s = _ns_string( format);
    vectors->invalid_argument( s, args);
 }
@@ -103,7 +103,7 @@ void   mulle_objc_throw_internal_inconsistency_exception_v( char *format, va_lis
       exit( 1);
    }
    s = _ns_string( format);
-   
+
    vectors->internal_inconsistency( s, args);
 }
 
@@ -132,7 +132,7 @@ void   mulle_objc_throw_errno_exception_v( char *format, va_list args)
       vfprintf( stderr, format, args);
       exit( 1);
    }
-   
+
    s = _ns_string( format);
    vectors->errno_error( s, args);
 }
@@ -161,7 +161,7 @@ void   mulle_objc_throw_invalid_index( NSUInteger index)
       fprintf( stderr, "invalid index %lu\n", index);
       exit( 1);
    }
-   
+
    vectors->invalid_index( index);
 }
 

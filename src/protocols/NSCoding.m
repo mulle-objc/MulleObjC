@@ -45,13 +45,3 @@
 
 @interface NSCoding <NSCoding>
 @end
-
-
-@implementation NSCoding
-
-- (Class) classForCoder
-{
-   return( [(id< NSObject>) self class]);
-}
-
-@end

@@ -1,3 +1,9 @@
+0.6.1
+
+* added the MulleObjCLoader
+* removed all `nonnull` from methods. An oversight from the past...
+* added MulleObjCRuntimeObject for easier structure
+
 0.4.1
 
 * Moved NSCoder to MulleObjCFoundation

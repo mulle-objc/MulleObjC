@@ -29,6 +29,7 @@ src/protocols
 
 set(HEADERS
 src/MulleObjC.h
+src/MulleObjCLoader.h
 src/MulleObjCAllocation.h
 src/MulleObjCFunctions.h
 src/NSAutoreleasePool.h
@@ -36,7 +37,7 @@ src/NSDebug.h
 src/NSInvocation.h
 src/NSLock.h
 src/NSMethodSignature.h
-src/NSObject+NSCoding.h
+src/NSObject+NSCodingSupport.h
 src/NSObject+KVCSupport.h
 src/NSObject.h
 src/NSProxy.h
@@ -62,6 +63,7 @@ src/ns_threadconfiguration.h
 src/ns_zone.h
 src/protocols/MulleObjCClassCluster.h
 src/protocols/MulleObjCException.h
+src/protocols/MulleObjCRuntimeObject.h
 src/protocols/MulleObjCSingleton.h
 src/protocols/MulleObjCTaggedPointer.h
 src/protocols/NSCoding.h
@@ -75,13 +77,14 @@ src/protocols/NSObjectProtocol.h
 add_library(MulleObjC STATIC
 src/MulleObjCAllocation.m
 src/MulleObjCFunctions.m
+src/MulleObjCLoader.m
 src/NSAutoreleasePool.m
 src/NSDebug.m
 src/NSInvocation.m
 src/NSLock.m
 src/NSMethodSignature.m
 src/NSObject.m
-src/NSObject+NSCoding.m
+src/NSObject+NSCodingSupport.m
 src/NSObject+KVCSupport.m
 src/NSProxy.m
 src/NSRecursiveLock.m
@@ -98,7 +101,8 @@ src/protocols/MulleObjCException.m
 src/protocols/MulleObjCSingleton.m
 src/protocols/MulleObjCTaggedPointer.m
 src/protocols/NSCoding.m
-src/protocols/NSCopying.m)
+src/protocols/NSCopying.m
+)
 
 if( MSVC)
    set( DEF_FILE MulleObjCStandalone.def)

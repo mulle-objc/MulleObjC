@@ -1,9 +1,12 @@
 //
-//  NSObject+KVCSupport.h
+//  MulleObjCLoader.h
 //  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2016 Codeon GmbH.
+//  Created by Nat! on 27.03.17.
+//  Copyright © 2017 Mulle kybernetiK. All rights reserved.
+//
+//  Copyright (c) 2015 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2015 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -33,67 +36,38 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+//
+// this class is used to setup NSPageAllocation and NSPathUtilities
+// you write a category on it and intitalize both within +load
 
-#import "NSObject.h"
+// It's a root class
 
-
-// TODO: real caching needed
-
-enum _MulleObjCKVCMethodType
-{
-   _MulleObjCKVCValueForKeyIndex           = 0,
-   _MulleObjCKVCTakeValueForKeyIndex       = 1,
-   _MulleObjCKVCStoredValueForKeyIndex     = 2,
-   _MulleObjCKVCTakeStoredValueForKeyIndex = 3
-};
-
-
-struct _MulleObjCKVCInformation
-{
-   id     key;
-   IMP    implementation;
-   SEL    selector;
-   int    offset;
-   char   valueType;
-};
+// the loader is the central class to manage dependencies
+// classes based on MulleObjC. MulleObjCFoundation will have a category
+// called MulleObjCLoader( Foundation) listing it's classes and categories
+// as dependencies.
+// Then MulleObjCOSFoundation will have a MulleObjCLoader( OSFoundation) and
+// so on. This allows +load code to work in a known environment.
+//
 
 
-static inline void   _MulleObjCKVCInformationInitWithKey( struct _MulleObjCKVCInformation *p, id key)
-{
-   p->key            = key;
-   p->implementation = 0;
-   p->selector       = 0;
-   p->offset         = 0;
-   p->valueType      = _C_ID;
-}
+/*
+   To be dependend on MulleObjC put this before
+   your +load code:
+
+   ```
+   + (struct _mulle_objc_dependency *) dependencies
+   {
+      struct _mulle_objc_dependency   dependencies[] =
+      {
+          { @selector( MulleObjCLoader), MULLE_OBJC_NO_CATEGORYID },
+          { MULLE_OBJC_NO_CLASSID, MULLE_OBJC_NO_CATEGORYID }
+      };
+      return( dependencies);
+   }
+   ```
+*/
 
 
-static inline void   _MulleObjCKVCInformationDone( struct _MulleObjCKVCInformation *info)
-{
-}
-
-
-@protocol NSStringFuture
-
-- (NSUInteger) _UTF8StringLength;
-- (NSUInteger) _getUTF8String:(char *) buf
-                   bufferSize:(NSUInteger) maxLength;
-@end
-
-
-@interface NSObject( KVCSupport)
-
-- (void) _getKVCInformation:(struct _MulleObjCKVCInformation *) kvcInfo
-                     forKey:(id <NSStringFuture>) key
-                 methodType:(enum _MulleObjCKVCMethodType) type;
-
-@end
-
-
-@interface NSObject( KVCSupportFuture)
-
-- (void) _divineKVCInformation:(struct _MulleObjCKVCInformation *) info
-                        forKey:(id) key
-                    methodType:(enum _MulleObjCKVCMethodType) type;
-
+@interface MulleObjCLoader
 @end

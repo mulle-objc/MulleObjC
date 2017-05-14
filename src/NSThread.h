@@ -48,9 +48,8 @@ struct MulleObjCAutoreleasePoolConfiguration;
    id               _argument;
    mulle_thread_t   _thread;
    BOOL             _isDetached;
+   id               _userInfo;
 }
-
-@property( retain) id     userInfo;  // used for thread dictionary
 
 - (id) initWithTarget:(id) target
              selector:(SEL) sel

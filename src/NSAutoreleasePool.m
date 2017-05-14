@@ -39,7 +39,6 @@
 // other files in this library
 #import "MulleObjCAllocation.h"
 #import "NSDebug.h"
-#import "NSThread.h"
 #include "ns_zone.h"
 #include "_ns_autoreleasepointerarray.h"
 
@@ -68,8 +67,6 @@ static struct mulle_container_keyvaluecallback    object_map_callback;
 
 static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
 {
-   char   *s;
-
    config->poolClass          = mulle_objc_unfailing_get_or_lookup_infraclass( MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH));
    config->autoreleaseObject  = _autoreleaseObject;
    config->autoreleaseObjects = _autoreleaseObjects;
@@ -78,7 +75,7 @@ static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *
    config->object_map         = NULL;
 
 #ifndef DEBUG
-   if( getenv( "MULLE_OBJC_AUTORELEASEPOOL_MAP"))
+   if( mulle_objc_getenv_yes_no( "MULLE_OBJC_AUTORELEASEPOOL_MAP"))
 #endif
    {
       object_map_callback.keycallback   = mulle_container_keycallback_nonowned_pointer;
@@ -90,8 +87,7 @@ static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *
       config->object_map = &config->_object_map;
    }
 
-   s             = getenv( "MULLE_OBJC_AUTORELEASEPOOL_TRACE");
-   config->trace = s ? atoi( s) : 0;
+   config->trace = mulle_objc_getenv_yes_no( "MULLE_OBJC_AUTORELEASEPOOL_TRACE");
    (*config->push)( config);  // create a pool
 }
 
@@ -103,8 +99,11 @@ void   _ns_poolconfiguration_set_thread( void)
 
 
 //
-// if NSThread ran before, it can't have setup the main autoreleasepool yet
-// fix that...
+// it is clear now, due to dependencies
+// that NSThread +load runs after NSAutoreleasePool
+// ...
+// so maybe this piece of load code should be done
+// in NSThread now ?
 //
 + (void) load
 {

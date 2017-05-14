@@ -55,11 +55,17 @@
 + (void) initialize
 {
    struct _mulle_objc_classpair   *pair;
-   
+
    // has is shallow, conforms is deep
    pair = _mulle_objc_infraclass_get_classpair( self);
    if( _mulle_objc_classpair_has_protocol( pair, @protocol( MulleObjCSingleton)))
       _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_SINGLETON);
+#if DEBUG
+   else
+      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of MulleObjCSingleton but does not implement it as a protocol\n",
+           _mulle_objc_infraclass_get_classid( self),
+           _mulle_objc_infraclass_get_name( self));
+#endif
 }
 
 
@@ -83,7 +89,6 @@ id  MulleObjCSingletonCreate( Class infraCls)
 
    return( (id) singleton);
 }
-
 
 //
 // a subclass can be installed and, when it's sharedInstance message is called

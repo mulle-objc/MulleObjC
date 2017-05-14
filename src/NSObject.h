@@ -56,16 +56,6 @@
 //
 @interface NSObject < NSObject>
 
-//
-// these methods must not be overriden
-// the runtime will replace any [foo alloc] call
-// with a C function
-//
-- (NSZone *) zone   __attribute__((deprecated("zones have no meaning and will eventually disappear")));  // always NULL
-- (nonnull instancetype) retain;
-- (void) release;
-- (nonnull instancetype) autorelease;
-- (NSUInteger) retainCount;
 
 // regular methods
 
@@ -74,8 +64,8 @@
 // override new too, if you override alloc
 //
 + (instancetype) new;
-+ (nonnull instancetype) alloc;
-+ (nonnull instancetype) allocWithZone:(NSZone *) zone  __attribute__((deprecated("zones have no meaning and will eventually disappear")));   // deprecated
++ (instancetype) alloc;
++ (instancetype) allocWithZone:(NSZone *) zone  __attribute__((deprecated("zones have no meaning and will eventually disappear")));   // deprecated
 
 //
 // if you subclass NSObject and override init, don't bother calling [super init]
@@ -87,8 +77,8 @@
 - (BOOL) isEqual:(id) other;
 
 - (Class) superclass;
-- (nonnull Class) class;
-- (nonnull instancetype) self;
+- (Class) class;
+- (instancetype) self;
 - (BOOL) isKindOfClass:(Class) cls;
 - (BOOL) isMemberOfClass:(Class) cls;
 
@@ -102,10 +92,8 @@
             withObject:(id) obj2;
 
 - (BOOL) isProxy;
-- (id) description;
 
-
-+ (nonnull Class) class;
++ (Class) class;
 + (BOOL) isSubclassOfClass:(Class) cls;
 + (BOOL) instancesRespondToSelector:(SEL) sel;
 
@@ -124,8 +112,8 @@
 + (id) classValueForKey:(id) key;
 
 // AAO suport
-+ (nonnull instancetype) instantiate;        // alloc + autorelease
-- (nonnull instancetype) immutableInstance;  // copy + autorelease
++ (instancetype) instantiate;        // alloc + autorelease
+- (instancetype) immutableInstance;  // copy + autorelease
 
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
@@ -185,6 +173,6 @@
 
 /*
  * #2# dealloc will automatically write "nil/NULL" into your properties setter
- *     for pointers and objects. properties that are nonnull and properties
+ *     for pointers and objects. properties that are and properties
  *     w/o a setter won't be called
  */

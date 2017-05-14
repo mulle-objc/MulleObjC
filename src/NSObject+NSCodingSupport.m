@@ -1,5 +1,5 @@
 //
-//  MulleObjCTaggedPointer.m
+//  NSObject+NSCoding.m
 //  MulleObjC
 //
 //  Copyright (c) 2016 Nat! - Mulle kybernetiK.
@@ -33,96 +33,42 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "MulleObjCTaggedPointer.h"
 
-#include "ns_exception.h"
-
-#include <mulle_objc/mulle_objc.h>
+#import "NSObject+NSCodingSupport.h"
 
 
-#pragma clang diagnostic ignored "-Wobjc-root-class"
-#pragma clang diagnostic ignored "-Wprotocol"
+@implementation NSObject( NSCodingSupport)
 
-
-@interface MulleObjCTaggedPointer < MulleObjCTaggedPointer>
-@end
-
-
-@implementation MulleObjCTaggedPointer
-
-+ (id) alloc
++ (NSInteger) version
 {
-   //   fprintf( stderr, "+alloc on a tagged pointer is wrong\n");
-   abort();
+   assert( _mulle_objc_class_is_infraclass( (void *) self));
+   return( _mulle_objc_infraclass_get_coderversion( self));
 }
 
 
-- (void) dealloc
++ (void) setVersion:(NSInteger) value
 {
-   //   fprintf( stderr, "-dealloc on a tagged pointer is wrong\n");
-   abort();
+   assert( _mulle_objc_class_is_infraclass( (void *) self));
+   if( ! _mulle_objc_infraclass_set_coderversion( self, value))
+      abort();  // how likely is that ?
 }
 
 
-- (id) retain
++ (Class) classForCoder
 {
    return( self);
 }
 
 
-- (id) autorelease
+- (id) replacementObjectForCoder:(NSCoder *) coder
 {
    return( self);
 }
 
 
-- (void) release
-{
-}
-
-
-- (id) copy
+- (id) awakeAfterUsingCoder:(NSCoder *) decoder
 {
    return( self);
-}
-
-
-
-/*
-   MEMO:
-
-   If the compiler doesn't produce tagged pointers. It's not a problem.
-   The compiler must produce tagged pointer aware method calls, when inlining
-   code.
-*/
-+ (BOOL) isTaggedPointerEnabled
-{
-   struct _mulle_objc_runtime  *runtime;
-
-   runtime = _mulle_objc_infraclass_get_runtime( self);
-   return( ! runtime->config.no_tagged_pointers);
-}
-
-
-int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
-{
-   struct _mulle_objc_runtime  *runtime;
-   int                         rval;
-
-   if( ! cls)
-   {
-      errno = EINVAL;
-      return( -1);
-   }
-
-   if( ! index)
-      mulle_objc_throw_invalid_index( index);
-
-   runtime = _mulle_objc_infraclass_get_runtime( cls);
-   rval    = _mulle_objc_runtime_set_taggedpointerclass_at_index( runtime, cls, index);
-   if( ! rval)
-      _mulle_objc_infraclass_set_taggedpointerindex( cls, index);
-   return( rval);
 }
 
 @end
