@@ -96,12 +96,15 @@
    {
       struct _mulle_objc_method             *method;
       struct _mulle_objc_methoddescriptor   *desc;
+      struct _mulle_objc_class              *cls;
 
-      method = _mulle_objc_infraclass_search_method( _cls,
-                                                     (mulle_objc_methodid_t) _cmd,
-                                                     NULL,
-                                                     MULLE_OBJC_ANY_OWNER,
-                                                     _mulle_objc_infraclass_get_inheritance( _cls));
+      cls = _mulle_objc_infraclass_as_class( _cls);
+      method = _mulle_objc_class_search_method( cls,
+                                               (mulle_objc_methodid_t) _cmd,
+                                               NULL,
+                                               MULLE_OBJC_ANY_OWNER,
+                                               _mulle_objc_class_get_inheritance( cls),
+                                               NULL);
       if( method)
       {
          desc = _mulle_objc_method_get_methoddescriptor( method);
@@ -266,33 +269,33 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 #pragma mark -
 #pragma mark aam support
 
+//
+// infraClass is the placeholder class, of which we create an instance
+// the infraClass with classid is placed into the placeholder
+//
 static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Class infraCls,
                                                                               mulle_objc_classid_t classid)
 {
    struct _mulle_objc_runtime          *runtime;
-   struct _mulle_objc_infraclass       *cls;
+   struct _mulle_objc_infraclass       *placeholderInfracls;
+   struct _mulle_objc_class            *pcls;
    _MulleObjCInstantiatePlaceholder    *placeholder;
-   struct _mulle_objc_method           *method;
    SEL                                 initSel;
+   mulle_objc_methodimplementation_t   imp;
 
    assert( classid);
 
-   runtime = _mulle_objc_infraclass_get_runtime( infraCls);
-   cls     = _mulle_objc_runtime_unfailing_get_or_lookup_infraclass( runtime, classid);
+   runtime             = _mulle_objc_infraclass_get_runtime( infraCls);
+   placeholderInfracls = _mulle_objc_runtime_unfailing_get_or_lookup_infraclass( runtime, classid);
 
-   placeholder       = _MulleObjCClassAllocateObject( cls, 0);
+   placeholder       = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
    placeholder->_cls = infraCls;
 
    initSel = @selector( __initPlaceholder);
-   method = _mulle_objc_infraclass_search_method( cls,
-                                                 (mulle_objc_methodid_t) initSel,
-                                                 NULL,
-                                                 MULLE_OBJC_ANY_OWNER,
-                                                 _mulle_objc_infraclass_get_inheritance( cls));
-   if( method)
-      (*method->implementation)( placeholder,
-                                 (mulle_objc_methodid_t) initSel,
-                                 NULL);
+   pcls    = _mulle_objc_infraclass_as_class( placeholderInfracls);
+   imp     = _mulle_objc_class_lookup_methodimplementation_no_forward( pcls, (mulle_objc_methodid_t) initSel);
+   if( imp)
+      (*imp)( placeholder, (mulle_objc_methodid_t) initSel, NULL);
 
    return( (struct _mulle_objc_object *) placeholder);
 }
@@ -473,7 +476,7 @@ static void   assert_key( id key)
       switch( (rval = _mulle_objc_infraclass_remove_cvar( self, key, old)))
       {
          case 0 :
-            if( ! _mulle_objc_object_is_permanent( old) && ! MulleObjCIsSingleton( old))
+            if( ! _mulle_objc_object_is_permanent( old) && ! MulleObjCIsSingletonInstance( old))
                [old _resignAsRootObject];
          case ENOENT :
             return;
@@ -498,7 +501,7 @@ static void   assert_key( id key)
    switch( (rval = _mulle_objc_infraclass_set_cvar( self, key, value)))
    {
    case 0 :
-      if( ! _mulle_objc_object_is_permanent( value) && ! MulleObjCIsSingleton( value))
+      if( ! _mulle_objc_object_is_permanent( value) && ! MulleObjCIsSingletonInstance( value))
          [value _becomeRootObject];
       return( YES);
 
@@ -850,7 +853,8 @@ static int   collect( struct _mulle_objc_ivar *ivar,
                                              (mulle_objc_methodid_t) sel,
                                              NULL,
                                              MULLE_OBJC_ANY_OWNER,
-                                             _mulle_objc_class_get_inheritance( cls));
+                                             _mulle_objc_class_get_inheritance( cls),
+                                             NULL);
    if( ! method)
       return( nil);
 
@@ -864,11 +868,12 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    struct _mulle_objc_method   *method;
 
    assert( _mulle_objc_class_is_infraclass( (void *)  self));
-   method = _mulle_objc_infraclass_search_method( self,
-                                                  (mulle_objc_methodid_t) sel,
-                                                   NULL,
-                                                   MULLE_OBJC_ANY_OWNER,
-                                                   _mulle_objc_infraclass_get_inheritance( self));
+   method = _mulle_objc_class_search_method( _mulle_objc_infraclass_as_class( self),
+                                             (mulle_objc_methodid_t) sel,
+                                             NULL,
+                                             MULLE_OBJC_ANY_OWNER,
+                                             _mulle_objc_infraclass_get_inheritance( self),
+                                             NULL);
    if( ! method)
       return( nil);
 

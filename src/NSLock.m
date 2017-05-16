@@ -42,7 +42,7 @@
 
 @implementation NSLock
 
-- (id) init
+- (instancetype) init
 {
    mulle_thread_mutex_init( &self->_lock);
    return( self);

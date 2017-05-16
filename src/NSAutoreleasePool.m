@@ -582,25 +582,25 @@ static void   popAutoreleasePool( struct _ns_poolconfiguration *config, id aPool
 }
 
 
-+ (id) alloc
++ (instancetype) alloc
 {
    return( (id) NSPushAutoreleasePool());
 }
 
 
-+ (id) new
++ (instancetype) new
 {
    return( (id) NSPushAutoreleasePool());
 }
 
 
-- (id) init
+- (instancetype) init
 {
    return( self);
 }
 
 
-- (id) retain
+- (instancetype) retain
 {
    abort();
 }

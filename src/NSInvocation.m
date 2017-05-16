@@ -47,7 +47,7 @@
 
 @implementation NSInvocation
 
-- (id) initWithMethodSignature:(NSMethodSignature *) signature
+- (instancetype) initWithMethodSignature:(NSMethodSignature *) signature
 {
    size_t                   size;
    struct mulle_allocator   *allocator;

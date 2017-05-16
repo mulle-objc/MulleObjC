@@ -148,7 +148,7 @@ Class   MulleObjCLookupClassByName( char *name)
    classid = mulle_objc_classid_from_string( name);
 
    runtime = mulle_objc_get_runtime();
-   cls     = _mulle_objc_runtime_lookup_infraclass( runtime, classid);
+   cls     = _mulle_objc_runtime_get_or_lookup_infraclass( runtime, classid);
 
    return( cls);
 }

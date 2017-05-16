@@ -49,7 +49,7 @@
 
 - (Class) superclass;
 - (Class) class;
-- (id) self;
+- (instancetype) self;
 
 - (id) performSelector:(SEL) sel;
 - (id) performSelector:(SEL) sel

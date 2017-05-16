@@ -37,6 +37,6 @@
 
 - (MulleObjCMethodSignatureTypeinfo *) _runtimeTypeInfoAtIndex:(NSUInteger) i;
 - (char *) _objCTypes;
-- (id) initWithObjCTypes:(char *) types;
+- (instancetype) initWithObjCTypes:(char *) types;
 
 @end
