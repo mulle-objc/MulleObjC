@@ -51,9 +51,9 @@ struct MulleObjCAutoreleasePoolConfiguration;
    id               _userInfo;
 }
 
-- (id) initWithTarget:(id) target
-             selector:(SEL) sel
-               object:(id) argument;
+- (instancetype) initWithTarget:(id) target
+                       selector:(SEL) sel
+                         object:(id) argument;
 
 + (NSThread *) currentThread;
 

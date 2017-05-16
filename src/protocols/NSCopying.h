@@ -44,7 +44,7 @@
 //
 @protocol NSCopying
 
-- (id) copy;
+- (instancetype) copy;
 
 @end
 

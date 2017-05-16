@@ -47,7 +47,7 @@
 
 @interface NSObject (NSCopyCompatibility)
 
-- (id) copyWithZone:(NSZone *) null;
+- (instancetype) copyWithZone:(NSZone *) null;
 
 @end
 
@@ -100,19 +100,19 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
 // for classes, that don't implement copy, but
 // just copyWithZone:
 
-- (id) copy
+- (instancetype) copy
 {
    return( [self copyWithZone:NULL]);
 }
 
 
-+ (id) copy
++ (instancetype) copy
 {
    return( self);
 }
 
 
-+ (id) copyWithZone:(NSZone *) zone
++ (instancetype) copyWithZone:(NSZone *) zone
 {
    return( self);
 }

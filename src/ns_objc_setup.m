@@ -38,6 +38,7 @@
 
 #include "ns_rootconfiguration.h"
 #include "ns_test_allocation.h"
+#include <mulle_objc/mulle_objc_csvdump.h>
 
 // clang speciality
 #ifdef __has_include
@@ -105,6 +106,12 @@ static void  tear_down()
 {
    extern void  _NSThreadResignAsMainThread( void);
 
+   if( mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE"))
+   {
+      mulle_objc_csvdump_methodcoverage_to_tmp();
+      mulle_objc_csvdump_classcoverage_to_tmp();
+   }
+   
    _NSThreadResignAsMainThread();
 
    // No Objective-C available anymore
@@ -133,6 +140,9 @@ static void  post_create( struct _mulle_objc_runtime  *runtime)
 
    rootconfig->string.charsfromobject = (char *(*)()) return_self;
    rootconfig->string.objectfromchars = (void *(*)()) return_self;
+   
+   // needed for coverage, slows things down a bit and bloats caches
+   runtime->config.repopulate_caches = mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE");
 }
 
 
@@ -176,8 +186,9 @@ const struct _ns_root_setupconfig   *ns_objc_get_default_setupconfig( void)
 
 struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig *setup)
 {
-   BOOL                         is_pedantic;
+   int                          is_pedantic;
    int                          is_test;
+   int                          is_coverage;
    struct _mulle_objc_runtime   *runtime;
 
    runtime = __mulle_objc_get_runtime();
@@ -189,6 +200,7 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
 
    is_pedantic = mulle_objc_getenv_yes_no( "MULLE_OBJC_PEDANTIC_EXIT");
    is_test     = mulle_objc_getenv_yes_no( "MULLE_OBJC_TEST_ALLOCATOR");
+   is_coverage = mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE");
 
    if( is_test)
    {
@@ -213,7 +225,7 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
    (*setup->callbacks.setup)( runtime, setup);
    (*setup->callbacks.post_create)( runtime);
 
-   if( is_pedantic || is_test)
+   if( is_pedantic || is_test || is_coverage)
    {
       struct _ns_rootconfiguration *rootcfg;
 

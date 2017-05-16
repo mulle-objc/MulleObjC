@@ -62,24 +62,24 @@
 
    // has is shallow, conforms is deep
    pair = _mulle_objc_infraclass_get_classpair( self);
-   if( _mulle_objc_classpair_has_protocol( pair, @protocol( MulleObjCClassCluster)))
+   if( _mulle_objc_classpair_has_protocol( pair, (mulle_objc_protocolid_t) @protocol( MulleObjCClassCluster)))
       _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_CLASSCLUSTER);
 }
 
 
 static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 {
-   struct _mulle_objc_method    *method;
-   id                           placeholder;
-
+   mulle_objc_methodimplementation_t   imp;
+   struct _mulle_objc_class            *cls;
+   id                                  placeholder;
+   mulle_objc_methodid_t               sel;
+   
    placeholder = NSAllocateObject( infraCls, 0, NULL);
-   method      = _mulle_objc_class_search_method( _mulle_objc_infraclass_as_class( infraCls),
-                                                  @selector( __initPlaceholder),
-                                                 NULL,
-                                                 MULLE_OBJC_ANY_OWNER,
-                                                 _mulle_objc_infraclass_get_inheritance( infraCls));
-   if( method)
-      (*method->implementation)( placeholder, @selector( __initPlaceholder), NULL);
+   cls         = _mulle_objc_infraclass_as_class( infraCls);
+   sel         = @selector( __initPlaceholder);
+   imp         = _mulle_objc_class_lookup_methodimplementation_no_forward( cls, sel);
+   if( imp)
+      (*imp)( placeholder, sel, NULL);
 
    return( placeholder);
 }

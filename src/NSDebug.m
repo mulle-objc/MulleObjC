@@ -164,7 +164,7 @@ static void   zombifyLargeObject( id obj)
    _MulleObjCLargeZombie   *zombie;
    Class                   cls;
 
-   cls = mulle_objc_unfailing_lookup_infraclass( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
+   cls = mulle_objc_unfailing_get_or_lookup_infraclass( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
    assert( cls);
 
    zombie = obj;
@@ -202,11 +202,11 @@ static void   zombifyObject( id obj)
    sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_infraclass_get_name( cls));
 
    classid = mulle_objc_classid_from_string( buf);
-   cls     = _mulle_objc_runtime_lookup_infraclass( runtime, classid);
+   cls     = _mulle_objc_runtime_get_or_lookup_infraclass( runtime, classid);
 
    if( ! cls)
    {
-      super_class = _mulle_objc_runtime_lookup_infraclass( runtime, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
+      super_class = _mulle_objc_runtime_get_or_lookup_infraclass( runtime, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
 
       pair  = mulle_objc_unfailing_new_classpair( classid, buf, sizeof( id), super_class);
       infra = mulle_objc_classpair_get_infraclass( pair);

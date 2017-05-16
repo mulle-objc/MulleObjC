@@ -57,7 +57,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 }
 
 
-- (id) initWithObjCTypes:(char *) types
+- (instancetype) initWithObjCTypes:(char *) types
 {
    _count = (uint16_t) mulle_objc_signature_count_typeinfos( types);
    if( _count < 3)  // rval, self, _cmd

@@ -50,7 +50,7 @@
 
 @implementation MulleObjCTaggedPointer
 
-+ (id) alloc
++ (instancetype) alloc
 {
    //   fprintf( stderr, "+alloc on a tagged pointer is wrong\n");
    abort();
@@ -64,13 +64,13 @@
 }
 
 
-- (id) retain
+- (instancetype) retain
 {
    return( self);
 }
 
 
-- (id) autorelease
+- (instancetype) autorelease
 {
    return( self);
 }
@@ -81,7 +81,7 @@
 }
 
 
-- (id) copy
+- (instancetype) copy
 {
    return( self);
 }

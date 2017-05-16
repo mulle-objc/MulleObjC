@@ -52,12 +52,14 @@
 // for subclasses, who don't use sharedInstance
 id     MulleObjCSingletonCreate( Class self);
 
-static inline BOOL   MulleObjCIsSingleton( id obj)
+
+static inline BOOL   MulleObjCIsSingletonInstance( id obj)
 {
    Class  infraCls;
    
    if( ! obj)
       return( NO);
+
    infraCls = mulle_objc_object_get_infraclass( obj);
-   return( _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_IS_CLASSCLUSTER) ? YES : NO);
+   return( _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_IS_SINGLETON) ? YES : NO);
 }
