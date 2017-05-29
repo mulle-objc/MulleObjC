@@ -53,20 +53,20 @@
 // compiler. So you can't really change them.
 //
 // --- compiler defined begin ---
-typedef void                               *id;
-typedef struct _mulle_objc_infraclass      *Class;  // the meta-class is not "visible" to Class users
+typedef void                            *id;
+typedef struct _mulle_objc_infraclass   *Class;  // the meta-class is not "visible" to Class users
 
 //
-// Protocol as a valid keyword and a pseudo-class does not exist
-// @protocol( Foo) returns an unsigned int
+// "Protocol" as a valid keyword and a pseudo-class does not exist
+// @protocol( Foo) returns a mulle_objc_protocolid_t, which is an "uint32_t"
 // For other compilers say   `typedef Protocol   *PROTOCOL`
 // and code will work on both sides.
 //
-typedef mulle_objc_methodid_t               SEL;
-typedef SEL                                 PROTOCOL;
-typedef struct _mulle_objc_method           *Method;
-typedef struct _mulle_objc_ivar             *Ivar;
-typedef id                                  (*IMP)( id, SEL, void *);
+typedef mulle_objc_methodid_t       SEL;
+typedef mulle_objc_protocolid_t     PROTOCOL;
+typedef struct _mulle_objc_method   *Method;
+typedef struct _mulle_objc_ivar     *Ivar;
+typedef id                          (*IMP)( id, SEL, void *);
 
 // --- compiler defined end ---
 

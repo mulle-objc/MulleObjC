@@ -1,4 +1,5 @@
 #import <MulleObjC/MulleObjC.h>
+#import <mulle_objc/mulle_objc_lldb.h>
 
 #ifndef DEBUG
 #define DEBUG 1
