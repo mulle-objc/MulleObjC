@@ -17,8 +17,13 @@ typedef Protocol  *PROTOCOL;
 
 
 // reduce INNER LOOPS so that apple runtime returns within human boredom limits
+#if 0
 #define LOOPS         2
 #define INNER_LOOPS   100000
+#else
+# define LOOPS         1
+# define INNER_LOOPS   100000
+#endif
 
 @protocol exists
 @end
@@ -61,7 +66,7 @@ static void   test_Foo_conformance( unsigned long n, va_list args)
       abort();
 
    for( i = 0; i < n; i++)
-      for( j = 0; j < 10000000; j++)
+      for( j = 0; j < INNER_LOOPS; j++)
       {
          [Foo conformsToProtocol:proto];
       }
