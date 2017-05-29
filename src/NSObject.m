@@ -476,7 +476,7 @@ static void   assert_key( id key)
       switch( (rval = _mulle_objc_infraclass_remove_cvar( self, key, old)))
       {
          case 0 :
-            if( ! _mulle_objc_object_is_permanent( old) && ! MulleObjCIsSingletonInstance( old))
+            if( ! _mulle_objc_object_is_constant( old) && ! MulleObjCIsSingletonInstance( old))
                [old _resignAsRootObject];
          case ENOENT :
             return;
@@ -501,7 +501,7 @@ static void   assert_key( id key)
    switch( (rval = _mulle_objc_infraclass_set_cvar( self, key, value)))
    {
    case 0 :
-      if( ! _mulle_objc_object_is_permanent( value) && ! MulleObjCIsSingletonInstance( value))
+      if( ! _mulle_objc_object_is_constant( value) && ! MulleObjCIsSingletonInstance( value))
          [value _becomeRootObject];
       return( YES);
 

@@ -76,9 +76,9 @@ static void  perror_abort( char *s)
 /*
  * it's just too convenient, to have this as the old name (really ?)
  */
-void   *_objc_msgForward( void *self, mulle_objc_methodid_t _cmd, void *_param);
+void   *__forward_mulle_objc_object_call( void *self, mulle_objc_methodid_t _cmd, void *_param);
 
-void   *_objc_msgForward( void *self, mulle_objc_methodid_t _cmd, void *_param)
+void   *__forward_mulle_objc_object_call( void *self, mulle_objc_methodid_t _cmd, void *_param)
 {
    struct _mulle_objc_class   *cls;
 
@@ -97,7 +97,7 @@ struct _mulle_objc_method   NSObject_msgForward_method =
       0
    },
    {
-      _objc_msgForward
+      __forward_mulle_objc_object_call
    }
 };
 
@@ -108,8 +108,8 @@ static void  tear_down()
 
    if( mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE"))
    {
-      mulle_objc_csvdump_methodcoverage_to_tmp();
-      mulle_objc_csvdump_classcoverage_to_tmp();
+      mulle_objc_csvdump_methodcoverage();
+      mulle_objc_csvdump_classcoverage();
    }
    
    _NSThreadResignAsMainThread();
@@ -247,9 +247,10 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
 //
 #if HAVE_DLSYM
    {
-      extern void  *dlsym( void* handle, const char* symbol);
+      extern void  *dlsym( void* handle, const char *symbol);
       void         *function;
-
+      Dl_info      info;
+      
       function = dlsym( RTLD_MAIN_ONLY, "__mulle_objc_loadinfo_callback");
       if( function)
       {
@@ -257,6 +258,10 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
          fprintf( stderr, "mulle_objc_runtime %p: "
                  "__mulle_objc_loadinfo_callback set to %p\n", runtime, function);
       }
+      
+     // set path of runtime for debugging
+     if( dladdr( (void *) __mulle_objc_runtime_setup, &info))
+        mulle_objc_runtime_set_path( runtime, (char *) info.dli_fname);
    }
 #endif
 

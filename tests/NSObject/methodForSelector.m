@@ -1,6 +1,6 @@
 #ifndef __MULLE_OBJC__
 # import <Foundation/Foundation.h>
-extern void  *_objc_msgForward( id, SEL, ...);
+extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 #else
 # import <MulleObjC/MulleObjC.h>
 #endif

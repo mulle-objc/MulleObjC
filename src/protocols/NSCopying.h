@@ -44,7 +44,8 @@
 //
 @protocol NSCopying
 
-- (instancetype) copy;
+// not really an instancetype (e.g. NSMutableSet returns NSSet)
+- (id) copy;
 
 @end
 

@@ -267,10 +267,15 @@ void    MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n);
 
 void    MulleObjCSetClass( id obj, Class cls);
 
+//
+// only cheatin' strings should use this
+// this must be used in init and nowhere else, as it is
+// not atomic
+//
 static inline void   MulleObjCInfiniteRetain( id obj)
 {
    if( obj)
-      _mulle_objc_object_infinite_retain( obj);
+      _mulle_objc_object_nonatomic_infinite_retain( obj);
 }
 
 Class   NSClassFromObject( id object);

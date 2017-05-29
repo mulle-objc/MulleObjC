@@ -6,7 +6,6 @@ project.xcworkspace/
 *.dSYM/
 *.exe
 *.exe.debug
-call-benchmark/
 old/
 tmp/
 *.old
@@ -31,6 +30,10 @@ tmp/
 # boring tests
 # ignore everything, force add it with git add -f
 /tests
+protocol-benchmark/
+call-benchmark/
+/tests/include
+/tests/lib
 /some-test/
 
 
