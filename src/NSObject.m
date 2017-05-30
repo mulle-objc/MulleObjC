@@ -677,7 +677,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
    cls  = _mulle_objc_object_get_isa( self);
    pair = _mulle_objc_class_get_classpair( cls);
-   return( (BOOL) _mulle_objc_classpair_conformsto_protocol( pair,
+   return( (BOOL) _mulle_objc_classpair_conformsto_protocolid( pair,
                                                              (mulle_objc_protocolid_t) protocol));
 }
 

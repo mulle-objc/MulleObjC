@@ -36,7 +36,8 @@
 #ifndef ns_rootconfiguration__h__
 #define ns_rootconfiguration__h__
 
-#define MULLE_OBJC_VERSION    ((0 << 20) | (6 << 8) | 1)
+
+#define MULLE_OBJC_VERSION    ((0 << 20) | (8 << 8) | 1)
 
 
 #include "ns_objc_include.h"

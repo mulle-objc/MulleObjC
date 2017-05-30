@@ -18,7 +18,7 @@
 
    // has is shallow, conforms is deep
    pair = _mulle_objc_infraclass_get_classpair( self);
-   if( _mulle_objc_classpair_has_protocol( pair, @protocol( Foo)))
+   if( _mulle_objc_classpair_has_protocolid( pair, @protocol( Foo)))
       printf( "OUI\n");
    else
       printf( "NON\n");
