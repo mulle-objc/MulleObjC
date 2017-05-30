@@ -51,19 +51,19 @@ main()
    foo = [Foo new];
    cls =  mulle_objc_object_get_infraclass( foo);
    printf( "A: %s\n",
-       _mulle_objc_infraclass_conformsto_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocolid( cls,
                                               @protocol( A)) ? "YES" : "NO");
    printf( "B: %s\n",
-       _mulle_objc_infraclass_conformsto_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocolid( cls,
                                               @protocol( B)) ? "YES" : "NO");
    printf( "C: %s\n",
-       _mulle_objc_infraclass_conformsto_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocolid( cls,
                                               @protocol( C)) ? "YES" : "NO");
    printf( "D: %s\n",
-       _mulle_objc_infraclass_conformsto_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocolid( cls,
                                               @protocol( D)) ? "YES" : "NO");
    printf( "E: %s\n",
-       _mulle_objc_infraclass_conformsto_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocolid( cls,
                                               @protocol( E)) ? "YES" : "NO");
    mulle_objc_dotdump_runtime_to_tmp();
 }

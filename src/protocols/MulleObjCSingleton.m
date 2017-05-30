@@ -58,7 +58,7 @@
 
    // has is shallow, conforms is deep
    pair = _mulle_objc_infraclass_get_classpair( self);
-   if( _mulle_objc_classpair_has_protocol( pair, @protocol( MulleObjCSingleton)))
+   if( _mulle_objc_classpair_has_protocolid( pair, @protocol( MulleObjCSingleton)))
       _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_SINGLETON);
 #if DEBUG
    else

@@ -846,7 +846,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4162D5081C63CBBC007EC7DD /* Debug.xcconfig */;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 0.2.1;
+				CURRENT_PROJECT_VERSION = 0.8.1;
 				DEPENDENCIES_DIR = "$(PROJECT_DIR)/../dependencies";
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_VERSION = "de.codeon.compilers.mulle-clang";
@@ -859,7 +859,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4162D50B1C63CBBC007EC7DD /* Release.xcconfig */;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 0.2.1;
+				CURRENT_PROJECT_VERSION = 0.8.1;
 				DEPENDENCIES_DIR = "$(PROJECT_DIR)/../dependencies";
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_VERSION = "de.codeon.compilers.mulle-clang";

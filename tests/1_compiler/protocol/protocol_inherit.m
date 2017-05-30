@@ -28,10 +28,10 @@ main()
 
    cls = [Foo class];
    printf( "A: %s\n",
-       _mulle_objc_infraclass_conformsto_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocolid( cls,
                                               @protocol( A)) ? "YES" : "NO");
    printf( "B: %s\n",
-       _mulle_objc_infraclass_conformsto_protocol( cls,
+       _mulle_objc_infraclass_conformsto_protocolid( cls,
                                               @protocol( B)) ? "YES" : "NO");
    mulle_objc_dotdump_runtime_to_tmp();
 }
