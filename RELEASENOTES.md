@@ -1,17 +1,17 @@
 0.8.1
 
 * removed KVC support, to be transferred into its own library
-* adapted to changes in the mulle_objc_runtime
+* adapted to changes in the `mulle_objc_runtime`
 
 0.6.1
 
-* added the MulleObjCLoader
+* added the **MulleObjCLoader** class
 * removed all `nonnull` from methods. An oversight from the past...
-* added MulleObjCRuntimeObject for easier structure
+* added **MulleObjCRuntimeObject** for easier structure
 
 0.4.1
 
-* Moved NSCoder to MulleObjCFoundation
+* Moved **NSCoder** to MulleObjCFoundation
 * Adapt to changes in the mulle_objc_runtime
 * The Foundation can configure the exception type if so desired
 * there is now no default `+initialize` method in NSObject!
