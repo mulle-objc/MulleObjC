@@ -38,7 +38,6 @@ src/NSInvocation.h
 src/NSLock.h
 src/NSMethodSignature.h
 src/NSObject+NSCodingSupport.h
-src/NSObject+KVCSupport.h
 src/NSObject.h
 src/NSProxy.h
 src/NSRecursiveLock.h
@@ -85,7 +84,6 @@ src/NSLock.m
 src/NSMethodSignature.m
 src/NSObject.m
 src/NSObject+NSCodingSupport.m
-src/NSObject+KVCSupport.m
 src/NSProxy.m
 src/NSRecursiveLock.m
 src/NSThread.m

@@ -41,8 +41,6 @@
 		412ED7D51CC3C34E00E64506 /* NSObject+NSCodingSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 412ED7D31CC3C34E00E64506 /* NSObject+NSCodingSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		412ED7D61CC3C34E00E64506 /* NSObject+NSCodingSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 412ED7D41CC3C34E00E64506 /* NSObject+NSCodingSupport.m */; };
 		41300CAA1C87185100D1D1C1 /* libMulleObjCStandalone.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4162D5321C63CDF1007EC7DD /* libMulleObjCStandalone.dylib */; };
-		4145B1111D391E7C006C4D13 /* NSObject+KVCSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 4145B10F1D391E7C006C4D13 /* NSObject+KVCSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4145B1121D391E7C006C4D13 /* NSObject+KVCSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 4145B1101D391E7C006C4D13 /* NSObject+KVCSupport.m */; };
 		414618071EC5AB0300D63AFA /* MulleObjCRuntimeObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 414618061EC5AB0300D63AFA /* MulleObjCRuntimeObject.h */; };
 		415A022E1CB04060003C4ACF /* NSFastEnumeration.h in Headers */ = {isa = PBXBuildFile; fileRef = 415A022D1CB04060003C4ACF /* NSFastEnumeration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		415A02301CB04138003C4ACF /* NSLocking.h in Headers */ = {isa = PBXBuildFile; fileRef = 415A022F1CB04138003C4ACF /* NSLocking.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -165,8 +163,6 @@
 		412ED7D41CC3C34E00E64506 /* NSObject+NSCodingSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+NSCodingSupport.m"; sourceTree = "<group>"; };
 		41300CA11C87180200D1D1C1 /* sometest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sometest; sourceTree = BUILT_PRODUCTS_DIR; };
 		413677871CBDA9A400A944A9 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
-		4145B10F1D391E7C006C4D13 /* NSObject+KVCSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+KVCSupport.h"; sourceTree = "<group>"; };
-		4145B1101D391E7C006C4D13 /* NSObject+KVCSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+KVCSupport.m"; sourceTree = "<group>"; };
 		414618061EC5AB0300D63AFA /* MulleObjCRuntimeObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulleObjCRuntimeObject.h; sourceTree = "<group>"; };
 		415A022D1CB04060003C4ACF /* NSFastEnumeration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSFastEnumeration.h; sourceTree = "<group>"; };
 		415A022F1CB04138003C4ACF /* NSLocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSLocking.h; sourceTree = "<group>"; };
@@ -400,8 +396,6 @@
 				415A02351CB04154003C4ACF /* NSRecursiveLock.m */,
 				41A827AB1AADE04B0017BE29 /* NSObject.h */,
 				41A827AC1AADE04B0017BE29 /* NSObject.m */,
-				4145B10F1D391E7C006C4D13 /* NSObject+KVCSupport.h */,
-				4145B1101D391E7C006C4D13 /* NSObject+KVCSupport.m */,
 				412ED7D31CC3C34E00E64506 /* NSObject+NSCodingSupport.h */,
 				412ED7D41CC3C34E00E64506 /* NSObject+NSCodingSupport.m */,
 				41A827AF1AADE0530017BE29 /* NSProxy.h */,
@@ -499,7 +493,6 @@
 				410FA25C1C6624F500927C72 /* ns_fastmethodids.h in Headers */,
 				410FA2591C6624AF00927C72 /* ns_fastclassids.h in Headers */,
 				41A827C31AADE14F0017BE29 /* ns_objc_include.h in Headers */,
-				4145B1111D391E7C006C4D13 /* NSObject+KVCSupport.h in Headers */,
 				41A41E521AB097CE00A92452 /* _ns_exception.h in Headers */,
 				41A41E601AB0A18600A92452 /* ns_range.h in Headers */,
 				410FA2511C66109900927C72 /* ns_objc.h in Headers */,
@@ -692,7 +685,6 @@
 				41F896861C9C3EC700971F63 /* MulleObjCFunctions.m in Sources */,
 				41A827A41AADE01D0017BE29 /* NSAutoreleasePool.m in Sources */,
 				415A34D31CE7B011008951A5 /* NSCoding.m in Sources */,
-				4145B1121D391E7C006C4D13 /* NSObject+KVCSupport.m in Sources */,
 				41DB5C381CAD656F001A4CEA /* NSCopying.m in Sources */,
 				41A827AA1AADE0400017BE29 /* NSDebug.m in Sources */,
 				41CE12111EC4710B00691FF2 /* MulleObjCLoader.m in Sources */,
