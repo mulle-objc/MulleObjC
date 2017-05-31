@@ -28,11 +28,13 @@ Fork      |  Build Status | Release Version
 * NSCoding - object serialization
 * NSCopying - object copying
 * NSFastEnumeration  - support for `for ... in` loops
+* NSLocking  - support for `for ... in` loops
 * NSObject - for objects that don't want to behave like NSObject but can't be them
-* MulleObjCTaggedPointer - enables classes to use tagged pointers
-* MulleObjCSingleton - enables classes to produce singletons
 * MulleObjCClassCluster - enables classes to act as class clusters
-
+* MulleObjCException - enabled a class to act as an exception
+* MulleObjCRuntimeObject - documents the minimum required id superset
+* MulleObjCSingleton - enables classes to produce singletons
+* MulleObjCTaggedPointer - enables classes to use tagged pointers
 
 It does all the interfacing with the **mulle-objc** runtime. Any
 library code above MulleObjC ideally, should not be using the mulle-objc runtime

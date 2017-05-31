@@ -1,3 +1,8 @@
+0.8.1
+
+* removed KVC support, to be transferred into its own library
+* adapted to changes in the mulle_objc_runtime
+
 0.6.1
 
 * added the MulleObjCLoader

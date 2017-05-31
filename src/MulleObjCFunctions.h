@@ -250,6 +250,7 @@ static inline void   MulleObjCMakeObjectsPerformSelector( id *objects, NSUIntege
    mulle_objc_objects_call( (void **) objects, (unsigned int) n, (mulle_objc_methodid_t) sel, argument);
 }
 
+
 static inline id   MulleObjCPerformSelector2( id obj, SEL sel, id arg1, id arg2)
 {
    mulle_objc_metaabi_param_block_void_return( struct { id a; id b;})  _param;
