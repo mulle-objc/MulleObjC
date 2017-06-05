@@ -71,7 +71,7 @@
 #endif
 
 #if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (8 << 8) | 3)
-# error "mulle_objc is too old"
+# error "mulle_objc_runtume is too old"
 #endif
 #if MULLE_CONCURRENT_VERSION < ((1 << 20) | (3 << 8) | 0)
 # error "mulle_concurrent is too old"
