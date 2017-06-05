@@ -1,3 +1,8 @@
+0.8.3
+
+* adapted to changes in the `mulle_objc_runtime`
+* renamed internal class states to _NS_
+
 0.8.1
 
 * removed KVC support, to be transferred into its own library

@@ -61,5 +61,5 @@ static inline BOOL   MulleObjCIsSingletonInstance( id obj)
       return( NO);
 
    infraCls = mulle_objc_object_get_infraclass( obj);
-   return( _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_IS_SINGLETON) ? YES : NO);
+   return( _mulle_objc_infraclass_get_state_bit( infraCls, _NS_INFRA_IS_SINGLETON) ? YES : NO);
 }

@@ -34,6 +34,8 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
+#define _GNU_SOURCE  1  // hmm, needed for Linux dlcfn have to do this first
+
 #include "ns_objc_setup.h"
 
 #include "ns_rootconfiguration.h"
@@ -247,11 +249,15 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
 //
 #if HAVE_DLSYM
    {
-      extern void  *dlsym( void* handle, const char *symbol);
+#if __APPLE__
+# define MULLE_OBJC_DLSYM_HANDLE   RTLD_MAIN_ONLY
+#else
+# define MULLE_OBJC_DLSYM_HANDLE   RTLD_DEFAULT
+#endif
       void         *function;
       Dl_info      info;
       
-      function = dlsym( RTLD_MAIN_ONLY, "__mulle_objc_loadinfo_callback");
+      function = dlsym( MULLE_OBJC_DLSYM_HANDLE, "__mulle_objc_loadinfo_callback");
       if( function)
       {
          runtime->loadcallbacks.should_load_loadinfo = (int (*)()) function;

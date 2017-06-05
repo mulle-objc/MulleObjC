@@ -59,7 +59,7 @@
    // has is shallow, conforms is deep
    pair = _mulle_objc_infraclass_get_classpair( self);
    if( _mulle_objc_classpair_has_protocolid( pair, @protocol( MulleObjCSingleton)))
-      _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_IS_SINGLETON);
+      _mulle_objc_infraclass_set_state_bit( self, _NS_INFRA_IS_SINGLETON);
 #if DEBUG
    else
       fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of MulleObjCSingleton but does not implement it as a protocol\n",
@@ -73,10 +73,10 @@ id  MulleObjCSingletonCreate( Class infraCls)
 {
    id <NSObject>  singleton;
 
-   assert( ! _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_IS_CLASSCLUSTER));
+   assert( ! _mulle_objc_infraclass_get_state_bit( infraCls, _NS_INFRA_IS_CLASSCLUSTER));
 
-   if( ! _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_IS_SINGLETON))
-      mulle_objc_throw_internal_inconsistency_exception( "MULLE_OBJC_IS_SINGLETON bit is missing on class \"%s\" with id %x", _mulle_objc_infraclass_get_name( infraCls), _mulle_objc_infraclass_get_classid( infraCls));
+   if( ! _mulle_objc_infraclass_get_state_bit( infraCls, _NS_INFRA_IS_SINGLETON))
+      mulle_objc_throw_internal_inconsistency_exception( "_NS_INFRA_IS_SINGLETON bit is missing on class \"%s\" with id %x", _mulle_objc_infraclass_get_name( infraCls), _mulle_objc_infraclass_get_classid( infraCls));
 
    singleton = (id) _mulle_objc_infraclass_get_auxplaceholder( infraCls);
    if( ! singleton)
