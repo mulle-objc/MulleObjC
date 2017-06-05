@@ -56,8 +56,9 @@ VERSIONNAME="MULLE_OBJC_VERSION"
 #
 # Use the ${DEPENDENCY_TAP} prefix for non-official dependencies.
 #
-DEPENDENCIES='${DEPENDENCY_TAP}/mulle-objc-runtime
-${DEPENDENCY_TAP}/mulle-container'    # no camel case, will be evaled later!
+DEPENDENCIES='${DEPENDENCY_TAP}mulle-objc-runtime
+${DEPENDENCY_TAP}mulle-objc-list  
+${DEPENDENCY_TAP}mulle-container' 
 
 
 BUILD_DEPENDENCIES='${BOOTSTRAP_TAP}mulle-bootstrap

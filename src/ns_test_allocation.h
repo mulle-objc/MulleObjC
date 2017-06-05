@@ -39,7 +39,7 @@
 
 #include <mulle_allocator/mulle_allocator.h>
 
-
+// TODO: rename to ns_objc prefix
 extern struct mulle_allocator    mulle_test_allocator_objc;
 
 

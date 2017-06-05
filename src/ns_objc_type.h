@@ -86,10 +86,10 @@ typedef id                          (*IMP)( id, SEL, void *);
 #define nil   ((id) 0)
 #define Nil   ((Class) 0)
 
-enum
+enum 
 {
-   MULLE_OBJC_IS_CLASSCLUSTER   = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 0),
-   MULLE_OBJC_IS_SINGLETON      = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 1)
+   _NS_INFRA_IS_CLASSCLUSTER = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 0),
+   _NS_INFRA_IS_SINGLETON    = (MULLE_OBJC_INFRA_FOUNDATION_BIT0 << 1)
 };
 
 #endif
