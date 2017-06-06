@@ -186,11 +186,11 @@ int   main( int argc, char  *argv[])
 
       cache = _mulle_objc_class_get_methodcache( _mulle_objc_object_get_isa( foo));
 
-      fprintf( stderr, "doNoParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doNoParam)));
-      fprintf( stderr, "doOneParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doOneParam:)));
-      fprintf( stderr, "doTwoParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doTwoParam::)));
-      fprintf( stderr, "doThreeParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doThreeParam:::)));
-      fprintf( stderr, "doFourParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doFourParam::::)));
+      fprintf( stderr, "doNoParam = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doNoParam)));
+      fprintf( stderr, "doOneParam = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doOneParam:)));
+      fprintf( stderr, "doTwoParam = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doTwoParam::)));
+      fprintf( stderr, "doThreeParam = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doThreeParam:::)));
+      fprintf( stderr, "doFourParam = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doFourParam::::)));
    }
 
    [foo release];

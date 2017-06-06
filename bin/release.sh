@@ -42,7 +42,6 @@ DESC="Objective-C root classes using the mulle-objc runtime"
 LANGUAGE="objcc"             # c,cpp, objc, bash ...
 NAME="MulleObjC"
 
-
 #
 # Keep these commented out, if the automatic detection works well
 # enough for you
@@ -57,9 +56,8 @@ VERSIONNAME="MULLE_OBJC_VERSION"
 # Use the ${DEPENDENCY_TAP} prefix for non-official dependencies.
 #
 DEPENDENCIES='${DEPENDENCY_TAP}mulle-objc-runtime
-${DEPENDENCY_TAP}mulle-objc-list  
-${DEPENDENCY_TAP}mulle-container' 
-
+${DEPENDENCY_TAP}mulle-objc-list
+${DEPENDENCY_TAP}mulle-container'
 
 BUILD_DEPENDENCIES='${BOOTSTRAP_TAP}mulle-bootstrap
 ${BOOTSTRAP_TAP}mulle-build
@@ -108,7 +106,24 @@ generate_brew_formula()
 #######
 
 MULLE_BOOTSTRAP_FAIL_PREFIX="`basename -- $0`"
-MULLE_HOMEBREW_VERSION="3.4.3"
+MULLE_HOMEBREW_VERSION="3.4.5"
+
+EXEC_DIR="`dirname -- $0`"
+
+#
+# prefer local mulle-homebrew if available
+#
+if [ -x "${EXEC_DIR}/mulle-homebrew/mulle-homebrew-env" ]
+then
+   PATH="${EXEC_DIR}/mulle-homebrew:$PATH"
+fi
+
+if [ -z "`command -v mulle-homebrew-env`" ]
+then
+   echo "mulle-homebrew-env not found in PATH" >&2
+   exit 1
+fi
+
 
 INSTALLED_MULLE_HOMEBREW_VERSION="`mulle-homebrew-env version`" || exit 1
 LIBEXEC_DIR="`mulle-homebrew-env libexec-path`" || exit 1
@@ -204,7 +219,19 @@ RBFILE="${RBFILE:-${NAME}.rb}"
 
 # --- GIT ---
 
+#
+# require PUBLISHER (and PUBLISHER_TAP) as command line parameter, so
+# that forks don't have to edit this constantly
+#
+if [ -z "${PUBLISHER}" ]
+then
+   fail "You need to specify a publisher with --publisher (hint: https://github.com/<publisher>)"
+fi
 
+if [ -z "${VERSION}" ]
+then
+   fail "Could not figure out the version. (hint: check VERSIONNAME, VERSIONFILE)"
+fi
 
 # tag to tag your release
 TAG="${TAG:-${TAG_PREFIX}${VERSION}}"
@@ -218,25 +245,6 @@ GITHUB="${GITHUB:-github}"
 # git branch to release to, source is always current
 BRANCH="${BRANCH:-release}"
 
-
-#
-# require PUBLISHER (and PUBLISHER_TAP) as command line parameter, so
-# that forks don't have to edit this constantly
-#
-if [ -z "${PUBLISHER}" ]
-then
-   fail "you need to specify a publisher with --publisher (hint: https://github.com/<publisher>)"
-fi
-
-if [ -z "${VERSION}" ]
-then
-   fail "Could not figure out the version"
-fi
-
-if [ -z "${TAG}" ]
-then
-   fail "Could not figure out the tag"
-fi
 
 main()
 {
