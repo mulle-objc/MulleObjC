@@ -2,7 +2,7 @@ dist: trusty
 sudo: required
 
 script:
-  - curl -L -O 'https://raw.githubusercontent.com/mulle-nat/mulle-objc-developer/release/install-ubuntu.sh'
+  - curl -L -O 'https://raw.githubusercontent.com/mulle-objc/mulle-objc-developer/release/install-ubuntu.sh'
   - chmod 755 install-ubuntu.sh
   - ./install-ubuntu.sh
   - mulle-build -vv --bootstrap
