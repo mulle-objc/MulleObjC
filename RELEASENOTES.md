@@ -1,3 +1,7 @@
+0.8.4
+
+* community release
+
 0.8.3
 
 * adapted to changes in the `mulle_objc_runtime`
@@ -20,7 +24,7 @@
 * Adapt to changes in the mulle_objc_runtime
 * The Foundation can configure the exception type if so desired
 * there is now no default `+initialize` method in NSObject!
-* Introduced `mulle_objc_break_exception` as a convenient place to 
+* Introduced `mulle_objc_break_exception` as a convenient place to
 break for.
 
 
