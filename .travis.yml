@@ -6,4 +6,5 @@ script:
   - chmod 755 install-ubuntu.sh
   - ./install-ubuntu.sh
   - ls
-  - mulle-install --prefix /tmp
+  - mulle-build -vv --bootstrap
+  - mulle-test -vv
