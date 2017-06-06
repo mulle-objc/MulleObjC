@@ -1,13 +1,9 @@
-# test runs on OS X, because llvm is not bottled
-# in linuxbrew (at the moment 11/2016)
-#
-language: objective-c
-
-before_install:
-   - brew update
-   - brew install mulle-kybernetik/software/mulle-build
-   - brew install codeon-gmbh/software/mulle-clang
+dist: trusty
+sudo: required
 
 script:
-   - mulle-build --bootstrap
-   - mulle-test
+  - curl -L -O 'https://raw.githubusercontent.com/mulle-nat/mulle-objc-developer/release/install-ubuntu.sh'
+  - chmod 755 install-ubuntu.sh
+  - ./install-ubuntu.sh
+  - mulle-build -vv --bootstrap
+  - mulle-test -vv
