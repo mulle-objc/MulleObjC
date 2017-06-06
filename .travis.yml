@@ -9,5 +9,5 @@ before_install:
    - brew install codeon-gmbh/software/mulle-clang
 
 script:
-   - mulle-build
+   - mulle-build --bootstrap
    - mulle-test
