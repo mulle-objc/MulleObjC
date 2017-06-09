@@ -1,4 +1,3 @@
-${MULLE_REPOSITORIES}/mulle-container;;${MULLE_CONTAINER_BRANCH:-release}
-${MULLE_REPOSITORIES}/mulle-objc-runtime;;${MULLE_OBJC_RUNTIME_BRANCH:-release}
-${MULLE_REPOSITORIES}/mulle-objc-list;;${MULLE_OBJC_LIST_BRANCH:-release}
+${MULLE_OBJC_REPOSITORIES:-https://github.com/mulle-nat}/mulle-objc-runtime;;${MULLE_OBJC_RUNTIME_BRANCH:-release}
+${MULLE_OBJC_REPOSITORIES:-https://github.com/mulle-nat}/mulle-objc-list;;${MULLE_OBJC_LIST_BRANCH:-release}
 
