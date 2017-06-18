@@ -6,11 +6,11 @@ cmake_minimum_required (VERSION 3.0)
 # instead
 #    cmake -DCMAKE_C_COMPILER=mulle-clang -DCMAKE_CXX_COMPILER=mulle-clang
 #
-project (MulleObjC)
+project( MulleObjC)
 
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/mulle-configuration/cmake)
-message(STATUS "CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
-message(STATUS "CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
+message( STATUS "CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
+message( STATUS "CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
 
 set( MULLE_LANGUAGE "ObjC")
 
@@ -21,86 +21,32 @@ else()
 endif()
 
 
-include_directories(
-src
-src/protocols
+include( CMakeSourcesAndHeaders.txt)
+include( CMakeDependencies.txt)
+
+
+add_library( MulleObjC STATIC
+${SOURCES}
+${PUBLIC_HEADERS}
+${PRIVATE_HEADERS}
+CMakeDependencies.txt
+CMakeSourcesAndHeaders.txt)
+
+target_link_libraries( MulleObjC
+${DEPENDENCY_LIBRARIES}
 )
 
 
-set(HEADERS
-src/MulleObjC.h
-src/MulleObjCLoader.h
-src/MulleObjCAllocation.h
-src/MulleObjCFunctions.h
-src/NSAutoreleasePool.h
-src/NSDebug.h
-src/NSInvocation.h
-src/NSLock.h
-src/NSMethodSignature.h
-src/NSObject+NSCodingSupport.h
-src/NSObject.h
-src/NSProxy.h
-src/NSRecursiveLock.h
-src/NSThread.h
-src/_ns_exception.h
-src/ns_debug.h
-src/ns_exception.h
-src/ns_fastclassids.h
-src/ns_fastmethodids.h
-src/ns_byteorder.h
-src/ns_int_type.h
-src/ns_objc_type.h
-src/ns_objc.h
-src/ns_objc_compiler.h
-src/ns_objc_compatibility.h
-src/ns_objc_include.h
-src/ns_objc_setup.h
-src/ns_range.h
-src/ns_rootconfiguration.h
-src/ns_test_allocation.h
-src/ns_threadconfiguration.h
-src/ns_zone.h
-src/protocols/MulleObjCClassCluster.h
-src/protocols/MulleObjCException.h
-src/protocols/MulleObjCRuntimeObject.h
-src/protocols/MulleObjCSingleton.h
-src/protocols/MulleObjCTaggedPointer.h
-src/protocols/NSCoding.h
-src/protocols/NSCopying.h
-src/protocols/NSFastEnumeration.h
-src/protocols/NSLocking.h
-src/protocols/NSObjectProtocol.h
+#
+# Standalone
+#
+add_library( MulleObjCStandalone SHARED
+src/MulleObjCStandalone.m
+${PUBLIC_HEADERS}
+${DEF_FILE}
 )
 
-
-add_library(MulleObjC STATIC
-src/MulleObjCAllocation.m
-src/MulleObjCFunctions.m
-src/MulleObjCLoader.m
-src/NSAutoreleasePool.m
-src/NSDebug.m
-src/NSInvocation.m
-src/NSLock.m
-src/NSMethodSignature.m
-src/NSObject.m
-src/NSObject+NSCodingSupport.m
-src/NSProxy.m
-src/NSRecursiveLock.m
-src/NSThread.m
-src/ns_debug.m
-src/ns_exception.m
-src/ns_breakpoint.c
-src/ns_objc_setup.m
-src/ns_range.m
-src/ns_rootconfiguration.m
-src/ns_test_allocation.m
-src/protocols/MulleObjCClassCluster.m
-src/protocols/MulleObjCException.m
-src/protocols/MulleObjCSingleton.m
-src/protocols/MulleObjCTaggedPointer.m
-src/protocols/NSCoding.m
-src/protocols/NSCopying.m
-)
+add_dependencies( MulleObjCStandalone MulleObjC)
 
 if( MSVC)
    set( DEF_FILE MulleObjCStandalone.def)
@@ -110,43 +56,6 @@ if( MSVC)
    # /NODEFAULTLIB:MSVCRT")
 endif()
 
-add_library( MulleObjCStandalone SHARED
-src/MulleObjCStandalone.m
-${HEADERS}
-${DEF_FILE}
-)
-
-
-find_library( MULLE_ABA_LIBRARY            NAMES mulle_aba)
-find_library( MULLE_ALLOCATOR_LIBRARY      NAMES mulle_allocator)
-find_library( MULLE_CONCURRENT_LIBRARY     NAMES mulle_concurrent)
-find_library( MULLE_CONTAINER_LIBRARY      NAMES mulle_container)
-find_library( MULLE_OBJC_RUNTIME_LIBRARY   NAMES mulle_objc)
-find_library( MULLE_TEST_ALLOCATOR_LIBRARY NAMES mulle_test_allocator)
-find_library( MULLE_THREAD_LIBRARY         NAMES mulle_thread)
-
-message(STATUS "MULLE_ABA_LIBRARY is ${MULLE_ABA_LIBRARY}")
-message(STATUS "MULLE_ALLOCATOR_LIBRARY is ${MULLE_ALLOCATOR_LIBRARY}")
-message(STATUS "MULLE_CONCURRENT_LIBRARY is ${MULLE_CONCURRENT_LIBRARY}")
-message(STATUS "MULLE_CONTAINER_LIBRARY is ${MULLE_CONTAINER_LIBRARY}")
-message(STATUS "MULLE_OBJC_RUNTIME_LIBRARY is ${MULLE_OBJC_RUNTIME_LIBRARY}")
-message(STATUS "MULLE_TEST_ALLOCATOR_LIBRARY is ${MULLE_TEST_ALLOCATOR_LIBRARY}")
-message(STATUS "MULLE_THREAD_LIBRARY is ${MULLE_THREAD_LIBRARY}")
-
-
-set( DEPENDENCY_LIBRARIES
-${MULLE_ABA_LIBRARY}
-${MULLE_ALLOCATOR_LIBRARY}
-${MULLE_CONCURRENT_LIBRARY}
-${MULLE_CONTAINER_LIBRARY}
-${MULLE_OBJC_RUNTIME_LIBRARY}
-${MULLE_TEST_ALLOCATOR_LIBRARY}
-${MULLE_THREAD_LIBRARY}
-)
-
-
-add_dependencies( MulleObjCStandalone MulleObjC)
-
 if( MSVC)
    add_custom_command( OUTPUT ${DEF_FILE}
                        COMMAND mulle-mingw-dumpdef.bat -o "${DEF_FILE}" --directory "${BUILD_RELATIVE_DEPENDENCIES_DIR}/lib" --prefix "mulle" --prefix Mulle --prefix ns --prefix NS ${DEPENDENCY_LIBRARIES} $<TARGET_FILE:MulleObjC>
@@ -155,13 +64,19 @@ if( MSVC)
 endif()
 
 
-TARGET_LINK_LIBRARIES( MulleObjCStandalone
+#
+# If you add DEPENDENCY_LIBRARIES to the static, adding them again to
+# Standalone confuses cmake it seems. But DEPENDENCY_LIBRARIES are
+# implicitly added.
+#
+target_link_libraries( MulleObjCStandalone
 ${BEGIN_ALL_LOAD}
 MulleObjC
-${DEPENDENCY_LIBRARIES}
 ${END_ALL_LOAD}
+${OS_SPECIFIC_LIBRARIES}
 )
 
 
-INSTALL( TARGETS MulleObjC MulleObjCStandalone DESTINATION "lib")
-INSTALL( FILES ${HEADERS} DESTINATION "include/MulleObjC")
+install( TARGETS MulleObjC MulleObjCStandalone DESTINATION "lib")
+install( FILES ${PUBLIC_HEADERS} "CMakeDependencies.txt" DESTINATION "include/MulleObjC")
+install( FILES ${PRIVATE_HEADERS} DESTINATION "include/MulleObjC/private")

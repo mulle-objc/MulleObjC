@@ -37,7 +37,7 @@
 
 #include "ns_exception.h"
 
-#include <mulle_objc/mulle_objc.h>
+#include <mulle_objc_runtime/mulle_objc_runtime.h>
 
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
@@ -87,7 +87,6 @@
 }
 
 
-
 /*
    MEMO:
 
@@ -97,16 +96,16 @@
 */
 + (BOOL) isTaggedPointerEnabled
 {
-   struct _mulle_objc_runtime  *runtime;
+   struct _mulle_objc_universe  *universe;
 
-   runtime = _mulle_objc_infraclass_get_runtime( self);
-   return( ! runtime->config.no_tagged_pointers);
+   universe = _mulle_objc_infraclass_get_universe( self);
+   return( ! universe->config.no_tagged_pointers);
 }
 
 
 int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
 {
-   struct _mulle_objc_runtime  *runtime;
+   struct _mulle_objc_universe  *universe;
    int                         rval;
 
    if( ! cls)
@@ -118,8 +117,8 @@ int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
    if( ! index)
       mulle_objc_throw_invalid_index( index);
 
-   runtime = _mulle_objc_infraclass_get_runtime( cls);
-   rval    = _mulle_objc_runtime_set_taggedpointerclass_at_index( runtime, cls, index);
+   universe = _mulle_objc_infraclass_get_universe( cls);
+   rval    = _mulle_objc_universe_set_taggedpointerclass_at_index( universe, cls, index);
    if( ! rval)
       _mulle_objc_infraclass_set_taggedpointerindex( cls, index);
    return( rval);

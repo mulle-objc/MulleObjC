@@ -40,7 +40,7 @@
 
 #include "ns_rootconfiguration.h"
 #include "ns_test_allocation.h"
-#include <mulle_objc/mulle_objc_csvdump.h>
+#include <mulle_objc_runtime/mulle_objc_csvdump.h>
 
 // clang speciality
 #ifdef __has_include
@@ -53,13 +53,13 @@
 
 // std-c and dependencies
 
-static void   versionassert( struct _mulle_objc_runtime *runtime,
+static void   versionassert( struct _mulle_objc_universe *universe,
                             void *friend,
                             struct mulle_objc_loadversion *version)
 {
    if( (version->foundation & ~0xFF) != (MULLE_OBJC_VERSION & ~0xFF))
-      _mulle_objc_runtime_raise_inconsistency_exception( runtime, "mulle_objc_runtime %p: foundation version set to %x but runtime foundation is %x",
-                                                        runtime,
+      _mulle_objc_universe_raise_inconsistency_exception( universe, "mulle_objc_universe %p: foundation version set to %x but universe foundation is %x",
+                                                        universe,
                                                         version->foundation,
                                                         MULLE_OBJC_VERSION);
 }
@@ -134,17 +134,17 @@ static void   *return_self( void *p)
 }
 
 
-static void  post_create( struct _mulle_objc_runtime  *runtime)
+static void  post_create( struct _mulle_objc_universe  *universe)
 {
    struct _ns_rootconfiguration         *rootconfig;
 
-   rootconfig = _mulle_objc_runtime_get_foundationdata( runtime);
+   rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    rootconfig->string.charsfromobject = (char *(*)()) return_self;
    rootconfig->string.objectfromchars = (void *(*)()) return_self;
    
    // needed for coverage, slows things down a bit and bloats caches
-   runtime->config.repopulate_caches = mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE");
+   universe->config.repopulate_caches = mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE");
 }
 
 
@@ -186,17 +186,16 @@ const struct _ns_root_setupconfig   *ns_objc_get_default_setupconfig( void)
 }
 
 
-struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig *setup)
+void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
+                               struct _ns_root_setupconfig *setup)
 {
    int                          is_pedantic;
    int                          is_test;
    int                          is_coverage;
-   struct _mulle_objc_runtime   *runtime;
 
-   runtime = __mulle_objc_get_runtime();
-   if( _mulle_objc_runtime_is_initialized( runtime))
+   if( _mulle_objc_universe_is_initialized( universe))
    {
-      fprintf( stderr, "The runtime %p is already initialized. Do not call \"ns_objc_create_runtime\" twice.\n", runtime);
+      fprintf( stderr, "The universe %p is already initialized. Do not call \"ns_objc_universe_setup\" twice.\n", universe);
       abort();
    }
 
@@ -210,28 +209,28 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
       mulle_test_allocator_objc_initialize();
 
       //
-      // in case of leaks, getting traces of runtime allocatios can be
-      // tedious. Assuming runtime is leak free, run with a test
+      // in case of leaks, getting traces of universe allocatios can be
+      // tedious. Assuming universe is leak free, run with a test
       // allocator for objects only (MULLE_OBJC_TEST_ALLOCATOR=1)
       //
       if( is_test & 0x1)
          setup->foundation.objectallocator = &mulle_test_allocator_objc;
       if( is_test & 0x2)
-         setup->runtime.allocator          = &mulle_test_allocator_objc;
+         setup->universe.allocator          = &mulle_test_allocator_objc;
 #if DEBUG
       if( is_test & 0x3)
          fprintf( stderr, "MulleObjC uses \"mulle_test_allocator_objc\" to detect leaks.\n");
 #endif
    }
 
-   (*setup->callbacks.setup)( runtime, setup);
-   (*setup->callbacks.post_create)( runtime);
+   (*setup->callbacks.setup)( universe, setup);
+   (*setup->callbacks.post_create)( universe);
 
    if( is_pedantic || is_test || is_coverage)
    {
       struct _ns_rootconfiguration *rootcfg;
 
-      rootcfg = _mulle_objc_runtime_get_foundationdata( runtime);
+      rootcfg = _mulle_objc_universe_get_foundationdata( universe);
 
       // if we retain zombies, we leak, so no point in looking for leaks
       if( rootcfg->object.zombieenabled && ! rootcfg->object.deallocatezombies)
@@ -260,16 +259,14 @@ struct _mulle_objc_runtime  *ns_objc_create_runtime( struct _ns_root_setupconfig
       function = dlsym( MULLE_OBJC_DLSYM_HANDLE, "__mulle_objc_loadinfo_callback");
       if( function)
       {
-         runtime->loadcallbacks.should_load_loadinfo = (int (*)()) function;
-         fprintf( stderr, "mulle_objc_runtime %p: "
-                 "__mulle_objc_loadinfo_callback set to %p\n", runtime, function);
+         universe->loadcallbacks.should_load_loadinfo = (int (*)()) function;
+         fprintf( stderr, "mulle_objc_universe %p: "
+                 "__mulle_objc_loadinfo_callback set to %p\n", universe, function);
       }
       
-     // set path of runtime for debugging
-     if( dladdr( (void *) __mulle_objc_runtime_setup, &info))
-        mulle_objc_runtime_set_path( runtime, (char *) info.dli_fname);
+     // set path of universe for debugging
+     if( dladdr( (void *) __mulle_objc_universe_setup, &info))
+        mulle_objc_universe_set_path( universe, (char *) info.dli_fname);
    }
 #endif
-
-   return( runtime);
 }

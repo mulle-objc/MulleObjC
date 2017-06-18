@@ -38,20 +38,27 @@
 #include <stdlib.h>
 
 
-__attribute__((const))  // always returns same value (in same thread)
-struct _mulle_objc_runtime  *__get_or_create_mulle_objc_runtime( void)
+static void   bang( struct _mulle_objc_universe *universe,
+                    void (*crunch)( void),
+                    void *userinfo)
 {
-   struct _mulle_objc_runtime  *runtime;
+   struct _ns_root_setupconfig   config;
 
-   runtime = __mulle_objc_get_runtime();
-   if( ! _mulle_objc_runtime_is_initialized( runtime))
-   {
-      struct _ns_root_setupconfig   config;
+   memcpy( &config, ns_objc_get_default_setupconfig(), sizeof( config));
+   ns_objc_universe_setup( universe, &config);
+}
 
-      memcpy( &config, ns_objc_get_default_setupconfig(), sizeof( config));
-      runtime = ns_objc_create_runtime( &config);
-   }
-   return( runtime);
+
+MULLE_C_CONST_RETURN  // always returns same value (in same thread)
+struct _mulle_objc_universe  *__get_or_create_mulle_objc_universe( void)
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = __mulle_objc_get_universe();
+   if( ! _mulle_objc_universe_is_initialized( universe))
+      _mulle_objc_universe_bang( universe, bang, NULL, NULL);
+
+   return( universe);
 }
 
 

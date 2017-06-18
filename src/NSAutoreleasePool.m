@@ -185,8 +185,8 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
    assert( self != nil);
    assert( p != nil);
    assert( _mulle_objc_object_get_isa( p));
-   assert( _mulle_objc_class_get_runtime( _mulle_objc_object_get_isa( p)) ==
-           _mulle_objc_infraclass_get_runtime( _ns_get_autoreleasepoolclass())) ;
+   assert( _mulle_objc_class_get_universe( _mulle_objc_object_get_isa( p)) ==
+           _mulle_objc_infraclass_get_universe( _ns_get_autoreleasepoolclass())) ;
    assert( _mulle_objc_object_get_infraclass( p) != _ns_get_autoreleasepoolclass());
    assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
 

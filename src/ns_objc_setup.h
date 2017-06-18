@@ -34,20 +34,21 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef ns_objc_runtime_setup_h__
-#define ns_objc_runtime_setup_h__
+#ifndef ns_objc_universe_setup_h__
+#define ns_objc_universe_setup_h__
 
 #include "ns_rootconfiguration.h"
 
 //
-// copy this struct, modify to taste and pass it to ns_create_objc_runtime
+// copy this struct, modify to taste and pass it to ns_create_objc_universe
 //
 const struct _ns_root_setupconfig   *ns_objc_get_default_setupconfig( void);
 
 //
-// use this in standalone to actually setup
-// setup will be modified by ns_objc_create_runtime
+// use this in standalone in get_or_create_universe
+// setup will be modified by ns_objc_universe_setup
 //
-struct _mulle_objc_runtime   *ns_objc_create_runtime( struct _ns_root_setupconfig *setup);
+void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
+                               struct _ns_root_setupconfig *setup);
 
-#endif /* ns_objc_runtime_setup_h */
+#endif /* ns_objc_universe_setup_h */

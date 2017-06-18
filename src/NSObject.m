@@ -276,7 +276,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Class infraCls,
                                                                               mulle_objc_classid_t classid)
 {
-   struct _mulle_objc_runtime          *runtime;
+   struct _mulle_objc_universe          *universe;
    struct _mulle_objc_infraclass       *placeholderInfracls;
    struct _mulle_objc_class            *pcls;
    _MulleObjCInstantiatePlaceholder    *placeholder;
@@ -285,8 +285,8 @@ static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Cl
 
    assert( classid);
 
-   runtime             = _mulle_objc_infraclass_get_runtime( infraCls);
-   placeholderInfracls = _mulle_objc_runtime_unfailing_get_or_lookup_infraclass( runtime, classid);
+   universe             = _mulle_objc_infraclass_get_universe( infraCls);
+   placeholderInfracls = _mulle_objc_universe_unfailing_get_or_lookup_infraclass( universe, classid);
 
    placeholder       = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
    placeholder->_cls = infraCls;
@@ -350,17 +350,17 @@ retry:
                         length:(NSUInteger) length
 {
    struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
    NSUInteger                     count;
    struct mulle_setenumerator     rover;
    id                             obj;
    id                             *sentinel;
 
-   runtime = _mulle_objc_infraclass_get_runtime( self);
+   universe = _mulle_objc_infraclass_get_universe( self);
 
-   _mulle_objc_runtime_lock( runtime);
+   _mulle_objc_universe_lock( universe);
    {
-      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
 
       count    = mulle_set_get_count( config->object.roots);
       sentinel = &buf[ count < length ? count : length];
@@ -374,7 +374,7 @@ retry:
       }
       mulle_setenumerator_done( &rover);
    }
-   _mulle_objc_runtime_unlock( runtime);
+   _mulle_objc_universe_unlock( universe);
 
    return( count);
 }
@@ -383,16 +383,16 @@ retry:
 - (BOOL) _isRootObject
 {
    struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
    struct mulle_setenumerator     rover;
    id                             obj;
 
-   runtime = _mulle_objc_object_get_runtime( self);
+   universe = _mulle_objc_object_get_universe( self);
    obj     = nil;
 
-   _mulle_objc_runtime_lock( runtime);
+   _mulle_objc_universe_lock( universe);
    {
-      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
 
       rover = mulle_set_enumerate( config->object.roots);
       while( obj = mulle_setenumerator_next( &rover))
@@ -402,7 +402,7 @@ retry:
       }
       mulle_setenumerator_done( &rover);
    }
-   _mulle_objc_runtime_unlock( runtime);
+   _mulle_objc_universe_unlock( universe);
 
    return( obj ? YES : NO);
 }

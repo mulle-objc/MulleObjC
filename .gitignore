@@ -9,6 +9,7 @@ project.xcworkspace/
 old/
 tmp/
 *.old
+*.bak
 
 /.bootstrap.auto/
 /.bootstrap.local/

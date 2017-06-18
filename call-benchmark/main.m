@@ -582,11 +582,11 @@ int   main( int argc, char  *argv[])
 
       // put in NSMutableDictionary
       cls = mulle_objc_unfailing_get_class( MULLE_OBJC_CLASSID( MULLE_OBJC_FASTCLASSHASH_10));
-      _mulle_objc_runtime_set_fastclass( mulle_objc_inlined_get_runtime(), cls, 10);
+      _mulle_objc_universe_set_fastclass( mulle_objc_inlined_get_universe(), cls, 10);
 
       // put in NSNumber
       cls = mulle_objc_unfailing_get_class( MULLE_OBJC_CLASSID( MULLE_OBJC_FASTCLASSHASH_13));
-      _mulle_objc_runtime_set_fastclass( mulle_objc_inlined_get_runtime(), cls, 13);
+      _mulle_objc_universe_set_fastclass( mulle_objc_inlined_get_universe(), cls, 13);
    }
 #endif
    foo = [Foo new];

@@ -170,7 +170,7 @@ MULLE_C_NO_RETURN
 void   mulle_objc_throw( void *exception)
 {
    mulle_objc_break_exception();
-   _mulle_objc_runtime_throw( mulle_objc_get_runtime(), exception);
+   _mulle_objc_universe_throw( mulle_objc_get_universe(), exception);
 }
 
 
@@ -179,17 +179,17 @@ void   mulle_objc_throw( void *exception)
 
 NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void)
 {
-   struct _mulle_objc_runtime   *runtime;
+   struct _mulle_objc_universe   *universe;
 
-   runtime = mulle_objc_get_runtime();
-   return( (NSUncaughtExceptionHandler *) runtime->failures.uncaughtexception);
+   universe = mulle_objc_get_universe();
+   return( (NSUncaughtExceptionHandler *) universe->failures.uncaughtexception);
 }
 
 
 void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler)
 {
-   struct _mulle_objc_runtime      *runtime;
+   struct _mulle_objc_universe      *universe;
 
-   runtime = mulle_objc_get_runtime();
-   runtime->failures.uncaughtexception = (void (*)()) handler;
+   universe = mulle_objc_get_universe();
+   universe->failures.uncaughtexception = (void (*)()) handler;
 }
