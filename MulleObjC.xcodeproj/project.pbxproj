@@ -190,6 +190,7 @@
 		418502771C8755A9008C77C4 /* callbenchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = callbenchmark; sourceTree = BUILT_PRODUCTS_DIR; };
 		41866EB01EF70DBB0033742E /* CMakeDependencies.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeDependencies.txt; sourceTree = "<group>"; };
 		41866EB11EF70DBB0033742E /* CMakeSourcesAndHeaders.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeSourcesAndHeaders.txt; sourceTree = "<group>"; };
+		41866EB21EF72DA30033742E /* dependencies.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; name = dependencies.inc; path = src/dependencies.inc; sourceTree = "<group>"; };
 		41872A291C67870F0087DFB1 /* MulleObjCAllocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleObjCAllocation.m; sourceTree = "<group>"; };
 		418B6E8F1C9FFEAF0080FABD /* MulleObjCClassCluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulleObjCClassCluster.h; sourceTree = "<group>"; };
 		418B6E901C9FFEAF0080FABD /* MulleObjCClassCluster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulleObjCClassCluster.m; sourceTree = "<group>"; };
@@ -343,6 +344,7 @@
 				413677871CBDA9A400A944A9 /* CMakeLists.txt */,
 				41866EB01EF70DBB0033742E /* CMakeDependencies.txt */,
 				41866EB11EF70DBB0033742E /* CMakeSourcesAndHeaders.txt */,
+				41866EB21EF72DA30033742E /* dependencies.inc */,
 				41A827791AADD1510017BE29 /* README.md */,
 				41A963891CE201D500412367 /* RELEASENOTES.md */,
 				417C02841BD84938005A3751 /* mulle-configuration */,

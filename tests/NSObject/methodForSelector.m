@@ -135,7 +135,7 @@ static void  test_class( Class cls)
 main()
 {
 #ifdef __MULLE_OBJC__
-   mulle_objc_check_runtime();
+   mulle_objc_check_universe();
 #endif
 
    test_class( [NSObject class]);

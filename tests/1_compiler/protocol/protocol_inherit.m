@@ -1,4 +1,4 @@
-#include <mulle_objc/mulle_objc.h>
+#include <mulle_objc_runtime/mulle_objc_runtime.h>
 
 @protocol  A      // 0x7fc56270e7a70fa8
 @end
@@ -33,5 +33,5 @@ main()
    printf( "B: %s\n",
        _mulle_objc_infraclass_conformsto_protocolid( cls,
                                               @protocol( B)) ? "YES" : "NO");
-   mulle_objc_dotdump_runtime_to_tmp();
+   mulle_objc_dotdump_universe_to_tmp();
 }

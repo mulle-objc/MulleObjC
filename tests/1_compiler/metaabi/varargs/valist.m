@@ -5,7 +5,7 @@
 //  Created by Nat! on 29.10.15.
 //  Copyright © 2015 Mulle kybernetiK. All rights reserved.
 //
-#include <mulle_objc/mulle_objc.h>
+#include <mulle_objc_runtime/mulle_objc_runtime.h>
 #include <mulle_vararg/mulle_vararg.h>
 
 #include <string.h>

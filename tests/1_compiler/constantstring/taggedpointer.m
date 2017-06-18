@@ -1,4 +1,4 @@
-#include <mulle_objc/mulle_objc.h>
+#include <mulle_objc_runtime/mulle_objc_runtime.h>
 
 
 // no support for the package keyword
@@ -194,17 +194,17 @@ static inline size_t   mulle_char7_decode_ascii( uintptr_t value, char *src, siz
 
 main()
 {
-   struct _mulle_objc_runtime   *runtime;
+   struct _mulle_objc_universe  *universe;
    struct _mulle_objc_class     *cls;
 
-   runtime = mulle_objc_get_runtime();
-   cls     = [SomeString class];
-   _mulle_objc_runtime_set_staticstringclass( runtime, cls);
+   universe = mulle_objc_get_universe();
+   cls      = [SomeString class];
+   _mulle_objc_universe_set_staticstringclass( universe, cls);
 
    cls     = [SomeString5TaggedPointer class];
-   _mulle_objc_runtime_set_taggedpointerclass_at_index( runtime, cls, 0x1);
+   _mulle_objc_universe_set_taggedpointerclass_at_index( universe, cls, 0x1);
    cls     = [SomeString7TaggedPointer class];
-   _mulle_objc_runtime_set_taggedpointerclass_at_index( runtime, cls, 0x3);
+   _mulle_objc_universe_set_taggedpointerclass_at_index( universe, cls, 0x3);
 
    [@"surely not a tagged pointer because its too long." print];
    [@"." print];

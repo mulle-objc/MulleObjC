@@ -1,4 +1,4 @@
-#import <mulle_objc/mulle_objc.h>
+#import <mulle_objc_runtime/mulle_objc_runtime.h>
 
 
 @interface A
@@ -91,7 +91,7 @@
 
 int  main( void)
 {
-   mulle_objc_check_runtime();
+   mulle_objc_check_universe();
 
    printf( "A:\n");
    [A a0];

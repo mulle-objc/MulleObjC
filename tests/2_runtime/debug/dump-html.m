@@ -31,7 +31,7 @@
 int   main( int argc, char *argv[])
 {
    // we happy if we don't crash
-   mulle_objc_htmldump_runtime_to_tmp();
-   mulle_objc_dotdump_runtime_to_tmp();
+   mulle_objc_htmldump_universe_to_tmp();
+   mulle_objc_dotdump_universe_to_tmp();
    return( 0);
 }

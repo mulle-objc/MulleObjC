@@ -1,4 +1,4 @@
-#import <mulle_objc/mulle_objc.h>
+#import <mulle_objc_runtime/mulle_objc_runtime.h>
 
 
 @implementation Foo
