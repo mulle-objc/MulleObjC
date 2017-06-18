@@ -1,3 +1,8 @@
+### 0.9.1
+
+* adapt to changes in mulle_objc_runtime
+
+
 ### 0.8.4
 
 * modernize project

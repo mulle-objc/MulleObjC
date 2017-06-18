@@ -1,7 +1,7 @@
 // Foo ==  40413ff3
 #define MULLE_OBJC_FASTCLASSHASH_31   0x40413ff3
 
-#include <mulle_objc/mulle_objc.h>
+#include <mulle_objc_runtime/mulle_objc_runtime.h>
 
 #define MULLE_OBJC_FASTCLASSID_31  MULLE_OBJC_CLASSID( MULLE_OBJC_FASTCLASSHASH_31)
 
@@ -36,7 +36,7 @@ main()
 
    printf( "%d\n", mulle_objc_get_fastclasstable_index( MULLE_OBJC_FASTCLASSID_31));
 
-   mulle_objc_dotdump_runtime_to_tmp();
+   mulle_objc_dotdump_universe_to_tmp();
 
    foo = [Foo new];
 }

@@ -1,4 +1,4 @@
-#include <mulle_objc/mulle_objc.h>
+#include <mulle_objc_runtime/mulle_objc_runtime.h>
 
 @protocol  Baz
 - (void) baz;

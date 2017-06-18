@@ -5,7 +5,7 @@
 #define __MULLE_OBJC_NO_TPS__   1
 
 
-#include <mulle_objc/mulle_objc.h>
+#include <mulle_objc_runtime/mulle_objc_runtime.h>
 
 
 // no support for the package keyword
@@ -43,14 +43,14 @@ SomeString  *bar = @"bar";
 
 main()
 {
-   struct _mulle_objc_runtime   *runtime;
+   struct _mulle_objc_universe   *universe;
 
 
-   runtime = mulle_objc_get_runtime();
+   universe = mulle_objc_get_universe();
 
-   _mulle_objc_runtime_set_staticstringclass( runtime, [SomeString class]);
+   _mulle_objc_universe_set_staticstringclass( universe, [SomeString class]);
 
-   mulle_objc_dotdump_runtime_to_tmp();
+   mulle_objc_dotdump_universe_to_tmp();
 
    [foo print];
    [bar print];

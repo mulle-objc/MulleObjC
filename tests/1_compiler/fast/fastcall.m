@@ -1,6 +1,6 @@
 // whatever ==  0x3abb1a67
 #define MULLE_OBJC_FASTMETHODHASH_15   0x3abb1a67
-#include <mulle_objc/mulle_objc.h>
+#include <mulle_objc_runtime/mulle_objc_runtime.h>
 
 
 #define MULLE_OBJC_FASTMETHODID_15     MULLE_OBJC_METHODID( MULLE_OBJC_FASTMETHODHASH_15)

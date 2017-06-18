@@ -15,7 +15,9 @@ fi
 # Then get all standalone classes, but remove Posix classes and
 # OS specifica. The remainder are osbase-dependencies
 #
-mulle-objc-list -d "build/libMulleObjCStandalone.dylib" > src/dependencies.inc || exit 1
+mulle-objc-list -d "build/libMulleObjCStandalone.dylib" | \
+   fgrep -v  MulleObjCLoader | \
+   sort > src/dependencies.inc || exit 1
 
 echo "src/dependencies.inc written" >&2
 exit 0

@@ -193,9 +193,12 @@ void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
    int                          is_test;
    int                          is_coverage;
 
-   if( _mulle_objc_universe_is_initialized( universe))
+   if( ! _mulle_objc_universe_is_initializing( universe))
    {
-      fprintf( stderr, "The universe %p is already initialized. Do not call \"ns_objc_universe_setup\" twice.\n", universe);
+      if( ! _mulle_objc_universe_is_uninitialized( universe))
+         fprintf( stderr, "The universe %p is already initialized. Do not call \"ns_objc_universe_setup\" twice.\n", universe);
+      else
+         fprintf( stderr, "Do not call \"ns_objc_universe_setup\" directly, call it via _mulle_objc_universe_bang.\n");
       abort();
    }
 
