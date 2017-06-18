@@ -52,15 +52,15 @@ __attribute__((const))
 static inline struct mulle_allocator   *MulleObjCObjectGetAllocator( id obj)
 {
    struct _mulle_objc_class        *cls;
-   struct _mulle_objc_runtime      *runtime;
+   struct _mulle_objc_universe      *universe;
    struct _mulle_objc_foundation   *foundation;
 
    if( ! obj)
       return( NULL);
 
    cls        = _mulle_objc_object_get_isa( obj);
-   runtime    = _mulle_objc_class_get_runtime( cls);
-   foundation = _mulle_objc_runtime_get_foundation( runtime);
+   universe    = _mulle_objc_class_get_universe( cls);
+   foundation = _mulle_objc_universe_get_foundation( universe);
    return( &foundation->allocator);
 }
 
@@ -68,14 +68,14 @@ static inline struct mulle_allocator   *MulleObjCObjectGetAllocator( id obj)
 __attribute__((const))
 static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 {
-   struct _mulle_objc_runtime      *runtime;
+   struct _mulle_objc_universe      *universe;
    struct _mulle_objc_foundation   *foundation;
 
    if( ! cls)
       return( NULL);
 
-   runtime    = _mulle_objc_class_get_runtime( (struct _mulle_objc_class *) cls);
-   foundation = _mulle_objc_runtime_get_foundation( runtime);
+   universe    = _mulle_objc_class_get_universe( (struct _mulle_objc_class *) cls);
+   foundation = _mulle_objc_universe_get_foundation( universe);
    return( &foundation->allocator);
 }
 
@@ -183,10 +183,10 @@ static inline void   _MulleObjCObjectFree( id obj)
    struct _mulle_objc_objectheader   *header;
    struct _ns_rootconfiguration      *config;
    struct mulle_allocator            *allocator;
-   struct _mulle_objc_runtime        *runtime;
+   struct _mulle_objc_universe        *universe;
 
-   runtime = _mulle_objc_object_get_runtime( obj);
-   config  = _mulle_objc_runtime_get_foundationdata( runtime);
+   universe = _mulle_objc_object_get_universe( obj);
+   config  = _mulle_objc_universe_get_foundationdata( universe);
    if( config->object.zombieenabled)
    {
       MulleObjCZombifyObject( obj);

@@ -47,7 +47,7 @@
 
 
 #pragma mark -
-#pragma mark per thread runtime configuration
+#pragma mark per thread universe configuration
 
 struct _ns_objectconfiguration
 {
@@ -94,7 +94,7 @@ struct _ns_autoreleasepool
 
 //
 // rename this to foundationconfiguration or so...
-// this is part of the runtime structure..
+// this is part of the universe structure..
 //
 struct _ns_rootconfiguration
 {
@@ -104,16 +104,16 @@ struct _ns_rootconfiguration
    struct _ns_stringconfiguration     string;
    struct _ns_threadconfiguration     thread;
    struct _ns_autoreleasepool         pool;
-   struct _mulle_objc_runtime         *runtime;
+   struct _mulle_objc_universe         *universe;
 };
 
 #pragma mark -
 #pragma mark inital config setup
 
-struct _ns_root_runtimeconfig
+struct _ns_root_universeconfig
 {
    struct mulle_allocator                     *allocator;
-   mulle_objc_runtimefriend_versionassert_t   *versionassert;
+   mulle_objc_universefriend_versionassert_t   *versionassert;
    struct _mulle_objc_method                  *forward;
    void                                       (*uncaughtexception)( void *exception) MULLE_C_NO_RETURN;
 };
@@ -129,35 +129,35 @@ struct _ns_root_foundationconfig
 
 struct _ns_setup_callbacks
 {
-   void  (*setup)( struct _mulle_objc_runtime *runtime, void *config);
+   void  (*setup)( struct _mulle_objc_universe *universe, void *config);
    void  (*tear_down)( void);
    void  (*tear_down_and_check)( void);
-   void  (*post_create)( struct _mulle_objc_runtime *runtime);
+   void  (*post_create)( struct _mulle_objc_universe *universe);
 };
 
 
 struct _ns_root_setupconfig
 {
-   struct _ns_root_runtimeconfig     runtime;
+   struct _ns_root_universeconfig     universe;
    struct _ns_root_foundationconfig  foundation;
    struct _ns_setup_callbacks        callbacks;
 };
 
 
-struct _ns_rootconfiguration   *__mulle_objc_root_setup( struct _mulle_objc_runtime *runtime,
+struct _ns_rootconfiguration   *__mulle_objc_root_setup( struct _mulle_objc_universe *universe,
                                                          struct _ns_root_setupconfig *config);
 
 // this also sets up exception vectors
-void   _ns_root_setup( struct _mulle_objc_runtime *runtime,
+void   _ns_root_setup( struct _mulle_objc_universe *universe,
                        struct _ns_root_setupconfig *config);
 
 __attribute__((const, returns_nonnull))  // always returns same value (in same thread)
 static inline struct _ns_rootconfiguration   *_ns_get_rootconfiguration( void)
 {
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
 
-   runtime = mulle_objc_inlined_get_runtime();
-   return( _mulle_objc_runtime_get_foundationdata( runtime));
+   universe = mulle_objc_inlined_get_universe();
+   return( _mulle_objc_universe_get_foundationdata( universe));
 }
 
 
@@ -168,10 +168,10 @@ static inline struct _ns_rootconfiguration   *_ns_get_rootconfiguration( void)
 __attribute__((const, returns_nonnull))  // always returns same value (in same thread)
 static inline struct _ns_rootconfiguration   *_ns_object_get_rootconfiguration( void *obj)
 {
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
 
-   runtime = _mulle_objc_object_get_runtime( obj);
-   return( _mulle_objc_runtime_get_foundationdata( runtime));
+   universe = _mulle_objc_object_get_universe( obj);
+   return( _mulle_objc_universe_get_foundationdata( universe));
 }
 
 

@@ -39,7 +39,7 @@
 #import "NSObjectProtocol.h"
 
 // std-c and dependencies
-#include <mulle_objc/mulle_objc.h>
+#include <mulle_objc_runtime/mulle_objc_runtime.h>
 #include "ns_rootconfiguration.h"
 
 
@@ -128,17 +128,17 @@ char  *MulleObjCClassGetName( Class cls)
 char   *MulleObjCSelectorGetName( SEL sel)
 {
    struct _mulle_objc_methoddescriptor   *desc;
-   struct _mulle_objc_runtime            *runtime;
+   struct _mulle_objc_universe            *universe;
 
-   runtime = mulle_objc_get_runtime();
-   desc    = _mulle_objc_runtime_lookup_methoddescriptor( runtime, (mulle_objc_methodid_t) sel);
+   universe = mulle_objc_get_universe();
+   desc    = _mulle_objc_universe_lookup_methoddescriptor( universe, (mulle_objc_methodid_t) sel);
    return( desc ? _mulle_objc_methoddescriptor_get_name( desc) : NULL);
 }
 
 
 Class   MulleObjCLookupClassByName( char *name)
 {
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
    Class                          cls;
    mulle_objc_classid_t           classid;
 
@@ -147,8 +147,8 @@ Class   MulleObjCLookupClassByName( char *name)
 
    classid = mulle_objc_classid_from_string( name);
 
-   runtime = mulle_objc_get_runtime();
-   cls     = _mulle_objc_runtime_get_or_lookup_infraclass( runtime, classid);
+   universe = mulle_objc_get_universe();
+   cls     = _mulle_objc_universe_get_or_lookup_infraclass( universe, classid);
 
    return( cls);
 }
@@ -190,7 +190,7 @@ static unsigned int   count_params( char *name)
 SEL   MulleObjCCreateSelector( char *name)
 {
    mulle_objc_methodid_t                methodid;
-   struct _mulle_objc_runtime           *runtime;
+   struct _mulle_objc_universe           *universe;
    struct _mulle_objc_methoddescriptor  *desc;
    unsigned int                         n;
 
@@ -201,15 +201,15 @@ SEL   MulleObjCCreateSelector( char *name)
    // if method is not known register a descriptor
    // so that NSStringFromSelector can get something
 
-   runtime = mulle_objc_get_runtime();
-   desc    = _mulle_objc_runtime_lookup_methoddescriptor( runtime, methodid);
+   universe = mulle_objc_get_universe();
+   desc    = _mulle_objc_universe_lookup_methoddescriptor( universe, methodid);
    if( ! desc)
    {
-      desc = mulle_objc_runtime_calloc( runtime, 1, sizeof( struct _mulle_objc_methoddescriptor));
+      desc = mulle_objc_universe_calloc( universe, 1, sizeof( struct _mulle_objc_methoddescriptor));
 
       desc->methodid  = methodid;
       desc->bits      = _mulle_objc_method_guessed_signature;
-      desc->name      = mulle_objc_runtime_strdup( runtime, name);
+      desc->name      = mulle_objc_universe_strdup( universe, name);
 
       n = count_params( name);
       if( n < 16)
@@ -218,12 +218,12 @@ SEL   MulleObjCCreateSelector( char *name)
       {
          n += 3;  // add "@@:"
 
-         desc->signature = mulle_objc_runtime_calloc( runtime, 1, n + 1);
+         desc->signature = mulle_objc_universe_calloc( universe, 1, n + 1);
          memset( desc->signature, '@', n);
          desc->signature[ 2] = ':';
       }
 
-      mulle_objc_runtime_unfailing_add_methoddescriptor( runtime, desc);
+      mulle_objc_universe_unfailing_add_methoddescriptor( universe, desc);
    }
    return( (SEL) (uintptr_t) methodid);
 }

@@ -35,7 +35,7 @@
 //
 
 // this is the only file that has an __attribute__ constructor
-// this links in all the roots stuff into the runtime
+// this links in all the roots stuff into the universe
 
 #include "ns_objc_include.h"
 
@@ -175,16 +175,16 @@ void  _ns_rootconfiguration_locked_call( void (*f)( struct _ns_rootconfiguration
 {
    // get foundation add to roots
    struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
 
-   runtime = mulle_objc_inlined_get_runtime();
+   universe = mulle_objc_inlined_get_universe();
 
-   _mulle_objc_runtime_lock( runtime);
+   _mulle_objc_universe_lock( universe);
    {
-      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
       (*f)( config);
    }
-   _mulle_objc_runtime_unlock( runtime);
+   _mulle_objc_universe_unlock( universe);
 }
 
 
@@ -193,20 +193,20 @@ void  _ns_rootconfiguration_locked_call1( void (*f)( struct _ns_rootconfiguratio
 {
    // get foundation add to roots
    struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
    struct _mulle_objc_class       *cls;
 
    assert( obj);
 
    cls     = _mulle_objc_object_get_isa( obj);
-   runtime = _mulle_objc_class_get_runtime( cls);
+   universe = _mulle_objc_class_get_universe( cls);
 
-   _mulle_objc_runtime_lock( runtime);
+   _mulle_objc_universe_lock( universe);
    {
-      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
       (*f)( config, obj);
    }
-   _mulle_objc_runtime_unlock( runtime);
+   _mulle_objc_universe_unlock( universe);
 }
 
 
@@ -215,16 +215,16 @@ int   _ns_rootconfiguration_is_debug_enabled( void)
 {
    // get foundation add to roots
    struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
    int                            flag;
 
-   runtime = mulle_objc_get_runtime();
-   _mulle_objc_runtime_lock( runtime);
+   universe = mulle_objc_get_universe();
+   _mulle_objc_universe_lock( universe);
    {
-      _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+      _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
       flag = config->object.debugenabled;
    }
-   _mulle_objc_runtime_unlock( runtime);
+   _mulle_objc_universe_unlock( universe);
 
    return( flag);
 }
@@ -236,11 +236,11 @@ int   _ns_rootconfiguration_is_debug_enabled( void)
 extern void   MulleObjCAutoreleasePoolConfigurationUnsetThread( void);
 
 
-static void   runtime_dies( struct _mulle_objc_runtime *runtime, void *data)
+static void   universe_dies( struct _mulle_objc_universe *universe, void *data)
 {
    struct _ns_rootconfiguration   *config;
 
-   _mulle_objc_runtime_get_foundationspace( runtime, (void **) &config, NULL);
+   _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
 
    mulle_set_destroy( config->object.placeholders);
    mulle_set_destroy( config->object.singletons);
@@ -274,7 +274,7 @@ static const struct mulle_container_keycallback   default_root_object_callback =
 };
 
 
-static void   nop( struct _mulle_objc_runtime *runtime, void *friend,  struct mulle_objc_loadversion *info)
+static void   nop( struct _mulle_objc_universe *universe, void *friend,  struct mulle_objc_loadversion *info)
 {
 }
 
@@ -283,7 +283,7 @@ static void   nop( struct _mulle_objc_runtime *runtime, void *friend,  struct mu
  * This function sets up a Foundation on a per thread
  * basis.
  */
-struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runtime *runtime,
+struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_universe *universe,
                                                         struct _ns_root_setupconfig *config)
 {
    size_t                          size;
@@ -292,27 +292,27 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
    struct _mulle_objc_foundation   us;
    struct _ns_rootconfiguration    *roots;
 
-   __mulle_objc_runtime_setup( runtime, config->runtime.allocator);
+   __mulle_objc_universe_setup( universe, config->universe.allocator);
 
-   runtime->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
-   runtime->classdefaults.forwardmethod = config->runtime.forward;
-   runtime->failures.uncaughtexception  = (void (*)()) config->runtime.uncaughtexception;
+   universe->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
+   universe->classdefaults.forwardmethod = config->universe.forward;
+   universe->failures.uncaughtexception  = (void (*)()) config->universe.uncaughtexception;
 
    neededsize = config->foundation.configurationsize;
    if( ! neededsize)
       neededsize = sizeof( struct _ns_rootconfiguration);
 
-   _mulle_objc_runtime_get_foundationspace( runtime, (void **) &roots, &size);
+   _mulle_objc_universe_get_foundationspace( universe, (void **) &roots, &size);
    if( size < neededsize)
    {
-      roots = (*config->runtime.allocator->calloc)( 1, neededsize);
+      roots = (*config->universe.allocator->calloc)( 1, neededsize);
       if( ! roots)
          mulle_objc_raise_fail_errno_exception();
    }
 
-   us.runtimefriend.destructor    = runtime_dies;
-   us.runtimefriend.data          = roots;
-   us.runtimefriend.versionassert = config->runtime.versionassert ? config->runtime.versionassert : nop;
+   us.universefriend.destructor    = universe_dies;
+   us.universefriend.data          = roots;
+   us.universefriend.versionassert = config->universe.versionassert ? config->universe.versionassert : nop;
    us.rootclassid                 = @selector( NSObject);
 
    allocator = config->foundation.objectallocator
@@ -320,29 +320,29 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
                   : &mulle_default_allocator;
 
    us.allocator   = *allocator;
-   roots->runtime = runtime;
+   roots->universe = universe;
 
    /* the callback is copied anyway, but the allocator needs to be stored
       in the config. It's OK to have a different allocator for Foundation
-      then for the runtime. The roots->allocator is used to create instances.
+      then for the universe. The roots->allocator is used to create instances.
     */
 
    roots->exception.vectors   = config->foundation.exceptiontable;
 
    roots->object.roots        = mulle_set_create( 32,
                                            (void *) &default_root_object_callback,
-                                           config->runtime.allocator);
+                                           config->universe.allocator);
    roots->object.singletons   = mulle_set_create( 8,
                                                 (void *) &default_root_object_callback,
-                                                config->runtime.allocator);
+                                                config->universe.allocator);
    roots->object.placeholders = mulle_set_create( 32,
                                                   (void *) &default_root_object_callback,
-                                                  config->runtime.allocator);
+                                                  config->universe.allocator);
    roots->object.threads      = mulle_set_create( 4,
                                             (void *) &default_root_object_callback,
-                                            config->runtime.allocator);
+                                            config->universe.allocator);
 
-   _mulle_objc_runtime_set_foundation( runtime, &us);
+   _mulle_objc_universe_set_foundation( universe, &us);
 
    roots->object.debugenabled      = mulle_objc_getenv_yes_no( "MULLE_OBJC_DEBUG_ENABLED") ||
          mulle_objc_getenv_yes_no( "NSDebugEnabled");
@@ -355,12 +355,12 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_runti
 }
 
 
-void   _ns_root_setup( struct _mulle_objc_runtime *runtime,
+void   _ns_root_setup( struct _mulle_objc_universe *universe,
                        struct _ns_root_setupconfig *config)
 {
    struct _ns_rootconfiguration   *roots;
 
-   roots = __mulle_objc_root_setup( runtime, config);
+   roots = __mulle_objc_root_setup( universe, config);
 
    //
    //

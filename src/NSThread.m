@@ -108,22 +108,22 @@
 
 void   _mulle_become_objc_runtime_thread( void)
 {
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
 
-   runtime = mulle_objc_get_runtime();
-   assert( runtime);
+   universe = mulle_objc_get_universe();
+   assert( universe);
 
-   _mulle_objc_runtime_retain( runtime);
-   mulle_objc_set_thread_runtime( runtime);
-   _mulle_objc_runtime_register_current_thread_if_needed( runtime);
-   if( _mulle_objc_runtime_get_or_lookup_infraclass( runtime, MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH))) // NSAutoreleasePool
+   _mulle_objc_universe_retain( universe);
+   mulle_objc_set_thread_universe( universe);
+   _mulle_objc_universe_register_current_thread_if_needed( universe);
+   if( _mulle_objc_universe_get_or_lookup_infraclass( universe, MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH))) // NSAutoreleasePool
       _ns_poolconfiguration_set_thread();
 }
 
 
 void  _mulle_resignas_objc_runtime_thread( void)
 {
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
 
    if( ! _ns_get_thread())
       return;
@@ -131,11 +131,11 @@ void  _mulle_resignas_objc_runtime_thread( void)
    _ns_set_thread( NULL);
    _ns_poolconfiguration_unset_thread();
 
-   runtime = mulle_objc_inlined_get_runtime();
-   _mulle_objc_runtime_unregister_current_thread( runtime);
+   universe = mulle_objc_inlined_get_universe();
+   _mulle_objc_universe_unregister_current_thread( universe);
 
    // can't call Objective-C anymore
-   _mulle_objc_runtime_release( runtime);
+   _mulle_objc_universe_release( universe);
 }
 
 
@@ -233,7 +233,7 @@ void  _NSThreadResignAsMainThread( void)
       fprintf( stderr, "Releasing Placeholder objects...\n");
    _ns_release_placeholders();
 
-   assert( _mulle_atomic_pointer_read( &mulle_objc_get_runtime()->retaincount_1) == 0);
+   assert( _mulle_atomic_pointer_read( &mulle_objc_get_universe()->retaincount_1) == 0);
 
    if( debug)
       fprintf( stderr, "Resigning as main NSThread...\n");

@@ -185,7 +185,7 @@ static void   zombifyObject( id obj)
    struct _mulle_objc_metaclass   *meta;
    struct _mulle_objc_infraclass  *infra;
    struct _mulle_objc_infraclass  *super_class;
-   struct _mulle_objc_runtime     *runtime;
+   struct _mulle_objc_universe     *universe;
 
    if( ! obj)
       return;
@@ -197,23 +197,23 @@ static void   zombifyObject( id obj)
       abort();
    }
 
-   runtime = _mulle_objc_infraclass_get_runtime( cls);
+   universe = _mulle_objc_infraclass_get_universe( cls);
 
    sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_infraclass_get_name( cls));
 
    classid = mulle_objc_classid_from_string( buf);
-   cls     = _mulle_objc_runtime_get_or_lookup_infraclass( runtime, classid);
+   cls     = _mulle_objc_universe_get_or_lookup_infraclass( universe, classid);
 
    if( ! cls)
    {
-      super_class = _mulle_objc_runtime_get_or_lookup_infraclass( runtime, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
+      super_class = _mulle_objc_universe_get_or_lookup_infraclass( universe, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
 
       pair  = mulle_objc_unfailing_new_classpair( classid, buf, sizeof( id), super_class);
       infra = mulle_objc_classpair_get_infraclass( pair);
       meta  = mulle_objc_classpair_get_metaclass( pair);
       mulle_objc_infraclass_unfailing_add_methodlist( infra, NULL);
       mulle_objc_metaclass_unfailing_add_methodlist( meta, NULL);
-      mulle_objc_runtime_unfailing_add_infraclass( runtime, infra);
+      mulle_objc_universe_unfailing_add_infraclass( universe, infra);
    }
 
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
