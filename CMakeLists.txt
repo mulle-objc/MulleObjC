@@ -33,7 +33,7 @@ CMakeDependencies.txt
 CMakeSourcesAndHeaders.txt)
 
 target_link_libraries( MulleObjC
-${DEPENDENCY_LIBRARIES}
+#${DEPENDENCY_LIBRARIES}
 )
 
 
@@ -42,7 +42,6 @@ ${DEPENDENCY_LIBRARIES}
 #
 add_library( MulleObjCStandalone SHARED
 src/MulleObjCStandalone.m
-${PUBLIC_HEADERS}
 ${DEF_FILE}
 )
 
@@ -67,15 +66,16 @@ endif()
 #
 # If you add DEPENDENCY_LIBRARIES to the static, adding them again to
 # Standalone confuses cmake it seems. But DEPENDENCY_LIBRARIES are
-# implicitly added.
+# implicitly added. UNFORTUNATELY, they are added at the end. So
+# BEGIN_ALL_LOAD / END_ALL_LOAD doesn't work.
 #
 target_link_libraries( MulleObjCStandalone
 ${BEGIN_ALL_LOAD}
 MulleObjC
+${C_DEPENDENCY_LIBRARIES}
 ${END_ALL_LOAD}
 ${OS_SPECIFIC_LIBRARIES}
 )
-
 
 install( TARGETS MulleObjC MulleObjCStandalone DESTINATION "lib")
 install( FILES ${PUBLIC_HEADERS} "CMakeDependencies.txt" DESTINATION "include/MulleObjC")
