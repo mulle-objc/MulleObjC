@@ -113,7 +113,7 @@ static void  tear_down()
       mulle_objc_csvdump_methodcoverage();
       mulle_objc_csvdump_classcoverage();
    }
-   
+
    _NSThreadResignAsMainThread();
 
    // No Objective-C available anymore
@@ -142,7 +142,7 @@ static void  post_create( struct _mulle_objc_universe  *universe)
 
    rootconfig->string.charsfromobject = (char *(*)()) return_self;
    rootconfig->string.objectfromchars = (void *(*)()) return_self;
-   
+
    // needed for coverage, slows things down a bit and bloats caches
    universe->config.repopulate_caches = mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE");
 }
@@ -193,12 +193,12 @@ void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
    int                          is_test;
    int                          is_coverage;
 
-   if( ! _mulle_objc_universe_is_initializing( universe))
+   if( ! _mulle_objc_universe_is_transitioning( universe))
    {
-      if( ! _mulle_objc_universe_is_uninitialized( universe))
+      if( _mulle_objc_universe_is_initialized( universe))
          fprintf( stderr, "The universe %p is already initialized. Do not call \"ns_objc_universe_setup\" twice.\n", universe);
       else
-         fprintf( stderr, "Do not call \"ns_objc_universe_setup\" directly, call it via _mulle_objc_universe_bang.\n");
+         fprintf( stderr, "Do not call \"ns_objc_universe_setup\" directly, call it via _mulle_objc_universe_bang. (%d)\n", _mulle_objc_universe_get_version( universe));
       abort();
    }
 
@@ -258,15 +258,16 @@ void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
 #endif
       void         *function;
       Dl_info      info;
-      
+
       function = dlsym( MULLE_OBJC_DLSYM_HANDLE, "__mulle_objc_loadinfo_callback");
       if( function)
       {
          universe->loadcallbacks.should_load_loadinfo = (int (*)()) function;
-         fprintf( stderr, "mulle_objc_universe %p: "
+         if( universe->debug.trace.loadinfo)
+            fprintf( stderr, "mulle_objc_universe %p: "
                  "__mulle_objc_loadinfo_callback set to %p\n", universe, function);
       }
-      
+
      // set path of universe for debugging
      if( dladdr( (void *) __mulle_objc_universe_setup, &info))
         mulle_objc_universe_set_path( universe, (char *) info.dli_fname);

@@ -42,6 +42,7 @@ target_link_libraries( MulleObjC
 #
 add_library( MulleObjCStandalone SHARED
 src/MulleObjCStandalone.m
+${STANDALONE_SOURCES}
 ${DEF_FILE}
 )
 
@@ -77,6 +78,18 @@ ${END_ALL_LOAD}
 ${OS_SPECIFIC_LIBRARIES}
 )
 
+# runs in build dir
+add_custom_command( TARGET MulleObjCStandalone
+   POST_BUILD
+   COMMAND ${DEPENDENCIES_DIR}/bin/mulle-objc-make-dependencies-inc -v -o ${CMAKE_SOURCE_DIR}/src/dependencies.inc MulleObjC ${OBJC_DEPENDENCY_NAMES}
+)
+
+set( PUBLIC_HEADERS
+${PUBLIC_HEADERS}
+"CMakeDependencies.txt"
+"src/dependencies.inc"
+)
+
 install( TARGETS MulleObjC MulleObjCStandalone DESTINATION "lib")
-install( FILES ${PUBLIC_HEADERS} "CMakeDependencies.txt" DESTINATION "include/MulleObjC")
+install( FILES ${PUBLIC_HEADERS} DESTINATION "include/MulleObjC")
 install( FILES ${PRIVATE_HEADERS} DESTINATION "include/MulleObjC/private")
