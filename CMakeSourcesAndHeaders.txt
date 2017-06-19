@@ -32,6 +32,7 @@ src/ns_objc_compiler.h
 src/ns_objc_compatibility.h
 src/ns_objc_include.h
 src/ns_objc_setup.h
+src/ns_objc_standalone.inc
 src/ns_range.h
 src/ns_rootconfiguration.h
 src/ns_test_allocation.h
@@ -78,3 +79,9 @@ src/protocols/MulleObjCTaggedPointer.m
 src/protocols/NSCoding.m
 src/protocols/NSCopying.m
 )
+
+
+set( STANDALONE_SOURCES
+src/MulleObjCStandalone.m
+)
+

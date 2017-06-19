@@ -1,12 +1,29 @@
 #! /bin/sh
 
+DSTFILE="${1:-src/dependencies.inc}"
+BUILDPATH="${2:-build}"
+
+case "`uname -s`" in
+   Darwin)
+      STANDALONE_LIB="libMulleObjCStandalone.dylib"
+   ;;
+
+   MINGW*|Win*|WIN*)
+     STANDALONE_LIB="libMulleObjCStandalone.dll" # assume
+   ;;
+
+   *)
+     STANDALONE_LIB="libMulleObjCStandalone.so"
+   ;;
+esac
+
 
 # only runs on OS X out of the box
 eval `mulle-bootstrap paths path`
 
-if [ ! -f "build/libMulleObjCStandalone.dylib" ]
+if [ ! -f "${BUILDPATH}/${STANDALONE_LIB}" ]
 then
-   echo "build/libMulleObjCStandalone.dylib not found, mulle-build first" >&2
+   echo "${BUILDPATH}/${STANDALONE_LIB} not found, mulle-build first" >&2
    exit 1
 fi
 
@@ -15,9 +32,9 @@ fi
 # Then get all standalone classes, but remove Posix classes and
 # OS specifica. The remainder are osbase-dependencies
 #
-mulle-objc-list -d "build/libMulleObjCStandalone.dylib" | \
+mulle-objc-list -d "${BUILDPATH}/${STANDALONE_LIB}" | \
    fgrep -v  MulleObjCLoader | \
-   sort > src/dependencies.inc || exit 1
+   sort > "${DSTFILE}" || exit 1
 
-echo "src/dependencies.inc written" >&2
+echo "${DSTFILE} written" >&2
 exit 0

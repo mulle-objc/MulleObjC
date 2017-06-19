@@ -1,8 +1,14 @@
 ${MULLE_OBJC_REPOSITORIES:-https://github.com/mulle-nat}/mulle-objc-runtime;;${MULLE_OBJC_RUNTIME_BRANCH:-release}
-${MULLE_OBJC_REPOSITORIES:-https://github.com/mulle-nat}/mulle-objc-list;;${MULLE_OBJC_LIST_BRANCH:-release}
 
 #
 # mulle-container is needed for the object map debug facility in
 # NSAutoreleasePool which will be moved elsewhere, eventually
 #
 ${MULLE_REPOSITORIES:-https://github.com/mulle-nat}/mulle-container;;${MULLE_OBJC_LIST_BRANCH:-release}
+
+#
+# keep mulle-objc-developer locally, so the scripts don't change behind our back
+#
+${MULLE_OBJC_REPOSITORIES:-https://github.com/mulle-nat}/mulle-objc-list;;${MULLE_OBJC_LIST_BRANCH:-release}
+${MULLE_OBJC_REPOSITORIES:-https://github.com/mulle-nat}/mulle-objc-developer;;${MULLE_OBJC_LIST_BRANCH:-release}
+
