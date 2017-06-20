@@ -11,4 +11,4 @@ before_install:
 
 script:
    - mulle-install -vv -V  --prefix /tmp
-   - /tmp/bin/mulle-objc-list --version
+   - mulle-test -v -V
