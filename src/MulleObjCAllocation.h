@@ -61,6 +61,7 @@ static inline struct mulle_allocator   *MulleObjCObjectGetAllocator( id obj)
    cls        = _mulle_objc_object_get_isa( obj);
    universe    = _mulle_objc_class_get_universe( cls);
    foundation = _mulle_objc_universe_get_foundation( universe);
+   assert( foundation->allocator.calloc && "foundation has not installed an allocator");
    return( &foundation->allocator);
 }
 
@@ -76,6 +77,7 @@ static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 
    universe    = _mulle_objc_class_get_universe( (struct _mulle_objc_class *) cls);
    foundation = _mulle_objc_universe_get_foundation( universe);
+   assert( foundation->allocator.calloc && "foundation has not installed an allocator");
    return( &foundation->allocator);
 }
 
@@ -123,6 +125,7 @@ static inline id    _MulleObjCClassAllocateObject( Class infraCls, NSUInteger ex
    struct mulle_allocator     *allocator;
 
    allocator = _mulle_objc_infraclass_get_allocator( infraCls);
+   assert( allocator->calloc && "foundation has not installed an allocator");
    return( (id) _mulle_objc_infraclass_alloc_instance_extra( infraCls, extra, allocator));
 }
 
@@ -142,7 +145,8 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
    assert( _mulle_objc_class_is_infraclass( cls));
 
    allocator = _mulle_objc_class_get_allocator( cls);
-
+   assert( allocator->realloc && "foundation has not installed an allocator");
+   
    size   = _mulle_objc_class_get_allocationsize( cls) + extra;
    header = _mulle_allocator_malloc( allocator, size);
 
