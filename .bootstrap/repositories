@@ -7,8 +7,7 @@ ${MULLE_OBJC_REPOSITORIES:-https://github.com/mulle-nat}/mulle-objc-runtime;;${M
 ${MULLE_REPOSITORIES:-https://github.com/mulle-nat}/mulle-container;;${MULLE_OBJC_LIST_BRANCH:-release}
 
 #
-# keep mulle-objc-developer locally, so the scripts don't change behind our back
+# for dependencies.inc
 #
 ${MULLE_OBJC_REPOSITORIES:-https://github.com/mulle-nat}/mulle-objc-list;;${MULLE_OBJC_LIST_BRANCH:-release}
-${MULLE_OBJC_REPOSITORIES:-https://github.com/mulle-nat}/mulle-objc-developer;;${MULLE_OBJC_LIST_BRANCH:-release}
 
