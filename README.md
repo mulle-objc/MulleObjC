@@ -45,9 +45,9 @@ directly. Creating a foundation on top of **mulle-objc**  without using
 MulleObjC must be compiled with the **mulle-clang** compiler, or a compiler
 which supports the metaABI required for the mulle-objc runtime.
 
-## Constituent Libraries
+## Required Libraries and Tools
 
-![Libraries](https://raw.githubusercontent.com/mulle-nat/MulleObjC/release/dox/MulleObjC-dependencies.png)
+![Libraries and Tools](https://raw.githubusercontent.com/mulle-nat/MulleObjC/release/dox/MulleObjC-dependencies.png)
 
 ## Install
 
@@ -74,8 +74,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ### Platforms and Compilers
 
 All platforms and compilers supported by
-[mulle-c11](//www.mulle-kybernetik.com/software/git/mulle-c11/) and
-[mulle-thread](//www.mulle-kybernetik.com/software/git/mulle-thread/).
+[mulle-c11](//github.com/mulle-nat/mulle-c11/) and
+[mulle-thread](//github.com/mulle-nat/mulle-thread/).
 
 
 ## Author
