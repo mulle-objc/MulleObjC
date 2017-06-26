@@ -45,48 +45,19 @@ directly. Creating a foundation on top of **mulle-objc**  without using
 MulleObjC must be compiled with the **mulle-clang** compiler, or a compiler
 which supports the metaABI required for the mulle-objc runtime.
 
-> MulleObjC is protocol based
+## Constituent Libraries
 
-
-## How to use it
-
-Where is the documentation ? At this point in time there is precious littl as
- it is assumed, that you are familiar with the
- [OS X Foundation](https://developer.apple.com/reference/foundation).
-MulleObjC offers a subset of that functionality.
-
-
-### Linking against MulleObjC
-
-When using static libraries, `-ObjC` doesn't work, because the compiler doesn't
-produce ObjC segments. Use `-all_load`.
-
+![Libraries](https://raw.githubusercontent.com/mulle-nat/MulleObjC/release/dox/MulleObjC-dependencies.png)
 
 ## Install
 
-On OS X you can use [homebrew](//brew.sh) to install the library:
+See [mulle-objc-developer](//github.com/mulle-nat/mulle-objc-developer) for
+installation instructions.
 
-```
-brew install mulle-objc/software/mulleobjc
-```
-
-to install the compiler:
-
-```
-brew install codeon-gmbh/software/mulle-clang
-```
-
-On other platforms you can use **mulle-install** from
-[mulle-build](//github.com/mulle-nat/mulle-build)
-to install the library:
-
-```
-mulle-install --prefix /usr/local --branch release https://github.com/mulle-objc/MulleObjC
-```
-
-Otherwise read:
-
-* [How to Build](dox/BUILD.md)
+> Otherwise read:
+>
+> * [How to Build](dox/BUILD.md)
+>
 
 
 ## Acknowledgements
