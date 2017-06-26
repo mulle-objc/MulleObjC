@@ -16,15 +16,16 @@ for testing.
 [mulle-clang](//github.com/codeon-gmbh/mulle-clang/) is the compiler neede
 to compile MulleObjC.
 
-#### mulle-objc
 
-[mulle-objc](//github.com/mulle-objc/mulle-configuration/)
-are configuration files for building with Xcode or cmake. This is expected to
-exist in the project directory root. It comes with its own prerequisites.
+#### mulle-objc-runtime
+
+[mulle-objc-runtime](//github.com/mulle-nat/mulle-objc-runtime/)
+is the Objective-C runtime MulleObjC is bases upon. It comes with its own set
+of prerequisites.
 
 #### mulle-configuration
 
-[mulle-configuration](//www.mulle-kybernetik.com/software/git/mulle-configuration/)
+[mulle-configuration](//github.com/mulle-nat/mulle-configuration/)
 are configuration files for building with Xcode or cmake. This is expected to
 exist in the project directory root.
 
@@ -34,25 +35,19 @@ exist in the project directory root.
 
 #### mulle-build
 
-[mulle-build](//www.mulle-kybernetik.com/software/git/mulle-build) is used
+[mulle-build](//github.com/mulle-nat/mulle-build) is used
 to assemble the dependencies together and build the library.
-
-#### mulle-homebrew
-
-[mulle-homebrew](//www.mulle-kybernetik.com/software/git/mulle-homebrew/) is
-support for generating homebrew formulae. This is expected to
-exist in `./bin`, if you want to release a fork.
 
 #### mulle-tests
 
-[mulle-tests](//www.mulle-kybernetik.com/software/git/mulle-tests/) are
+[mulle-tests](//github.com/mulle-nat/mulle-tests/) are
 scripts to provide an environment for running the tests. This is expected to
 exist in `./tests`, if you want to run tests.
 
 
 ### Windows: Installing further prerequisites
 
-Check the [mulle-build README.md](//www.mulle-kybernetik.com/software/git/mulle-build/README.md)
+Check the [mulle-build README.md](//github.com/mulle-nat/mulle-build/README.md)
 for instructions how to get the "Git for Windows" bash going.
 
 
@@ -77,8 +72,7 @@ sudo apt-get install python-setuptools
 and then
 
 ```
-brew tap mulle-kybernetik/software
-brew install mulle-build
+brew install mulle-kybernetik/software/mulle-build
 ```
 
 ### All: Install mulle-build using git
@@ -96,7 +90,7 @@ git clone --branch release https://github.com/mulle-nat/mulle-build
 Grab the latest **mulle-concurrent** release and go into the project directory:
 
 ```
-git clone --branch release https://github.com/mulle-objc/mulle-concurrent.git
+git clone --branch release https://github.com/mulle-nat/mulle-concurrent.git
 cd mulle-concurrent
 ```
 

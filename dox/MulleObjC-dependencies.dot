@@ -1,0 +1,32 @@
+digraph settings
+{
+   node [shape=record];
+
+
+   { rank = source; "MulleObjC" }
+   { rank = same; "mulle-container"; "mulle-objc-runtime" } ->
+   { rank = same; "mulle-clang "; "gcc | clang "} [ style="invis" ]
+
+   "mulle-clang "   [ shape="rarrow" fontcolor = "purple" ];
+   "gcc | clang "   [ style=filled fillcolor="lightgray" shape="rarrow" ];
+
+   MulleObjC [ fontcolor = "purple"];
+
+   "mulle-objc-runtime"
+   "mulle-container"
+
+   MulleObjC -> "mulle-clang ";
+   MulleObjC -> "mulle-objc-runtime";
+   MulleObjC -> "mulle-container";
+   "mulle-container"    -> "gcc | clang ";
+   "mulle-objc-runtime" -> "gcc | clang ";
+
+
+ 	subgraph legend {
+    label = "Legend";
+    key [label=<<table border="0" cellpadding="2" cellspacing="0" cellborder="0">
+			       <tr><td align="right"><font color="#000000">black text:</font></td><td>C</td></tr>
+			       <tr><td align="right"><font color="#a020f0">purple text:</font></td><td>Objective C</td></tr>
+			      </table>>]
+ 	}
+}

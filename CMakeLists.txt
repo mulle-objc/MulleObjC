@@ -58,7 +58,11 @@ endif()
 
 if( MSVC)
    add_custom_command( OUTPUT ${DEF_FILE}
-                       COMMAND mulle-mingw-dumpdef.bat -o "${DEF_FILE}" --directory "${BUILD_RELATIVE_DEPENDENCIES_DIR}/lib" --prefix "mulle" --prefix Mulle --prefix ns --prefix NS ${DEPENDENCY_LIBRARIES} $<TARGET_FILE:MulleObjC>
+                       COMMAND mulle-mingw-dumpdef.bat -o "${DEF_FILE}"
+                               --directory "${BUILD_RELATIVE_DEPENDENCIES_DIR}/lib"
+                               --prefix "mulle" --prefix Mulle --prefix ns
+                               --prefix NS ${DEPENDENCY_LIBRARIES}
+                               $<TARGET_FILE:MulleObjC>
                        DEPENDS "${SOURCES}" "${HEADERS}"
                        VERBATIM)
 endif()
@@ -81,7 +85,9 @@ ${OS_SPECIFIC_LIBRARIES}
 # runs in build dir
 add_custom_command( TARGET MulleObjCStandalone
    POST_BUILD
-   COMMAND ${DEPENDENCIES_DIR}/bin/mulle-objc-create-dependencies-inc -v -o ${CMAKE_SOURCE_DIR}/src/dependencies.inc MulleObjC ${OBJC_DEPENDENCY_NAMES}
+   COMMAND ${DEPENDENCIES_DIR}/bin/mulle-objc-create-dependencies-inc -v
+           -o ${CMAKE_SOURCE_DIR}/src/dependencies.inc MulleObjC
+           ${OBJC_DEPENDENCY_NAMES}
 )
 
 set( PUBLIC_HEADERS
