@@ -1,6 +1,7 @@
 ### 0.9.1
 
 * adapt to changes in mulle_objc_runtime
+* make it a cmake "C" project
 
 
 ### 0.8.4

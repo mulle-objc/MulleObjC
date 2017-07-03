@@ -4,9 +4,22 @@ cmake_minimum_required (VERSION 3.0)
 # don't do that:
 #    set( CMAKE_C_COMPILER
 # instead
-#    cmake -DCMAKE_C_COMPILER=mulle-clang -DCMAKE_CXX_COMPILER=mulle-clang
+#    cmake -DCMAKE_C_COMPILER=mulle-clang
 #
-project( MulleObjC)
+#
+
+#
+# https://github.com/Kitware/CMake/blob/master/Modules/CMakeAddNewLanguage.txt
+#
+# It would be tempting to specify OBJC as the language but:
+# 1) cmake doesn't know about it
+# 2) one would need to write and maintain a lot of cmake files, that are
+#    version specific
+# 3) The only immediate payoff is, that one doesn't need to specify
+#    -DCMAKE_C_COMPILER or .CC when using mulle-build
+#
+
+project( MulleObjC C )  # OBJC in the future! :)
 
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/mulle-configuration/cmake)
 message( STATUS "CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
