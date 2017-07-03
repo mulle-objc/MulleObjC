@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 #
-#   Copyright (c) 2017 Nat! - Mulle kybernetiK
+#   Copyright (c) 2017 Nat! - Codeon GmbH
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -80,12 +80,8 @@ generate_brew_formula()
 #######
 
 MULLE_BOOTSTRAP_FAIL_PREFIX="`basename -- $0`"
-MULLE_HOMEBREW_VERSION="5.0.0"
+MULLE_HOMEBREW_VERSION="5.1.0"
 
-#
-# prefer local mulle-homebrew if available
-# Do not embed it anymore!
-#
 if [ -z "`command -v mulle-homebrew-env`" ]
 then
    cat <<EOF >&2
