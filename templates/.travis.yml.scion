@@ -4,9 +4,7 @@ dist: trusty
 sudo: required
 
 before_install:
-  - curl -L -O 'https://raw.githubusercontent.com/{{PUBLISHER}}/mulle-objc-developer/release/install-ubuntu.sh'
-  - chmod 755 install-ubuntu.sh
-  - ./install-ubuntu.sh
+  - wget -q -O- https://raw.githubusercontent.com/{{PUBLISHER}}/mulle-objc-developer/release/install-ubuntu.sh | APTFLAGS=-y sh
 
 script:
    - mulle-install -vv -V  --prefix /tmp
