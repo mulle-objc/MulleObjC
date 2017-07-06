@@ -49,6 +49,12 @@ which supports the metaABI required for the mulle-objc runtime.
 
 ![Libraries and Tools](https://raw.githubusercontent.com/mulle-nat/MulleObjC/release/dox/MulleObjC-dependencies.png)
 
+  Name         | Build Status | Release Version
+---------------|--------------|---------------------------------
+[mulle-container](//github.com/mulle-nat/mulle-container) | [![Build Status](https://travis-ci.org/mulle-nat/mulle-container.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-container) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-nat/mulle-container.svg) [![Build Status](https://travis-ci.org/mulle-nat/mulle-container.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-container)
+[mulle-objc-runtime](//github.com/mulle-nat/mulle-objc-runtime) | [![Build Status](https://travis-ci.org/mulle-nat/mulle-objc-runtime.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-objc-runtime) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-nat/mulle-objc-runtime.svg) [![Build Status](https://travis-ci.org/mulle-nat/mulle-objc-runtime.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-objc-runtime)
+[mulle-objc-list](//github.com/mulle-nat/mulle-objc-list) | [![Build Status](https://travis-ci.org/mulle-nat/mulle-objc-list.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-objc-list) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-nat/mulle-objc-list.svg) [![Build Status](https://travis-ci.org/mulle-nat/mulle-objc-list.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-objc-list)
+
 ## Install
 
 See [mulle-objc-developer](//github.com/mulle-nat/mulle-objc-developer) for
