@@ -69,7 +69,7 @@ static inline struct mulle_allocator   *MulleObjCObjectGetAllocator( id obj)
 __attribute__((const))
 static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 {
-   struct _mulle_objc_universe      *universe;
+   struct _mulle_objc_universe     *universe;
    struct _mulle_objc_foundation   *foundation;
 
    if( ! cls)

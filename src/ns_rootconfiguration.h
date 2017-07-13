@@ -46,8 +46,7 @@
 #include "_ns_exception.h"
 
 
-#pragma mark -
-#pragma mark per thread universe configuration
+#pragma mark - per thread universe configuration
 
 struct _ns_objectconfiguration
 {
@@ -96,6 +95,9 @@ struct _ns_autoreleasepool
 // rename this to foundationconfiguration or so...
 // this is part of the universe structure..
 //
+#define _NS_ROOTCONFIGURATION_N_STRINGSUBCLASSES  8
+#define _NS_ROOTCONFIGURATION_N_NUMBERSUBCLASSES  8
+
 struct _ns_rootconfiguration
 {
    struct _ns_objectconfiguration     object;  // for easy access to allocator keep this up here
@@ -104,11 +106,15 @@ struct _ns_rootconfiguration
    struct _ns_stringconfiguration     string;
    struct _ns_threadconfiguration     thread;
    struct _ns_autoreleasepool         pool;
-   struct _mulle_objc_universe         *universe;
+   struct _mulle_objc_universe        *universe;
+   
+   // stuff used by the MulleStandardOSFoundation 
+   Class   stringsubclasses[ _NS_ROOTCONFIGURATION_N_STRINGSUBCLASSES];
+   Class   numbersubclasses[ _NS_ROOTCONFIGURATION_N_NUMBERSUBCLASSES];
 };
 
-#pragma mark -
-#pragma mark inital config setup
+
+#pragma mark - inital config setup
 
 struct _ns_root_universeconfig
 {
@@ -139,8 +145,8 @@ struct _ns_setup_callbacks
 struct _ns_root_setupconfig
 {
    struct _ns_root_universeconfig     universe;
-   struct _ns_root_foundationconfig  foundation;
-   struct _ns_setup_callbacks        callbacks;
+   struct _ns_root_foundationconfig   foundation;
+   struct _ns_setup_callbacks         callbacks;
 };
 
 
@@ -199,8 +205,7 @@ void  _ns_rootconfiguration_locked_call1( void (*f)( struct _ns_rootconfiguratio
 
 int   _ns_rootconfiguration_is_debug_enabled( void);
 
-# pragma mark -
-# pragma mark root object conveniences
+# pragma mark - root object conveniences
 
 static inline void  _ns_add_root( void *obj)
 {
@@ -257,8 +262,7 @@ static inline struct _ns_exceptionhandlertable   *_ns_get_exceptionhandlertable(
 }
 
 
-# pragma mark -
-# pragma mark string conveniences
+# pragma mark - string conveniences
 
 // foundation can substitute this with a proper type
 #ifndef MULLE_OBJC_STRING_CLASS_P

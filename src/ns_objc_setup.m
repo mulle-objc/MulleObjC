@@ -102,10 +102,11 @@ static void  tear_down()
 {
    extern void  _NSThreadResignAsMainThread( void);
 
-   if( mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE"))
+   if( mulle_objc_getenv_yes_no( "MULLE_OBJC_COVERAGE"))
    {
       mulle_objc_csvdump_methodcoverage();
       mulle_objc_csvdump_classcoverage();
+      mulle_objc_csvdump_cachesizes();
    }
 
    _NSThreadResignAsMainThread();
@@ -130,15 +131,24 @@ static void   *return_self( void *p)
 
 static void  post_create( struct _mulle_objc_universe  *universe)
 {
-   struct _ns_rootconfiguration         *rootconfig;
-
+   struct _ns_rootconfiguration   *rootconfig;
+   int                             coverage;
+   
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    rootconfig->string.charsfromobject = (char *(*)()) return_self;
    rootconfig->string.objectfromchars = (void *(*)()) return_self;
 
    // needed for coverage, slows things down a bit and bloats caches
-   universe->config.repopulate_caches = mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE");
+   coverage = mulle_objc_getenv_yes_no( "MULLE_OBJC_COVERAGE");
+   universe->config.repopulate_caches         = coverage;
+   
+   //
+   // printing stuck classes is helpful to generate extended coverage
+   // for un-optimizable libraries. Stuck categories probably
+   // not so much though
+   //
+   universe->debug.print.stuck_class_coverage = coverage;
 }
 
 
@@ -198,7 +208,7 @@ void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
 
    is_pedantic = mulle_objc_getenv_yes_no( "MULLE_OBJC_PEDANTIC_EXIT");
    is_test     = mulle_objc_getenv_yes_no( "MULLE_OBJC_TEST_ALLOCATOR");
-   is_coverage = mulle_objc_getenv_yes_no( "MULLE_OBJC_DUMP_COVERAGE");
+   is_coverage = mulle_objc_getenv_yes_no( "MULLE_OBJC_COVERAGE");
 
    if( is_test)
    {
