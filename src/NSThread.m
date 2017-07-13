@@ -209,8 +209,18 @@ NSThread  *_NSThreadNewMainThread( void)
 
 void  _NSThreadResignAsMainThread( void)
 {
+   struct _mulle_objc_universe  *universe;
    NSThread   *thread;
    int         debug;
+
+   universe = mulle_objc_get_universe();
+   
+   //
+   // can happen in mulle-objc-list, that NSThread isn't really
+   // there
+   //
+   if( ! universe || ! _mulle_objc_universe_get_or_lookup_infraclass( universe, 0x645eeb40))
+      return;
 
    //
    // keep current thread around, which is a root
@@ -233,7 +243,7 @@ void  _NSThreadResignAsMainThread( void)
       fprintf( stderr, "Releasing Placeholder objects...\n");
    _ns_release_placeholders();
 
-   assert( _mulle_atomic_pointer_read( &mulle_objc_get_universe()->retaincount_1) == 0);
+   assert( _mulle_atomic_pointer_read( &universe->retaincount_1) == 0);
 
    if( debug)
       fprintf( stderr, "Resigning as main NSThread...\n");

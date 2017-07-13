@@ -2,7 +2,7 @@
 
 * adapt to changes in mulle_objc_runtime
 * make it a cmake "C" project
-
+* `MULLE_OBJC_COVERAGE` can be set to dump coverage information
 
 ### 0.8.4
 

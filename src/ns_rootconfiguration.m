@@ -215,7 +215,7 @@ int   _ns_rootconfiguration_is_debug_enabled( void)
 {
    // get foundation add to roots
    struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_universe     *universe;
+   struct _mulle_objc_universe    *universe;
    int                            flag;
 
    universe = mulle_objc_get_universe();
@@ -313,7 +313,7 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_unive
    us.universefriend.destructor    = universe_dies;
    us.universefriend.data          = roots;
    us.universefriend.versionassert = config->universe.versionassert ? config->universe.versionassert : nop;
-   us.rootclassid                 = @selector( NSObject);
+   us.rootclassid                  = @selector( NSObject);
 
    allocator = config->foundation.objectallocator
                   ? config->foundation.objectallocator
