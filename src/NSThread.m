@@ -251,6 +251,7 @@ void  _NSThreadResignAsMainThread( void)
 
    if( debug)
       fprintf( stderr, "Resign as main Objective-C thread...\n");
+   
    _mulle_resignas_objc_runtime_thread();
 }
 
