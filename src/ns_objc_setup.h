@@ -51,4 +51,6 @@ const struct _ns_root_setupconfig   *ns_objc_get_default_setupconfig( void);
 void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
                                struct _ns_root_setupconfig *setup);
 
+void   ns_objc_universe_tear_down( void);
+
 #endif /* ns_objc_universe_setup_h */

@@ -98,28 +98,34 @@ struct _mulle_objc_method   NSObject_msgForward_method =
 };
 
 
-static void  tear_down()
-{
-   extern void  _NSThreadResignAsMainThread( void);
 
+void   ns_objc_universe_tear_down()
+{
+   int   trace;
+   
+   trace = mulle_objc_getenv_yes_no( "MULLE_OBJC_TRACE_UNIVERSE");
+   if( trace)
+      fprintf( stderr, "mulle-objc: ns_objc_universe_tear_down in progress\n");
+   
    if( mulle_objc_getenv_yes_no( "MULLE_OBJC_COVERAGE"))
    {
+      fprintf( stderr, "mulle-objc: writing coverage files...\n");
+      
       mulle_objc_csvdump_methodcoverage();
       mulle_objc_csvdump_classcoverage();
       mulle_objc_csvdump_cachesizes();
    }
-
-   _NSThreadResignAsMainThread();
-
-   // No Objective-C available anymore
+   
+   mulle_objc_release_universe();
 }
 
 
-static void   tear_down_and_check()
+static void tear_down()
 {
-   tear_down();
+   ns_objc_universe_tear_down();
 
-   mulle_test_allocator_objc_reset();
+   if( mulle_objc_getenv_yes_no( "MULLE_OBJC_TEST_ALLOCATOR"))
+      mulle_test_allocator_objc_reset();
 }
 
 
@@ -141,8 +147,10 @@ static void  post_create( struct _mulle_objc_universe  *universe)
 
    // needed for coverage, slows things down a bit and bloats caches
    coverage = mulle_objc_getenv_yes_no( "MULLE_OBJC_COVERAGE");
-   universe->config.repopulate_caches         = coverage;
-   
+   universe->config.repopulate_caches = coverage;
+   if( coverage)
+      fprintf( stderr, "mulle-objc: coverage files will be written at exit\n");
+
    //
    // printing stuck classes is helpful to generate extended coverage
    // for un-optimizable libraries. Stuck categories probably
@@ -181,7 +189,6 @@ const struct _ns_root_setupconfig   *ns_objc_get_default_setupconfig( void)
       {
          (void (*)()) _ns_root_setup,
          tear_down,
-         tear_down_and_check,
          post_create
       }
    };
@@ -193,9 +200,9 @@ const struct _ns_root_setupconfig   *ns_objc_get_default_setupconfig( void)
 void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
                                struct _ns_root_setupconfig *setup)
 {
-   int                          is_pedantic;
-   int                          is_test;
-   int                          is_coverage;
+   int   is_pedantic;
+   int   is_test;
+   int   is_coverage;
 
    if( ! _mulle_objc_universe_is_transitioning( universe))
    {
@@ -242,9 +249,11 @@ void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
       // if we retain zombies, we leak, so no point in looking for leaks
       if( rootcfg->object.zombieenabled && ! rootcfg->object.deallocatezombies)
          is_test = 0;
+      
+      if( universe->debug.trace.universe)
+         fprintf( stderr, "mulle-objc: install atexit handler for universe crunch...\n");
 
-      if( atexit( is_test ? setup->callbacks.tear_down_and_check
-                          : setup->callbacks.tear_down))
+      if( atexit( setup->callbacks.tear_down))
          perror( "atexit:");
    }
 

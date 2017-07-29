@@ -17,6 +17,7 @@ MULLE_C_CONST_RETURN  // always returns same value (in same thread)
 struct _mulle_objc_universe  *__get_or_create_mulle_objc_universe( void)
 {
    struct _mulle_objc_universe   *universe;
+   extern void   ns_obj_universe_tear_down();
 
    universe = __mulle_objc_get_universe();
    if( ! _mulle_objc_universe_is_initialized( universe))

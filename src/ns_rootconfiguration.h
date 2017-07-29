@@ -137,7 +137,6 @@ struct _ns_setup_callbacks
 {
    void  (*setup)( struct _mulle_objc_universe *universe, void *config);
    void  (*tear_down)( void);
-   void  (*tear_down_and_check)( void);
    void  (*post_create)( struct _mulle_objc_universe *universe);
 };
 
