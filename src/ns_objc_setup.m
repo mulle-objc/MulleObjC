@@ -101,6 +101,7 @@ struct _mulle_objc_method   NSObject_msgForward_method =
 
 void   ns_objc_universe_tear_down()
 {
+   void  _NSThreadResignAsMainThread( void);
    int   trace;
    
    trace = mulle_objc_getenv_yes_no( "MULLE_OBJC_TRACE_UNIVERSE");
@@ -116,7 +117,8 @@ void   ns_objc_universe_tear_down()
       mulle_objc_csvdump_cachesizes();
    }
    
-   mulle_objc_release_universe();
+  // this is called by _NSThreadResignAsMainThread:  mulle_objc_release_universe
+   _NSThreadResignAsMainThread();
 }
 
 

@@ -89,10 +89,26 @@ endif()
 # implicitly added. UNFORTUNATELY, they are added at the end. So
 # BEGIN_ALL_LOAD / END_ALL_LOAD doesn't work.
 #
+
+# prepend force-all for OS X, other use BEGIN_ALL_LOAD
+
+set( TARGET_ALL_LOAD_LIBRARIES
+$<TARGET_FILE:MulleObjC>
+${C_DEPENDENCY_LIBRARIES}
+)
+
+if( FORCE_LOAD)
+   set( TMP)
+   foreach( library ${TARGET_ALL_LOAD_LIBRARIES})
+      list( APPEND TMP "${FORCE_LOAD} ${library}")
+   endforeach( library)
+   set( TARGET_ALL_LOAD_LIBRARIES ${TMP})
+endif()
+
+
 target_link_libraries( MulleObjCStandalone
 ${BEGIN_ALL_LOAD}
-MulleObjC
-${C_DEPENDENCY_LIBRARIES}
+${TARGET_ALL_LOAD_LIBRARIES}
 ${END_ALL_LOAD}
 ${OS_SPECIFIC_LIBRARIES}
 )
