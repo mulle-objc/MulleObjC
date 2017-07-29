@@ -52,7 +52,11 @@
 
 @implementation MulleObjCSingleton
 
-+ (void) initialize
+
+// MULLE_OBJC_IS_CLASSCLUSTER gets inherited by the class, that implements the
+// protocol but JUST that class
+//
+void   MulleObjCSingletonMarkClassAsSingleton( Class self)
 {
    struct _mulle_objc_classpair   *pair;
 
@@ -66,6 +70,12 @@
            _mulle_objc_infraclass_get_classid( self),
            _mulle_objc_infraclass_get_name( self));
 #endif
+}
+
+
++ (void) initialize
+{
+   MulleObjCSingletonMarkClassAsSingleton( self);
 }
 
 

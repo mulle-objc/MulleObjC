@@ -56,7 +56,7 @@
 // MULLE_OBJC_IS_CLASSCLUSTER gets inherited by the class, that implements the
 // protocol but JUST that class
 //
-+ (void) initialize
+void   MulleObjCClassClusterMarkClassAsClassCluster( Class self)
 {
    struct _mulle_objc_classpair   *pair;
 
@@ -64,6 +64,12 @@
    pair = _mulle_objc_infraclass_get_classpair( self);
    if( _mulle_objc_classpair_has_protocolid( pair, (mulle_objc_protocolid_t) @protocol( MulleObjCClassCluster)))
       _mulle_objc_infraclass_set_state_bit( self, _NS_INFRA_IS_CLASSCLUSTER);
+}
+
+
++ (void) initialize
+{
+   MulleObjCClassClusterMarkClassAsClassCluster( self);
 }
 
 
@@ -85,6 +91,21 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 }
 
 
+#if DEBUG
+// provide a breakpoint opportunity.
+void   _ns_objc_classcluster_warning( struct _mulle_objc_infraclass *self);
+void   _ns_objc_classcluster_warning( struct _mulle_objc_infraclass *self)
+{
+      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of "
+                       "MulleObjCClassCluster but gets allocated directly. "
+                       "(Non classcluster subclasses should implement +alloc, \n"
+                       "break on _ns_objc_classcluster_warning to debug)\n",
+                 _mulle_objc_infraclass_get_classid( self),
+                 _mulle_objc_infraclass_get_name( self));
+}
+#endif
+
+
 + (instancetype) alloc
 {
    struct _mulle_objc_object   *placeholder;
@@ -98,9 +119,7 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
    if( ! _mulle_objc_infraclass_get_state_bit( self, _NS_INFRA_IS_CLASSCLUSTER))
    {
 #if DEBUG
-      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of MulleObjCClassCluster but gets allocated directly. (Non classcluster subclasses should implement +alloc)\n",
-                 _mulle_objc_infraclass_get_classid( self),
-                 _mulle_objc_infraclass_get_name( self));
+      _ns_objc_classcluster_warning( self);
 #endif
       return( NSAllocateObject( self, 0, NULL));
    }
