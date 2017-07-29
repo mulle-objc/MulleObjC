@@ -63,3 +63,10 @@ static inline BOOL   MulleObjCIsSingletonInstance( id obj)
    infraCls = mulle_objc_object_get_infraclass( obj);
    return( _mulle_objc_infraclass_get_state_bit( infraCls, _NS_INFRA_IS_SINGLETON) ? YES : NO);
 }
+
+
+//
+// if your class overrides +initialize and implements MulleObjCSingleton
+// then you must call this (or call [super initialize])
+//
+void   MulleObjCSingletonMarkClassAsSingleton( Class self);

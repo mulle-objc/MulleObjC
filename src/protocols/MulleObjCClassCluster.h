@@ -58,5 +58,12 @@
 
 @end
 
+
+//
+// if your class overrides +initialize and implements MulleObjCClassCluster
+// then you must call this
+//
+void   MulleObjCClassClusterMarkClassAsClassCluster( Class self);
+
 // protocol class
 
