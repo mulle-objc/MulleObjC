@@ -51,6 +51,7 @@
 
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
+#pragma clang diagnostic ignored "-Wparentheses"
 
 
 @interface NSObject ( NSCopying)
@@ -99,12 +100,8 @@
       struct _mulle_objc_class              *cls;
 
       cls = _mulle_objc_infraclass_as_class( _cls);
-      method = _mulle_objc_class_search_method( cls,
-                                               (mulle_objc_methodid_t) _cmd,
-                                               NULL,
-                                               MULLE_OBJC_ANY_OWNER,
-                                               _mulle_objc_class_get_inheritance( cls),
-                                               NULL);
+      method = mulle_objc_class_defaultsearch_method( cls,
+                                                      (mulle_objc_methodid_t) _cmd);
       if( method)
       {
          desc = _mulle_objc_method_get_methoddescriptor( method);
@@ -286,7 +283,7 @@ static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Cl
    assert( classid);
 
    universe             = _mulle_objc_infraclass_get_universe( infraCls);
-   placeholderInfracls = _mulle_objc_universe_unfailing_get_or_lookup_infraclass( universe, classid);
+   placeholderInfracls = _mulle_objc_universe_unfailinggetlookup_infraclass( universe, classid);
 
    placeholder       = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
    placeholder->_cls = infraCls;
@@ -849,12 +846,8 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    struct _mulle_objc_method   *method;
 
    cls    = _mulle_objc_object_get_isa( self);
-   method = _mulle_objc_class_search_method( cls,
-                                             (mulle_objc_methodid_t) sel,
-                                             NULL,
-                                             MULLE_OBJC_ANY_OWNER,
-                                             _mulle_objc_class_get_inheritance( cls),
-                                             NULL);
+   method = mulle_objc_class_defaultsearch_method( cls,
+                                                  (mulle_objc_methodid_t) sel);
    if( ! method)
       return( nil);
 
@@ -868,12 +861,8 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    struct _mulle_objc_method   *method;
 
    assert( _mulle_objc_class_is_infraclass( (void *)  self));
-   method = _mulle_objc_class_search_method( _mulle_objc_infraclass_as_class( self),
-                                             (mulle_objc_methodid_t) sel,
-                                             NULL,
-                                             MULLE_OBJC_ANY_OWNER,
-                                             _mulle_objc_infraclass_get_inheritance( self),
-                                             NULL);
+   method = mulle_objc_class_defaultsearch_method( _mulle_objc_infraclass_as_class( self),
+                                                   (mulle_objc_methodid_t) sel);
    if( ! method)
       return( nil);
 

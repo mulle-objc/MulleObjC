@@ -56,7 +56,8 @@ static inline id   MulleObjCCallIMP( IMP imp, id obj, SEL sel, id argument)
 
 #pragma mark - KVC support (write)
 
-static inline id   MulleObjCCallIMPWithFloat( IMP imp, id obj, SEL sel, float argument)
+static inline id
+   MulleObjCCallIMPWithFloat( IMP imp, id obj, SEL sel, float argument)
 {
    mulle_objc_metaabi_param_block_void_return( struct { float a;})  _param;
 
@@ -66,7 +67,8 @@ static inline id   MulleObjCCallIMPWithFloat( IMP imp, id obj, SEL sel, float ar
 }
 
 
-static inline id   MulleObjCCallIMPWithDouble( IMP imp, id obj, SEL sel, double argument)
+static inline id
+   MulleObjCCallIMPWithDouble( IMP imp, id obj, SEL sel, double argument)
 {
    mulle_objc_metaabi_param_block_void_return( struct { double a;})  _param;
 
@@ -76,7 +78,8 @@ static inline id   MulleObjCCallIMPWithDouble( IMP imp, id obj, SEL sel, double 
 }
 
 
-static inline id   MulleObjCCallIMPWithLongDouble( IMP imp, id obj, SEL sel, long double argument)
+static inline id
+   MulleObjCCallIMPWithLongDouble( IMP imp, id obj, SEL sel, long double argument)
 {
    mulle_objc_metaabi_param_block_void_return( struct { long double a;})  _param;
 
@@ -86,7 +89,8 @@ static inline id   MulleObjCCallIMPWithLongDouble( IMP imp, id obj, SEL sel, lon
 }
 
 
-static inline id   MulleObjCCallIMPWithLong( IMP imp, id obj, SEL sel, long argument)
+static inline id
+   MulleObjCCallIMPWithLong( IMP imp, id obj, SEL sel, long argument)
 {
    mulle_objc_metaabi_param_block_void_return( struct { long a;})  _param;
 
@@ -99,7 +103,8 @@ static inline id   MulleObjCCallIMPWithLong( IMP imp, id obj, SEL sel, long argu
 }
 
 
-static inline id   MulleObjCCallIMPWithUnsignedLong( IMP imp, id obj, SEL sel, unsigned long argument)
+static inline id
+   MulleObjCCallIMPWithUnsignedLong( IMP imp, id obj, SEL sel, unsigned long argument)
 {
    mulle_objc_metaabi_param_block_void_return( struct { unsigned long a;})  _param;
 
@@ -112,7 +117,8 @@ static inline id   MulleObjCCallIMPWithUnsignedLong( IMP imp, id obj, SEL sel, u
 }
 
 
-static inline id   MulleObjCCallIMPWithLongLong( IMP imp, id obj, SEL sel, long long argument)
+static inline id
+   MulleObjCCallIMPWithLongLong( IMP imp, id obj, SEL sel, long long argument)
 {
    mulle_objc_metaabi_param_block_void_return( struct { long long a;})  _param;
 
@@ -125,7 +131,11 @@ static inline id   MulleObjCCallIMPWithLongLong( IMP imp, id obj, SEL sel, long 
 }
 
 
-static inline id   MulleObjCCallIMPWithUnsignedLongLong( IMP imp, id obj, SEL sel, unsigned long long argument)
+static inline id
+   MulleObjCCallIMPWithUnsignedLongLong( IMP imp,
+                                         id obj,
+                                         SEL sel,
+                                         unsigned long long argument)
 {
    mulle_objc_metaabi_param_block_void_return( struct { unsigned long long a;})  _param;
 
@@ -148,7 +158,8 @@ static inline float   MulleObjCCallIMP0ReturningFloat( IMP imp, id obj, SEL sel)
 }
 
 
-static inline double   MulleObjCCallIMP0ReturningDouble( IMP imp, id obj, SEL sel)
+static inline double
+   MulleObjCCallIMP0ReturningDouble( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { double a;})  _param;
 
@@ -157,7 +168,8 @@ static inline double   MulleObjCCallIMP0ReturningDouble( IMP imp, id obj, SEL se
 }
 
 
-static inline long double   MulleObjCCallIMP0ReturningLongDouble( IMP imp, id obj, SEL sel)
+static inline long double
+   MulleObjCCallIMP0ReturningLongDouble( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { long double a;})  _param;
 
@@ -178,7 +190,8 @@ static inline long   MulleObjCCallIMP0ReturningLong( IMP imp, id obj, SEL sel)
 }
 
 
-static inline unsigned long   MulleObjCCallIMP0ReturningUnsignedLong( IMP imp, id obj, SEL sel)
+static inline unsigned long
+   MulleObjCCallIMP0ReturningUnsignedLong( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { unsigned long a;})  _param;
 
@@ -190,7 +203,8 @@ static inline unsigned long   MulleObjCCallIMP0ReturningUnsignedLong( IMP imp, i
 }
 
 
-static inline long long    MulleObjCCallIMP0ReturningLongLong( IMP imp, id obj, SEL sel)
+static inline long long
+   MulleObjCCallIMP0ReturningLongLong( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { long long a;})  _param;
 
@@ -202,7 +216,8 @@ static inline long long    MulleObjCCallIMP0ReturningLongLong( IMP imp, id obj, 
 }
 
 
-static inline unsigned long long    MulleObjCCallIMP0ReturningUnsignedLongLong( IMP imp, id obj, SEL sel)
+static inline unsigned long long
+   MulleObjCCallIMP0ReturningUnsignedLongLong( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { unsigned long long a;})  _param;
 
@@ -222,6 +237,102 @@ static inline id   MulleObjCCallIMP2( IMP imp, id obj, SEL sel, id arg1, id arg2
    _param.p.b = arg2;
 
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &_param));
+}
+
+
+#pragma mark - find overriden methods
+
+//
+// Useful for categories only:
+//
+// inside of Foo( A)  call MulleObjCSearchOverriddenIMP( self, _cmd, @selector( Foo), @selector( A))
+//
+static inline  IMP   MulleObjCLookupOverriddenIMP( id obj,
+                                                   SEL sel,
+                                                   mulle_objc_classid_t classid,
+                                                   mulle_objc_categoryid_t categoryid)
+{
+   struct _mulle_objc_searchargumentscachable    search;
+   struct _mulle_objc_class                      *cls;
+   IMP                                           imp;
+
+   if( ! obj)
+      return( (IMP) 0);
+
+   _mulle_objc_searchargumentscacheable_overriddeninit( &search, sel, classid, categoryid);
+
+   cls = _mulle_objc_object_get_isa( obj);
+   imp = (IMP) _mulle_objc_class_lookup_methodsearch( cls, &search);
+   return( imp);
+}
+
+
+//
+// Just for completeness sake
+//
+static inline IMP   MulleObjCLookupSuperIMP( id obj,
+                                             SEL sel,
+                                             mulle_objc_classid_t classid)
+{
+   struct _mulle_objc_searchargumentscachable    search;
+   struct _mulle_objc_class                      *cls;
+   IMP                                           imp;
+
+   if( ! obj)
+      return( (IMP) 0);
+
+   _mulle_objc_searchargumentscacheable_superinit( &search, sel, classid);
+
+   cls = _mulle_objc_object_get_isa( obj);
+   imp = (IMP) _mulle_objc_class_lookup_methodsearch( cls, &search);
+   return( imp);
+}
+
+
+// Useful for categories and classes:
+//
+// inside of Foo or Foo( A)  call MulleObjCLookupSupremeIMP( self, _cmd, @selector( Foo))
+//
+static inline IMP   MulleObjCLookupSupremeIMP( id obj,
+                                               SEL sel,
+                                               mulle_objc_classid_t classid)
+{
+   struct _mulle_objc_searchargumentscachable    search;
+    struct _mulle_objc_class                     *cls;
+   IMP                                           imp;
+
+   if( ! obj)
+      return( (IMP) 0);
+
+   _mulle_objc_searchargumentscacheable_supremeinit( &search, sel, classid);
+
+   cls = _mulle_objc_object_get_isa( obj);
+   imp = (IMP)  _mulle_objc_class_lookup_methodsearch( cls, &search);
+   return( imp);
+}
+
+
+// Find a specific implementation given class and category:
+//
+// call MulleObjCLookupSpecificIMP( self, _cmd, @selector( Foo), @selector( A))
+//
+static inline IMP   MulleObjCLookupSpecificIMP( id obj,
+                                                SEL sel,
+                                                mulle_objc_classid_t classid,
+                                                mulle_objc_categoryid_t categoryid)
+{
+   struct _mulle_objc_searchargumentscachable    search;
+   struct _mulle_objc_class                      *cls;
+   IMP                                           imp;
+
+   if( ! obj)
+      return( (IMP) 0);
+
+   _mulle_objc_searchargumentscacheable_specificinit( &search, sel, classid, categoryid);
+
+   cls = _mulle_objc_object_get_isa( obj);
+   imp = (IMP) _mulle_objc_class_lookup_methodsearch( cls, &search);
+   return( imp);
 }
 
 

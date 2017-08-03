@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 3.0)
 
+
+project( MulleObjC C )  # OBJC in the future! :)
+
 # https://stackoverflow.com/questions/13054451/cmake-problems-specifying-the-compiler-2
 # don't do that:
 #    set( CMAKE_C_COMPILER
@@ -18,8 +21,6 @@ cmake_minimum_required (VERSION 3.0)
 # 3) The only immediate payoff is, that one doesn't need to specify
 #    -DCMAKE_C_COMPILER or .CC when using mulle-build
 #
-
-project( MulleObjC C )  # OBJC in the future! :)
 
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/mulle-configuration/cmake)
 message( STATUS "CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")

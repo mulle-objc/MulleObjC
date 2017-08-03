@@ -395,6 +395,8 @@
 				41872A291C67870F0087DFB1 /* MulleObjCAllocation.m */,
 				41F896871C9C41E900971F63 /* MulleObjCFunctions.h */,
 				41F896851C9C3EC700971F63 /* MulleObjCFunctions.m */,
+				41CE120E1EC4710B00691FF2 /* MulleObjCLoader.h */,
+				41CE120F1EC4710B00691FF2 /* MulleObjCLoader.m */,
 				41A827A11AADE01D0017BE29 /* NSAutoreleasePool.h */,
 				41A827A21AADE01D0017BE29 /* NSAutoreleasePool.m */,
 				41A827A71AADE0400017BE29 /* NSDebug.h */,
@@ -416,8 +418,6 @@
 				410B50E01C69424B007839D0 /* NSMethodSignature+Private.h */,
 				419C58311BCFF33200731B64 /* NSThread.h */,
 				419C582F1BCFF32000731B64 /* NSThread.m */,
-				41CE120E1EC4710B00691FF2 /* MulleObjCLoader.h */,
-				41CE120F1EC4710B00691FF2 /* MulleObjCLoader.m */,
 				415A0A0F1C4E98B700290E05 /* _ns_autoreleasepointerarray.h */,
 				41A9E4FA1BD7F39700210D6E /* ns_debug.h */,
 				41A9E4F91BD7F39700210D6E /* ns_debug.m */,
@@ -848,7 +848,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4162D5081C63CBBC007EC7DD /* Debug.xcconfig */;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 0.9.1;
+				CURRENT_PROJECT_VERSION = 0.10.1;
 				DEPENDENCIES_DIR = "$(PROJECT_DIR)/../dependencies";
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_VERSION = "de.codeon.compilers.mulle-clang";
@@ -861,7 +861,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4162D50B1C63CBBC007EC7DD /* Release.xcconfig */;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 0.9.1;
+				CURRENT_PROJECT_VERSION = 0.10.1;
 				DEPENDENCIES_DIR = "$(PROJECT_DIR)/../dependencies";
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_VERSION = "de.codeon.compilers.mulle-clang";

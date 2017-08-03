@@ -116,7 +116,7 @@ void   _mulle_become_objc_runtime_thread( void)
    _mulle_objc_universe_retain( universe);
    mulle_objc_set_thread_universe( universe);
    _mulle_objc_universe_register_current_thread_if_needed( universe);
-   if( _mulle_objc_universe_get_or_lookup_infraclass( universe, MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH))) // NSAutoreleasePool
+   if( _mulle_objc_universe_getlookup_infraclass( universe, MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH))) // NSAutoreleasePool
       _ns_poolconfiguration_set_thread();
 }
 
@@ -219,7 +219,7 @@ void  _NSThreadResignAsMainThread( void)
    // can happen in mulle-objc-list, that NSThread isn't really
    // there
    //
-   if( ! universe || ! _mulle_objc_universe_get_or_lookup_infraclass( universe, 0x645eeb40))
+   if( ! universe || ! _mulle_objc_universe_getlookup_infraclass( universe, 0x645eeb40))
       return;
 
    //

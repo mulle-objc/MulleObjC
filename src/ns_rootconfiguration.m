@@ -43,6 +43,7 @@
 #include "ns_exception.h"
 #include <assert.h>
 
+#pragma clang diagnostic ignored "-Wparentheses"
 
 # pragma mark -
 # pragma mark root object handling

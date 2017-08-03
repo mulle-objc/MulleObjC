@@ -33,6 +33,7 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#pragma clang diagnostic ignored "-Wparentheses"
 
 #import "NSAutoreleasePool.h"
 
@@ -67,7 +68,7 @@ static struct mulle_container_keyvaluecallback    object_map_callback;
 
 static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
 {
-   config->poolClass          = mulle_objc_unfailing_get_or_lookup_infraclass( MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH));
+   config->poolClass          = mulle_objc_unfailinggetlookup_infraclass( MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH));
    config->autoreleaseObject  = _autoreleaseObject;
    config->autoreleaseObjects = _autoreleaseObjects;
    config->push               = pushAutoreleasePool;
