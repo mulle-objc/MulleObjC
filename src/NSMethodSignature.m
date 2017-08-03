@@ -40,6 +40,7 @@
 
 
 #pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
+#pragma clang diagnostic ignored "-Wparentheses"
 
 
 @implementation NSMethodSignature

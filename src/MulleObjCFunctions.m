@@ -43,6 +43,9 @@
 #include "ns_rootconfiguration.h"
 
 
+#pragma clang diagnostic ignored "-Wparentheses"
+
+
 Class   NSClassFromObject( id object)
 {
    return( [object class]);
@@ -148,7 +151,7 @@ Class   MulleObjCLookupClassByName( char *name)
    classid = mulle_objc_classid_from_string( name);
 
    universe = mulle_objc_get_universe();
-   cls     = _mulle_objc_universe_get_or_lookup_infraclass( universe, classid);
+   cls     = _mulle_objc_universe_getlookup_infraclass( universe, classid);
 
    return( cls);
 }
@@ -223,7 +226,7 @@ SEL   MulleObjCCreateSelector( char *name)
          desc->signature[ 2] = ':';
       }
 
-      mulle_objc_universe_unfailing_add_methoddescriptor( universe, desc);
+      mulle_objc_universe_unfailingadd_methoddescriptor( universe, desc);
    }
    return( (SEL) (uintptr_t) methodid);
 }
@@ -241,4 +244,3 @@ void    MulleObjCSetClass( id obj, Class cls)
 
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
 }
-

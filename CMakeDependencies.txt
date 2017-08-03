@@ -1,6 +1,8 @@
 if( NOT __MULLE_OBJC_CMAKE_DEPENDENCIES_TXT__)
    set( __MULLE_OBJC_CMAKE_DEPENDENCIES_TXT__ ON)
 
+   message( STATUS "# Include MulleObjC CMakeDependencies.txt")
+
    include( ${DEPENDENCIES_DIR}/include/mulle_objc_runtime/CMakeDependencies.txt)
 
    if( NOT MULLE_CONTAINER_LIBRARY)
