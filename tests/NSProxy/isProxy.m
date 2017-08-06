@@ -11,17 +11,15 @@
 
 @implementation Foo
 
-#ifdef __MULLE_OBJC__
 + (id) new
 {
-   return( (Foo *) _mulle_objc_infraclass_alloc_instance( (void *) self, NULL));
+   return( NSAllocateObject( self, 0, NULL));
 }
 
 - (void) dealloc
 {
-   _mulle_objc_object_free( (void *) self, NULL);
+   return( NSDeallocateObject( self));
 }
-#endif
 
 @end
 

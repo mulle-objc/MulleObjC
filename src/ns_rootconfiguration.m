@@ -349,7 +349,7 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_unive
          mulle_objc_getenv_yes_no( "NSDebugEnabled");
    roots->object.zombieenabled     = mulle_objc_getenv_yes_no( "MULLE_OBJC_ZOMBIE_ENABLED") ||
          mulle_objc_getenv_yes_no( "NSZombieEnabled");
-   roots->object.deallocatezombies = mulle_objc_getenv_yes_no( "MULLE_OBJC_DEALLOCATE_ZOMBIES") ||
+   roots->object.deallocatezombies = mulle_objc_getenv_yes_no( "MULLE_OBJC_DEALLOCATE_ZOMBIE") ||
          mulle_objc_getenv_yes_no( "NSDeallocateZombies");
 
    return( roots);
