@@ -254,7 +254,7 @@ static inline  IMP   MulleObjCLookupOverriddenIMP( id obj,
 {
    struct _mulle_objc_searchargumentscachable    search;
    struct _mulle_objc_class                      *cls;
-   IMP                                           imp;
+   mulle_objc_methodimplementation_t             imp;
 
    if( ! obj)
       return( (IMP) 0);
@@ -262,8 +262,10 @@ static inline  IMP   MulleObjCLookupOverriddenIMP( id obj,
    _mulle_objc_searchargumentscacheable_overriddeninit( &search, sel, classid, categoryid);
 
    cls = _mulle_objc_object_get_isa( obj);
-   imp = (IMP) _mulle_objc_class_lookup_methodsearch( cls, &search);
-   return( imp);
+   imp = _mulle_objc_class_lookup_methodsearch( cls, &search);
+   if( _mulle_objc_class_is_forwardmethodimplementation( cls, imp))
+      imp = 0;
+   return( (IMP) imp);
 }
 
 
@@ -276,7 +278,7 @@ static inline IMP   MulleObjCLookupSuperIMP( id obj,
 {
    struct _mulle_objc_searchargumentscachable    search;
    struct _mulle_objc_class                      *cls;
-   IMP                                           imp;
+   mulle_objc_methodimplementation_t             imp;
 
    if( ! obj)
       return( (IMP) 0);
@@ -284,31 +286,10 @@ static inline IMP   MulleObjCLookupSuperIMP( id obj,
    _mulle_objc_searchargumentscacheable_superinit( &search, sel, classid);
 
    cls = _mulle_objc_object_get_isa( obj);
-   imp = (IMP) _mulle_objc_class_lookup_methodsearch( cls, &search);
-   return( imp);
-}
-
-
-// Useful for categories and classes:
-//
-// inside of Foo or Foo( A)  call MulleObjCLookupSupremeIMP( self, _cmd, @selector( Foo))
-//
-static inline IMP   MulleObjCLookupSupremeIMP( id obj,
-                                               SEL sel,
-                                               mulle_objc_classid_t classid)
-{
-   struct _mulle_objc_searchargumentscachable    search;
-    struct _mulle_objc_class                     *cls;
-   IMP                                           imp;
-
-   if( ! obj)
-      return( (IMP) 0);
-
-   _mulle_objc_searchargumentscacheable_supremeinit( &search, sel, classid);
-
-   cls = _mulle_objc_object_get_isa( obj);
-   imp = (IMP)  _mulle_objc_class_lookup_methodsearch( cls, &search);
-   return( imp);
+   imp = _mulle_objc_class_lookup_methodsearch( cls, &search);
+   if( _mulle_objc_class_is_forwardmethodimplementation( cls, imp))
+      imp = 0;
+   return( (IMP) imp);
 }
 
 
@@ -323,7 +304,7 @@ static inline IMP   MulleObjCLookupSpecificIMP( id obj,
 {
    struct _mulle_objc_searchargumentscachable    search;
    struct _mulle_objc_class                      *cls;
-   IMP                                           imp;
+   mulle_objc_methodimplementation_t             imp;
 
    if( ! obj)
       return( (IMP) 0);
@@ -331,8 +312,10 @@ static inline IMP   MulleObjCLookupSpecificIMP( id obj,
    _mulle_objc_searchargumentscacheable_specificinit( &search, sel, classid, categoryid);
 
    cls = _mulle_objc_object_get_isa( obj);
-   imp = (IMP) _mulle_objc_class_lookup_methodsearch( cls, &search);
-   return( imp);
+   imp = _mulle_objc_class_lookup_methodsearch( cls, &search);
+   if( _mulle_objc_class_is_forwardmethodimplementation( cls, imp))
+      imp = 0;
+   return( (IMP) imp);
 }
 
 
