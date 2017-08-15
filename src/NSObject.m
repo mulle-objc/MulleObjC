@@ -96,7 +96,7 @@
 #ifndef NDEBUG
    {
       struct _mulle_objc_method             *method;
-      struct _mulle_objc_methoddescriptor   *desc;
+      struct _mulle_objc_descriptor   *desc;
       struct _mulle_objc_class              *cls;
 
       cls = _mulle_objc_infraclass_as_class( _cls);
@@ -104,8 +104,8 @@
                                                       (mulle_objc_methodid_t) _cmd);
       if( method)
       {
-         desc = _mulle_objc_method_get_methoddescriptor( method);
-         assert( _mulle_objc_methoddescriptor_is_init_method( desc));
+         desc = _mulle_objc_method_get_descriptor( method);
+         assert( _mulle_objc_descriptor_is_init_method( desc));
       }
    }
 #endif
@@ -278,19 +278,19 @@ static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Cl
    struct _mulle_objc_class            *pcls;
    _MulleObjCInstantiatePlaceholder    *placeholder;
    SEL                                 initSel;
-   mulle_objc_methodimplementation_t   imp;
+   mulle_objc_implementation_t   imp;
 
    assert( classid);
 
    universe             = _mulle_objc_infraclass_get_universe( infraCls);
-   placeholderInfracls = _mulle_objc_universe_unfailinggetlookup_infraclass( universe, classid);
+   placeholderInfracls = _mulle_objc_universe_unfailingfastlookup_infraclass( universe, classid);
 
    placeholder       = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
    placeholder->_cls = infraCls;
 
    initSel = @selector( __initPlaceholder);
    pcls    = _mulle_objc_infraclass_as_class( placeholderInfracls);
-   imp     = _mulle_objc_class_lookup_methodimplementation_no_forward( pcls, (mulle_objc_methodid_t) initSel);
+   imp     = _mulle_objc_class_lookup_implementation_no_forward( pcls, (mulle_objc_methodid_t) initSel);
    if( imp)
       (*imp)( placeholder, (mulle_objc_methodid_t) initSel, NULL);
 
@@ -723,14 +723,14 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    IMP                        imp;
 
    cls = _mulle_objc_object_get_isa( self);
-   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, (mulle_objc_methodid_t) sel);
+   imp = (IMP) _mulle_objc_class_lookup_implementation_no_forward( cls, (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
 
 
 - (IMP) methodForSelector:(SEL) sel
 {
-   return( (IMP) _mulle_objc_object_lookup_or_search_methodimplementation( (void *) self, (mulle_objc_methodid_t) sel));
+   return( (IMP) _mulle_objc_object_lookup_implementation( (void *) self, (mulle_objc_methodid_t) sel));
 }
 
 
@@ -739,18 +739,25 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    struct _mulle_objc_class   *cls;
    IMP                        imp;
 
+   //
+   // must be non caching for technical reasons (them being)
+   // that the infraclass cache may not be ready yet
+   //
    cls = _mulle_objc_infraclass_as_class( self);
-   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, (mulle_objc_methodid_t) sel);
+   imp = (IMP) _mulle_objc_class_noncachinglookup_implementation_no_forward( cls, (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
-
 
 + (IMP) instanceMethodForSelector:(SEL) sel
 {
    struct _mulle_objc_class   *cls;
 
+   //
+   // must be non caching for technical reasons (them being)
+   // that the infraclass cache may not be ready yet
+   //
    cls = _mulle_objc_infraclass_as_class( self);
-   return( (IMP) _mulle_objc_class_lookup_or_search_methodimplementation( cls, (mulle_objc_methodid_t) sel));
+   return( (IMP) _mulle_objc_class_noncachinglookup_implementation( cls, (mulle_objc_methodid_t) sel));
 }
 
 
@@ -852,7 +859,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
       return( nil);
 
    return( [NSMethodSignature _signatureWithObjCTypes:method->descriptor.signature
-                                 methodDescriptorBits:method->descriptor.bits]);
+                                 descriptorBits:method->descriptor.bits]);
 }
 
 

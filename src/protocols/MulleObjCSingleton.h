@@ -44,6 +44,7 @@
 @protocol MulleObjCSingleton
 
 @optional  // MulleObjCSingleton implements this for you
++ (void) initialize;  // #1#
 + (instancetype) sharedInstance;
 
 @end
@@ -65,8 +66,9 @@ static inline BOOL   MulleObjCIsSingletonInstance( id obj)
 }
 
 
+// #1#
+// if your class overrides +initialize and implements MulleObjCClassCluster
+// then you must call [super initialize] or this
 //
-// if your class overrides +initialize and implements MulleObjCSingleton
-// then you must call this (or call [super initialize])
-//
+
 void   MulleObjCSingletonMarkClassAsSingleton( Class self);

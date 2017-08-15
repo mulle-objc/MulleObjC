@@ -99,7 +99,7 @@
    struct _mulle_objc_universe  *universe;
 
    universe = _mulle_objc_infraclass_get_universe( self);
-   return( ! universe->config.no_tagged_pointers);
+   return( ! universe->config.no_tagged_pointer);
 }
 
 

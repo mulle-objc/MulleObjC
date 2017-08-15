@@ -75,7 +75,7 @@ void   MulleObjCClassClusterMarkClassAsClassCluster( Class self)
 
 static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 {
-   mulle_objc_methodimplementation_t   imp;
+   mulle_objc_implementation_t   imp;
    struct _mulle_objc_class            *cls;
    id                                  placeholder;
    mulle_objc_methodid_t               sel;
@@ -83,7 +83,7 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
    placeholder = NSAllocateObject( infraCls, 0, NULL);
    cls         = _mulle_objc_infraclass_as_class( infraCls);
    sel         = @selector( __initPlaceholder);
-   imp         = _mulle_objc_class_lookup_methodimplementation_no_forward( cls, sel);
+   imp         = _mulle_objc_class_lookup_implementation_no_forward( cls, sel);
    if( imp)
       (*imp)( placeholder, sel, NULL);
 

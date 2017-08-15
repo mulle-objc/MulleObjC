@@ -130,12 +130,12 @@ char  *MulleObjCClassGetName( Class cls)
 
 char   *MulleObjCSelectorGetName( SEL sel)
 {
-   struct _mulle_objc_methoddescriptor   *desc;
+   struct _mulle_objc_descriptor   *desc;
    struct _mulle_objc_universe            *universe;
 
    universe = mulle_objc_get_universe();
-   desc    = _mulle_objc_universe_lookup_methoddescriptor( universe, (mulle_objc_methodid_t) sel);
-   return( desc ? _mulle_objc_methoddescriptor_get_name( desc) : NULL);
+   desc    = _mulle_objc_universe_lookup_descriptor( universe, (mulle_objc_methodid_t) sel);
+   return( desc ? _mulle_objc_descriptor_get_name( desc) : NULL);
 }
 
 
@@ -151,7 +151,7 @@ Class   MulleObjCLookupClassByName( char *name)
    classid = mulle_objc_classid_from_string( name);
 
    universe = mulle_objc_get_universe();
-   cls     = _mulle_objc_universe_getlookup_infraclass( universe, classid);
+   cls     = _mulle_objc_universe_fastlookup_infraclass( universe, classid);
 
    return( cls);
 }
@@ -194,7 +194,7 @@ SEL   MulleObjCCreateSelector( char *name)
 {
    mulle_objc_methodid_t                methodid;
    struct _mulle_objc_universe           *universe;
-   struct _mulle_objc_methoddescriptor  *desc;
+   struct _mulle_objc_descriptor  *desc;
    unsigned int                         n;
 
    if( ! name)
@@ -205,10 +205,10 @@ SEL   MulleObjCCreateSelector( char *name)
    // so that NSStringFromSelector can get something
 
    universe = mulle_objc_get_universe();
-   desc    = _mulle_objc_universe_lookup_methoddescriptor( universe, methodid);
+   desc    = _mulle_objc_universe_lookup_descriptor( universe, methodid);
    if( ! desc)
    {
-      desc = mulle_objc_universe_calloc( universe, 1, sizeof( struct _mulle_objc_methoddescriptor));
+      desc = mulle_objc_universe_calloc( universe, 1, sizeof( struct _mulle_objc_descriptor));
 
       desc->methodid  = methodid;
       desc->bits      = _mulle_objc_method_guessed_signature;
@@ -226,7 +226,7 @@ SEL   MulleObjCCreateSelector( char *name)
          desc->signature[ 2] = ':';
       }
 
-      mulle_objc_universe_unfailingadd_methoddescriptor( universe, desc);
+      mulle_objc_universe_unfailingadd_descriptor( universe, desc);
    }
    return( (SEL) (uintptr_t) methodid);
 }
@@ -244,3 +244,95 @@ void    MulleObjCSetClass( id obj, Class cls)
 
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
 }
+
+
+#pragma mark - search specific methods
+
+
+IMP   MulleObjCSearchSuperIMP( id obj,
+                               SEL sel,
+                               mulle_objc_classid_t classid)
+{
+   struct _mulle_objc_searcharguments   search;
+   struct _mulle_objc_class             *cls;
+   struct _mulle_objc_method            *method;
+   mulle_objc_implementation_t    imp;
+   
+   if( ! obj)
+      return( (IMP) 0);
+   
+   _mulle_objc_searcharguments_superinit( &search, sel, classid);
+   
+   cls    = _mulle_objc_object_get_isa( obj);
+   method = mulle_objc_class_search_method( cls,
+                                           &search,
+                                           _mulle_objc_class_get_inheritance( cls) ,
+                                           NULL);
+   imp = 0;
+   if( method)
+      imp = _mulle_objc_method_get_implementation( method);
+   
+   return( (IMP) imp);
+}
+
+
+
+IMP   MulleObjCSearchOverriddenIMP( id obj,
+                                    SEL sel,
+                                    mulle_objc_classid_t classid,
+                                    mulle_objc_categoryid_t categoryid)
+{
+   struct _mulle_objc_searcharguments   search;
+   struct _mulle_objc_class             *cls;
+   struct _mulle_objc_method            *method;
+   mulle_objc_implementation_t    imp;
+   
+   if( ! obj)
+      return( (IMP) 0);
+   
+   _mulle_objc_searcharguments_overriddeninit( &search, sel, classid, categoryid);
+   
+   cls    = _mulle_objc_object_get_isa( obj);
+   method = mulle_objc_class_search_method( cls,
+                                           &search,
+                                           _mulle_objc_class_get_inheritance( cls) ,
+                                           NULL);
+   imp = 0;
+   if( method)
+      imp = _mulle_objc_method_get_implementation( method);
+   
+   return( (IMP) imp);
+}
+
+
+// Find a specific implementation given class and category:
+//
+// call MulleObjCLookupSpecificIMP( self, _cmd, @selector( Foo), @selector( A))
+//
+IMP   MulleObjCSearchSpecificIMP( id obj,
+                                  SEL sel,
+                                  mulle_objc_classid_t classid,
+                                  mulle_objc_categoryid_t categoryid)
+{
+   struct _mulle_objc_searcharguments    search;
+   struct _mulle_objc_class              *cls;
+   struct _mulle_objc_method             *method;
+   mulle_objc_implementation_t     imp;
+   
+   if( ! obj)
+      return( (IMP) 0);
+   
+   _mulle_objc_searcharguments_specificinit( &search, sel, classid, categoryid);
+   
+   cls    = _mulle_objc_object_get_isa( obj);
+   method = mulle_objc_class_search_method( cls,
+                                            &search,
+                                           _mulle_objc_class_get_inheritance( cls) ,
+                                           NULL);
+   imp = 0;
+   if( method)
+      imp = _mulle_objc_method_get_implementation( method);
+   
+   return( (IMP) imp);
+}
+

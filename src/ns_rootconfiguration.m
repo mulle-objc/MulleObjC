@@ -308,7 +308,7 @@ struct _ns_rootconfiguration  *__mulle_objc_root_setup( struct _mulle_objc_unive
    {
       roots = (*config->universe.allocator->calloc)( 1, neededsize);
       if( ! roots)
-         mulle_objc_raise_fail_errno_exception();
+         mulle_objc_raise_errno_exception();
    }
 
    us.universefriend.destructor    = universe_dies;

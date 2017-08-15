@@ -65,11 +65,11 @@ typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
 // forwarding mechanism
 //
 + (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
-                           methodDescriptorBits:(NSUInteger) bits;
+                           descriptorBits:(NSUInteger) bits;
 
 - (BOOL) isOneway;
 - (BOOL) isVariadic;
-- (NSUInteger) _methodDescriptorBits;
+- (NSUInteger) _descriptorBits;
 - (NSUInteger) frameLength;
 
 - (NSUInteger) methodReturnLength;

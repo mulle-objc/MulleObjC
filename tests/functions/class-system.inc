@@ -11,7 +11,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupOverriddenIMP( self, _cmd, @selector( A), MULLE_OBJC_NO_CATEGORYID);
+   imp = MulleObjCSearchOverriddenIMP( self, _cmd, @selector( A), MULLE_OBJC_NO_CATEGORYID);
    if( imp)
       (*imp)( self, _cmd, self);
 }
@@ -20,7 +20,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupSuperIMP( self, _cmd, @selector( A));
+   imp = MulleObjCSearchSuperIMP( self, _cmd, @selector( A));
    if( imp)
       (*imp)( self, _cmd, self);
 }
@@ -50,7 +50,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupOverriddenIMP( self, _cmd, @selector( P), MULLE_OBJC_NO_CATEGORYID);
+   imp = MulleObjCSearchOverriddenIMP( self, _cmd, @selector( P), MULLE_OBJC_NO_CATEGORYID);
    if( imp)
       (*imp)( self, _cmd, self);
 }
@@ -59,7 +59,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupSuperIMP( self, _cmd, @selector( P));
+   imp = MulleObjCSearchSuperIMP( self, _cmd, @selector( P));
    if( imp)
       (*imp)( self, _cmd, self);
 }
@@ -85,7 +85,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupOverriddenIMP( self, _cmd, @selector( Q), MULLE_OBJC_NO_CATEGORYID);
+   imp = MulleObjCSearchOverriddenIMP( self, _cmd, @selector( Q), MULLE_OBJC_NO_CATEGORYID);
    if( imp)
       (*imp)( self, _cmd, self);
 }
@@ -94,7 +94,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupSuperIMP( self, _cmd, @selector( Q));
+   imp = MulleObjCSearchSuperIMP( self, _cmd, @selector( Q));
    if( imp)
       (*imp)( self, _cmd, self);
 }
@@ -117,7 +117,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupOverriddenIMP( self, _cmd, @selector( B), MULLE_OBJC_NO_CATEGORYID);
+   imp = MulleObjCSearchOverriddenIMP( self, _cmd, @selector( B), MULLE_OBJC_NO_CATEGORYID);
    if( imp)
       (*imp)( self, _cmd, self);
 }
@@ -126,7 +126,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupSuperIMP( self, _cmd, @selector( B));
+   imp = MulleObjCSearchSuperIMP( self, _cmd, @selector( B));
    if( imp)
       (*imp)( self, _cmd, self);
 }
@@ -149,7 +149,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupOverriddenIMP( self, _cmd, @selector( B), @selector( C));
+   imp = MulleObjCSearchOverriddenIMP( self, _cmd, @selector( B), @selector( C));
    if( imp)
       (*imp)( self, _cmd, self);
 }
@@ -158,7 +158,7 @@
    IMP  imp;
 
    printf( "%s\n", __PRETTY_FUNCTION__);
-   imp = MulleObjCLookupSuperIMP( self, _cmd, @selector( B));
+   imp = MulleObjCSearchSuperIMP( self, _cmd, @selector( B));
    if( imp)
       (*imp)( self, _cmd, self);
 }

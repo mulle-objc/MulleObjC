@@ -112,7 +112,9 @@ ${BEGIN_ALL_LOAD}
 ${TARGET_ALL_LOAD_LIBRARIES}
 ${END_ALL_LOAD}
 ${OS_SPECIFIC_LIBRARIES}
+$<TARGET_FILE:MulleObjC> # stupid workaround for cmake being confused by ${FORCE_LOAD}
 )
+
 
 # runs in build dir
 add_custom_command( TARGET MulleObjCStandalone
