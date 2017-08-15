@@ -109,7 +109,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 
 
 + (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
-                           methodDescriptorBits:(NSUInteger) bits
+                           descriptorBits:(NSUInteger) bits
 
 {
    NSMethodSignature   *obj;
@@ -198,7 +198,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 }
 
 
-- (NSUInteger) _methodDescriptorBits
+- (NSUInteger) _descriptorBits
 {
    return( _bits);
 }

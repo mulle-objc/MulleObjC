@@ -240,83 +240,36 @@ static inline id   MulleObjCCallIMP2( IMP imp, id obj, SEL sel, id arg1, id arg2
 }
 
 
-#pragma mark - find overriden methods
+#pragma mark - find overriden or specific methods
 
 //
-// Useful for categories only:
+// slow search routines
+// overridden will probably gain it's own keyword
 //
-// inside of Foo( A)  call MulleObjCSearchOverriddenIMP( self, _cmd, @selector( Foo), @selector( A))
-//
-static inline  IMP   MulleObjCLookupOverriddenIMP( id obj,
-                                                   SEL sel,
-                                                   mulle_objc_classid_t classid,
-                                                   mulle_objc_categoryid_t categoryid)
-{
-   struct _mulle_objc_searchargumentscachable    search;
-   struct _mulle_objc_class                      *cls;
-   mulle_objc_methodimplementation_t             imp;
+IMP   MulleObjCSearchSuperIMP( id obj,
+                               SEL sel,
+                               mulle_objc_classid_t classid);
 
-   if( ! obj)
-      return( (IMP) 0);
-
-   _mulle_objc_searchargumentscacheable_overriddeninit( &search, sel, classid, categoryid);
-
-   cls = _mulle_objc_object_get_isa( obj);
-   imp = _mulle_objc_class_lookup_methodsearch( cls, &search);
-   if( _mulle_objc_class_is_forwardmethodimplementation( cls, imp))
-      imp = 0;
-   return( (IMP) imp);
-}
-
+IMP   MulleObjCSearchSpecificIMP( id obj,
+                                 SEL sel,
+                                 mulle_objc_classid_t classid,
+                                 mulle_objc_categoryid_t categoryid);
+IMP   MulleObjCSearchOverriddenIMP( id obj,
+                                   SEL sel,
+                                   mulle_objc_classid_t classid,
+                                   mulle_objc_categoryid_t categoryid);
 
 //
-// Just for completeness sake
-//
-static inline IMP   MulleObjCLookupSuperIMP( id obj,
-                                             SEL sel,
-                                             mulle_objc_classid_t classid)
-{
-   struct _mulle_objc_searchargumentscachable    search;
-   struct _mulle_objc_class                      *cls;
-   mulle_objc_methodimplementation_t             imp;
+#define MulleObjCOverriddenIMP \
+   MulleObjCSearchOverriddenIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
 
-   if( ! obj)
-      return( (IMP) 0);
+#define MulleObjCSpecificIMP \
+   MulleObjCSearchSpecificIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
 
-   _mulle_objc_searchargumentscacheable_superinit( &search, sel, classid);
+// avoid this, it's very slow
+#define MulleObjCSuperIMP \
+    MulleObjCSuperOverriddenIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__)
 
-   cls = _mulle_objc_object_get_isa( obj);
-   imp = _mulle_objc_class_lookup_methodsearch( cls, &search);
-   if( _mulle_objc_class_is_forwardmethodimplementation( cls, imp))
-      imp = 0;
-   return( (IMP) imp);
-}
-
-
-// Find a specific implementation given class and category:
-//
-// call MulleObjCLookupSpecificIMP( self, _cmd, @selector( Foo), @selector( A))
-//
-static inline IMP   MulleObjCLookupSpecificIMP( id obj,
-                                                SEL sel,
-                                                mulle_objc_classid_t classid,
-                                                mulle_objc_categoryid_t categoryid)
-{
-   struct _mulle_objc_searchargumentscachable    search;
-   struct _mulle_objc_class                      *cls;
-   mulle_objc_methodimplementation_t             imp;
-
-   if( ! obj)
-      return( (IMP) 0);
-
-   _mulle_objc_searchargumentscacheable_specificinit( &search, sel, classid, categoryid);
-
-   cls = _mulle_objc_object_get_isa( obj);
-   imp = _mulle_objc_class_lookup_methodsearch( cls, &search);
-   if( _mulle_objc_class_is_forwardmethodimplementation( cls, imp))
-      imp = 0;
-   return( (IMP) imp);
-}
 
 
 #pragma mark - message sending helper
@@ -379,4 +332,5 @@ char   *MulleObjCClassGetName( Class cls);
 char   *MulleObjCSelectorGetName( SEL sel);
 Class  MulleObjCLookupClassByName( char *name);
 SEL    MulleObjCCreateSelector( char *name);
+
 

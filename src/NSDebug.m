@@ -71,7 +71,7 @@ char   *_NSPrintForDebugger( id a)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
    }
 
-   imp = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, @selector( debugDescription));
+   imp = (IMP) _mulle_objc_class_lookup_implementation_no_forward( cls, @selector( debugDescription));
    if( imp)
    {
       void   *s;
@@ -82,7 +82,7 @@ char   *_NSPrintForDebugger( id a)
 
    spacer = "";
    aux    = "";
-   imp    = (IMP) _mulle_objc_class_lookup_or_search_methodimplementation_no_forward( cls, @selector( description));
+   imp    = (IMP) _mulle_objc_class_lookup_implementation_no_forward( cls, @selector( description));
    if( imp)
    {
       void   *s;
@@ -164,7 +164,7 @@ static void   zombifyLargeObject( id obj)
    _MulleObjCLargeZombie   *zombie;
    Class                   cls;
 
-   cls = mulle_objc_unfailinggetlookup_infraclass( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
+   cls = mulle_objc_unfailingfastlookup_infraclass( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
    assert( cls);
 
    zombie = obj;
@@ -202,11 +202,11 @@ static void   zombifyObject( id obj)
    sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_infraclass_get_name( cls));
 
    classid = mulle_objc_classid_from_string( buf);
-   cls     = _mulle_objc_universe_getlookup_infraclass( universe, classid);
+   cls     = _mulle_objc_universe_fastlookup_infraclass( universe, classid);
 
    if( ! cls)
    {
-      super_class = _mulle_objc_universe_getlookup_infraclass( universe, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
+      super_class = _mulle_objc_universe_fastlookup_infraclass( universe, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
 
       pair  = mulle_objc_unfailingnew_classpair( classid, buf, sizeof( id), super_class);
       infra = mulle_objc_classpair_get_infraclass( pair);

@@ -54,14 +54,15 @@
 @protocol MulleObjCClassCluster
 
 @optional
++ (void) initialize;  // #1#
 + (mulle_objc_classid_t) __instantiatePlaceholderClassid;
 
 @end
 
 
-//
+// #1#
 // if your class overrides +initialize and implements MulleObjCClassCluster
-// then you must call this
+// then you must call [super initialize] or this
 //
 void   MulleObjCClassClusterMarkClassAsClassCluster( Class self);
 

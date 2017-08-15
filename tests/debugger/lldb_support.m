@@ -56,7 +56,7 @@ void  test_obj_class( id obj, Class cls)
 {
    IMP    imp;
 
-   imp    = mulle_objc_lldb_lookup_methodimplementation( obj, @selector( a), cls, 0, 0, DEBUG);
+   imp    = mulle_objc_lldb_lookup_implementation( obj, @selector( a), cls, 0, 0, DEBUG);
    (*imp)( obj, @selector( a), NULL);
 }
 
@@ -66,7 +66,7 @@ void  test_class_class( id obj, Class cls)
 {
    IMP    imp;
 
-   imp    = mulle_objc_lldb_lookup_methodimplementation( obj, @selector( a), cls, 0, 1, DEBUG);
+   imp    = mulle_objc_lldb_lookup_implementation( obj, @selector( a), cls, 0, 1, DEBUG);
    (*imp)( obj, @selector( a), NULL);
 }
 
@@ -76,7 +76,7 @@ void  test_obj_classid( id obj, mulle_objc_classid_t clsid)
 {
    IMP    imp;
 
-   imp    = mulle_objc_lldb_lookup_methodimplementation( obj, @selector( a), (void *) clsid, 1, 0, DEBUG);
+   imp    = mulle_objc_lldb_lookup_implementation( obj, @selector( a), (void *) clsid, 1, 0, DEBUG);
    (*imp)( obj, @selector( a), NULL);
 }
 
@@ -85,7 +85,7 @@ void  test_class_classid( id obj, mulle_objc_classid_t clsid)
 {
    IMP    imp;
 
-   imp    = mulle_objc_lldb_lookup_methodimplementation( obj, @selector( a), (void *) clsid, 1, 1, DEBUG);
+   imp    = mulle_objc_lldb_lookup_implementation( obj, @selector( a), (void *) clsid, 1, 1, DEBUG);
    (*imp)( obj, @selector( a), NULL);
 }
 
