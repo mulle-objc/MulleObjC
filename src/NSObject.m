@@ -273,7 +273,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Class infraCls,
                                                                               mulle_objc_classid_t classid)
 {
-   struct _mulle_objc_universe          *universe;
+   struct _mulle_objc_universe         *universe;
    struct _mulle_objc_infraclass       *placeholderInfracls;
    struct _mulle_objc_class            *pcls;
    _MulleObjCInstantiatePlaceholder    *placeholder;
