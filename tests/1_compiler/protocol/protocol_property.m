@@ -16,10 +16,10 @@
 - (int) respondsToSelector:(mulle_objc_methodid_t) sel
 {
    struct _mulle_objc_class            *cls;
-   mulle_objc_methodimplementation_t   imp;
+   mulle_objc_implementation_t   imp;
 
    cls = _mulle_objc_object_get_isa( self);
-   imp = _mulle_objc_class_get_cached_methodimplementation( cls, sel);
+   imp = _mulle_objc_class_get_cached_implementation( cls, sel);
    if( imp)
       return( 1);
    if( mulle_objc_class_lookup_method( cls, sel))

@@ -107,3 +107,42 @@ struct mulle_allocator    mulle_allocator_objc =
    0,
    0
 };
+
+
+# pragma mark - improve dealloc speed for classes that don't have properties that need to be released
+
+
+int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclass *infra,
+                                                    mulle_objc_walk_properties_callback f,
+                                                    void *userinfo)
+{
+   int                                                     rval;
+   struct _mulle_objc_propertylist                         *list;
+   struct mulle_concurrent_pointerarrayreverseenumerator   rover;
+   unsigned int                                            n;
+   struct _mulle_objc_infraclass                           *superclass;
+   
+   // protocol properties are part of the class
+   if( _mulle_objc_infraclass_get_state_bit( infra, MULLE_OBJC_INFRACLASS_HAS_RELEASABLE_PROPERTY))
+   {
+      n = mulle_concurrent_pointerarray_get_count( &infra->propertylists);
+      assert( n);
+      if( infra->base.inheritance & MULLE_OBJC_CLASS_DONT_INHERIT_CATEGORIES)
+         n = 1;
+      
+      rover = mulle_concurrent_pointerarray_reverseenumerate( &infra->propertylists, n);
+      while( list = _mulle_concurrent_pointerarrayreverseenumerator_next( &rover))
+      {
+         if( rval = _mulle_objc_propertylist_walk( list, f, infra, userinfo))
+            return( rval);
+      }
+   }
+   
+   // in MulleObjC the superclass is always searched
+   superclass = _mulle_objc_infraclass_get_superclass( infra);
+   if( superclass && superclass != infra)
+      return( _MulleObjCInfraclassWalkReleasableProperties( superclass, f, userinfo));
+   
+   return( 0);
+}
+

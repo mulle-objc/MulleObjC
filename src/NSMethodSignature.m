@@ -135,9 +135,9 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
    obj->_count       = (uint16_t) count;
    obj->_extra       = (uint16_t) extra;
    obj->_bits        = (uint32_t) bits;
-   obj->_types       = getExtraMemory( obj);
+   obj->_infos       = getExtraMemory( obj);
+   obj->_types       = (char *) &obj->_infos[ count];
    obj->_prettyTypes = &((char *) obj->_types)[ size];
-   obj->_infos       = (void *) &((char *) obj->_prettyTypes)[ size];
 
    memcpy( obj->_types, types, size);
 
@@ -249,7 +249,6 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    sentinel = &p[ self->_count];
 
    types = self->_prettyTypes;
-
    while( types = mulle_objc_signature_supply_next_typeinfo( types, p))
    {
       assert( p < sentinel);

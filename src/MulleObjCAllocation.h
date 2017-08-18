@@ -161,6 +161,10 @@ static inline void   _MulleObjCObjectReleaseProperties( id obj)
    extern int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *,
                                                  struct _mulle_objc_infraclass *cls,
                                                  void *);
+   extern int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclass *,
+                                                              mulle_objc_walk_properties_callback,
+                                                              void *);
+
    struct _mulle_objc_class        *cls;
    struct _mulle_objc_infraclass   *infra;
 
@@ -170,14 +174,10 @@ static inline void   _MulleObjCObjectReleaseProperties( id obj)
    // if it's a meta class it's an error during debug
    assert( _mulle_objc_class_is_infraclass( cls));
 
-   if( _mulle_objc_class_is_infraclass( cls))
-   {
-      infra = _mulle_objc_class_as_infraclass( cls);
-      _mulle_objc_infraclass_walk_properties( infra,
-                                             _mulle_objc_class_get_inheritance( cls),
-                                             _MulleObjCObjectReleaseProperty,
-                                             obj);
-   }
+   infra = _mulle_objc_class_as_infraclass( cls);
+   _MulleObjCInfraclassWalkReleasableProperties( infra,
+                                                 _MulleObjCObjectReleaseProperty,
+                                                 obj);
 }
 
 
