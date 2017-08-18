@@ -43,32 +43,32 @@
 
 @implementation Bar
 
-+ (void) doNoParam
++ (void) doNo
 {
 }
 
 
-- (void) doNoParam
+- (void) doNo
 {
 }
 
 
-- (void) doOneParam:(id) a
+- (void) doOne:(id) a
 {
 }
 
 
-- (void) doTwoParam:(id)a :(id) b
+- (void) doTwo:(id)a :(id) b
 {
 }
 
 
-- (void) doThreeParam:(id)a :(id) b :(id) c
+- (void) doThree:(id)a :(id) b :(id) c
 {
 }
 
 
-- (void) doFourParam:(id)a :(id) b :(id) c :(id) d
+- (void) doFour:(id)a :(id) b :(id) c :(id) d
 {
 }
 
@@ -87,15 +87,15 @@
 
 @implementation Foo
 
-+ (void) doSuperNoParam
++ (void) doSuperNo
 {
-   [super doNoParam];
+   [super doNo];
 }
 
 
-- (void) doSuperNoParam
+- (void) doSuperNo
 {
-   [super doNoParam];
+   [super doNo];
 }
 
 
@@ -209,7 +209,7 @@ static void   test_retainRelease( unsigned long n, va_list args)
 }
 
 
-static void   test_doNoParam( unsigned long n, va_list args)
+static void   test_doNo( unsigned long n, va_list args)
 {
    unsigned long   i;
    unsigned long   j;
@@ -219,12 +219,12 @@ static void   test_doNoParam( unsigned long n, va_list args)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [obj doNoParam];
+         [obj doNo];
       }
 }
 
 
-static void   test_doOneParam( unsigned long n, va_list args)
+static void   test_doOne( unsigned long n, va_list args)
 {
    unsigned long   i;
    unsigned long   j;
@@ -235,11 +235,11 @@ static void   test_doOneParam( unsigned long n, va_list args)
    a   = va_arg( args, id);
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
-         [obj doOneParam:a];
+         [obj doOne:a];
 }
 
 
-static void   test_doTwoParam( unsigned long n, va_list args)
+static void   test_doTwo( unsigned long n, va_list args)
 {
    unsigned long   i;
    unsigned long   j;
@@ -252,12 +252,12 @@ static void   test_doTwoParam( unsigned long n, va_list args)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [obj doTwoParam:a :b];
+         [obj doTwo:a :b];
       }
 }
 
 
-static void   test_doThreeParam( unsigned long n, va_list args)
+static void   test_doThree( unsigned long n, va_list args)
 {
    unsigned long   i;
    unsigned long   j;
@@ -271,12 +271,12 @@ static void   test_doThreeParam( unsigned long n, va_list args)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [obj doThreeParam:a :b :c];
+         [obj doThree:a :b :c];
       }
 }
 
 
-static void   test_doFourParam( unsigned long n, va_list args)
+static void   test_doFour( unsigned long n, va_list args)
 {
    unsigned long   i;
    unsigned long   j;
@@ -291,12 +291,12 @@ static void   test_doFourParam( unsigned long n, va_list args)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [obj doFourParam:a :b :c :d];
+         [obj doFour:a :b :c :d];
       }
 }
 
 
-static void   test_doSuperNoParam( unsigned long n, va_list args)
+static void   test_doSuperNo( unsigned long n, va_list args)
 {
    unsigned long   i;
    unsigned long   j;
@@ -306,7 +306,7 @@ static void   test_doSuperNoParam( unsigned long n, va_list args)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [obj doSuperNoParam];
+         [obj doSuperNo];
       }
 }
 
@@ -370,7 +370,7 @@ static void   test_Foo_newRelease( unsigned long n, va_list args)
 }
 
 
-static void  test_Foo_doNoParam( unsigned long n, va_list unused)
+static void  test_Foo_doNo( unsigned long n, va_list unused)
 {
    unsigned long   i;
    unsigned long   j;
@@ -378,12 +378,12 @@ static void  test_Foo_doNoParam( unsigned long n, va_list unused)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [Foo doNoParam];
+         [Foo doNo];
       }
 }
 
 
-static void   test_Foo_doSuperNoParam( unsigned long n, va_list unused)
+static void   test_Foo_doSuperNo( unsigned long n, va_list unused)
 {
    unsigned long   i;
    unsigned long   j;
@@ -391,7 +391,7 @@ static void   test_Foo_doSuperNoParam( unsigned long n, va_list unused)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [Foo doSuperNoParam];
+         [Foo doSuperNo];
       }
 }
 
@@ -540,13 +540,24 @@ static long   elapsed_us( struct timeval start, struct timeval stop)
 }
 
 
-static void   run_test( char *title, int noheader, void (*f)( unsigned long, va_list), ...)
+static void   run_test( char *title, char *loop, int noheader, void (*f)( unsigned long, va_list), ...)
 {
    va_list          args;
    va_list          tmp;
    struct timeval   start;
    struct timeval   end;
    long             us;
+
+   if( loop)
+   {
+      if( strcmp( loop, title))
+         return;
+
+      fprintf( stderr, "running %s forever...", title);
+      for(;;)
+         (*f)( LOOPS, args);
+   }
+
 
    // warmup
 
@@ -575,6 +586,7 @@ int   main( int argc, char  *argv[])
    int                  noheader;
    NSNumber             *nr;
    NSMutableDictionary  *dict;
+   char                 *test_loop;
 
 #if 0
    {
@@ -595,62 +607,70 @@ int   main( int argc, char  *argv[])
    {
       struct _mulle_objc_cache  *cache;
 
-      [foo doNoParam];
-      [foo doOneParam:nil];
-      [foo doTwoParam:nil :nil];
-      [foo doThreeParam:nil :nil :nil];
-      [foo doFourParam:nil :nil :nil :nil];
-      [foo doThreeParam:nil :nil :nil];
-      [foo doTwoParam:nil :nil];
-      [foo doOneParam:nil];
-      [foo doNoParam];
+      [foo doNo];
+      [foo doOne:nil];
+      [foo doTwo:nil :nil];
+      [foo doThree:nil :nil :nil];
+      [foo doFour:nil :nil :nil :nil];
+      [foo doThree:nil :nil :nil];
+      [foo doTwo:nil :nil];
+      [foo doOne:nil];
+      [foo doNo];
+      [foo doSuperNo];
 
       cache = _mulle_objc_class_get_methodcache( _mulle_objc_object_get_isa( foo));
 
-      fprintf( stderr, "doNoParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doNoParam)));
-      fprintf( stderr, "doOneParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doOneParam:)));
-      fprintf( stderr, "doTwoParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doTwoParam::)));
-      fprintf( stderr, "doThreeParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doThreeParam:::)));
-      fprintf( stderr, "doFourParam = %d\n", _mulle_objc_cache_relative_index_of_uniqueid( cache, @selector( doFourParam::::)));
+      fprintf( stderr, "doNo = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doNo)));
+      fprintf( stderr, "doOne = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doOne:)));
+      fprintf( stderr, "doTwo = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doTwo::)));
+      fprintf( stderr, "doThree = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doThree:::)));
+      fprintf( stderr, "doFour = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doFour::::)));
+      fprintf( stderr, "doSuperNo = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doSuperNo)));
+      fprintf( stderr, "Foo;doSuperNo = %d\n", _mulle_objc_cache_find_entryindex( cache, mulle_objc_superid_from_string( "Foo;doSuperNo")));
+
+      mulle_objc_dotdump_to_tmp();
    }
 #endif
 
-   noheader = argc == 2 && ! strcmp( argv[ 1], "--noheader");
+   test_loop = NULL;
+   noheader  = argc >= 2 && ! strcmp( argv[ 1], "--noheader");
+   if( argc >= 4 && ! strcmp( argv[ 2], "--loop"))
+      test_loop = argv[ 3];
 
-   run_test( "-[Foo doNoParam]", noheader, (void *) test_doNoParam, foo);
-   run_test( "-[Foo doOneParam]", noheader, (void *) test_doOneParam, foo, nil);
-   run_test( "-[Foo doTwoParam]", noheader, (void *) test_doTwoParam, foo, nil, nil);
-   run_test( "-[Foo doThreeParam]", noheader, (void *) test_doThreeParam, foo, nil, nil, nil);
-   run_test( "-[Foo doFourParam]", noheader, (void *) test_doFourParam, foo, nil, nil, nil, nil);
-   run_test( "-[Foo doSuperNoParam]", noheader, (void *) test_doSuperNoParam, foo);
+   run_test( "-[Foo doNo]", test_loop, noheader, (void *) test_doNo, foo);
+   run_test( "-[Foo doOne]", test_loop, noheader, (void *) test_doOne, foo, nil);
+   run_test( "-[Foo doTwo]", test_loop, noheader, (void *) test_doTwo, foo, nil, nil);
+   run_test( "-[Foo doThree]", test_loop, noheader, (void *) test_doThree, foo, nil, nil, nil);
+   run_test( "-[Foo doFour]", test_loop, noheader, (void *) test_doFour, foo, nil, nil, nil, nil);
+   run_test( "-[Foo doSuperNo]", test_loop, noheader, (void *) test_doSuperNo, foo);
 
    nr   = [NSNumber new];
    dict = [NSMutableDictionary new];
 
-   run_test( "-[Foo class]", noheader, (void *) test_class, foo);
-   run_test( "-[NSNumber class]", noheader, (void *) test_class, nr);
-   run_test( "-[NSMutableDictionary class]", noheader, (void *) test_class, dict);
+   run_test( "-[Foo class]", test_loop, noheader, (void *) test_class, foo);
+   run_test( "-[NSNumber class]", test_loop, noheader, (void *) test_class, nr);
+   run_test( "-[NSMutableDictionary class]", test_loop, noheader, (void *) test_class, dict);
 
-   run_test( "-[Foo self]", noheader, (void *) test_self, foo);
-   run_test( "-[NSNumber self]", noheader, (void *) test_self, nr);
-   run_test( "-[NSMutableDictionary self]", noheader, (void *) test_self, dict);
+   run_test( "-[Foo self]", test_loop, noheader, (void *) test_self, foo);
+   run_test( "-[NSNumber self]", test_loop, noheader, (void *) test_self, nr);
+   run_test( "-[NSMutableDictionary self]", test_loop, noheader, (void *) test_self, dict);
 
-   run_test( "+[Foo doNoParam]", noheader, (void *) test_Foo_doNoParam, nil);
-   run_test( "+[Foo doSuperNoParam]", noheader, (void *) test_Foo_doSuperNoParam, nil);
+   run_test( "+[Foo doNo]", test_loop, noheader, (void *) test_Foo_doNo, nil);
+   run_test( "+[Foo doSuperNo]", test_loop, noheader, (void *) test_Foo_doSuperNo, nil);
 
-   run_test( "+[Foo self]", noheader, (void *) test_Foo_self, nil);
-   run_test( "+[NSNumber self]", noheader, (void *) test_NSNumber_self, nil);
-   run_test( "+[NSMutableDictionary self]", noheader, (void *) test_NSMutableDictionary_self, nil);
+   run_test( "+[Foo self]", test_loop, noheader, (void *) test_Foo_self, nil);
+   run_test( "+[NSNumber self]", test_loop, noheader, (void *) test_NSNumber_self, nil);
+   run_test( "+[NSMutableDictionary self]", test_loop, noheader, (void *) test_NSMutableDictionary_self, nil);
 
-   run_test( "+[Foo class]", noheader, (void *) test_Foo_class, nil);
-   run_test( "+[NSNumber class]", noheader, (void *) test_NSNumber_class, nil);
-   run_test( "+[NSMutableDictionary class]", noheader, (void *) test_NSMutableDictionary_class, nil);
+   run_test( "+[Foo class]", test_loop, noheader, (void *) test_Foo_class, nil);
+   run_test( "+[NSNumber class]", test_loop, noheader, (void *) test_NSNumber_class, nil);
+   run_test( "+[NSMutableDictionary class]", test_loop, noheader, (void *) test_NSMutableDictionary_class, nil);
 
-   run_test( "[[Foo new] release]", noheader, (void *) test_Foo_newRelease, nil);
-   run_test( "[[NSNumber new] release]", noheader, (void *) test_NSNumber_newRelease, nil);
-   run_test( "[[NSMutableDictionary new] release]", noheader, (void *) test_NSMutableDictionary_newRelease, nil);
+   run_test( "[[Foo new] release]", test_loop, noheader, (void *) test_Foo_newRelease, nil);
+   run_test( "[[NSNumber new] release]", test_loop, noheader, (void *) test_NSNumber_newRelease, nil);
+   run_test( "[[NSMutableDictionary new] release]", test_loop, noheader, (void *) test_NSMutableDictionary_newRelease, nil);
 
-   run_test( "[[Foo retain] release]", noheader, (void *) test_retainRelease, foo);
+   run_test( "[[Foo retain] release]", test_loop, noheader, (void *) test_retainRelease, foo);
 
    return 0;
 }
