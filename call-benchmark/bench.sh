@@ -7,8 +7,8 @@ arch=${1:-x86_64}
 
 compile_apple()
 {
-   cc "$1" \
-      -arch "${arch}" \
+   eval cc "'$1'" \
+      -arch "'${arch}'" \
       -g \
       -DNDEBUG \
       -DNSBLOCKASSERTIONS \
@@ -20,15 +20,16 @@ compile_apple()
 
 compile_mulle()
 {
-   mulle-clang "$1" \
-       -arch "${arch}" \
+   eval mulle-clang "'$1'" \
+       -arch "'${arch}'" \
        -g \
        -DNDEBUG \
        -DNSBLOCKASSERTIONS \
-       -I../dependencies/include \
+       `mulle-bootstrap paths -q "'" cppflags` \
+       -Wl,-rpath '$PWD/../tests/lib' \
        -I../tests/include  \
        ../tests/lib/libMulleObjCStandalone.dylib \
-       -o "$2" \
+       -o "'$2'" \
        main.m
 }
 
