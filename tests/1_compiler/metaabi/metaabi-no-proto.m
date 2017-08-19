@@ -38,9 +38,6 @@ struct _received
 @end
 
 
-#include "Foo.inc"
-
-
 void  single_args()
 {
    struct small_struct   ss;
@@ -123,26 +120,29 @@ static void  fat_args()
 {
    unsigned int   i;
 
-   [Foo callLongLong:1
-            longlong:2
-            longlong:3
-            longlong:4
-            longlong:5
-            longlong:6
-            longlong:7
-            longlong:8
-            longlong:9
-            longlong:10
-            longlong:11
-            longlong:12
-            longlong:13
-            longlong:14
-            longlong:15
-            longlong:16];
+   [Foo callLongLong:1LL
+            longlong:2LL
+            longlong:3LL
+            longlong:4LL
+            longlong:5LL
+            longlong:6LL
+            longlong:7LL
+            longlong:8LL
+            longlong:9LL
+            longlong:10LL
+            longlong:11LL
+            longlong:12LL
+            longlong:13LL
+            longlong:14LL
+            longlong:15LL
+            longlong:16LL];
 
    for( i = 0; i < 16; i++)
       printf( "-callLongLong:... #%u %s\n",  i, (received[ i].ll == i + 1) ? "PASS" : "FAIL");
 }
+
+
+#include "Foo.inc"
 
 
 int main(int argc, const char * argv[])
