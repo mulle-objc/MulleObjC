@@ -9,6 +9,17 @@
 #include <limits.h>
 #include <stdio.h>
 
+struct small_struct
+{
+   intptr_t   value;
+};
+
+struct large_struct
+{
+   intptr_t   value1;
+   intptr_t   value2;
+};
+
 
 struct _received
 {
@@ -18,6 +29,8 @@ struct _received
    long   l;
    long long ll;
    char   *cp;
+   struct small_struct   ss;
+   struct large_struct   ls;
 } received[ 16];
 
 
@@ -25,20 +38,14 @@ struct _received
 @end
 
 
-@implementation Foo
-
-+ (void) callChar:(char) v           { received[ 0].c = v;  }
-+ (void) callShort:(short) v         { received[ 0].s = v;  }
-+ (void) callInt:(int) v             { received[ 0].i = v;  }
-+ (void) callLong:(long) v           { received[ 0].l = v;  }
-+ (void) callLongLong:(long long) v  { received[ 0].ll = v; }
-+ (void) callCharPtr:(char *) v      { received[ 0].cp = v; }
-
-@end
+#include "Foo.inc"
 
 
 void  single_args()
 {
+   struct small_struct   ss;
+   struct large_struct   ls;
+
    [Foo callChar:CHAR_MIN];
    printf( "-callChar:CHAR_MIN %s\n",  (received[ 0].c == CHAR_MIN)  ? "PASS" : "FAIL");
    [Foo callChar:CHAR_MAX];
@@ -68,32 +75,26 @@ void  single_args()
    printf( "-callCharPtr:INTPTR_MIN %s\n",  (received[ 0].cp == (char *) INTPTR_MIN) ? "PASS" : "FAIL");
    [Foo callCharPtr:(char *) INTPTR_MAX];
    printf( "-callCharPtr:INTPTR_MAX %s\n",  (received[ 0].cp == (char *) INTPTR_MAX) ? "PASS" : "FAIL");
+
+   ss.value = INTPTR_MIN;
+   [Foo callSmallStruct:ss];
+   printf( "-callSmallStruct:{ INTPTR_MIN } %s\n",  (received[ 0].ss.value == INTPTR_MIN) ? "PASS" : "FAIL");
+   ss.value = INTPTR_MAX;
+   [Foo callSmallStruct:ss];
+   printf( "-callSmallStruct:{ INTPTR_MAX } %s\n",  (received[ 0].ss.value == INTPTR_MAX) ? "PASS" : "FAIL");
+
+   ls.value1 = INTPTR_MIN;
+   ls.value2 = INTPTR_MAX;
+   [Foo callLargeStruct:ls];
+   printf( "-callLargeStruct:{ INTPTR_MIN, INTPTR_MAX } %s\n",
+      (received[ 0].ls.value1 == INTPTR_MIN && received[ 0].ls.value2 == INTPTR_MAX) ? "PASS" : "FAIL");
+   ls.value1 = INTPTR_MAX;
+   ls.value2 = INTPTR_MIN;
+   [Foo callLargeStruct:ls];
+   printf( "-callLargeStruct:{ INTPTR_MAX, INTPTR_MIN } %s\n",
+      (received[ 0].ls.value1 == INTPTR_MAX && received[ 0].ls.value2 == INTPTR_MIN) ? "PASS" : "FAIL");
+
 }
-
-
-@implementation Foo ( DoubleArgs)
-
-+ (void) callChar:(char) v  longlong:(long long) v2
-{
-   received[ 0].c   = v;
-   received[ 1].ll = v2;
-}
-
-
-+ (void) callLongLong:(long long) v char:(char) v2
-{
-   received[ 0].ll = v;
-   received[ 1].c = v2;
-}
-
-
-+ (void) callCharPtr:(char *) v  longlong:(long long) v2
-{
-   received[ 0].cp  = v;
-   received[ 1].ll = v2;
-}
-
-@end
 
 
 static void  double_args()
@@ -117,45 +118,6 @@ static void  double_args()
    printf( "-callCharPtr:\"%s\" longlong:LLONG_MAX %s\n", s, (received[ 0].cp == s && received[ 1].ll == LLONG_MAX) ? "PASS" : "FAIL");
 }
 
-
-@implementation Foo ( FatArgs)
-
-+ (void) callLongLong:(char) v1
-             longlong:(long long) v2
-             longlong:(long long) v3
-             longlong:(long long) v4
-             longlong:(long long) v5
-             longlong:(long long) v6
-             longlong:(long long) v7
-             longlong:(long long) v8
-             longlong:(long long) v9
-             longlong:(long long) v10
-             longlong:(long long) v11
-             longlong:(long long) v12
-             longlong:(long long) v13
-             longlong:(long long) v14
-             longlong:(long long) v15
-             longlong:(long long) v16
-{
-   received[ 0].ll = v1;
-   received[ 1].ll = v2;
-   received[ 2].ll = v3;
-   received[ 3].ll = v4;
-   received[ 4].ll = v5;
-   received[ 5].ll = v6;
-   received[ 6].ll = v7;
-   received[ 7].ll = v8;
-   received[ 8].ll = v9;
-   received[ 9].ll = v10;
-   received[10].ll = v11;
-   received[11].ll = v12;
-   received[12].ll = v13;
-   received[13].ll = v14;
-   received[14].ll = v15;
-   received[15].ll = v16;
-}
-
-@end
 
 static void  fat_args()
 {

@@ -10,6 +10,10 @@
 -callLongLong:LLONG_MAX PASS
 -callCharPtr:INTPTR_MIN PASS
 -callCharPtr:INTPTR_MAX PASS
+-callSmallStruct:{ INTPTR_MIN } PASS
+-callSmallStruct:{ INTPTR_MAX } PASS
+-callLargeStruct:{ INTPTR_MIN, INTPTR_MAX } PASS
+-callLargeStruct:{ INTPTR_MAX, INTPTR_MIN } PASS
 -callChar:CHAR_MIN longlong:LLONG_MIN PASS
 -callChar:CHAR_MIN longlong:LLONG_MAX PASS
 -callChar:CHAR_MAX longlong:LLONG_MIN PASS
