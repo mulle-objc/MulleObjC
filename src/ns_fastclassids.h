@@ -41,23 +41,22 @@
 // we define some fastclasses, where the hash MUST be an integer constant
 // A fastclass makes sense, where there are lots of class method calls
 //
-#define MULLE_OBJC_FASTCLASSHASH_0    0x55e6335f  // NSArray
-#define MULLE_OBJC_FASTCLASSHASH_1    0x5b791fc6  // NSAutoreleasePool
-#define MULLE_OBJC_FASTCLASSHASH_2    0x732630c6  // NSCalendarDate
-#define MULLE_OBJC_FASTCLASSHASH_3    0xb452f5f7  // NSCharacterSet
-#define MULLE_OBJC_FASTCLASSHASH_4    0x7d1455e8  // NSData
-#define MULLE_OBJC_FASTCLASSHASH_5    0x7d1455ec  // NSDate
-#define MULLE_OBJC_FASTCLASSHASH_6    0x8be1d472  // NSDecimalNumber
-#define MULLE_OBJC_FASTCLASSHASH_7    0xca46313c  // NSDictionary
-
-#define MULLE_OBJC_FASTCLASSHASH_8    0x33fb2e49  // NSMutableArray
-#define MULLE_OBJC_FASTCLASSHASH_9    0x80af06be  // NSMutableData
-#define MULLE_OBJC_FASTCLASSHASH_10   0xedeb2f5a  // NSMutableDictionary
-#define MULLE_OBJC_FASTCLASSHASH_11   0xe6cae1ee  // NSMutableSet
-#define MULLE_OBJC_FASTCLASSHASH_12   0xfcaa2a91  // NSMutableString
-#define MULLE_OBJC_FASTCLASSHASH_13   0x1fa441bb  // NSNumber
-#define MULLE_OBJC_FASTCLASSHASH_14   0x9a5ad940  // NSSet
-#define MULLE_OBJC_FASTCLASSHASH_15   0x85e3fa43  // NSString
+#define MULLE_OBJC_FASTCLASS_0    MULLE_OBJC_CLASSID( 0x233490fe)   // "NSArray"
+#define MULLE_OBJC_FASTCLASS_1    MULLE_OBJC_CLASSID( 0x58bb178a)   // "NSAutoreleasePool"
+#define MULLE_OBJC_FASTCLASS_2    MULLE_OBJC_CLASSID( 0xb8742fcb)   // "NSCalendarDate"
+#define MULLE_OBJC_FASTCLASS_3    MULLE_OBJC_CLASSID( 0xbb258d72)   // "NSCharacterSet"
+#define MULLE_OBJC_FASTCLASS_4    MULLE_OBJC_CLASSID( 0x8fce7861)   // "NSData"
+#define MULLE_OBJC_FASTCLASS_5    MULLE_OBJC_CLASSID( 0xcfcedd21)   // "NSDate"
+#define MULLE_OBJC_FASTCLASS_6    MULLE_OBJC_CLASSID( 0x4a91670d)   // "NSDecimalNumber"
+#define MULLE_OBJC_FASTCLASS_7    MULLE_OBJC_CLASSID( 0x8b2abcad)   // "NSDictionary"
+#define MULLE_OBJC_FASTCLASS_8    MULLE_OBJC_CLASSID( 0xf5e6dbdd)   // "NSMutableArray"
+#define MULLE_OBJC_FASTCLASS_9    MULLE_OBJC_CLASSID( 0x5d7fdc81)   // "NSMutableData"
+#define MULLE_OBJC_FASTCLASS_10   MULLE_OBJC_CLASSID( 0x1225d451)   // "NSMutableDictiona"
+#define MULLE_OBJC_FASTCLASS_11   MULLE_OBJC_CLASSID( 0x1fa72100)   // "NSMutableSet"
+#define MULLE_OBJC_FASTCLASS_12   MULLE_OBJC_CLASSID( 0x63662493)   // "NSMutableString"
+#define MULLE_OBJC_FASTCLASS_13   MULLE_OBJC_CLASSID( 0x8ba34f39)   // "NSNumber"
+#define MULLE_OBJC_FASTCLASS_14   MULLE_OBJC_CLASSID( 0x9f69e3e4)   // "NSSet"
+#define MULLE_OBJC_FASTCLASS_15   MULLE_OBJC_CLASSID( 0x1994a171)   // "NSString"
 
 // room for 16 more ATM, leave it for user programs
 

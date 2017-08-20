@@ -104,8 +104,6 @@
 }
 
 
-#define NSAUTORELEASEPOOL_HASH   0x5b791fc6  // NSAutoreleasePool
-
 void   _mulle_become_objc_runtime_thread( void)
 {
    struct _mulle_objc_universe     *universe;
@@ -116,26 +114,50 @@ void   _mulle_become_objc_runtime_thread( void)
    _mulle_objc_universe_retain( universe);
    mulle_objc_set_thread_universe( universe);
    _mulle_objc_universe_register_current_thread_if_needed( universe);
-   if( _mulle_objc_universe_fastlookup_infraclass( universe, MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH))) // NSAutoreleasePool
-      _ns_poolconfiguration_set_thread();
+
+   assert( _mulle_objc_universe_unfailingfastlookup_infraclass( universe, @selector( NSAutoreleasePool)));
+   _ns_poolconfiguration_set_thread();
+}
+
+
+static void  __mulle_resignas_objc_runtime_thread( int debug)
+{
+   struct _mulle_objc_universe     *universe;
+   NSThread                        *thread;
+
+   universe = mulle_objc_inlined_get_universe();
+   
+   thread = _ns_get_thread();
+   if( ! thread)
+   {
+      fprintf( stderr, "*** current thread no longer available as NSThread ***\n");
+      abort();
+   }
+
+   if( debug)
+      fprintf( stderr, "NSThread %p: No longer currentThread...\n", thread);
+   _ns_set_thread( NULL);
+
+   if( debug)
+      fprintf( stderr, "NSThread %p: Removing thread from pool configuration...\n", thread);
+   _ns_poolconfiguration_unset_thread();
+
+   if( debug)
+      fprintf( stderr, "NSThread %p: Removing thread from universe...\n", thread);
+   
+   _mulle_objc_universe_unregister_current_thread( universe);
+
+   if( debug)
+      fprintf( stderr, "NSThread %p: Release the universe for this thread...\n", thread);
+
+   // can't call Objective-C anymore
+   _mulle_objc_universe_release( universe);
 }
 
 
 void  _mulle_resignas_objc_runtime_thread( void)
 {
-   struct _mulle_objc_universe     *universe;
-
-   if( ! _ns_get_thread())
-      return;
-
-   _ns_set_thread( NULL);
-   _ns_poolconfiguration_unset_thread();
-
-   universe = mulle_objc_inlined_get_universe();
-   _mulle_objc_universe_unregister_current_thread( universe);
-
-   // can't call Objective-C anymore
-   _mulle_objc_universe_release( universe);
+   __mulle_resignas_objc_runtime_thread( 0);
 }
 
 
@@ -215,11 +237,14 @@ void  _NSThreadResignAsMainThread( void)
 
    universe = mulle_objc_get_universe();
    
+   if( ! universe)
+      return;
+
    //
    // can happen in mulle-objc-list, that NSThread isn't really
    // there
    //
-   if( ! universe || ! _mulle_objc_universe_fastlookup_infraclass( universe, 0x645eeb40))
+   if( ! _mulle_objc_universe_fastlookup_infraclass( universe, @selector( NSThread)))
       return;
 
    //
@@ -228,31 +253,37 @@ void  _NSThreadResignAsMainThread( void)
    //
    assert( ! [NSThread isMultiThreaded]);
 
-   thread = [NSThread currentThread];
-
+   thread = _ns_get_thread();
+   if( ! thread)
+   {
+      // i mean it's bad, but we are probably going down anyway
+      fprintf( stderr, "*** Main thread was never set up. [NSThread load] did not run!***\n");
+#if DEBUG
+      abort();
+#endif      
+      return;
+   }
+   
    debug = _ns_rootconfiguration_is_debug_enabled();
    if( debug)
-      fprintf( stderr, "Releasing Root objects...\n");
+      fprintf( stderr, "NSThread %p: Releasing Root objects...\n", thread);
    _ns_release_roots();          //
 
    if( debug)
-      fprintf( stderr, "Releasing Singleton objects...\n");
+      fprintf( stderr, "NSThread %p: Releasing Singleton objects...\n", thread);
    _ns_release_singletons();     //
 
    if( debug)
-      fprintf( stderr, "Releasing Placeholder objects...\n");
+      fprintf( stderr, "NSThread %p: Releasing Placeholder objects...\n", thread);
    _ns_release_placeholders();
 
    assert( _mulle_atomic_pointer_read( &universe->retaincount_1) == 0);
 
    if( debug)
-      fprintf( stderr, "Resigning as main NSThread...\n");
+      fprintf( stderr, "NSThread %p: Resigning as main NSThread...\n", thread);
    _NSThreadResignAsRuntimeThreadAndDeallocate( thread);
 
-   if( debug)
-      fprintf( stderr, "Resign as main Objective-C thread...\n");
-   
-   _mulle_resignas_objc_runtime_thread();
+   __mulle_resignas_objc_runtime_thread( debug);
 }
 
 

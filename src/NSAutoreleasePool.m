@@ -48,9 +48,6 @@
 // std-c and dependencies
 
 
-
-#define NSAUTORELEASEPOOL_HASH   0x5b791fc6  // NSAutoreleasePool
-
 @implementation NSAutoreleasePool
 
 static void   popAutoreleasePool( struct _ns_poolconfiguration *config,
@@ -68,7 +65,9 @@ static struct mulle_container_keyvaluecallback    object_map_callback;
 
 static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
 {
-   config->poolClass          = mulle_objc_unfailingfastlookup_infraclass( MULLE_OBJC_CLASSID( NSAUTORELEASEPOOL_HASH));
+   char   *s;
+   
+   config->poolClass          = mulle_objc_unfailingfastlookup_infraclass( @selector( NSAutoreleasePool));
    config->autoreleaseObject  = _autoreleaseObject;
    config->autoreleaseObjects = _autoreleaseObjects;
    config->push               = pushAutoreleasePool;
@@ -88,7 +87,8 @@ static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *
       config->object_map = &config->_object_map;
    }
 
-   config->trace = mulle_objc_getenv_yes_no( "MULLE_OBJC_AUTORELEASEPOOL_TRACE");
+   s = getenv( "MULLE_OBJC_AUTORELEASEPOOL_TRACE");
+   config->trace = s ? atoi( s) : 0;
    (*config->push)( config);  // create a pool
 }
 
@@ -96,6 +96,22 @@ static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *
 void   _ns_poolconfiguration_set_thread( void)
 {
    __ns_poolconfiguration_set_thread( _ns_get_poolconfiguration());
+}
+
+
+void   _ns_poolconfiguration_unset_thread( void)
+{
+   struct _ns_poolconfiguration   *config;
+
+   config = _ns_get_poolconfiguration();
+   assert( config);
+
+   // remove all pools
+   while( config->tail)
+      (*config->pop)( config, config->tail);
+
+   if( config->object_map == &config->_object_map)
+      mulle_map_done( &config->_object_map);
 }
 
 
@@ -125,18 +141,6 @@ void   _ns_poolconfiguration_set_thread( void)
    __ns_poolconfiguration_set_thread( config);
 }
 
-
-void   _ns_poolconfiguration_unset_thread( void)
-{
-   struct _ns_poolconfiguration   *config;
-
-   config = _ns_get_poolconfiguration();
-   assert( config);
-
-   // remove all pools
-   while( config->tail)
-      (*config->pop)( config, config->tail);
-}
 
 
 static inline struct _mulle_autoreleasepointerarray   *static_storage( struct _ns_poolconfiguration *config,
@@ -316,13 +320,16 @@ static void   _autoreleaseObject( struct _ns_poolconfiguration *config, id p)
 {
    NSUInteger   count;
 
-#if DEBUG
    if( ! config->tail)
    {
+      if( config->trace)
+         fprintf( stderr, "[pool] trying to autorelease object %p with no pool in place\n", p);
+#if DEBUG
       fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
       abort();
-   }
 #endif
+      return;
+   }
 
 #if FORBID_ALLOC_DURING_AUTORELEASE
    if( config->releasing)
@@ -376,6 +383,18 @@ static void   _autoreleaseObjects( struct _ns_poolconfiguration *config,
 
    if( ! objects || ! count)
       return;
+
+   if( ! config->tail)
+   {
+      if( config->trace)
+         fprintf( stderr, "[pool] trying to autorelease %lu objects "
+                          "at %p with no pool in place\n", (long) count, objects);
+#if DEBUG
+      fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
+      abort();
+#endif
+      return;
+   }
 
 #if FORBID_ALLOC_DURING_AUTORELEASE
    if( config->releasing)
@@ -542,6 +561,8 @@ static void   popAutoreleasePool( struct _ns_poolconfiguration *config, id aPool
    pool = aPool;
    if( pool != config->tail)
    {
+      if( config->trace)
+         fprintf( stderr, "[pool] ignore pop of non-tail pool %p in thread  0x%lx\n", pool, (long) mulle_thread_self());
 #if DEBUG
       abort();
 #endif
@@ -576,7 +597,6 @@ static void   popAutoreleasePool( struct _ns_poolconfiguration *config, id aPool
    config->releasing = (config->tail == NULL);
 
 //   [exception raise];
-
    if( config->trace & 0x4)
       fprintf( stderr, "[pool] %p deallocates\n", pool);
    NSDeallocateObject( pool);

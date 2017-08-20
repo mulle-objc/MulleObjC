@@ -67,11 +67,6 @@
 
 @end
 
-// desperately need @classid( ) compiler support in clang
-
-#define _MulleObjCInstantiatePlaceholderHash  0x56154b76  // _MulleObjCInstantiatePlaceholder
-
-
 // intentonally a root object (!)
 @interface _MulleObjCInstantiatePlaceholder
 {
@@ -300,7 +295,7 @@ static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Cl
 
 + (mulle_objc_classid_t) __instantiatePlaceholderClassid
 {
-   return( MULLE_OBJC_CLASSID( _MulleObjCInstantiatePlaceholderHash));
+   return( @selector( _MulleObjCInstantiatePlaceholder));
 }
 
 

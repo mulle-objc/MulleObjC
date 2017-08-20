@@ -6,7 +6,8 @@ main()
 {
    SEL  sel;
 
-   sel = (SEL) 0xd0557652;
+   // this just checks being able to compare with a constant
+   sel = (SEL) 0x63743c39;
    if( sel == @selector( vfl))
       printf( "passed\n");
 }
