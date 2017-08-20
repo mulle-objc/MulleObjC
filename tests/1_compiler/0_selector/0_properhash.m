@@ -3,5 +3,5 @@
 
 main()
 {
-   printf( "%08x\n", @selector( vfl));  // expect d0557652
+   printf( "%08x\n", @selector( vfl));
 }

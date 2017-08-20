@@ -45,21 +45,20 @@
 // great, -class is though.
 // https://www.mulle-kybernetik.com/weblog/2015/mulle_objc_selector_statistics.html
 //
-#define MULLE_OBJC_FASTMETHODHASH_8     0x55075535  // length
-#define MULLE_OBJC_FASTMETHODHASH_9     0xaf289042  // count
-#define MULLE_OBJC_FASTMETHODHASH_10    0x31e0a06b  // self [^1]
-#define MULLE_OBJC_FASTMETHODHASH_11    0xd7918815  // hash
-#define MULLE_OBJC_FASTMETHODHASH_12    0x215a792f  // nextObject
-#define MULLE_OBJC_FASTMETHODHASH_13    0x1446ae6c  // timeIntervalSinceReferenceDate [^1]
-#define MULLE_OBJC_FASTMETHODHASH_14    0x1d2fd708  // lock
-#define MULLE_OBJC_FASTMETHODHASH_15    0xff3a51ed  // unlock
-
-#define MULLE_OBJC_FASTMETHODHASH_16    0x5e8533db  // class
-#define MULLE_OBJC_FASTMETHODHASH_17    0x0f5af8fe  // isKindOfClass:
-#define MULLE_OBJC_FASTMETHODHASH_18    0x583757c5  // objectAtIndex:
-#define MULLE_OBJC_FASTMETHODHASH_19    0xe7e69dc3  // characterAtIndex:
-#define MULLE_OBJC_FASTMETHODHASH_20    0x3e6d60be  // methodForSelector:
-#define MULLE_OBJC_FASTMETHODHASH_21    0x65c6a26b  // respondsToSelector:
+#define MULLE_OBJC_FASTMETHODHASH_8    MULLE_OBJC_METHODID( 0x3d036158)   // "length"
+#define MULLE_OBJC_FASTMETHODHASH_9    MULLE_OBJC_METHODID( 0x9b1ddf43)   // "count"
+#define MULLE_OBJC_FASTMETHODHASH_10   MULLE_OBJC_METHODID( 0x45ba2776)   // "self"
+#define MULLE_OBJC_FASTMETHODHASH_11   MULLE_OBJC_METHODID( 0xec577d1c)   // "hash"
+#define MULLE_OBJC_FASTMETHODHASH_12   MULLE_OBJC_METHODID( 0x6de415fe)   // "nextObject"
+#define MULLE_OBJC_FASTMETHODHASH_13   MULLE_OBJC_METHODID( 0x0d59b56e)   // "timeIntervalSinceReferenceDate"
+#define MULLE_OBJC_FASTMETHODHASH_14   MULLE_OBJC_METHODID( 0xf0d7842e)   // "lock"
+#define MULLE_OBJC_FASTMETHODHASH_15   MULLE_OBJC_METHODID( 0x6661f555)   // "unlock"
+#define MULLE_OBJC_FASTMETHODHASH_16   MULLE_OBJC_METHODID( 0xb3e0bffa)   // "class"
+#define MULLE_OBJC_FASTMETHODHASH_17   MULLE_OBJC_METHODID( 0x33db2a40)   // "isKindOfClass:"
+#define MULLE_OBJC_FASTMETHODHASH_18   MULLE_OBJC_METHODID( 0x1cc541d5)   // "objectAtIndex:"
+#define MULLE_OBJC_FASTMETHODHASH_19   MULLE_OBJC_METHODID( 0x331e633c)   // "characterAtIndex:"
+#define MULLE_OBJC_FASTMETHODHASH_20   MULLE_OBJC_METHODID( 0xf6bec249)   // "methodForSelector:"
+#define MULLE_OBJC_FASTMETHODHASH_21   MULLE_OBJC_METHODID( 0xcf4a54f0)   // "respondsToSelector:"
 
 // candidates:
 // performSelector:

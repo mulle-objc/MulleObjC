@@ -1,5 +1,4 @@
-// whatever ==  0x3abb1a67
-#define MULLE_OBJC_FASTMETHODHASH_15   0x3abb1a67
+#define MULLE_OBJC_FASTMETHODHASH_15   0xe31996f9
 #include <mulle_objc_runtime/mulle_objc_runtime.h>
 
 

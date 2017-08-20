@@ -132,15 +132,10 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 - (BOOL) respondsToSelector:(SEL) sel
 {
    // for po basically
-   return( sel == @selector( forward::));
+   return( sel == @selector( forward:));
 }
 
 @end
-
-
-
-#define MULLE_ZOMBIE_HASH              0x057fc0af  // _MulleObjCZombie
-#define MULLE_OBJC_LARGE_ZOMBIE_HASH   0xafb92130  // _MulleObjCLargeZombie
 
 
 @interface _MulleObjCLargeZombie : _MulleObjCZombie
@@ -164,7 +159,7 @@ static void   zombifyLargeObject( id obj)
    _MulleObjCLargeZombie   *zombie;
    Class                   cls;
 
-   cls = mulle_objc_unfailingfastlookup_infraclass( MULLE_OBJC_CLASSID( MULLE_OBJC_LARGE_ZOMBIE_HASH));
+   cls = mulle_objc_unfailingfastlookup_infraclass( @selector( _MulleObjCLargeZombie));
    assert( cls);
 
    zombie = obj;
@@ -206,7 +201,7 @@ static void   zombifyObject( id obj)
 
    if( ! cls)
    {
-      super_class = _mulle_objc_universe_fastlookup_infraclass( universe, MULLE_OBJC_CLASSID( MULLE_ZOMBIE_HASH));
+      super_class = _mulle_objc_universe_fastlookup_infraclass( universe, @selector( _MulleObjCZombie));
 
       pair  = mulle_objc_unfailingnew_classpair( classid, buf, sizeof( id), super_class);
       infra = mulle_objc_classpair_get_infraclass( pair);

@@ -114,6 +114,10 @@ struct mulle_allocator    mulle_allocator_objc =
 
 int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclass *infra,
                                                     mulle_objc_walk_properties_callback f,
+                                                    void *userinfo);
+
+int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclass *infra,
+                                                    mulle_objc_walk_properties_callback f,
                                                     void *userinfo)
 {
    int                                                     rval;

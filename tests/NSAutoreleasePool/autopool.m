@@ -51,8 +51,10 @@ static int   n_instances;
 int  main()
 {
    NSThread   *thread;
+   Class      cls;
 
-   thread = [[NSThread instantiate] initWithTarget:[Foo class]
+   cls    = [Foo class];
+   thread = [[NSThread instantiate] initWithTarget:cls
                                           selector:@selector( test)
                                             object:nil];
    printf( "startUndetached\n");

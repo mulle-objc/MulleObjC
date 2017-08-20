@@ -76,7 +76,7 @@
 @end
 
 
-@interface Foo : Bar
+@interface Foobar : Bar
 
 - (id) doStuff:(id) a
              b:(id) b
@@ -85,7 +85,7 @@
 @end
 
 
-@implementation Foo
+@implementation Foobar
 
 + (void) doSuperNo
 {
@@ -329,7 +329,7 @@ static void   test_doStuff( unsigned long n, va_list args)
 #pragma mark Classes hardcoded
 
 
-static void   test_Foo_self( unsigned long n, va_list unused)
+static void   test_Foobar_self( unsigned long n, va_list unused)
 {
    unsigned long   i;
    unsigned long   j;
@@ -337,12 +337,12 @@ static void   test_Foo_self( unsigned long n, va_list unused)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [Foo self];
+         [Foobar self];
       }
 }
 
 
-static void   test_Foo_class( unsigned long n, va_list unused)
+static void   test_Foobar_class( unsigned long n, va_list unused)
 {
    unsigned long   i;
    unsigned long   j;
@@ -350,12 +350,12 @@ static void   test_Foo_class( unsigned long n, va_list unused)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [Foo class];
+         [Foobar class];
       }
 }
 
 
-static void   test_Foo_newRelease( unsigned long n, va_list args)
+static void   test_Foobar_newRelease( unsigned long n, va_list args)
 {
    unsigned long   i;
    unsigned long   j;
@@ -365,12 +365,12 @@ static void   test_Foo_newRelease( unsigned long n, va_list args)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [[Foo new] release];
+         [[Foobar new] release];
       }
 }
 
 
-static void  test_Foo_doNo( unsigned long n, va_list unused)
+static void  test_Foobar_doNo( unsigned long n, va_list unused)
 {
    unsigned long   i;
    unsigned long   j;
@@ -378,12 +378,12 @@ static void  test_Foo_doNo( unsigned long n, va_list unused)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [Foo doNo];
+         [Foobar doNo];
       }
 }
 
 
-static void   test_Foo_doSuperNo( unsigned long n, va_list unused)
+static void   test_Foobar_doSuperNo( unsigned long n, va_list unused)
 {
    unsigned long   i;
    unsigned long   j;
@@ -391,7 +391,7 @@ static void   test_Foo_doSuperNo( unsigned long n, va_list unused)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [Foo doSuperNo];
+         [Foobar doSuperNo];
       }
 }
 
@@ -404,7 +404,7 @@ static void   test_doStuffClass( unsigned long n, va_list unused)
    for( i = 0; i < n; i++)
       for( j = 0; j < 10000000; j++)
       {
-         [Foo doStuff];
+         [Foobar doStuff];
       }
 }
 
@@ -582,7 +582,7 @@ static void   run_test( char *title, char *loop, int noheader, void (*f)( unsign
 
 int   main( int argc, char  *argv[])
 {
-   Foo                  *foo;
+   Foobar                  *foo;
    int                  noheader;
    NSNumber             *nr;
    NSMutableDictionary  *dict;
@@ -601,7 +601,7 @@ int   main( int argc, char  *argv[])
       _mulle_objc_universe_set_fastclass( mulle_objc_inlined_get_universe(), cls, 13);
    }
 #endif
-   foo = [Foo new];
+   foo = [Foobar new];
 
 #ifdef __MULLE_OBJC__
    {
@@ -612,21 +612,34 @@ int   main( int argc, char  *argv[])
       [foo doTwo:nil :nil];
       [foo doThree:nil :nil :nil];
       [foo doFour:nil :nil :nil :nil];
+
+      [foo doNo];
+      [foo doOne:nil];
+      [foo doTwo:nil :nil];
+      [foo doThree:nil :nil :nil];
+      [foo doFour:nil :nil :nil :nil];
+
       [foo doThree:nil :nil :nil];
       [foo doTwo:nil :nil];
       [foo doOne:nil];
       [foo doNo];
       [foo doSuperNo];
 
+      [Foobar doNo];
+      [Foobar doSuperNo];
+
+      [foo doNo];
+      [foo doSuperNo];
+
       cache = _mulle_objc_class_get_methodcache( _mulle_objc_object_get_isa( foo));
 
-      fprintf( stderr, "doNo = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doNo)));
-      fprintf( stderr, "doOne = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doOne:)));
-      fprintf( stderr, "doTwo = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doTwo::)));
-      fprintf( stderr, "doThree = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doThree:::)));
-      fprintf( stderr, "doFour = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doFour::::)));
-      fprintf( stderr, "doSuperNo = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doSuperNo)));
-      fprintf( stderr, "Foo;doSuperNo = %d\n", _mulle_objc_cache_find_entryindex( cache, mulle_objc_superid_from_string( "Foo;doSuperNo")));
+      fprintf( stderr, "doNo          = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doNo)));
+      fprintf( stderr, "doOne:        = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doOne:)));
+      fprintf( stderr, "doTwo::       = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doTwo::)));
+      fprintf( stderr, "doThree:::    = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doThree:::)));
+      fprintf( stderr, "doFour::::    = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doFour::::)));
+      fprintf( stderr, "doSuperNo     = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doSuperNo)));
+      fprintf( stderr, "Foobar;doNo      = %d\n", _mulle_objc_cache_find_entryindex( cache, mulle_objc_superid_from_string( "Foobar;doNo")));
 
       mulle_objc_dotdump_to_tmp();
    }
@@ -637,40 +650,40 @@ int   main( int argc, char  *argv[])
    if( argc >= 4 && ! strcmp( argv[ 2], "--loop"))
       test_loop = argv[ 3];
 
-   run_test( "-[Foo doNo]", test_loop, noheader, (void *) test_doNo, foo);
-   run_test( "-[Foo doOne]", test_loop, noheader, (void *) test_doOne, foo, nil);
-   run_test( "-[Foo doTwo]", test_loop, noheader, (void *) test_doTwo, foo, nil, nil);
-   run_test( "-[Foo doThree]", test_loop, noheader, (void *) test_doThree, foo, nil, nil, nil);
-   run_test( "-[Foo doFour]", test_loop, noheader, (void *) test_doFour, foo, nil, nil, nil, nil);
-   run_test( "-[Foo doSuperNo]", test_loop, noheader, (void *) test_doSuperNo, foo);
+   run_test( "-[Foobar doNo]", test_loop, noheader, (void *) test_doNo, foo);
+   run_test( "-[Foobar doOne:]", test_loop, noheader, (void *) test_doOne, foo, nil);
+   run_test( "-[Foobar doTwo::]", test_loop, noheader, (void *) test_doTwo, foo, nil, nil);
+   run_test( "-[Foobar doThree:::]", test_loop, noheader, (void *) test_doThree, foo, nil, nil, nil);
+   run_test( "-[Foobar doFour::::]", test_loop, noheader, (void *) test_doFour, foo, nil, nil, nil, nil);
+   run_test( "-[Foobar doSuperNo]", test_loop, noheader, (void *) test_doSuperNo, foo);
 
    nr   = [NSNumber new];
    dict = [NSMutableDictionary new];
 
-   run_test( "-[Foo class]", test_loop, noheader, (void *) test_class, foo);
+   run_test( "-[Foobar class]", test_loop, noheader, (void *) test_class, foo);
    run_test( "-[NSNumber class]", test_loop, noheader, (void *) test_class, nr);
    run_test( "-[NSMutableDictionary class]", test_loop, noheader, (void *) test_class, dict);
 
-   run_test( "-[Foo self]", test_loop, noheader, (void *) test_self, foo);
+   run_test( "-[Foobar self]", test_loop, noheader, (void *) test_self, foo);
    run_test( "-[NSNumber self]", test_loop, noheader, (void *) test_self, nr);
    run_test( "-[NSMutableDictionary self]", test_loop, noheader, (void *) test_self, dict);
 
-   run_test( "+[Foo doNo]", test_loop, noheader, (void *) test_Foo_doNo, nil);
-   run_test( "+[Foo doSuperNo]", test_loop, noheader, (void *) test_Foo_doSuperNo, nil);
+   run_test( "+[Foobar doNo]", test_loop, noheader, (void *) test_Foobar_doNo, nil);
+   run_test( "+[Foobar doSuperNo]", test_loop, noheader, (void *) test_Foobar_doSuperNo, nil);
 
-   run_test( "+[Foo self]", test_loop, noheader, (void *) test_Foo_self, nil);
+   run_test( "+[Foobar self]", test_loop, noheader, (void *) test_Foobar_self, nil);
    run_test( "+[NSNumber self]", test_loop, noheader, (void *) test_NSNumber_self, nil);
    run_test( "+[NSMutableDictionary self]", test_loop, noheader, (void *) test_NSMutableDictionary_self, nil);
 
-   run_test( "+[Foo class]", test_loop, noheader, (void *) test_Foo_class, nil);
+   run_test( "+[Foobar class]", test_loop, noheader, (void *) test_Foobar_class, nil);
    run_test( "+[NSNumber class]", test_loop, noheader, (void *) test_NSNumber_class, nil);
    run_test( "+[NSMutableDictionary class]", test_loop, noheader, (void *) test_NSMutableDictionary_class, nil);
 
-   run_test( "[[Foo new] release]", test_loop, noheader, (void *) test_Foo_newRelease, nil);
+   run_test( "[[Foobar new] release]", test_loop, noheader, (void *) test_Foobar_newRelease, nil);
    run_test( "[[NSNumber new] release]", test_loop, noheader, (void *) test_NSNumber_newRelease, nil);
    run_test( "[[NSMutableDictionary new] release]", test_loop, noheader, (void *) test_NSMutableDictionary_newRelease, nil);
 
-   run_test( "[[Foo retain] release]", test_loop, noheader, (void *) test_retainRelease, foo);
+   run_test( "[[Foobar retain] release]", test_loop, noheader, (void *) test_retainRelease, foo);
 
    return 0;
 }
