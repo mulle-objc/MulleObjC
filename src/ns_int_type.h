@@ -13,6 +13,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 
 #ifndef NSINTEGER_DEFINED
@@ -52,12 +53,13 @@ enum _MulleBool
 
 //
 // the hated BOOL. here it is an int
-// on windows it unfortunately already exists in "minwindef.h"
+// on windows it unfortunately already exists in "minwindef.h" (when
+// compiling with mingw)
 // so don't typedef it
 //
 #if defined( _WIN32)
 # ifndef _MINWINDEF_
-#  error "#include <minwindef.h> missing"
+//#  error "The #include <minwindef.h> is missing. Include <windows.h> somewhere."
 # endif
 #else
 typedef enum _MulleBool   BOOL;

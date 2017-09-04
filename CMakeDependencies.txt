@@ -2,6 +2,7 @@ if( NOT __MULLE_OBJC_CMAKE_DEPENDENCIES_TXT__)
    set( __MULLE_OBJC_CMAKE_DEPENDENCIES_TXT__ ON)
 
    include( ${DEPENDENCIES_DIR}/include/mulle_objc_runtime/CMakeDependencies.txt)
+   include( ${DEPENDENCIES_DIR}/include/mulle_objc_list/CMakeDependencies.txt)
 
    if( NOT MULLE_CONTAINER_LIBRARY)
       find_library( MULLE_CONTAINER_LIBRARY NAMES mulle_container)

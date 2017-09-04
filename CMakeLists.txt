@@ -55,23 +55,15 @@ target_link_libraries( MulleObjC
 #
 # Standalone
 #
-add_library( MulleObjCStandalone SHARED
-src/MulleObjCStandalone.m
-${STANDALONE_SOURCES}
-${DEF_FILE}
-)
-
-add_dependencies( MulleObjCStandalone MulleObjC)
-
 if( MSVC)
    set( DEF_FILE MulleObjCStandalone.def)
    set_source_files_properties( ${DEF_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
    set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS OFF)
    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEF:${DEF_FILE}")
    # /NODEFAULTLIB:MSVCRT")
-endif()
 
-if( MSVC)
+   message( STATUS "MSVC generates ${DEF_FILE}")
+
    add_custom_command( OUTPUT ${DEF_FILE}
                        COMMAND mulle-mingw-dumpdef.bat -o "${DEF_FILE}"
                                --directory "${BUILD_RELATIVE_DEPENDENCIES_DIR}/lib"
@@ -81,6 +73,16 @@ if( MSVC)
                        DEPENDS "${SOURCES}" "${HEADERS}"
                        VERBATIM)
 endif()
+
+
+add_library( MulleObjCStandalone SHARED
+src/MulleObjCStandalone.m
+${STANDALONE_SOURCES}
+${DEF_FILE}
+)
+
+add_dependencies( MulleObjCStandalone MulleObjC)
+
 
 
 #
@@ -113,10 +115,13 @@ ${END_ALL_LOAD}
 ${OS_SPECIFIC_LIBRARIES}
 )
 
+
+find_program( CREATE_INC mulle-objc-create-dependencies-inc ${DEPENDENCIES_DIR}/bin)
+
 # runs in build dir
 add_custom_command( TARGET MulleObjCStandalone
    POST_BUILD
-   COMMAND ${DEPENDENCIES_DIR}/bin/mulle-objc-create-dependencies-inc -v
+   COMMAND ${CREATE_INC} -v
            -o ${CMAKE_SOURCE_DIR}/src/dependencies.inc MulleObjC
            ${OBJC_DEPENDENCY_NAMES}
 )
