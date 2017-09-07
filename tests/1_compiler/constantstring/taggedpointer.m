@@ -45,20 +45,25 @@ SomeString  *abcdegilmoprstu = @"abcdegilmoprstu";
 
 @implementation SomeString5TaggedPointer : SomeString
 
-static inline int   mulle_char5_decode( int c)
+static inline char   *mulle_char5_get_charset( void)
+{
+   static const char  table[] =
+   {
+       0,  '.', 'A', 'C',  'D', 'E', 'I', 'N',
+      'O', 'P', 'S', 'T',  '_', 'a', 'b', 'c',
+      'd', 'e', 'f', 'g',  'h', 'i', 'l', 'm',
+      'n', 'o', 'p', 'r',  's', 't', 'u', 'y',
+      0  // bonus zero for tests :)
+   };
+   return( (char *) table);
+}
+
+
+static inline int   mulle_char5_decode_character( int c)
 {
    assert( c >= 0 && c < 32);
 
-   static char  table[] =
-   {
-      0,
-      '.', '0', '1', '2', 'A', 'C', 'E', 'I',
-      'L', 'M', 'P', 'R', 'S', 'T', '_', 'a',
-      'b', 'c', 'd', 'e', 'g', 'i', 'l', 'm',
-      'n', 'o', 'p', 'r', 's', 't', 'u'
-   };
-
-   return( table[ c]);
+   return( mulle_char5_get_charset()[ c]);
 }
 
 
@@ -75,8 +80,8 @@ size_t  mulle_char5_decode32_ascii( uint32_t value, char *dst, size_t len)
       if( ! value)
          break;
 
-      char5  = value & 0x1F;
-      *s++ = (char) mulle_char5_decode( char5);
+      char5 = value & 0x1F;
+      *s++  = (char) mulle_char5_decode_character( char5);
 
       value >>= 5;
    }
@@ -99,7 +104,7 @@ size_t  mulle_char5_decode64_ascii( uint64_t value, char *dst, size_t len)
          break;
 
       char5 = value & 0x1F;
-      *s++  = (char) mulle_char5_decode( char5);
+      *s++  = (char) mulle_char5_decode_character( char5);
 
       value >>= 5;
    }
