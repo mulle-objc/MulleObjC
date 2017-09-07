@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
+
 # https://stackoverflow.com/questions/13054451/cmake-problems-specifying-the-compiler-2
 # don't do that:
 #    set( CMAKE_C_COMPILER
@@ -35,8 +36,8 @@ endif()
 
 
 set( MULLE_OBJC_LIBRARY ON)
-include( CMakeDependencies.txt)
 
+include( CMakeDependencies.txt)
 include( CMakeSourcesAndHeaders.txt)
 
 
@@ -52,6 +53,11 @@ target_link_libraries( MulleObjC
 )
 
 
+set( TARGET_ALL_LOAD_LIBRARIES
+$<TARGET_FILE:MulleObjC>
+${C_DEPENDENCY_LIBRARIES}
+)
+
 #
 # Standalone
 #
@@ -62,16 +68,27 @@ if( MSVC)
    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEF:${DEF_FILE}")
    # /NODEFAULTLIB:MSVCRT")
 
-   message( STATUS "MSVC generates ${DEF_FILE}")
+   message( STATUS "MSVC will generate \"${DEF_FILE}\" from ${TARGET_ALL_LOAD_LIBRARIES}")
+
+   add_definitions( -DMULLE_ALLOCATOR_EXTERN_GLOBAL=extern)
+   add_definitions( -DMULLE_OBJC_RUNTIME_EXTERN_GLOBAL=extern)
+   add_definitions( -DMULLE_CONTAINER_EXTERN_GLOBAL=extern)
 
    add_custom_command( OUTPUT ${DEF_FILE}
                        COMMAND mulle-mingw-dumpdef.bat -o "${DEF_FILE}"
                                --directory "${BUILD_RELATIVE_DEPENDENCIES_DIR}/lib"
-                               --prefix "mulle" --prefix Mulle --prefix ns
-                               --prefix NS ${DEPENDENCY_LIBRARIES}
-                               $<TARGET_FILE:MulleObjC>
+                               --prefix "mulle" 
+                               --prefix "Mulle" 
+                               --prefix "ns"
+                               --prefix "NS" 
+                               --prefix "_mulle" 
+                               --prefix "_Mulle" 
+                               --prefix "_ns"
+                               --prefix "_NS" 
+                               ${TARGET_ALL_LOAD_LIBRARIES}
                        DEPENDS "${SOURCES}" "${HEADERS}"
                        VERBATIM)
+   find_program( CREATE_INC mulle-objc-create-dependencies-inc.bat ${DEPENDENCIES_DIR}/bin)
 endif()
 
 
@@ -86,37 +103,30 @@ add_dependencies( MulleObjCStandalone MulleObjC)
 
 
 #
-# If you add DEPENDENCY_LIBRARIES to the static, adding them again to
-# Standalone confuses cmake it seems. But DEPENDENCY_LIBRARIES are
+# If you add C_DEPENDENCY_LIBRARIES to the static, adding them again to
+# Standalone confuses cmake it seems. But C_DEPENDENCY_LIBRARIES are
 # implicitly added. UNFORTUNATELY, they are added at the end. So
 # BEGIN_ALL_LOAD / END_ALL_LOAD doesn't work.
 #
 
 # prepend force-all for OS X, other use BEGIN_ALL_LOAD
 
-set( TARGET_ALL_LOAD_LIBRARIES
-$<TARGET_FILE:MulleObjC>
-${C_DEPENDENCY_LIBRARIES}
-)
-
-if( FORCE_LOAD)
-   set( TMP)
-   foreach( library ${TARGET_ALL_LOAD_LIBRARIES})
-      list( APPEND TMP "${FORCE_LOAD} ${library}")
-   endforeach( library)
-   set( TARGET_ALL_LOAD_LIBRARIES ${TMP})
-endif()
+foreach( library ${TARGET_ALL_LOAD_LIBRARIES})
+   list( APPEND TARGET_FORCE_ALL_LOAD_LIBRARIES "${FORCE_LOAD_PREFIX}${library}")
+endforeach( library)
 
 
 target_link_libraries( MulleObjCStandalone
 ${BEGIN_ALL_LOAD}
-${TARGET_ALL_LOAD_LIBRARIES}
+${TARGET_FORCE_ALL_LOAD_LIBRARIES}
 ${END_ALL_LOAD}
 ${OS_SPECIFIC_LIBRARIES}
 )
 
+if( NOT CREATE_INC)
+   find_program( CREATE_INC mulle-objc-create-dependencies-inc ${DEPENDENCIES_DIR}/bin)
+endif()
 
-find_program( CREATE_INC mulle-objc-create-dependencies-inc ${DEPENDENCIES_DIR}/bin)
 
 # runs in build dir
 add_custom_command( TARGET MulleObjCStandalone
