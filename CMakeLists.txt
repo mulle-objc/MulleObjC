@@ -58,6 +58,11 @@ $<TARGET_FILE:MulleObjC>
 ${C_DEPENDENCY_LIBRARIES}
 )
 
+foreach( library ${TARGET_ALL_LOAD_LIBRARIES})
+   list( APPEND TARGET_FORCE_ALL_LOAD_LIBRARIES "${FORCE_LOAD_PREFIX}${library}")
+endforeach( library)
+
+
 #
 # Standalone
 #
@@ -100,8 +105,6 @@ ${DEF_FILE}
 
 add_dependencies( MulleObjCStandalone MulleObjC)
 
-
-
 #
 # If you add C_DEPENDENCY_LIBRARIES to the static, adding them again to
 # Standalone confuses cmake it seems. But C_DEPENDENCY_LIBRARIES are
@@ -110,11 +113,6 @@ add_dependencies( MulleObjCStandalone MulleObjC)
 #
 
 # prepend force-all for OS X, other use BEGIN_ALL_LOAD
-
-foreach( library ${TARGET_ALL_LOAD_LIBRARIES})
-   list( APPEND TARGET_FORCE_ALL_LOAD_LIBRARIES "${FORCE_LOAD_PREFIX}${library}")
-endforeach( library)
-
 
 target_link_libraries( MulleObjCStandalone
 ${BEGIN_ALL_LOAD}
