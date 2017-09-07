@@ -52,7 +52,7 @@ void   mulle_objc_throw_allocation_exception( size_t bytes)
    vectors = _ns_get_exceptionhandlertable();
    if( ! vectors)
    {
-      fprintf( stderr, "Out of memory allocating %lu bytes\n", bytes);
+      fprintf( stderr, "Out of memory allocating %lu bytes\n", (long) bytes);
       exit( 1);
    }
    vectors->allocation_error( bytes);
@@ -158,7 +158,7 @@ void   mulle_objc_throw_invalid_index( NSUInteger index)
    vectors = _ns_get_exceptionhandlertable();
    if( ! vectors)
    {
-      fprintf( stderr, "invalid index %lu\n", index);
+      fprintf( stderr, "invalid index %lu\n", (long) index);
       exit( 1);
    }
 
