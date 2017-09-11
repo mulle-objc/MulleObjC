@@ -36,99 +36,44 @@ endif()
 
 
 set( MULLE_OBJC_LIBRARY ON)
-include( CMakeDependencies.txt)
 
+include( CMakeDependencies.txt)
 include( CMakeSourcesAndHeaders.txt)
 
-
-add_library( MulleObjC STATIC
-${SOURCES}
-${PUBLIC_HEADERS}
-${PRIVATE_HEADERS}
-CMakeDependencies.txt
-CMakeSourcesAndHeaders.txt)
-
-target_link_libraries( MulleObjC
-#${DEPENDENCY_LIBRARIES}
-)
-
-
-#
-# Standalone
-#
-add_library( MulleObjCStandalone SHARED
-src/MulleObjCStandalone.m
-${STANDALONE_SOURCES}
-${DEF_FILE}
-)
-
-add_dependencies( MulleObjCStandalone MulleObjC)
-
-if( MSVC)
-   set( DEF_FILE MulleObjCStandalone.def)
-   set_source_files_properties( ${DEF_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
-   set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS OFF)
-   set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEF:${DEF_FILE}")
-   # /NODEFAULTLIB:MSVCRT")
-endif()
-
-if( MSVC)
-   add_custom_command( OUTPUT ${DEF_FILE}
-                       COMMAND mulle-mingw-dumpdef.bat -o "${DEF_FILE}"
-                               --directory "${BUILD_RELATIVE_DEPENDENCIES_DIR}/lib"
-                               --prefix "mulle" --prefix Mulle --prefix ns
-                               --prefix NS ${DEPENDENCY_LIBRARIES}
-                               $<TARGET_FILE:MulleObjC>
-                       DEPENDS "${SOURCES}" "${HEADERS}"
-                       VERBATIM)
-endif()
-
-
-#
-# If you add DEPENDENCY_LIBRARIES to the static, adding them again to
-# Standalone confuses cmake it seems. But DEPENDENCY_LIBRARIES are
-# implicitly added. UNFORTUNATELY, they are added at the end. So
-# BEGIN_ALL_LOAD / END_ALL_LOAD doesn't work.
-#
-
-# prepend force-all for OS X, other use BEGIN_ALL_LOAD
-
-set( TARGET_ALL_LOAD_LIBRARIES
-$<TARGET_FILE:MulleObjC>
-${C_DEPENDENCY_LIBRARIES}
-)
-
-if( FORCE_LOAD)
-   set( TMP)
-   foreach( library ${TARGET_ALL_LOAD_LIBRARIES})
-      list( APPEND TMP "${FORCE_LOAD} ${library}")
-   endforeach( library)
-   set( TARGET_ALL_LOAD_LIBRARIES ${TMP})
-endif()
-
-
-target_link_libraries( MulleObjCStandalone
-${BEGIN_ALL_LOAD}
-${TARGET_ALL_LOAD_LIBRARIES}
-${END_ALL_LOAD}
-${OS_SPECIFIC_LIBRARIES}
-$<TARGET_FILE:MulleObjC> # stupid workaround for cmake being confused by ${FORCE_LOAD}
-)
-
-
-# runs in build dir
-add_custom_command( TARGET MulleObjCStandalone
-   POST_BUILD
-   COMMAND ${DEPENDENCIES_DIR}/bin/mulle-objc-create-dependencies-inc -v
-           -o ${CMAKE_SOURCE_DIR}/src/dependencies.inc MulleObjC
-           ${OBJC_DEPENDENCY_NAMES}
-)
 
 set( PUBLIC_HEADERS
 ${PUBLIC_HEADERS}
 "CMakeDependencies.txt"
 "src/dependencies.inc"
 )
+
+add_library( MulleObjC STATIC
+${SOURCES}
+${PUBLIC_HEADERS}
+${PRIVATE_HEADERS}
+CMakeSourcesAndHeaders.txt
+)
+
+set( OBJC_LIBRARY_NAME "MulleObjC")
+
+include( DependenciesIncObjC)
+
+#
+# produce a standalone dll/dylib/so for testing mainly
+# though testing could go static at some point in time
+# (shared is more frugal though)
+#
+set( STANDALONE_BASE_NAME "MulleObjC")
+set( STANDALONE_NAME "MulleObjCStandalone")
+
+set( STANDALONE_ALL_LOAD_LIBRARIES
+    $<TARGET_FILE:${STANDALONE_BASE_NAME}>
+    ${OBJC_DEPENDENCY_LIBRARIES}
+    ${C_DEPENDENCY_LIBRARIES}
+)
+
+include( Standalone)
+
 
 install( TARGETS MulleObjC MulleObjCStandalone DESTINATION "lib")
 install( FILES ${PUBLIC_HEADERS} DESTINATION "include/MulleObjC")

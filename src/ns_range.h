@@ -65,13 +65,17 @@ static inline   NSUInteger NSMaxRange( NSRange range)
 }
 
 
-static inline BOOL  NSLocationInRange( NSUInteger location, NSRange range)
+// use enum here instead of BOOL, because windows
+// will define BOOL in <windows.h>, but when compiling
+// MulleObjC.h it won't be there
+//
+static inline enum _MulleBool  NSLocationInRange( NSUInteger location, NSRange range)
 {
    return( location - range.location < range.length);
 }
 
 
-static inline BOOL   NSEqualRanges( NSRange range1, NSRange range2)
+static inline enum _MulleBool   NSEqualRanges( NSRange range1, NSRange range2)
 {
     return( range1.location == range2.location && range1.length == range2.length);
 }
@@ -82,7 +86,7 @@ extern NSRange    NSIntersectionRange( NSRange range1, NSRange range2);
 
 
 // mulle additon:
-static inline BOOL  MulleObjCRangeContainsRange( NSRange big, NSRange small)
+static inline enum _MulleBool  MulleObjCRangeContainsRange( NSRange big, NSRange small)
 {
    if( ! small.length)
       return( NO);
