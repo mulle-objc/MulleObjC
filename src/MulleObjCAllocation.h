@@ -162,7 +162,7 @@ static inline void   _MulleObjCObjectReleaseProperties( id obj)
                                                  struct _mulle_objc_infraclass *cls,
                                                  void *);
    extern int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclass *,
-                                                              mulle_objc_walk_properties_callback,
+                                                              mulle_objc_walkpropertiescallback,
                                                               void *);
 
    struct _mulle_objc_class        *cls;
