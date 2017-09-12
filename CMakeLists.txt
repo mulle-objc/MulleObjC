@@ -54,9 +54,12 @@ ${PRIVATE_HEADERS}
 CMakeSourcesAndHeaders.txt
 )
 
-set( OBJC_LIBRARY_NAME "MulleObjC")
+# doesn't work yet
+if( NOT MSVC)
+	set( OBJC_LIBRARY_NAME "MulleObjC")
 
-include( DependenciesIncObjC)
+	include( DependenciesIncObjC)
+endif()
 
 #
 # produce a standalone dll/dylib/so for testing mainly
