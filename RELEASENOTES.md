@@ -1,3 +1,14 @@
+## 0.11.1
+
+* fixes for mingw
+* some changes to compile with mingw
+* adjust to new hashing algorithm in runtime
+* improve dealloc speed in certain cases
+* fix possible alignment problem in NSMethodSignature
+* the idea with "supreme" calls was nipped in the bud
+* adapt to changes in mulle-objc-runtime
+
+
 ### 0.9.1
 
 * adapt to changes in mulle_objc_runtime
