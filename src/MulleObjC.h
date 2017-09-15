@@ -75,6 +75,6 @@
 #import "MulleObjCFunctions.h"
 
 
-#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (8 << 8) | 0)
+#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (11 << 8) | 0)
 # error "mulle_objc runtime is too old"
 #endif
