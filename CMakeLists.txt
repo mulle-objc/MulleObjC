@@ -61,6 +61,12 @@ if( NOT MSVC)
 	include( DependenciesIncObjC)
 endif()
 
+target_compile_definitions( MulleObjC
+PRIVATE ${MULLE_OBJC_DEFINITIONS}
+)
+
+
+message( STATUS "OS_SPECIFIC_LIBRARIES = ${OS_SPECIFIC_LIBRARIES}")
 #
 # produce a standalone dll/dylib/so for testing mainly
 # though testing could go static at some point in time
@@ -68,7 +74,8 @@ endif()
 #
 set( STANDALONE_BASE_NAME "MulleObjC")
 set( STANDALONE_NAME "MulleObjCStandalone")
-
+set( STANDALONE_DEFINITIONS ${MULLE_OBJC_DEFINITIONS})
+set( STANDALONE_NORMAL_LOAD_LIBRARIES ${OS_SPECIFIC_LIBRARIES})
 set( STANDALONE_ALL_LOAD_LIBRARIES
     $<TARGET_FILE:${STANDALONE_BASE_NAME}>
     ${OBJC_DEPENDENCY_LIBRARIES}
