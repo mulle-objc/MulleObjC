@@ -322,7 +322,7 @@
 				4162D50E1C63CBBC007EC7DD /* StaticLibraryOSX.xcconfig */,
 				4162D50F1C63CBBC007EC7DD /* ToolOSX.xcconfig */,
 			);
-			path = "mulle-configuration";
+			path = "mulle-configuration/xcode";
 			sourceTree = "<group>";
 		};
 		418F93551C442B99008EC017 /* Frameworks and Libraries */ = {
