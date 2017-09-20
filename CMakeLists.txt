@@ -81,3 +81,5 @@ include( Standalone)
 install( TARGETS MulleObjC MulleObjCStandalone DESTINATION "lib")
 install( FILES ${PUBLIC_HEADERS} DESTINATION "include/MulleObjC")
 install( FILES ${PRIVATE_HEADERS} DESTINATION "include/MulleObjC/private")
+
+include( MulleTest)
