@@ -37,7 +37,7 @@
 #define ns_rootconfiguration__h__
 
 
-#define MULLE_OBJC_VERSION    ((0 << 20) | (11 << 8) | 3)
+#define MULLE_OBJC_VERSION    ((0 << 20) | (11 << 8) | 1)
 
 
 #include "ns_objc_include.h"
@@ -107,8 +107,8 @@ struct _ns_rootconfiguration
    struct _ns_threadconfiguration     thread;
    struct _ns_autoreleasepool         pool;
    struct _mulle_objc_universe        *universe;
-   
-   // stuff used by the MulleStandardOSFoundation 
+
+   // stuff used by the MulleStandardOSFoundation
    Class   stringsubclasses[ _NS_ROOTCONFIGURATION_N_STRINGSUBCLASSES];
    Class   numbersubclasses[ _NS_ROOTCONFIGURATION_N_NUMBERSUBCLASSES];
 };
