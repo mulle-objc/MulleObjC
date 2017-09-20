@@ -14,3 +14,7 @@ add_executable( load-classes
 ${SOURCES}
 )
 
+
+message( "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}")
+message( "CMAKE_C_FLAGS_DEBUG = ${CMAKE_C_FLAGS_DEBUG}")
+message( "CMAKE_C_FLAGS_RELEASE = ${CMAKE_C_FLAGS_RELEASE}")
