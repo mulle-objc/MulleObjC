@@ -302,7 +302,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    if( self->_count == 3)
       return( MulleObjCMetaABITypeVoid);
 
-   paramType = mulle_objc_signature_get_metaabiparamtype( _types);
+   paramType = (MulleObjCMetaABIType) mulle_objc_signature_get_metaabiparamtype( _types);
    assert( paramType != (MulleObjCMetaABIType) -1);
    return( paramType);
 }
@@ -312,7 +312,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 {
    MulleObjCMetaABIType   rvalType;
 
-   rvalType = mulle_objc_signature_get_metaabireturntype( _types);
+   rvalType = (MulleObjCMetaABIType) mulle_objc_signature_get_metaabireturntype( _types);
    assert( rvalType != (MulleObjCMetaABIType) -1);
    return( rvalType);
 }

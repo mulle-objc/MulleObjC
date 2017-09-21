@@ -25,7 +25,7 @@
 @implementation A
 + (id) new
 {
-   return( _mulle_objc_infraclass_alloc_instance( self,  NULL));
+   return( (id) _mulle_objc_infraclass_alloc_instance( self, NULL));
 }
 - (Class) class
 {
@@ -97,21 +97,21 @@ static void   test_super( id obj,
                           struct _mulle_objc_metaclass *metaclass)
 
 {
-   struct _mulle_objc_searchargumentscachable    args;
-   struct _mulle_objc_searchargumentscachable    before;
-   struct _mulle_objc_method                     *method;
+   struct _mulle_objc_searcharguments    args;
+   struct _mulle_objc_searcharguments    before;
+   struct _mulle_objc_method             *method;
    IMP    imp;
 
-   _mulle_objc_searchargumentscacheable_superinit( &args, methodsel, classsel);
+   _mulle_objc_searcharguments_superinit( &args, methodsel, classsel);
    before = args;
-   method = mulle_objc_class_search_method( &infraclass->base, &args, &infraclass->base.inheritance, NULL);
-   imp    = _mulle_objc_method_get_implementation( method);
+   method = mulle_objc_class_search_method( &infraclass->base, &args, infraclass->base.inheritance, NULL);
+   imp    = (IMP) _mulle_objc_method_get_implementation( method);
    (*imp)( obj, methodsel, obj);
 
    assert( ! memcmp( &args, &before, sizeof( args)));
 
-   method = mulle_objc_class_search_method( &metaclass->base, &args, &metaclass->base.inheritance, NULL);
-   imp    = _mulle_objc_method_get_implementation( method);
+   method = mulle_objc_class_search_method( &metaclass->base, &args, metaclass->base.inheritance, NULL);
+   imp    = (IMP) _mulle_objc_method_get_implementation( method);
    (*imp)( obj, methodsel, obj);
 }
 
@@ -127,10 +127,12 @@ int   main()
    b = [B new];
    infraclass = [B class];
    metaclass  = _mulle_objc_infraclass_get_metaclass( infraclass);
-
+ 
    test_super( b, @selector( foo), @selector( B), infraclass, metaclass);
    test_super( b, @selector( foo), @selector( Q), infraclass, metaclass);
    test_super( b, @selector( foo), @selector( P), infraclass, metaclass);
-
+ 
    [b dealloc];
+   return( 0);
 }
+ 
