@@ -54,12 +54,10 @@ ${PRIVATE_HEADERS}
 CMakeSourcesAndHeaders.txt
 )
 
-# doesn't work yet
-if( NOT MSVC)
-	set( OBJC_LIBRARY_NAME "MulleObjC")
 
-	include( DependenciesIncObjC)
-endif()
+set( OBJC_LIBRARY_NAME "MulleObjC")
+include( DependenciesIncObjC)
+
 
 target_compile_definitions( MulleObjC
 PRIVATE ${MULLE_OBJC_DEFINITIONS}
