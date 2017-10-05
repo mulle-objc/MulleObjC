@@ -117,7 +117,6 @@
 }
 
 
-// finalize exists, but it is not adverised
 - (void) finalize
 {
 }
@@ -927,6 +926,179 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 - (void) forwardInvocation:(NSInvocation *) anInvocation
 {
    [self doesNotRecognizeSelector:[anInvocation selector]];
+}
+
+
+static int   get_ivar_offset( struct _mulle_objc_infraclass *infra,
+                              mulle_objc_ivarid_t ivarid,
+                              void *buf,
+                              size_t size)
+{
+   struct _mulle_objc_ivar   *ivar;
+
+   ivar = _mulle_objc_infraclass_search_ivar( infra, ivarid);
+   if( ! ivar)
+      return( -2);
+
+#ifndef NDEBUG
+   {
+      char           *signature;
+      unsigned int   ivar_size;
+      unsigned int   ivar_align;
+
+      signature = _mulle_objc_ivar_get_signature( ivar);
+      mulle_objc_signature_supply_size_and_alignment( signature, &ivar_size, &ivar_align);
+      assert( ivar_size == size);
+      assert( ((intptr_t) buf & (ivar_align - 1)) == 0);
+   }
+#endif
+
+   return( _mulle_objc_ivar_get_offset( ivar));
+}
+
+
+int   _MulleObjCSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)
+{
+   int                        offset;
+   struct _mulle_objc_class   *cls;
+   
+   cls = _mulle_objc_object_get_isa( self);
+
+   assert( _mulle_objc_class_is_infraclass( cls));
+   assert( mulle_objc_ivarid_is_sane( ivarid));
+   assert( buf);
+   
+   offset = get_ivar_offset( (Class) cls, ivarid, buf, size);
+   switch( offset)
+   {
+   case -2 :
+      return( -1);
+   case -1 :
+      // hashed offset not yet implemented
+      return( -1);
+   default :
+      break;
+   }
+
+   memcpy( &((char *) self)[ offset], buf, size);
+   return( 0);
+}
+
+
+
+int   _MulleObjCGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)
+{
+   int                        offset;
+   struct _mulle_objc_class   *cls;
+
+   cls = _mulle_objc_object_get_isa( self);
+
+   assert( _mulle_objc_class_is_infraclass( cls));
+   assert( mulle_objc_ivarid_is_sane( ivarid));
+   assert( buf);
+
+   offset = get_ivar_offset( (Class) cls, ivarid, buf, size);
+   switch( offset)
+   {
+      case -2 :
+         return( -1);
+      case -1 :
+         // hashed offset not yet implemented
+         return( -1);
+      default :
+         break;
+   }
+
+   memcpy( buf, &((char *) self)[ offset], size);
+   return( 0);
+}
+
+
+static void  throw_unknown_ivarid( struct _mulle_objc_class *cls,
+                                   mulle_objc_ivarid_t ivarid)
+{
+   mulle_objc_throw_invalid_argument_exception( "Class %08x \"%s\" has no ivar with id %08x found",
+                                               _mulle_objc_class_get_classid( cls),
+                                               _mulle_objc_class_get_name( cls),
+                                               ivarid);
+}
+
+
+id  MulleObjCGetObjectIvar( id self, mulle_objc_ivarid_t ivarid)
+{
+   id   obj;
+   
+   if( ! self)
+      return( nil);
+   
+   if( _MulleObjCGetIvar( self, ivarid, &obj, sizeof( obj)))
+      throw_unknown_ivarid( _mulle_objc_object_get_isa( self), ivarid);
+   
+   return( obj);
+}
+
+
+void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
+{
+   id                         old;
+   struct _mulle_objc_class   *cls;
+   struct _mulle_objc_ivar    *ivar;
+   char                       *signature;
+   char                       *typeinfo;
+   int                        offset;
+   id                         *p;
+   
+   if( ! self)
+      return;
+
+   cls = _mulle_objc_object_get_isa( self);
+
+   assert( _mulle_objc_class_is_infraclass( cls));
+   assert( mulle_objc_ivarid_is_sane( ivarid));
+   
+   ivar = _mulle_objc_infraclass_search_ivar( (Class) cls, ivarid);
+   if( ! ivar)
+      throw_unknown_ivarid( cls, ivarid);
+   
+   offset = _mulle_objc_ivar_get_offset( ivar);
+   if( offset == -1)
+      mulle_objc_throw_internal_inconsistency_exception( "hashed access not yet implemented");
+
+   p         = (id *) &((char *) self)[ offset];
+   signature = _mulle_objc_ivar_get_signature( ivar);
+   typeinfo  = _mulle_objc_signature_skip_extendedtypeinfo( signature);
+   
+   switch( *typeinfo)
+   {
+   case _C_COPY_ID   :
+      old   = *p;
+      [old autorelease];
+      value = [value copy];
+      break;
+
+   case _C_RETAIN_ID :
+      old   = *p;
+      [old autorelease];
+      value = [value retain];
+      break;
+   }
+
+   *p = value;
+}
+
+
+#include <mulle_objc_runtime/mulle_objc_lldb.h>
+
+//
+// this should never be called
+// it ensures, that the functions are present at debug time
+//
++ (void) __reference_lldb_functions__
+{
+   mulle_objc_lldb_get_dangerous_classstorage_pointer();
+   mulle_objc_lldb_lookup_implementation( 0, 0, 0, 0, 0, 0);
+   mulle_objc_lldb_check_object( 0, 0);
+   mulle_objc_lldb_lookup_descriptor_by_name( 0);
 }
 
 @end

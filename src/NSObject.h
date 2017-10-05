@@ -72,6 +72,7 @@
 //
 - (instancetype) init;
 - (void) dealloc;  /* ---> #2# */
+- (void) finalize;
 
 - (NSUInteger) hash;
 - (BOOL) isEqual:(id) other;
@@ -162,6 +163,20 @@
 - (void) forwardInvocation:(NSInvocation *) anInvocation;
 
 @end
+
+//
+// These just memcpy. Objects embeddded into structs will not be retained (yet)
+// I could do this in the future though.
+//
+int   _MulleObjCSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
+int   _MulleObjCGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
+
+//
+// These functions do proper retain/assign/copy and autorelease previous
+// contents.
+//
+id    MulleObjCGetObjectIvar( id self, mulle_objc_ivarid_t ivarid);
+void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value);
 
 
 #pragma clang diagnostic pop

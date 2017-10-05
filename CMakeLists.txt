@@ -36,9 +36,13 @@ endif()
 
 
 set( MULLE_OBJC_LIBRARY ON)
+set( MULLE_OBJC_STARTUP_LIBRARY ON)
 
 include( CMakeDependencies.txt)
 include( CMakeSourcesAndHeaders.txt)
+
+
+include_directories( ${INCLUDE_DIRS})
 
 
 set( PUBLIC_HEADERS
@@ -47,6 +51,10 @@ ${PUBLIC_HEADERS}
 "src/dependencies.inc"
 )
 
+
+#
+# The static library of MulleObjC
+#
 add_library( MulleObjC STATIC
 ${SOURCES}
 ${PUBLIC_HEADERS}
@@ -64,26 +72,40 @@ PRIVATE ${MULLE_OBJC_DEFINITIONS}
 )
 
 
-message( STATUS "OS_SPECIFIC_LIBRARIES = ${OS_SPECIFIC_LIBRARIES}")
 #
-# produce a standalone dll/dylib/so for testing mainly
-# though testing could go static at some point in time
-# (shared is more frugal though)
+# This library contains the missing setup function
+# usually the MulleFoundation will override it with
+# its own
+#
+add_library( MulleObjCStartup STATIC
+${STANDALONE_SOURCES}
+)
+
+
+#
+# This produces a standalone dll/dylib/so for testing mainly.
+# It contains everything that one would need to link against.
+# Though testing could go static at some point in time,
+# doing this with a shared library is more frugal.
 #
 set( STANDALONE_BASE_NAME "MulleObjC")
 set( STANDALONE_NAME "MulleObjCStandalone")
 set( STANDALONE_DEFINITIONS ${MULLE_OBJC_DEFINITIONS})
 set( STANDALONE_NORMAL_LOAD_LIBRARIES ${OS_SPECIFIC_LIBRARIES})
+set( STANDALONE_DEPENDENCIES ${STANDALONE_BASE_NAME}
+MulleObjCStartup
+)
+
 set( STANDALONE_ALL_LOAD_LIBRARIES
     $<TARGET_FILE:${STANDALONE_BASE_NAME}>
     ${OBJC_DEPENDENCY_LIBRARIES}
+    $<TARGET_FILE:MulleObjCStartup>
     ${C_DEPENDENCY_LIBRARIES}
 )
 
 include( Standalone)
 
-
-install( TARGETS MulleObjC MulleObjCStandalone DESTINATION "lib")
+install( TARGETS MulleObjC MulleObjCStartup MulleObjCStandalone DESTINATION "lib")
 install( FILES ${PUBLIC_HEADERS} DESTINATION "include/MulleObjC")
 install( FILES ${PRIVATE_HEADERS} DESTINATION "include/MulleObjC/private")
 
