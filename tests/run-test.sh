@@ -8,7 +8,7 @@
 
 LIBRARY_SHORTNAME="MulleObjC"
 
-if [ -f "mulle-tests/test-m-common.sh" ]
+if [ ! -f "mulle-tests/test-m-common.sh" ]
 then
    echo "you must mulle-bootstrap first" >&2
    exit 1
