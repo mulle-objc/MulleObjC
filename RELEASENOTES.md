@@ -1,3 +1,7 @@
+## 0.12.1
+
+* Separate startup from standalone
+
 ## 0.11.1
 
 * fixes for mingw
