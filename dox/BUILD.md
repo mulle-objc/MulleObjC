@@ -19,13 +19,13 @@ to compile MulleObjC.
 
 #### mulle-objc-runtime
 
-[mulle-objc-runtime](//github.com/mulle-nat/mulle-objc-runtime/)
+[mulle-objc-runtime](//github.com/mulle-objc/mulle-objc-runtime/)
 is the Objective-C runtime MulleObjC is bases upon. It comes with its own set
 of prerequisites.
 
 #### mulle-configuration
 
-[mulle-configuration](//github.com/mulle-nat/mulle-configuration/)
+[mulle-configuration](//github.com/mulle-objc/mulle-configuration/)
 are configuration files for building with Xcode or cmake. This is expected to
 exist in the project directory root.
 
@@ -40,7 +40,7 @@ to assemble the dependencies together and build the library.
 
 #### mulle-tests
 
-[mulle-tests](//github.com/mulle-nat/mulle-tests/) are
+[mulle-tests](//github.com/mulle-objc/mulle-tests/) are
 scripts to provide an environment for running the tests. This is expected to
 exist in `./tests`, if you want to run tests.
 
@@ -56,7 +56,7 @@ for instructions how to get the "Git for Windows" bash going.
 Install the [homebrew](//brew.sh/) package manager, then
 
 ```
-brew tap mulle-kybernetik/software
+brew tap mulle-objc/software
 brew install mulle-build
 ```
 
@@ -90,7 +90,7 @@ git clone --branch release https://github.com/mulle-nat/mulle-build
 Grab the latest **mulle-concurrent** release and go into the project directory:
 
 ```
-git clone --branch release https://github.com/mulle-nat/mulle-concurrent.git
+git clone --branch release https://github.com/mulle-objc/mulle-concurrent.git
 cd mulle-concurrent
 ```
 

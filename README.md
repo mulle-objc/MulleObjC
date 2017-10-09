@@ -8,7 +8,6 @@ on top of it. MulleObjC fundamentally depends on standard C libraries only
 
 Fork      |  Build Status | Release Version
 ----------|---------------|-----------------------------------
-[Mulle kybernetiK](//github.com/mulle-nat/MulleObjC) | [![Build Status](https://travis-ci.org/mulle-nat/MulleObjC.svg?branch=release)](https://travis-ci.org/mulle-nat/MulleObjC) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-nat/MulleObjC.svg) [![Build Status](https://travis-ci.org/mulle-nat/MulleObjC.svg?branch=release)](https://travis-ci.org/mulle-nat/MulleObjC)
 [Community](https://github.com/mulle-objc/MulleObjC/tree/release) | [![Build Status](https://travis-ci.org/mulle-objc/MulleObjC.svg)](https://travis-ci.org/mulle-objc/MulleObjC) | ![Community tag](https://img.shields.io/github/tag/mulle-objc/MulleObjC.svg) [![Build Status](https://travis-ci.org/mulle-objc/MulleObjC.svg?branch=release)](https://travis-ci.org/mulle-objc/MulleObjC)
 
 
@@ -51,13 +50,13 @@ which supports the metaABI required for the mulle-objc runtime.
 
   Name         | Build Status | Release Version
 ---------------|--------------|---------------------------------
-[mulle-container](//github.com/mulle-nat/mulle-container) | [![Build Status](https://travis-ci.org/mulle-nat/mulle-container.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-container) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-nat/mulle-container.svg) [![Build Status](https://travis-ci.org/mulle-nat/mulle-container.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-container)
-[mulle-objc-list](//github.com/mulle-nat/mulle-objc-list) | [![Build Status](https://travis-ci.org/mulle-nat/mulle-objc-list.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-objc-list) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-nat/mulle-objc-list.svg) [![Build Status](https://travis-ci.org/mulle-nat/mulle-objc-list.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-objc-list)
-[mulle-objc-runtime](//github.com/mulle-nat/mulle-objc-runtime) | [![Build Status](https://travis-ci.org/mulle-nat/mulle-objc-runtime.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-objc-runtime) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-nat/mulle-objc-runtime.svg) [![Build Status](https://travis-ci.org/mulle-nat/mulle-objc-runtime.svg?branch=release)](https://travis-ci.org/mulle-nat/mulle-objc-runtime)
+[mulle-container](//github.com/mulle-objc/mulle-container) | [![Build Status](https://travis-ci.org/mulle-objc/mulle-container.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-container) | ![mulle-objc community tag](https://img.shields.io/github/tag/mulle-objc/mulle-container.svg) [![Build Status](https://travis-ci.org/mulle-objc/mulle-container.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-container)
+[mulle-objc-list](//github.com/mulle-objc/mulle-objc-list) | [![Build Status](https://travis-ci.org/mulle-objc/mulle-objc-list.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-objc-list) | ![mulle-objc community tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-list.svg) [![Build Status](https://travis-ci.org/mulle-objc/mulle-objc-list.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-objc-list)
+[mulle-objc-runtime](//github.com/mulle-objc/mulle-objc-runtime) | [![Build Status](https://travis-ci.org/mulle-objc/mulle-objc-runtime.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-objc-runtime) | ![mulle-objc community tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-runtime.svg) [![Build Status](https://travis-ci.org/mulle-objc/mulle-objc-runtime.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-objc-runtime)
 
 ## Install
 
-See [mulle-objc-developer](//github.com/mulle-nat/mulle-objc-developer) for
+See [mulle-objc-developer](//github.com/mulle-objc/mulle-objc-developer) for
 installation instructions.
 
 > Otherwise read:
@@ -80,8 +79,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ### Platforms and Compilers
 
 All platforms and compilers supported by
-[mulle-c11](//github.com/mulle-nat/mulle-c11/) and
-[mulle-thread](//github.com/mulle-nat/mulle-thread/).
+[mulle-c11](//github.com/mulle-objc/mulle-c11/) and
+[mulle-thread](//github.com/mulle-objc/mulle-thread/).
 
 
 ## Author

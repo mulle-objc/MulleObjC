@@ -1,3 +1,7 @@
+### 0.12.2
+
+* community release
+
 ## 0.12.1
 
 * Separate startup from standalone
