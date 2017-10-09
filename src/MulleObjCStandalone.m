@@ -33,6 +33,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#include "ns_objc_setup.h"
+#include "MulleObjC.h"
 
-#include "ns_objc_standalone.inc"
+int   __MulleObjCStandaloneVersion__ = MULLE_OBJC_VERSION;

@@ -78,7 +78,7 @@ PRIVATE ${MULLE_OBJC_DEFINITIONS}
 # its own
 #
 add_library( MulleObjCStartup STATIC
-${STANDALONE_SOURCES}
+${STARTUP_SOURCES}
 )
 
 
@@ -88,8 +88,8 @@ ${STANDALONE_SOURCES}
 # Though testing could go static at some point in time,
 # doing this with a shared library is more frugal.
 #
-set( STANDALONE_BASE_NAME "MulleObjC")
-set( STANDALONE_NAME "MulleObjCStandalone")
+set( STANDALONE_BASE_NAME "${OBJC_LIBRARY_NAME}")
+set( STANDALONE_NAME "${OBJC_LIBRARY_NAME}Standalone")
 set( STANDALONE_DEFINITIONS ${MULLE_OBJC_DEFINITIONS})
 set( STANDALONE_NORMAL_LOAD_LIBRARIES ${OS_SPECIFIC_LIBRARIES})
 set( STANDALONE_DEPENDENCIES ${STANDALONE_BASE_NAME}

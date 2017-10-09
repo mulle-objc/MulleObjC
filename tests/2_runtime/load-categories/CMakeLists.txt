@@ -25,3 +25,12 @@ add_executable( load-categories
 ${SOURCES}
 )
 
+
+# needed to do it like this, because gcc is old
+# and cmake prepends the flags and gcc then
+# has nothing to link against yet
+
+target_link_libraries( load-categories
+${TEST_LIBRARIES}
+)
+

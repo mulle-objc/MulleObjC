@@ -79,6 +79,11 @@ src/protocols/NSCoding.m
 src/protocols/NSCopying.m
 )
 
+
+set( STARTUP_SOURCES
+src/MulleObjCStartup.m
+)
+
 set( STANDALONE_SOURCES
 src/MulleObjCStandalone.m
 )
