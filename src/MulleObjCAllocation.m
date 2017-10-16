@@ -41,13 +41,13 @@
 // std-c and dependencies
 
 
-int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *property,
-                                       struct _mulle_objc_infraclass *cls,
-                                       void *self);
+int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
+                                     struct _mulle_objc_infraclass *cls,
+                                     void *self);
 
-int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *property,
-                                       struct _mulle_objc_infraclass *cls,
-                                       void *self)
+int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
+                                     struct _mulle_objc_infraclass *cls,
+                                     void *self)
 {
    if( property->clearer)
       mulle_objc_object_inline_variable_methodid_call( self, property->clearer, NULL);
@@ -112,11 +112,11 @@ struct mulle_allocator    mulle_allocator_objc =
 # pragma mark - improve dealloc speed for classes that don't have properties that need to be released
 
 
-int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclass *infra,
+int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
                                                     mulle_objc_walkpropertiescallback f,
                                                     void *userinfo);
 
-int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclass *infra,
+int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
                                                     mulle_objc_walkpropertiescallback f,
                                                     void *userinfo)
 {
@@ -127,7 +127,7 @@ int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclas
    struct _mulle_objc_infraclass                           *superclass;
    
    // protocol properties are part of the class
-   if( _mulle_objc_infraclass_get_state_bit( infra, MULLE_OBJC_INFRACLASS_HAS_RELEASABLE_PROPERTY))
+   if( _mulle_objc_infraclass_get_state_bit( infra, MULLE_OBJC_INFRACLASS_HAS_CLEARABLE_PROPERTY))
    {
       n = mulle_concurrent_pointerarray_get_count( &infra->propertylists);
       assert( n);
@@ -145,7 +145,7 @@ int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclas
    // in MulleObjC the superclass is always searched
    superclass = _mulle_objc_infraclass_get_superclass( infra);
    if( superclass && superclass != infra)
-      return( _MulleObjCInfraclassWalkReleasableProperties( superclass, f, userinfo));
+      return( _MulleObjCInfraclassWalkClearableProperties( superclass, f, userinfo));
    
    return( 0);
 }

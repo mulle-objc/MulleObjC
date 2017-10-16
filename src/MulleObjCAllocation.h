@@ -156,14 +156,14 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
 }
 
 
-static inline void   _MulleObjCObjectReleaseProperties( id obj)
+static inline void   _MulleObjCObjectClearProperties( id obj)
 {
-   extern int   _MulleObjCObjectReleaseProperty( struct _mulle_objc_property *,
-                                                 struct _mulle_objc_infraclass *cls,
-                                                 void *);
-   extern int   _MulleObjCInfraclassWalkReleasableProperties( struct _mulle_objc_infraclass *,
-                                                              mulle_objc_walkpropertiescallback,
-                                                              void *);
+   extern int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *,
+                                               struct _mulle_objc_infraclass *cls,
+                                               void *);
+   extern int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass *,
+                                                             mulle_objc_walkpropertiescallback,
+                                                             void *);
 
    struct _mulle_objc_class        *cls;
    struct _mulle_objc_infraclass   *infra;
@@ -175,8 +175,8 @@ static inline void   _MulleObjCObjectReleaseProperties( id obj)
    assert( _mulle_objc_class_is_infraclass( cls));
 
    infra = _mulle_objc_class_as_infraclass( cls);
-   _MulleObjCInfraclassWalkReleasableProperties( infra,
-                                                 _MulleObjCObjectReleaseProperty,
+   _MulleObjCInfraclassWalkClearableProperties( infra,
+                                                 _MulleObjCObjectClearProperty,
                                                  obj);
 }
 

@@ -35,4 +35,4 @@
 //
 #include "ns_objc_setup.h"
 
-#include "ns_objc_standalone.inc"
+#include "ns_objc_startup.inc"

@@ -323,7 +323,7 @@ void    MulleObjCSetClass( id obj, Class cls);
 static inline void   MulleObjCInfiniteRetain( id obj)
 {
    if( obj)
-      _mulle_objc_object_nonatomic_infinite_retain( obj);
+      _mulle_objc_object_nonatomic_infiniteretain( obj);
 }
 
 Class   NSClassFromObject( id object);

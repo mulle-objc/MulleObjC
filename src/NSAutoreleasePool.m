@@ -66,7 +66,7 @@ static struct mulle_container_keyvaluecallback    object_map_callback;
 static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *config)
 {
    char   *s;
-   
+
    config->poolClass          = mulle_objc_unfailingfastlookup_infraclass( @selector( NSAutoreleasePool));
    config->autoreleaseObject  = _autoreleaseObject;
    config->autoreleaseObjects = _autoreleaseObjects;
@@ -87,8 +87,13 @@ static void   __ns_poolconfiguration_set_thread( struct _ns_poolconfiguration  *
       config->object_map = &config->_object_map;
    }
 
-   s = getenv( "MULLE_OBJC_AUTORELEASEPOOL_TRACE");
-   config->trace = s ? atoi( s) : 0;
+   s = getenv( "MULLE_OBJC_TRACE_AUTORELEASEPOOL");
+   if( s && strlen( s))
+   {
+      config->trace = atoi( s);
+      if( ! config->trace && (*s != '0' && *s != 'N'))
+         config->trace = 0xFF;
+   }
    (*config->push)( config);  // create a pool
 }
 
