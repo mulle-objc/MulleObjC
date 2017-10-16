@@ -5,8 +5,8 @@ dist: trusty
 sudo: required
 
 before_install:
-  - wget -q -O- https://raw.githubusercontent.com/mulle-nat/mulle-objc-developer/release/install-ubuntu.sh | sudo TRACE=YES APTFLAGS=-y sh
+  - wget -q -O- https://raw.githubusercontent.com/mulle-objc/mulle-objc-developer/release/install-ubuntu.sh | sudo TRACE=YES APTFLAGS=-y sh
 
 script:
-   - mulle-install -vv -V  --prefix /tmp
+   - mulle-install -vv -V --prefix /tmp
    - mulle-test -v -V
