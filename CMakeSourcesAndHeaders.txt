@@ -31,7 +31,7 @@ src/ns_objc_compatibility.h
 src/ns_objc_compiler.h
 src/ns_objc_include.h
 src/ns_objc_setup.h
-src/ns_objc_standalone.inc
+src/ns_objc_startup.inc
 src/ns_objc_type.h
 src/ns_range.h
 src/ns_rootconfiguration.h

@@ -182,7 +182,7 @@ static BOOL   MulleObjCSingleThreadedCheckReleaseAndAutorelease = YES;
 
 - (void) dealloc
 {
-   _MulleObjCObjectReleaseProperties( self);
+   _MulleObjCObjectClearProperties( self);
 
 #if DEBUG
    if( MulleObjCSingleThreadedCheckReleaseAndAutorelease)
