@@ -76,9 +76,9 @@ void   MulleObjCClassClusterMarkClassAsClassCluster( Class self)
 static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 {
    mulle_objc_implementation_t   imp;
-   struct _mulle_objc_class            *cls;
-   id                                  placeholder;
-   mulle_objc_methodid_t               sel;
+   mulle_objc_methodid_t         sel;
+   struct _mulle_objc_class      *cls;
+   id                            placeholder;
    
    placeholder = NSAllocateObject( infraCls, 0, NULL);
    cls         = _mulle_objc_infraclass_as_class( infraCls);
@@ -96,12 +96,12 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 void   _ns_objc_classcluster_warning( struct _mulle_objc_infraclass *self);
 void   _ns_objc_classcluster_warning( struct _mulle_objc_infraclass *self)
 {
-      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of "
-                       "MulleObjCClassCluster but gets allocated directly. "
-                       "(Non classcluster subclasses should implement +alloc, \n"
-                       "break on _ns_objc_classcluster_warning to debug)\n",
-                 _mulle_objc_infraclass_get_classid( self),
-                 _mulle_objc_infraclass_get_name( self));
+   fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of "
+                    "MulleObjCClassCluster but gets allocated directly. "
+                    "(Non classcluster subclasses should implement +alloc, \n"
+                    "break on _ns_objc_classcluster_warning to debug)\n",
+              _mulle_objc_infraclass_get_classid( self),
+              _mulle_objc_infraclass_get_name( self));
 }
 #endif
 
