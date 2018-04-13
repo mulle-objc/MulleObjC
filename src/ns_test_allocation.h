@@ -37,13 +37,13 @@
 #ifndef ns_test_allocation_h__
 #define ns_test_allocation_h__
 
-#include <mulle_allocator/mulle_allocator.h>
+#include <mulle-test-allocator/mulle-test-allocator.h>
 
 // TODO: rename to ns_objc prefix
 extern struct mulle_allocator    mulle_test_allocator_objc;
 
 
-static inline void  mulle_test_allocator_objc_initialize()
+static inline void   mulle_test_allocator_objc_initialize()
 {
    extern void   mulle_test_allocator_initialize();
 
@@ -51,7 +51,7 @@ static inline void  mulle_test_allocator_objc_initialize()
 }
 
 
-static inline void  mulle_test_allocator_objc_reset()
+static inline void   mulle_test_allocator_objc_reset()
 {
    extern void   mulle_test_allocator_reset();
 

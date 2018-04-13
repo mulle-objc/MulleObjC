@@ -40,7 +40,7 @@
 #import "MulleObjCAllocation.h"
 
 // std-c and dependencies
-#include <mulle_thread/mulle_thread.h>
+#include "dependencies.h"
 #include <stdlib.h>
 
 
@@ -126,7 +126,7 @@ static void  __mulle_resignas_objc_runtime_thread( int debug)
    NSThread                        *thread;
 
    universe = mulle_objc_inlined_get_universe();
-   
+
    thread = _ns_get_thread();
    if( ! thread)
    {
@@ -144,7 +144,7 @@ static void  __mulle_resignas_objc_runtime_thread( int debug)
 
    if( debug)
       fprintf( stderr, "NSThread %p: Removing thread from universe...\n", thread);
-   
+
    _mulle_objc_universe_unregister_current_thread( universe);
 
    if( debug)
@@ -236,7 +236,7 @@ void  _NSThreadResignAsMainThread( void)
    int         debug;
 
    universe = mulle_objc_get_universe();
-   
+
    if( ! universe)
       return;
 
@@ -260,10 +260,10 @@ void  _NSThreadResignAsMainThread( void)
       fprintf( stderr, "*** Main thread was never set up. [NSThread load] did not run!***\n");
 #if DEBUG
       abort();
-#endif      
+#endif
       return;
    }
-   
+
    debug = _ns_rootconfiguration_is_debug_enabled();
    if( debug)
       fprintf( stderr, "NSThread %p: Releasing Root objects...\n", thread);

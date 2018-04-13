@@ -47,8 +47,7 @@
 #import "NSInvocation.h"
 
 // std-c and dependencies
-#import <mulle_concurrent/mulle_concurrent.h>
-
+#import "dependencies.h"
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 #pragma clang diagnostic ignored "-Wparentheses"
@@ -961,13 +960,13 @@ int   _MulleObjCSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t 
 {
    int                        offset;
    struct _mulle_objc_class   *cls;
-   
+
    cls = _mulle_objc_object_get_isa( self);
 
    assert( _mulle_objc_class_is_infraclass( cls));
    assert( mulle_objc_ivarid_is_sane( ivarid));
    assert( buf);
-   
+
    offset = get_ivar_offset( (Class) cls, ivarid, buf, size);
    switch( offset)
    {
@@ -1027,13 +1026,13 @@ static void  throw_unknown_ivarid( struct _mulle_objc_class *cls,
 id  MulleObjCGetObjectIvar( id self, mulle_objc_ivarid_t ivarid)
 {
    id   obj;
-   
+
    if( ! self)
       return( nil);
-   
+
    if( _MulleObjCGetIvar( self, ivarid, &obj, sizeof( obj)))
       throw_unknown_ivarid( _mulle_objc_object_get_isa( self), ivarid);
-   
+
    return( obj);
 }
 
@@ -1047,7 +1046,7 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
    char                       *typeinfo;
    int                        offset;
    id                         *p;
-   
+
    if( ! self)
       return;
 
@@ -1055,11 +1054,11 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
 
    assert( _mulle_objc_class_is_infraclass( cls));
    assert( mulle_objc_ivarid_is_sane( ivarid));
-   
+
    ivar = _mulle_objc_infraclass_search_ivar( (Class) cls, ivarid);
    if( ! ivar)
       throw_unknown_ivarid( cls, ivarid);
-   
+
    offset = _mulle_objc_ivar_get_offset( ivar);
    if( offset == -1)
       mulle_objc_throw_internal_inconsistency_exception( "hashed access not yet implemented");
@@ -1067,7 +1066,7 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
    p         = (id *) &((char *) self)[ offset];
    signature = _mulle_objc_ivar_get_signature( ivar);
    typeinfo  = _mulle_objc_signature_skip_extendedtypeinfo( signature);
-   
+
    switch( *typeinfo)
    {
    case _C_COPY_ID   :
@@ -1087,7 +1086,7 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
 }
 
 
-#include <mulle_objc_runtime/mulle_objc_lldb.h>
+#include <mulle-objc-runtime/mulle-objc-lldb.h>
 
 //
 // this should never be called

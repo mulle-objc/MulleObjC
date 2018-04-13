@@ -37,7 +37,7 @@
 
 #include "ns_exception.h"
 
-#include <mulle_objc_runtime/mulle_objc_runtime.h>
+#include "dependencies.h"
 
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"

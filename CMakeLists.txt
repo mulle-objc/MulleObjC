@@ -1,112 +1,106 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required( VERSION 3.0)
+
+project( MulleObjC C)
 
 
-project( MulleObjC C )  # OBJC in the future! :)
+### mulle-sde environment
 
-# https://stackoverflow.com/questions/13054451/cmake-problems-specifying-the-compiler-2
-# don't do that:
-#    set( CMAKE_C_COMPILER
-# instead
-#    cmake -DCMAKE_C_COMPILER=mulle-clang
+# add cmake module paths to search path
+list( INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake/share")
+list( INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake")
+
+include( Environment)
+
+
+### Files
+
+include( PreFiles OPTIONAL)
+
+set( MULLEOBJC_LIBRARY ON)
+
 #
+# Include all non underscored .cmake files in ./cmake
 #
+file( GLOB LOCAL_CMAKE_INCLUDES
+   "cmake/[A-Za-z0-9]*.cmake"
+)
 
-#
-# https://github.com/Kitware/CMake/blob/master/Modules/CMakeAddNewLanguage.txt
-#
-# It would be tempting to specify OBJC as the language but:
-# 1) cmake doesn't know about it
-# 2) one would need to write and maintain a lot of cmake files, that are
-#    version specific
-# 3) The only immediate payoff is, that one doesn't need to specify
-#    -DCMAKE_C_COMPILER or .CC when using mulle-build
-#
-
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/mulle-configuration/cmake)
-message( STATUS "CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}")
-message( STATUS "CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
-
-set( MULLE_LANGUAGE "ObjC")
-
-if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-  include( Debug)
-else()
-  include( Release)
-endif()
-
-
-set( MULLE_OBJC_LIBRARY ON)
-set( MULLE_OBJC_STARTUP_LIBRARY ON)
-
-include( CMakeDependencies.txt)
-include( CMakeSourcesAndHeaders.txt)
+foreach( FILE ${LOCAL_CMAKE_INCLUDES} )
+   include( "${FILE}")
+endforeach()
 
 
 include_directories( ${INCLUDE_DIRS})
 
+include( PostFiles OPTIONAL)
 
-set( PUBLIC_HEADERS
-${PUBLIC_HEADERS}
-"CMakeDependencies.txt"
-"src/dependencies.inc"
-)
+### Library
 
+include( PreLibrary OPTIONAL)
 
-#
-# The static library of MulleObjC
-#
-add_library( MulleObjC STATIC
+add_library( "MulleObjC"
+# definitions from cmake/HeadersAndSources.cmake
 ${SOURCES}
 ${PUBLIC_HEADERS}
 ${PRIVATE_HEADERS}
-CMakeSourcesAndHeaders.txt
+# definitions from cmake/share/Environment.cmake
+${CMAKE_EDITABLE_FILES}
 )
 
+if( BUILD_SHARED_LIBS)
+   target_link_libraries( MulleObjC
+# definitions from cmake/share/DependenciesAndLibraries.cmake
+${DEPENDENCY_LIBRARIES}
+${OS_SPECIFIC_LIBRARIES}
+)
+endif()
 
-set( OBJC_LIBRARY_NAME "MulleObjC")
-include( DependenciesIncObjC)
+include( PostLibrary OPTIONAL)
 
+option( STANDALONE "Create standalone library for debugging" OFF)
 
-target_compile_definitions( MulleObjC
-PRIVATE ${MULLE_OBJC_DEFINITIONS}
+set( INSTALL_LIBRARY_TARGETS
+"MulleObjC"
 )
 
+if( STANDALONE)
+   set( STANDALONE_BASE_NAME "MulleObjC")
+   set( STANDALONE_NAME "MulleObjC-standalone")
+   set( STANDALONE_DEFINITIONS ${MULLEOBJC_DEFINITIONS})
+   set( STANDALONE_DEPENDENCIES
+   MulleObjC
+   )
 
-#
-# This library contains the missing setup function
-# usually the MulleFoundation will override it with
-# its own
-#
-add_library( MulleObjCStartup STATIC
-${STARTUP_SOURCES}
-)
+   set( STANDALONE_ALL_LOAD_LIBRARIES
+   $<TARGET_FILE:MulleObjC>
+   ${DEPENDENCY_LIBRARIES}
+   ${OPTIONAL_DEPENDENCY_LIBRARIES}
+   ${ALL_LOAD_DEPENDENCY_LIBRARIES}
+   ${OS_SPECIFIC_LIBRARIES}
+   )
 
+   message( STATUS "STANDALONE_ALL_LOAD_LIBRARIES=\"${STANDALONE_ALL_LOAD_LIBRARIES}\"")
 
-#
-# This produces a standalone dll/dylib/so for testing mainly.
-# It contains everything that one would need to link against.
-# Though testing could go static at some point in time,
-# doing this with a shared library is more frugal.
-#
-set( STANDALONE_BASE_NAME "${OBJC_LIBRARY_NAME}")
-set( STANDALONE_NAME "${OBJC_LIBRARY_NAME}Standalone")
-set( STANDALONE_DEFINITIONS ${MULLE_OBJC_DEFINITIONS})
-set( STANDALONE_NORMAL_LOAD_LIBRARIES ${OS_SPECIFIC_LIBRARIES})
-set( STANDALONE_DEPENDENCIES ${STANDALONE_BASE_NAME}
-MulleObjCStartup
-)
+   include( Standalone)
 
-set( STANDALONE_ALL_LOAD_LIBRARIES
-    $<TARGET_FILE:${STANDALONE_BASE_NAME}>
-    ${OBJC_DEPENDENCY_LIBRARIES}
-    $<TARGET_FILE:MulleObjCStartup>
-    ${C_DEPENDENCY_LIBRARIES}
-)
+   set( INSTALL_LIBRARY_TARGETS
+   ${INSTALL_LIBRARY_TARGETS}
+   "MulleObjC-standalone"
+   )
+endif()
 
-include( Standalone)
+### Install
 
-install( TARGETS MulleObjC MulleObjCStartup MulleObjCStandalone DESTINATION "lib")
-install( FILES ${PUBLIC_HEADERS} DESTINATION "include/MulleObjC")
+include( PreInstall OPTIONAL)
+
+install( TARGETS ${INSTALL_LIBRARY_TARGETS} DESTINATION "lib")
+install( FILES ${PUBLIC_HEADERS}  DESTINATION "include/MulleObjC")
 install( FILES ${PRIVATE_HEADERS} DESTINATION "include/MulleObjC/private")
 
-include( MulleTest)
+# definitions from cmake/share/Environment.cmake
+install( FILES ${CMAKE_INCLUDES}  DESTINATION "include/MulleObjC/cmake")
+
+# definitions from cmake/share/LinkManifest.cmake
+install( FILES ${LINK_MANIFEST_FILES}  DESTINATION "include/MulleObjC/link")
+
+include( PostInstall OPTIONAL)
