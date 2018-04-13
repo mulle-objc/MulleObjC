@@ -39,7 +39,7 @@
 #import "NSObjectProtocol.h"
 
 // std-c and dependencies
-#include <mulle_objc_runtime/mulle_objc_runtime.h>
+#include "dependencies.h"
 #include "ns_rootconfiguration.h"
 
 
@@ -257,12 +257,12 @@ IMP   MulleObjCSearchSuperIMP( id obj,
    struct _mulle_objc_class             *cls;
    struct _mulle_objc_method            *method;
    mulle_objc_implementation_t    imp;
-   
+
    if( ! obj)
       return( (IMP) 0);
-   
+
    _mulle_objc_searcharguments_superinit( &search, sel, classid);
-   
+
    cls    = _mulle_objc_object_get_isa( obj);
    method = mulle_objc_class_search_method( cls,
                                            &search,
@@ -271,7 +271,7 @@ IMP   MulleObjCSearchSuperIMP( id obj,
    imp = 0;
    if( method)
       imp = _mulle_objc_method_get_implementation( method);
-   
+
    return( (IMP) imp);
 }
 
@@ -286,12 +286,12 @@ IMP   MulleObjCSearchOverriddenIMP( id obj,
    struct _mulle_objc_class             *cls;
    struct _mulle_objc_method            *method;
    mulle_objc_implementation_t    imp;
-   
+
    if( ! obj)
       return( (IMP) 0);
-   
+
    _mulle_objc_searcharguments_overriddeninit( &search, sel, classid, categoryid);
-   
+
    cls    = _mulle_objc_object_get_isa( obj);
    method = mulle_objc_class_search_method( cls,
                                            &search,
@@ -300,7 +300,7 @@ IMP   MulleObjCSearchOverriddenIMP( id obj,
    imp = 0;
    if( method)
       imp = _mulle_objc_method_get_implementation( method);
-   
+
    return( (IMP) imp);
 }
 
@@ -318,12 +318,12 @@ IMP   MulleObjCSearchSpecificIMP( id obj,
    struct _mulle_objc_class              *cls;
    struct _mulle_objc_method             *method;
    mulle_objc_implementation_t     imp;
-   
+
    if( ! obj)
       return( (IMP) 0);
-   
+
    _mulle_objc_searcharguments_specificinit( &search, sel, classid, categoryid);
-   
+
    cls    = _mulle_objc_object_get_isa( obj);
    method = mulle_objc_class_search_method( cls,
                                             &search,
@@ -332,7 +332,7 @@ IMP   MulleObjCSearchSpecificIMP( id obj,
    imp = 0;
    if( method)
       imp = _mulle_objc_method_get_implementation( method);
-   
+
    return( (IMP) imp);
 }
 

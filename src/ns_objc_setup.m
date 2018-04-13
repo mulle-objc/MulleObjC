@@ -40,9 +40,8 @@
 
 #include "ns_rootconfiguration.h"
 #include "ns_test_allocation.h"
-#include <mulle_objc_runtime/mulle_objc_csvdump.h>
-#include <mulle_objc_list/mulle_objc_list.h>
-
+#include "dependencies.h"
+#include <mulle-objc-runtime/mulle-objc-csvdump.h>
 
 
 // std-c and dependencies
@@ -103,20 +102,20 @@ void   ns_objc_universe_tear_down()
 {
    void  _NSThreadResignAsMainThread( void);
    int   trace;
-   
+
    trace = mulle_objc_getenv_yes_no( "MULLE_OBJC_TRACE_UNIVERSE");
    if( trace)
       fprintf( stderr, "mulle-objc: ns_objc_universe_tear_down in progress\n");
-   
+
    if( mulle_objc_getenv_yes_no( "MULLE_OBJC_COVERAGE"))
    {
       fprintf( stderr, "mulle-objc: writing coverage files...\n");
-      
+
       mulle_objc_csvdump_methodcoverage();
       mulle_objc_csvdump_classcoverage();
       mulle_objc_csvdump_cachesizes();
    }
-   
+
   // this is called by _NSThreadResignAsMainThread:  mulle_objc_release_universe
    _NSThreadResignAsMainThread();
 }
@@ -141,7 +140,7 @@ static void  post_create( struct _mulle_objc_universe  *universe)
 {
    struct _ns_rootconfiguration   *rootconfig;
    int                             coverage;
-   
+
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    rootconfig->string.charsfromobject = (char *(*)()) return_self;
@@ -251,7 +250,7 @@ void   ns_objc_universe_setup( struct _mulle_objc_universe *universe,
       // if we retain zombies, we leak, so no point in looking for leaks
       if( rootcfg->object.zombieenabled && ! rootcfg->object.deallocatezombies)
          is_test = 0;
-      
+
       if( universe->debug.trace.universe)
          fprintf( stderr, "mulle-objc: install atexit handler for universe crunch...\n");
 

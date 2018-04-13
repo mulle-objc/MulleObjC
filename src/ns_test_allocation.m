@@ -37,7 +37,7 @@
 #include "ns_test_allocation.h"
 
 #include "ns_exception.h"
-#include <mulle_test_allocator/mulle_test_allocator.h>
+#include <mulle-test-allocator/mulle-test-allocator.h>
 
 
 static void  *test_calloc_or_raise( size_t n, size_t size)

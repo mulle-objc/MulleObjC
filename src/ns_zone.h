@@ -39,7 +39,7 @@
 #include "ns_int_type.h"
 #include "ns_exception.h"
 
-#include <mulle_allocator/mulle_allocator.h>
+#include "dependencies.h"
 
 
 //

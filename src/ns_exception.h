@@ -41,7 +41,7 @@
 
 #include "ns_int_type.h"
 #include "ns_range.h"
-#include <mulle_c11/mulle_c11.h>
+#include "dependencies.h"
 #include <stdarg.h>
 
 
