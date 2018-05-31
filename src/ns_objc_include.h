@@ -50,8 +50,9 @@
 
 // this is the only place where mulle_objc_runtime should be included
 
-#include "dependencies.h"
+#include <mulle-objc-runtime/mulle-objc-runtime.h>
 
+#include "dependencies.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>

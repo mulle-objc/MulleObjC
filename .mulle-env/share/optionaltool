@@ -1,1 +1,11 @@
 
+ssh
+cc
+clang
+gcc
+ld
+otool
+install_name_tool
+xcrun
+xcodebuild
+ninja

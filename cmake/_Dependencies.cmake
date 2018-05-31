@@ -4,34 +4,6 @@ if( MULLE_TRACE_INCLUDE)
    message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
 endif()
 
-if( NOT MULLE_OBJC_LIST_HEADER)
-   find_file( MULLE_OBJC_LIST_HEADER NAMES mulle-objc-list.h mulle-objc-list/mulle-objc-list.h)
-   message( STATUS "MULLE_OBJC_LIST_HEADER is ${MULLE_OBJC_LIST_HEADER}")
-   set( ALL_LOAD_HEADER_ONLY_LIBRARIES
-      ${MULLE_OBJC_LIST_HEADER}
-      ${ALL_LOAD_HEADER_ONLY_LIBRARIES}
-      CACHE INTERNAL "need to cache this"
-   )
-   if( MULLE_OBJC_LIST_HEADER)
-      # search for DependenciesAndLibraries.cmake to include
-      get_filename_component( _TMP_MULLE_OBJC_LIST_DIR "${MULLE_OBJC_LIST_HEADER}" DIRECTORY)
-      set( _TMP_MULLE_OBJC_LIST_DIR "${_TMP_MULLE_OBJC_LIST_DIR}/cmake")
-      # use explicit path to avoid "surprises"
-      if( EXISTS "${_TMP_MULLE_OBJC_LIST_DIR}/DependenciesAndLibraries.cmake")
-         unset( MULLE_OBJC_LIST_DEFINITIONS)
-         list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_OBJC_LIST_DIR}")
-         include( "${_TMP_MULLE_OBJC_LIST_DIR}/DependenciesAndLibraries.cmake")
-         list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_OBJC_LIST_DIR}")
-         set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${MULLE_OBJC_LIST_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-         )
-      endif()
-   else()
-      message( FATAL_ERROR "MULLE_OBJC_LIST_HEADER was not found")
-   endif()
-endif()
 if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
    find_library( MULLE_OBJC_RUNTIME_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-runtime)
    message( STATUS "MULLE_OBJC_RUNTIME_LIBRARY is ${MULLE_OBJC_RUNTIME_LIBRARY}")
