@@ -9,35 +9,38 @@ src
 src/protocols
 ) 
 
+      set( PRIVATE_HEADERS
+src/NSMethodSignature+Private.h
+)
+
 set( PUBLIC_HEADERS
-src/MulleObjC.h
 src/MulleObjCAllocation.h
 src/MulleObjCFunctions.h
 src/MulleObjCLoader.h
+src/MulleObjC.h
 src/NSAutoreleasePool.h
 src/NSDebug.h
 src/NSInvocation.h
 src/NSLock.h
-src/NSMethodSignature+Private.h
 src/NSMethodSignature.h
 src/NSObject+NSCodingSupport.h
 src/NSObject.h
 src/NSProxy.h
 src/NSRecursiveLock.h
 src/NSThread.h
-src/_ns_autoreleasepointerarray.h
-src/_ns_exception.h
 src/dependencies.h
 src/dependencies.inc
+src/_ns_autoreleasepointerarray.h
 src/ns_byteorder.h
 src/ns_debug.h
+src/_ns_exception.h
 src/ns_exception.h
 src/ns_fastclassids.h
 src/ns_fastmethodids.h
 src/ns_int_type.h
-src/ns_objc.h
 src/ns_objc_compatibility.h
 src/ns_objc_compiler.h
+src/ns_objc.h
 src/ns_objc_include.h
 src/ns_objc_setup.h
 src/ns_objc_startup.inc
