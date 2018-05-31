@@ -6,10 +6,6 @@
 #ifndef _mulleobjc__dependencies_h__
 #define _mulleobjc__dependencies_h__
 
-# include <mulle-objc-runtime/mulle-objc-runtime.h>
-
-# include <mulle-objc-list/mulle-objc-list.h>
-
-# include <mulle-container/mulle-container.h>
+# include <mulle-container/mulle-container.h>   // mulle-container
 
 #endif
