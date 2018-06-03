@@ -20,6 +20,6 @@ before_install:
    - sudo apt-get update
    - sudo apt-get -y install mulle-clang mulle-sde mulle-test
 
-script: 
+script:
    - mulle-sde -vvv craft
-   - mulle-test -v --project-dialect objc
+   - mulle-env -c "mulle-test -v --project-dialect objc"
