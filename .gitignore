@@ -47,7 +47,7 @@ test/
 .mulle-env/libexec/
 
 # style is "fluctuating" on a per-user level so not interesting
-.mulle-env/share/style
+.mulle-env/etc/style
 .mulle-env/etc/environment-user-*.sh
 .mulle-env/etc/environment-host-*.sh
 

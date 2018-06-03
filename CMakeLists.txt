@@ -17,6 +17,7 @@ include( Environment)
 include( PreFiles OPTIONAL)
 
 set( MULLEOBJC_LIBRARY ON)
+set( MULLEOBJC_STARTUP_LIBRARY ON)
 
 #
 # Include all non underscored .cmake files in ./cmake
@@ -32,6 +33,14 @@ endforeach()
 
 include_directories( ${INCLUDE_DIRS})
 
+set( PROJECT_FILES
+   ${SOURCES}
+   ${DEBUG_SOURCES}
+   ${PUBLIC_HEADERS}
+   ${PRIVATE_HEADERS}
+   ${CMAKE_EDITABLE_FILES}
+)
+
 include( PostFiles OPTIONAL)
 
 ### Library
@@ -39,55 +48,44 @@ include( PostFiles OPTIONAL)
 include( PreLibrary OPTIONAL)
 
 add_library( "MulleObjC"
-# definitions from cmake/HeadersAndSources.cmake
-${SOURCES}
-${PUBLIC_HEADERS}
-${PRIVATE_HEADERS}
-# definitions from cmake/share/Environment.cmake
-${CMAKE_EDITABLE_FILES}
+   ${PROJECT_FILES}
 )
 
-if( BUILD_SHARED_LIBS)
-   target_link_libraries( MulleObjC
-# definitions from cmake/share/DependenciesAndLibraries.cmake
-${DEPENDENCY_LIBRARIES}
-${OS_SPECIFIC_LIBRARIES}
+
+set( INSTALL_LIBRARY_TARGETS
+   "MulleObjC"
 )
-endif()
+
+##
+## Startup is used for executables
+##
+add_library( MulleObjCStartup STATIC
+   ${STARTUP_SOURCES}
+)
+
+set( STARTUP_LIBRARY MulleObjCStartup)
+
+set( INSTALL_LIBRARY_TARGETS
+   ${INSTALL_LIBRARY_TARGETS}
+   MulleObjCStartup
+)
 
 include( PostLibrary OPTIONAL)
 
-option( STANDALONE "Create standalone library for debugging" OFF)
+if( BUILD_SHARED_LIBS)
 
-set( INSTALL_LIBRARY_TARGETS
-"MulleObjC"
-)
+   include( AllLoad)
 
-if( STANDALONE)
-   set( STANDALONE_BASE_NAME "MulleObjC")
-   set( STANDALONE_NAME "MulleObjC-standalone")
-   set( STANDALONE_DEFINITIONS ${MULLEOBJC_DEFINITIONS})
-   set( STANDALONE_DEPENDENCIES
-   MulleObjC
-   )
+   CreateForceAllLoadList( ALL_LOAD_DEPENDENCY_LIBRARIES FORCE_ALL_LOAD_DEPENDENCY_LIBRARIES)
 
-   set( STANDALONE_ALL_LOAD_LIBRARIES
-   $<TARGET_FILE:MulleObjC>
-   ${DEPENDENCY_LIBRARIES}
-   ${OPTIONAL_DEPENDENCY_LIBRARIES}
-   ${ALL_LOAD_DEPENDENCY_LIBRARIES}
-   ${OS_SPECIFIC_LIBRARIES}
-   )
-
-   message( STATUS "STANDALONE_ALL_LOAD_LIBRARIES=\"${STANDALONE_ALL_LOAD_LIBRARIES}\"")
-
-   include( Standalone)
-
-   set( INSTALL_LIBRARY_TARGETS
-   ${INSTALL_LIBRARY_TARGETS}
-   "MulleObjC-standalone"
+   target_link_libraries( MulleObjC
+      ${FORCE_ALL_LOAD_DEPENDENCY_LIBRARIES}
+      ${DEPENDENCY_LIBRARIES}
+      ${OPTIONAL_DEPENDENCY_LIBRARIES}
+      ${OS_SPECIFIC_LIBRARIES}
    )
 endif()
+
 
 ### Install
 
@@ -97,10 +95,6 @@ install( TARGETS ${INSTALL_LIBRARY_TARGETS} DESTINATION "lib")
 install( FILES ${PUBLIC_HEADERS}  DESTINATION "include/MulleObjC")
 install( FILES ${PRIVATE_HEADERS} DESTINATION "include/MulleObjC/private")
 
-# definitions from cmake/share/Environment.cmake
 install( FILES ${CMAKE_INCLUDES}  DESTINATION "include/MulleObjC/cmake")
-
-# definitions from cmake/share/LinkManifest.cmake
-install( FILES ${LINK_MANIFEST_FILES}  DESTINATION "include/MulleObjC/link")
 
 include( PostInstall OPTIONAL)

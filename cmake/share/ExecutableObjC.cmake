@@ -1,46 +1,41 @@
-#
-# Input:
-#
-# EXECUTABLE_BASE_NAME
-# EXECUTABLE_ALL_LOAD_LIBRARIES
-#
-#
-# Optional:
-#
-# EXECUTABLE_OPTIMIZABLE_LOAD_LIBRARIES
-# C_DEPENDENCY_LIBRARIES
-# OS_SPECIFIC_LIBRARIES
-#
-set( EXECUTABLE_VERSION 3)
+if( NOT __EXECUTABLE_OBJC_CMAKE__)
+   set( __EXECUTABLE_OBJC_CMAKE__ ON)
 
-foreach( library ${EXECUTABLE_ALL_LOAD_LIBRARIES})
-   list( APPEND EXECUTABLE_FORCE_ALL_LOAD_LIBRARIES "${FORCE_LOAD_PREFIX}${library}")
-endforeach()
+   if( MULLE_TRACE_INCLUDE)
+      message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
+   endif()
 
-###
+   set( EXECUTABLE_OBJC_VERSION 4)
 
-target_link_libraries( "${EXECUTABLE_NAME}"
-${BEGIN_ALL_LOAD}
-${EXECUTABLE_FORCE_ALL_LOAD_LIBRARIES}
-${END_ALL_LOAD}
-${EXECUTABLE_NORMAL_LOAD_LIBRARIES}
-${C_DEPENDENCY_LIBRARIES}
-${OS_SPECIFIC_LIBRARIES}
-)
+   #
+   # This library contains ___get_or_create_mulle_objc_universe and
+   # the startup code to create the universe
+   #
+   if( NOT MULLE_OBJC_STARTUP_LIBRARY)
+      find_library( MULLE_OBJC_STARTUP_LIBRARY NAMES MulleObjCStartup)
+   endif()
 
-#
-# need this for .aam projects
-#
-set_target_properties( "${EXECUTABLE_NAME}"
-   PROPERTIES LINKER_LANGUAGE C
-)
+   message( STATUS "MULLE_OBJC_STARTUP_LIBRARY is ${MULLE_OBJC_STARTUP_LIBRARY}")
 
-#
-# For noobs add a line so they find the output
-#
-add_custom_command(
-  TARGET "${EXECUTABLE_NAME}"
-  POST_BUILD
-  COMMAND echo "Your executable \"$<TARGET_FILE:${EXECUTABLE_NAME}>\" is now ready to run"
-  VERBATIM
-)
+   set( EXECUTABLE_LIBRARY_LIST
+      ${EXECUTABLE_LIBRARY_LIST}
+      ${MULLE_OBJC_STARTUP_LIBRARY}
+   )
+
+   #
+   # need this for .aam projects
+   #
+   set_target_properties( MulleObjC
+      PROPERTIES LINKER_LANGUAGE C
+   )
+
+   #
+   # For noobs add a line so they find the output
+   #
+   add_custom_command(
+     TARGET MulleObjC
+     POST_BUILD
+     COMMAND echo "Your executable \"$<TARGET_FILE:MulleObjC>\" is now ready to run"
+     VERBATIM
+   )
+endif()

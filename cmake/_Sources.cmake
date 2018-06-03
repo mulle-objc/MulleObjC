@@ -9,7 +9,6 @@ src/MulleObjCAllocation.m
 src/MulleObjCFunctions.m
 src/MulleObjCLoader.m
 src/MulleObjCStandalone.m
-src/MulleObjCStartup.m
 src/NSAutoreleasePool.m
 src/NSDebug.m
 src/NSInvocation.m
@@ -37,4 +36,8 @@ src/protocols/NSCopying.m
 
 set( STANDALONE_SOURCES
 src/MulleObjC-standalone.m
+)
+
+set( STARTUP_SOURCES
+src/MulleObjCStartup.m
 )
