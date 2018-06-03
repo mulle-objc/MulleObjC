@@ -35,9 +35,17 @@ export DEPENDENCY_DIR="${MULLE_VIRTUAL_ROOT}/dependency"
 export ADDICTION_DIR="${MULLE_VIRTUAL_ROOT}/addiction"
 
 #
+# Modify path so that dependency and addictions executables are found and
+# preferred.
+#
+PATH="${DEPENDENCY_DIR}/bin:${ADDICTION_DIR}/bin:$PATH"
+
+#
 # Use common build directory
 #
 export BUILD_DIR="${MULLE_VIRTUAL_ROOT}/build"
+
+
 # Used by `mulle-match find` to speed up the search.
 export MULLE_MATCH_FIND_NAMES="config:*.h:*.inc:*.c:CMakeLists.txt:*.cmake:*.m:*.aam"
 
@@ -48,12 +56,19 @@ export MULLE_MATCH_FIND_LOCATIONS="${PROJECT_SOURCE_DIR}:CMakeLists.txt:cmake"
 
 # By default assume a project has source and a sourcetree
 # The order should be sourcetree then source
+
+
+#
+#
+#
+export MULLE_SDE_INSTALLED_VERSION="0.20.1"
+
+# By default assume a project has source and a sourcetree
+# The order should be sourcetree then source
+
+
+# By default assume a project has source and a sourcetree
+# The order should be sourcetree then source
 export MULLE_SDE_UPDATE_CALLBACKS="sourcetree:source"
-
-
-#
-#
-#
-export MULLE_SDE_INSTALLED_VERSION="0.18.7"
 
 
