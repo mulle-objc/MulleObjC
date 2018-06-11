@@ -62,10 +62,10 @@ tr
 vi
 wc
 which
+mulle-clang
 curl
 column
 git
 uuidgen
 cmake
 make
-mulle-clang

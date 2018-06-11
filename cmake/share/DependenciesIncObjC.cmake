@@ -5,14 +5,13 @@ if( NOT __DEPENDENCIES_INC_OBJC_CMAKE__)
       message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
    endif()
 
-   option( OBJC_DEPENDENCY_INC "Create coveraage-optimized ObjC libraries" ON)
+   option( OBJC_DEPENDENCY_INC "Create support for coverage-optimizing ObjC libraries" ON)
 
    if( OBJC_DEPENDENCY_INC)
       #
       # Input:
       #
       # MULLE_LANGUAGE
-      # OBJC_LIBRARY_NAME
       # OBJC_DEPENDENCY_NAMES
       # OBJC_DEPENDENCY_LIBRARIES
       #
@@ -25,7 +24,6 @@ if( NOT __DEPENDENCIES_INC_OBJC_CMAKE__)
       endif()
 
       message( STATUS "DEPENDENCIES_INC is ${DEPENDENCIES_INC}")
-      message( STATUS "OBJC_LIBRARY_NAME is ${OBJC_LIBRARY_NAME}")
       message( STATUS "OBJC_DEPENDENCY_NAMES is ${OBJC_DEPENDENCY_NAMES}")
 
       # runs in build dir

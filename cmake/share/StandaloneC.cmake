@@ -13,12 +13,7 @@ if( NOT __STANDALONE__CMAKE__)
       if( NOT STANDALONE_NAME)
          set( STANDALONE_NAME "MulleObjC-standalone")
       endif()
-
-      if( NOT STANDALONE_STARTUP_LIBRARY)
-         set( STANDALONE_STARTUP_LIBRARY ${STARTUP_LIBRARY})
-      endif()
-
-      set( STANDALONE_DEFINITIONS ${MULLEOBJC_DEFINITIONS})
+      set( STANDALONE_DEFINITIONS ${MULLE_OBJC_DEFINITIONS})
 
       #
       # A standalone library has all symbols and nothing is optimized away
@@ -32,6 +27,18 @@ if( NOT __STANDALONE__CMAKE__)
          ${OS_SPECIFIC_LIBRARIES}
       )
 
+      if( NOT STANDALONE_STARTUP_LIBRARY)
+         set( STANDALONE_STARTUP_LIBRARY ${STARTUP_LIBRARY})
+      endif()
+
+      if( STANDALONE_STARTUP_LIBRARY)
+         set( STANDALONE_ALL_LOAD_LIBRARIES
+            ${STANDALONE_ALL_LOAD_LIBRARIES}
+            $<TARGET_FILE:${STANDALONE_STARTUP_LIBRARY}>
+         )
+      endif()
+
+
       #
       # If the main library is built as a shared library, we can't do it
       #
@@ -44,7 +51,7 @@ if( NOT __STANDALONE__CMAKE__)
          if( NOT STANDALONE_SOURCES)
             message( FATAL_ERROR "You need to define STANDALONE_SOURCES. Add a file
 MulleObjC-standalone.c with contents like this to it:
-   int  ___mulleobjc_unused__;
+   int  ___mulle_objc_unused__;
 and everybody will be happy")
          endif()
 
@@ -128,11 +135,6 @@ and everybody will be happy")
          # are implicitly added.
          #
          # creates FORCE_STANDALONE_ALL_LOAD_LIBRARIES
-
-         set( STANDALONE_ALL_LOAD_LIBRARIES
-            ${STANDALONE_ALL_LOAD_LIBRARIES}
-            ${STANDALONE_STARTUP_LIBRARY}
-         )
 
          CreateForceAllLoadList( STANDALONE_ALL_LOAD_LIBRARIES FORCE_STANDALONE_ALL_LOAD_LIBRARIES)
 

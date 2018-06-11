@@ -46,26 +46,23 @@ EOF
 }
 
 
-#
-# this is bullshit right now, just in the process of building it up
-#
 uname_to_cpp()
 {
    log_entry "uname_to_cmake" "$@"
 
-   local uname="$1"
+   local uname="$1"  # the part after only-os or no
 
    case "${uname}" in
-      darwin)
+      "darwin")
          echo "__APPLE__"
       ;;
 
-      "")
-         fail "uname is empty"
+      "freebsd")
+         echo "BSD4_3"  # guess
       ;;
 
       *)
-         echo "__`tr 'a-z' 'A-Z' <<< "${uname}"`__"
+         echo "__${uname}__"
       ;;
    esac
 }
@@ -349,9 +346,11 @@ main()
       return
    fi
 
+   [ -z "${PROJECT_SOURCE_DIR}" ] && internal_fail "PROJECT_SOURCE_DIR not set"
+
    if [ -z "${MULLE_SDE_DEPENDENCIES_HEADER_FILE}" ]
    then
-      MULLE_SDE_DEPENDENCIES_HEADER_FILE="${PROJECT_SOURCE_DIR:-src}/_${projectname}-dependencies.h"
+      MULLE_SDE_DEPENDENCIES_HEADER_FILE="${PROJECT_SOURCE_DIR}/_${projectname}-dependencies.h"
    fi
 
    local text_h

@@ -86,7 +86,7 @@ esac
 #
 # show motd, if any
 #
-if [ -z ""]
+if [ -z "${NO_MOTD}" ]
 then
    if [ -f "${MULLE_VIRTUAL_ROOT}/.mulle-env/etc/motd" ]
    then
