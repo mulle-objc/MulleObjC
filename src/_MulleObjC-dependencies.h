@@ -8,11 +8,11 @@
 
 # include <mulle-container/mulle-container.h>   // mulle-container
 
-# if ! defined( __MINGW__)
+# if ! defined( __mingw__)
 #  include <dlfcn.h>   // dlfcn
 # endif
 
-# if defined( __MINGW__)
+# if defined( __mingw__)
 #  include <psapi.h>   // psapi
 # endif
 

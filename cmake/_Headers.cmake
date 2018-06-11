@@ -9,7 +9,7 @@ src
 src/protocols
 ) 
 
-      set( PRIVATE_HEADERS
+set( PRIVATE_HEADERS
 src/NSMethodSignature+Private.h
 )
 
