@@ -117,6 +117,7 @@ and everybody will be happy")
             ${STANDALONE_SOURCES}
             ${DEF_FILE}
          )
+         set_property( TARGET ${STANDALONE_NAME} PROPERTY CXX_STANDARD 11)
 
          add_dependencies( ${STANDALONE_NAME}
             MulleObjC
