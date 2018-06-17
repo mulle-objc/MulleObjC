@@ -421,7 +421,7 @@ emit_cmake_dependencies()
 
       if [ ! -z "${address}" ]
       then
-         log_verbose "Emit statements for ${C_MAGENTA}${C_BOLD}${address}"
+         log_verbose "Emit cmake statements for ${C_MAGENTA}${C_BOLD}${address}"
          emit_cmake_dependency "${emitter}" \
                                "${containername}" \
                                "${address}" \
@@ -505,7 +505,7 @@ write_libraries_file()
       text_lib="# library generation turned off by MULLE_SDE_LIBRARIES_FILE"
    else
       #
-      text_dep="`emit_library`" || return 1
+      text_lib="`emit_library`" || return 1
       if [ -z "${text_lib}" ]
       then
          text_lib="# there are no libraries in the sourcetree"
