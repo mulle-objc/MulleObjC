@@ -8,8 +8,6 @@ set( SOURCES
 src/MulleObjCAllocation.m
 src/MulleObjCFunctions.m
 src/MulleObjCLoader.m
-src/MulleObjCStandalone.m
-src/MulleObjC-standalone.m
 src/NSAutoreleasePool.m
 src/NSDebug.m
 src/NSInvocation.m
@@ -33,6 +31,10 @@ src/protocols/MulleObjCSingleton.m
 src/protocols/MulleObjCTaggedPointer.m
 src/protocols/NSCoding.m
 src/protocols/NSCopying.m
+)
+
+set( STANDALONE_SOURCES
+src/MulleObjCStandalone.m
 )
 
 set( STARTUP_SOURCES
