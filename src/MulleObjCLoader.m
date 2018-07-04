@@ -59,7 +59,7 @@
 
    static struct _mulle_objc_dependency   dependencies[] =
    {
-#include "dependencies.inc"
+#include "objc-loader.inc"
       { MULLE_OBJC_NO_CLASSID, MULLE_OBJC_NO_CATEGORYID }
    };
 

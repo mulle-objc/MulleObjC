@@ -35,6 +35,9 @@
 //
 #import "NSObject.h"
 
+// std-c and dependencies
+#import "import-private.h"
+
 // other files in this library
 #import "ns_objc_type.h"
 #import "ns_int_type.h"
@@ -46,8 +49,7 @@
 #import "NSMethodSignature.h"
 #import "NSInvocation.h"
 
-// std-c and dependencies
-#import "dependencies.h"
+
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 #pragma clang diagnostic ignored "-Wparentheses"

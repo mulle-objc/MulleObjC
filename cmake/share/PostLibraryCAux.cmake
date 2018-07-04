@@ -5,8 +5,8 @@ if( NOT __POST_LIBRARY_C_AUX_CMAKE__)
       message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
    endif()
 
-   include( DependenciesIncObjC)
+   include( CreateLoaderIncObjC)
 
-   include( PostLibraryObjCAux.cmake OPTIONAL)
+   include( PostLibraryObjCAux OPTIONAL)
 
 endif()

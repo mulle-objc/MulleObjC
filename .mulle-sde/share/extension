@@ -3,7 +3,7 @@ mulle-objc/objc;runtime
 mulle-c/c;runtime
 mulle-sde/c;runtime
 mulle-sde/sde;extra
-mulle-objc/cmake;buildtool
-mulle-c/cmake;buildtool
+mulle-objc/objc-cmake;buildtool
+mulle-c/c-cmake;buildtool
 mulle-sde/c-cmake;buildtool
 mulle-sde/cmake;buildtool

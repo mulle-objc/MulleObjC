@@ -37,7 +37,7 @@
 
 #include "ns_exception.h"
 
-#include "dependencies.h"
+#import "import-private.h"
 
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"

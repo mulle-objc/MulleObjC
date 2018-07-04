@@ -39,7 +39,7 @@
 #include "ns_int_type.h"
 #include "ns_exception.h"
 
-#include "dependencies.h"
+#include "include.h"
 
 
 //

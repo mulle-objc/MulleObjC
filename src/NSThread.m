@@ -40,7 +40,7 @@
 #import "MulleObjCAllocation.h"
 
 // std-c and dependencies
-#include "dependencies.h"
+#import "import-private.h"
 #include <stdlib.h>
 
 

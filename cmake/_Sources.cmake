@@ -7,7 +7,6 @@ endif()
 set( SOURCES
 src/MulleObjCAllocation.m
 src/MulleObjCFunctions.m
-src/MulleObjCLoader.m
 src/NSAutoreleasePool.m
 src/NSDebug.m
 src/NSInvocation.m
@@ -33,8 +32,12 @@ src/protocols/NSCoding.m
 src/protocols/NSCopying.m
 )
 
+set( STAGE2_SOURCES
+src/MulleObjCLoader.m
+)
+
 set( STANDALONE_SOURCES
-src/MulleObjCStandalone.m
+src/MulleObjC-standalone.m
 )
 
 set( STARTUP_SOURCES

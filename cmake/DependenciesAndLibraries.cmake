@@ -5,8 +5,8 @@
 #
 # === MULLE-SDE START ===
 
-include( _Dependencies)
-include( _Libraries)
+include( _Dependencies OPTIONAL)
+include( _Libraries OPTIONAL)
 
 # === MULLE-SDE END ===
 #
