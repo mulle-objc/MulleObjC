@@ -48,11 +48,11 @@
 # include "ns_fastmethodids.h"
 #endif
 
-// this is the only place where mulle_objc_runtime should be included
+// this is the only place where mulle_objc_runtime should be exposed
 
 #include <mulle-objc-runtime/mulle-objc-runtime.h>
 
-#include "dependencies.h"
+#include "include.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -70,7 +70,7 @@
 #endif
 
 #if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (8 << 8) | 3)
-# error "mulle_objc_runtume is too old"
+# error "mulle_objc_runtime is too old"
 #endif
 #if MULLE_CONCURRENT_VERSION < ((1 << 20) | (3 << 8) | 0)
 # error "mulle_concurrent is too old"

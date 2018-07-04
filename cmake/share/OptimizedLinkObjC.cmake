@@ -47,7 +47,7 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
 
       message( STATUS "OPTIMIZABLE_LOAD_NAME is ${OPTIMIZABLE_LOAD_NAME}")
       message( STATUS "ALL_LOAD_NAME is ${ALL_LOAD_NAME}")
-      message( STATUS "DEPENDENCIES_DIR is ${DEPENDENCIES_DIR}")
+      message( STATUS "DEPENDENCY_DIR is ${DEPENDENCY_DIR}")
       message( STATUS "COVERAGE_DIR is ${COVERAGE_DIR}")
       message( STATUS "OPTIMIZE_DIR is ${OPTIMIZE_DIR}")
 
@@ -57,23 +57,23 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       )
 
       if( MSVC)
-         find_program( UNARCHIVE mulle-objc-unarchive.bat "${DEPENDENCIES_DIR}/bin")
-         find_program( OPTIMIZE mulle-objc-optimize.bat "${DEPENDENCIES_DIR}/bin")
+         find_program( UNARCHIVE mulle-objc-unarchive.bat "${DEPENDENCY_DIR}/bin")
+         find_program( OPTIMIZE mulle-objc-optimize.bat "${DEPENDENCY_DIR}/bin")
       else()
-         find_program( UNARCHIVE mulle-objc-unarchive "${DEPENDENCIES_DIR}/bin")
-         find_program( OPTIMIZE mulle-objc-optimize "${DEPENDENCIES_DIR}/bin")
+         find_program( UNARCHIVE mulle-objc-unarchive "${DEPENDENCY_DIR}/bin")
+         find_program( OPTIMIZE mulle-objc-optimize "${DEPENDENCY_DIR}/bin")
       endif()
 
 
       add_custom_command( OUTPUT ${CUSTOM_OUTPUT}
-       COMMAND chmod -R +w ${DEPENDENCIES_DIR}
-       COMMAND ${UNARCHIVE} --unarchive-dir ${DEPENDENCIES_DIR}/unarchive
+       COMMAND chmod -R +w ${DEPENDENCY_DIR}
+       COMMAND ${UNARCHIVE} --unarchive-dir ${DEPENDENCY_DIR}/unarchive
                             ${OBJC_OPTIMIZABLE_LIBRARIES}
-       COMMAND chmod -R -w ${DEPENDENCIES_DIR}
+       COMMAND chmod -R -w ${DEPENDENCY_DIR}
        COMMAND ${OPTIMIZE} --c-name ${OPTIMIZABLE_LOAD_NAME}
                            --objc-name ${ALL_LOAD_NAME}
-                           --unarchive-dir ${DEPENDENCIES_DIR}/unarchive
-                           --dependencies-dir ${DEPENDENCIES_DIR}
+                           --unarchive-dir ${DEPENDENCY_DIR}/unarchive
+                           --dependency-dir ${DEPENDENCY_DIR}
                            --optimize-dir ${OPTIMIZE_DIR}
                            --coverage-dir ${COVERAGE_DIR}
                            ${OBJC_OPTIMIZABLE_LIBRARIES}
@@ -96,4 +96,7 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
 
       add_dependencies( MulleObjC "_MulleObjC_optimized_libraries")
    endif()
+
+   include( OptimizedLinkObjCAux OPTIONAL)
+
 endif()

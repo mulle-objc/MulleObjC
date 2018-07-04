@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.0)
+cmake_minimum_required( VERSION 3.1)
 
 project( MulleObjC C)
 
@@ -16,8 +16,7 @@ include( Environment)
 
 include( PreFiles OPTIONAL)
 
-set( MULLEOBJC_LIBRARY ON)
-set( MULLEOBJC_STARTUP_LIBRARY ON)
+set( MULLE_OBJC_LIBRARY ON)
 
 #
 # Include all non underscored .cmake files in ./cmake
@@ -33,56 +32,84 @@ endforeach()
 
 include_directories( ${INCLUDE_DIRS})
 
+include( PostFiles OPTIONAL)
+
 set( PROJECT_FILES
+   ${PROJECT_FILES}
    ${SOURCES}
-   ${DEBUG_SOURCES}
    ${PUBLIC_HEADERS}
    ${PRIVATE_HEADERS}
    ${CMAKE_EDITABLE_FILES}
 )
 
-include( PostFiles OPTIONAL)
-
 ### Library
 
 include( PreLibrary OPTIONAL)
 
-add_library( "MulleObjC"
+# ##################################
+# Mainly of interest for Objective-C
+# ##################################
+# Libraries are built in two stages:
+#
+# In the first step the PROJECT_FILES are compiled.
+# In the second step STAGE2_SOURCES are added.
+# This allows PostLibrary to run an analysis step over PROJECT_FILES and
+# generate files to be included by STAGE2_SOURCES. If there are no
+# STAGE2_SOURCES then this is just a more verbose way of doing it.
+# OBJC_LOADER_INC is the generated analysis step.
+#
+#
+add_library( "_1_MulleObjC" OBJECT
    ${PROJECT_FILES}
 )
 
-
-set( INSTALL_LIBRARY_TARGETS
-   "MulleObjC"
+set( ALL_OBJECT_FILES
+   $<TARGET_OBJECTS:_1_MulleObjC>
 )
 
-##
-## Startup is used for executables
-##
-add_library( MulleObjCStartup STATIC
-   ${STARTUP_SOURCES}
+set_property( TARGET "_1_MulleObjC" PROPERTY CXX_STANDARD 11)
+
+if( STAGE2_SOURCES)
+   add_library( "_2_MulleObjC" OBJECT
+      ${STAGE2_SOURCES}
+      ${STAGE2_HEADERS}
+   )
+   set( ALL_OBJECT_FILES
+      ${ALL_OBJECT_FILES}
+      $<TARGET_OBJECTS:_2_MulleObjC>
+   )
+   set_property( TARGET "_2_MulleObjC" PROPERTY CXX_STANDARD 11)
+else()
+   if( STAGE2_HEADERS)
+      message( FATAL_ERROR "No STAGE2_SOURCES found but STAGE2_HEADERS exist")
+   endif()
+endif()
+
+
+add_library( "MulleObjC"
+   ${ALL_OBJECT_FILES}
 )
 
-set( STARTUP_LIBRARY MulleObjCStartup)
 
-set( INSTALL_LIBRARY_TARGETS
-   ${INSTALL_LIBRARY_TARGETS}
-   MulleObjCStartup
-)
+set( INSTALL_LIBRARY_TARGETS "MulleObjC")
 
 include( PostLibrary OPTIONAL)
 
+
+#
+# defined by cmake -DBUILD_SHARED_LIBS=ON
+#
 if( BUILD_SHARED_LIBS)
-
-   include( AllLoad)
-
-   CreateForceAllLoadList( ALL_LOAD_DEPENDENCY_LIBRARIES FORCE_ALL_LOAD_DEPENDENCY_LIBRARIES)
-
-   target_link_libraries( MulleObjC
-      ${FORCE_ALL_LOAD_DEPENDENCY_LIBRARIES}
+   set( SHARED_LIBRARY_LIST
       ${DEPENDENCY_LIBRARIES}
       ${OPTIONAL_DEPENDENCY_LIBRARIES}
       ${OS_SPECIFIC_LIBRARIES}
+   )
+
+   include( PostSharedLibrary OPTIONAL) # additional hook
+
+   target_link_libraries( MulleObjC
+      ${SHARED_LIBRARY_LIST}
    )
 endif()
 

@@ -11,8 +11,8 @@ if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( MULLE_OBJC_RUNTIME_LIBRARY)
-      set( ALL_LOAD_DEPENDENCY_LIBRARIES
-         ${ALL_LOAD_DEPENDENCY_LIBRARIES}
+      set( DEPENDENCY_LIBRARIES
+         ${DEPENDENCY_LIBRARIES}
          ${MULLE_OBJC_RUNTIME_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )

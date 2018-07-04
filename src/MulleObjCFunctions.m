@@ -39,7 +39,7 @@
 #import "NSObjectProtocol.h"
 
 // std-c and dependencies
-#include "dependencies.h"
+#import "import-private.h"
 #include "ns_rootconfiguration.h"
 
 

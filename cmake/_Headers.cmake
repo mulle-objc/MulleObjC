@@ -10,7 +10,9 @@ src/protocols
 ) 
 
 set( PRIVATE_HEADERS
-src/NSMethodSignature+Private.h
+src/NSMethodSignature-Private.h
+src/import-private.h
+src/include-private.h
 )
 
 set( PUBLIC_HEADERS
@@ -28,8 +30,8 @@ src/NSObject.h
 src/NSProxy.h
 src/NSRecursiveLock.h
 src/NSThread.h
-src/dependencies.h
-src/dependencies.inc
+src/import.h
+src/include.h
 src/_ns_autoreleasepointerarray.h
 src/ns_byteorder.h
 src/ns_debug.h

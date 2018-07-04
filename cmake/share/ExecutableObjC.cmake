@@ -12,7 +12,7 @@ if( NOT __EXECUTABLE_OBJC_CMAKE__)
    # the startup code to create the universe
    #
    if( NOT MULLE_OBJC_STARTUP_LIBRARY)
-      find_library( MULLE_OBJC_STARTUP_LIBRARY NAMES MulleObjCStartup)
+      find_library( MULLE_OBJC_STARTUP_LIBRARY NAMES MulleObjC-startup)
    endif()
 
    message( STATUS "MULLE_OBJC_STARTUP_LIBRARY is ${MULLE_OBJC_STARTUP_LIBRARY}")
@@ -38,4 +38,7 @@ if( NOT __EXECUTABLE_OBJC_CMAKE__)
      COMMAND echo "Your executable \"$<TARGET_FILE:MulleObjC>\" is now ready to run"
      VERBATIM
    )
+
+   include( ExecutableObjCAux OPTIONAL)
+
 endif()

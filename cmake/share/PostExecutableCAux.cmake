@@ -8,6 +8,6 @@ if( NOT __POST_EXECUTABLE_C_AUX_CMAKE__)
    include( ExecutableObjC)
    include( OptimizedLinkObjC)
 
-   include( PostExecutableObjCAux.cmake OPTIONAL)
+   include( PostExecutableObjCAux OPTIONAL)
 
 endif()

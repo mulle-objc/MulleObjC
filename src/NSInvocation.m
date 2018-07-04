@@ -36,7 +36,7 @@
 #import "NSInvocation.h"
 
 #import "NSMethodSignature.h"
-#import "NSMethodSignature+Private.h"
+#import "NSMethodSignature-Private.h"
 #import "MulleObjCAllocation.h"
 #import "NSAutoreleasePool.h"
 #import "NSCopying.h"

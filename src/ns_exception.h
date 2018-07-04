@@ -41,7 +41,7 @@
 
 #include "ns_int_type.h"
 #include "ns_range.h"
-#include "dependencies.h"
+#include "include.h"
 #include <stdarg.h>
 
 

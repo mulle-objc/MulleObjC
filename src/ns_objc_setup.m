@@ -40,7 +40,7 @@
 
 #include "ns_rootconfiguration.h"
 #include "ns_test_allocation.h"
-#include "dependencies.h"
+#import "import.h"
 
 // don't want it in dependencies.h
 #include <mulle-objc-list/mulle-objc-list.h>
