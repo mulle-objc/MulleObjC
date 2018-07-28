@@ -53,12 +53,10 @@ char   *_NSPrintForDebugger( id a)
    char                        *spacer;
    char                        buf[ 256];
    struct _mulle_objc_class    *cls;
-   struct _mulle_objc_method   *m;
 
    if( ! a)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*nil*"));
 
-   m   = 0;
    cls = _mulle_objc_object_get_isa( a);
    if( ! cls)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*not an object (anymore ?)*"));
@@ -71,7 +69,7 @@ char   *_NSPrintForDebugger( id a)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
    }
 
-   imp = (IMP) _mulle_objc_class_lookup_implementation_no_forward( cls, @selector( debugDescription));
+   imp = (IMP) _mulle_objc_class_noncachinglookup_implementation_no_forward( cls, @selector( debugDescription));
    if( imp)
    {
       void   *s;
@@ -82,7 +80,7 @@ char   *_NSPrintForDebugger( id a)
 
    spacer = "";
    aux    = "";
-   imp    = (IMP) _mulle_objc_class_lookup_implementation_no_forward( cls, @selector( description));
+   imp    = (IMP) _mulle_objc_class_noncachinglookup_implementation_no_forward( cls, @selector( description));
    if( imp)
    {
       void   *s;

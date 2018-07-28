@@ -90,8 +90,12 @@ add_library( "MulleObjC"
    ${ALL_OBJECT_FILES}
 )
 
+include( Library OPTIONAL)
 
-set( INSTALL_LIBRARY_TARGETS "MulleObjC")
+set( INSTALL_LIBRARY_TARGETS
+   "MulleObjC"
+   ${INSTALL_LIBRARY_TARGETS}
+)
 
 include( PostLibrary OPTIONAL)
 

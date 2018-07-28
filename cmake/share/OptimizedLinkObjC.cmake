@@ -5,9 +5,17 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
    endif()
 
+   #
+   # can only be used in one-library/project cmake project
+   #
    option( OBJC_COVERAGE_OPTIMIZED_LIBS "Create coverage-optimized ObjC libraries" OFF)
 
    if( OBJC_COVERAGE_OPTIMIZED_LIBS)
+
+      if( NOT LIBRARY_NAME)
+         set( LIBRARY_NAME "MulleObjC")
+      endif()
+
       #
       # Optimize static linking of mulle-objc executables with coverage
       # information.
@@ -42,8 +50,8 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
         set( OBJC_OPTIMIZABLE_LIBRARIES ${ALL_LOAD_DEPENDENCY_LIBRARIES})
       endif()
 
-      set( ALL_LOAD_NAME "${CMAKE_STATIC_LIBRARY_PREFIX}_MulleObjC_ObjC${CMAKE_STATIC_LIBRARY_SUFFIX}")
-      set( OPTIMIZABLE_LOAD_NAME  "${CMAKE_STATIC_LIBRARY_PREFIX}_MulleObjC_c${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set( ALL_LOAD_NAME "${CMAKE_STATIC_LIBRARY_PREFIX}_$LIBRARY_NAME}_ObjC${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set( OPTIMIZABLE_LOAD_NAME  "${CMAKE_STATIC_LIBRARY_PREFIX}_$LIBRARY_NAME}_c${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
       message( STATUS "OPTIMIZABLE_LOAD_NAME is ${OPTIMIZABLE_LOAD_NAME}")
       message( STATUS "ALL_LOAD_NAME is ${ALL_LOAD_NAME}")
@@ -82,7 +90,7 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       )
 
 
-      add_custom_target( "_MulleObjC_optimized_libraries"
+      add_custom_target( "_$LIBRARY_NAME}_optimized_libraries"
          DEPENDS ${CUSTOM_OUTPUT}
       )
 
@@ -94,7 +102,7 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
          ${OPTIMIZE_DIR}/${OPTIMIZABLE_LOAD_NAME}
       )
 
-      add_dependencies( MulleObjC "_MulleObjC_optimized_libraries")
+      add_dependencies( $LIBRARY_NAME} "_$LIBRARY_NAME}_optimized_libraries")
    endif()
 
    include( OptimizedLinkObjCAux OPTIONAL)

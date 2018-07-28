@@ -5,38 +5,40 @@ if( NOT __EXECUTABLE_OBJC_CMAKE__)
       message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
    endif()
 
-   set( EXECUTABLE_OBJC_VERSION 4)
+   if( NOT EXECUTABLE_NAME)
+      set( EXECUTABLE_NAME "MulleObjC")
+   endif()
+
+   option( OPTION_LINK_STARTUP_LIBRARY "Add a startup library to ObjC executable" ON)
 
    #
    # This library contains ___get_or_create_mulle_objc_universe and
    # the startup code to create the universe
    #
-   if( NOT MULLE_OBJC_STARTUP_LIBRARY)
-      find_library( MULLE_OBJC_STARTUP_LIBRARY NAMES MulleObjC-startup)
+   if( OPTION_LINK_STARTUP_LIBRARY)
+      if( NOT STARTUP_LIBRARY)
+         if( NOT STARTUP_LIBRARY_NAME)
+            message( FATAL "STARTUP_LIBRARY_NAME is undefined (use Foundation if unsure)")
+         endif()
+
+         find_library( STARTUP_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}${STARTUP_LIBRARY_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX} 
+                                             ${STARTUP_LIBRARY_NAME}
+         )
+      endif()
+
+      message( STATUS "STARTUP_LIBRARY is ${STARTUP_LIBRARY}")
+
+      set( EXECUTABLE_LIBRARY_LIST
+        ${EXECUTABLE_LIBRARY_LIST}
+        ${STARTUP_LIBRARY}
+      )
    endif()
 
-   message( STATUS "MULLE_OBJC_STARTUP_LIBRARY is ${MULLE_OBJC_STARTUP_LIBRARY}")
-
-   set( EXECUTABLE_LIBRARY_LIST
-      ${EXECUTABLE_LIBRARY_LIST}
-      ${MULLE_OBJC_STARTUP_LIBRARY}
-   )
-
-   #
+   #   
    # need this for .aam projects
    #
-   set_target_properties( MulleObjC
+   set_target_properties( "${EXECUTABLE_NAME}"
       PROPERTIES LINKER_LANGUAGE C
-   )
-
-   #
-   # For noobs add a line so they find the output
-   #
-   add_custom_command(
-     TARGET MulleObjC
-     POST_BUILD
-     COMMAND echo "Your executable \"$<TARGET_FILE:MulleObjC>\" is now ready to run"
-     VERBATIM
    )
 
    include( ExecutableObjCAux OPTIONAL)
