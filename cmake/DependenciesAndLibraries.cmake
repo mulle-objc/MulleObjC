@@ -18,3 +18,7 @@ include( _Libraries OPTIONAL)
 # Add OS specific dependencies to OS_SPECIFIC_LIBRARIES
 # Add all other dependencies (rest) to DEPENDENCY_LIBRARIES
 #
+
+# will be overwritten by MulleFoundation or so
+set( STARTUP_LIBRARY_NAME "MulleObjC-startup")
+
