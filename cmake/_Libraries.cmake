@@ -4,9 +4,9 @@ if( MULLE_TRACE_INCLUDE)
    message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
 endif()
 
-if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Mingw")
+if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    if( NOT DL_LIBRARY)
-      find_library( DL_LIBRARY NAMES dl dlfcn)
+      find_library( DL_LIBRARY NAMES dl dlfcn dlfcn)
       message( STATUS "DL_LIBRARY is ${DL_LIBRARY}")
    
       # the order looks ascending, but due to the way this file is read
@@ -22,7 +22,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Mingw")
          get_filename_component( _TMP_DL_ROOT "${_TMP_DL_ROOT}" DIRECTORY)
    
          # search for DependenciesAndLibraries.cmake to include
-         foreach( _TMP_DL_NAME in dl,dlfcn)
+         foreach( _TMP_DL_NAME in dl,dlfcn,dlfcn)
             set( _TMP_DL_DIR "${_TMP_DL_ROOT}/include/${_TMP_DL_NAME}/cmake")
             # use explicit path to avoid "surprises"
             if( EXISTS "${_TMP_DL_DIR}/DependenciesAndLibraries.cmake")
@@ -45,7 +45,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Mingw")
 endif()
 
 
-if( ${CMAKE_SYSTEM_NAME} MATCHES "Mingw")
+if( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    if( NOT PSAPI_LIBRARY)
       find_library( PSAPI_LIBRARY NAMES psapi)
       message( STATUS "PSAPI_LIBRARY is ${PSAPI_LIBRARY}")
