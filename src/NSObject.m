@@ -76,6 +76,7 @@
 }
 @end
 
+
 #pragma mark -
 #pragma mark ### _MulleObjCInstantiatePlaceholder ###
 #pragma mark -
@@ -268,17 +269,17 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Class infraCls,
                                                                               mulle_objc_classid_t classid)
 {
-   struct _mulle_objc_universe         *universe;
-   struct _mulle_objc_infraclass       *placeholderInfracls;
-   struct _mulle_objc_class            *pcls;
-   _MulleObjCInstantiatePlaceholder    *placeholder;
-   SEL                                 initSel;
-   mulle_objc_implementation_t   imp;
+   struct _mulle_objc_universe        *universe;
+   struct _mulle_objc_infraclass      *placeholderInfracls;
+   struct _mulle_objc_class           *pcls;
+   _MulleObjCInstantiatePlaceholder   *placeholder;
+   SEL                                initSel;
+   mulle_objc_implementation_t        imp;
 
    assert( classid);
 
    universe             = _mulle_objc_infraclass_get_universe( infraCls);
-   placeholderInfracls = _mulle_objc_universe_unfailingfastlookup_infraclass( universe, classid);
+   placeholderInfracls  = _mulle_objc_universe_unfailingfastlookup_infraclass( universe, classid);
 
    placeholder       = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
    placeholder->_cls = infraCls;
@@ -342,7 +343,7 @@ retry:
                         length:(NSUInteger) length
 {
    struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_universe     *universe;
+   struct _mulle_objc_universe    *universe;
    NSUInteger                     count;
    struct mulle_setenumerator     rover;
    id                             obj;
@@ -375,7 +376,7 @@ retry:
 - (BOOL) _isRootObject
 {
    struct _ns_rootconfiguration   *config;
-   struct _mulle_objc_universe     *universe;
+   struct _mulle_objc_universe    *universe;
    struct mulle_setenumerator     rover;
    id                             obj;
 
@@ -458,8 +459,8 @@ static void   assert_key( id key)
 
 + (void) removeClassValueForKey:(id) key
 {
-   id      old;
-   int     rval;
+   id    old;
+   int   rval;
 
    assert_key( key);
 
@@ -485,7 +486,7 @@ static void   assert_key( id key)
 + (BOOL) insertClassValue:(id) value
                    forKey:(id) key
 {
-   int      rval;
+   int   rval;
 
    assert( value);
    assert_key( key);

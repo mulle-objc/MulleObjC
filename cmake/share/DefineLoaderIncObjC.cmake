@@ -8,9 +8,13 @@ endif()
 
 if( NOT MULLE_OBJC_LOADER_TOOL)
    if( MSVC)
-      find_program( MULLE_OBJC_LOADER_TOOL mulle-objc-loader-tool.bat "${DEPENDENCY_DIR}/bin")
+      find_program( MULLE_OBJC_LOADER_TOOL mulle-objc-loader-tool.bat
+                        PATHS "${DEPENDENCY_DIR}/${CLANG_BUILD_STYLE}/bin"
+                              "${DEPENDENCY_DIR}/bin" )
    else()
-      find_program( MULLE_OBJC_LOADER_TOOL mulle-objc-loader-tool "${DEPENDENCY_DIR}/bin")
+      find_program( MULLE_OBJC_LOADER_TOOL mulle-objc-loader-tool
+                        PATHS "${DEPENDENCY_DIR}/${CLANG_BUILD_STYLE}/bin"
+                              "${DEPENDENCY_DIR}/bin")
    endif()
    message( STATUS "MULLE_OBJC_LOADER_TOOL is ${MULLE_OBJC_LOADER_TOOL}")
 endif()
@@ -19,7 +23,6 @@ endif()
 if( NOT LIBRARY_NAME)
    set( LIBRARY_NAME "MulleObjC")
 endif()
-
 
 
 if( NOT __DEFINE_LOADER_INC_OBJC_CMAKE__)

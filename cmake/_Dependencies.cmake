@@ -11,8 +11,8 @@ if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( MULLE_OBJC_RUNTIME_LIBRARY)
-      set( DEPENDENCY_LIBRARIES
-         ${DEPENDENCY_LIBRARIES}
+      set( ALL_LOAD_DEPENDENCY_LIBRARIES
+         ${ALL_LOAD_DEPENDENCY_LIBRARIES}
          ${MULLE_OBJC_RUNTIME_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
@@ -32,6 +32,19 @@ if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
             set( INHERITED_DEFINITIONS
                ${INHERITED_DEFINITIONS}
                ${MULLE_OBJC_RUNTIME_DEFINITIONS}
+               CACHE INTERNAL "need to cache this"
+            )
+            break()
+         endif()
+      endforeach()
+
+      # search for objc-loader.inc in include directory
+      foreach( _TMP_MULLE_OBJC_RUNTIME_NAME in mulle-objc-runtime)
+         set( _TMP_MULLE_OBJC_RUNTIME_FILE "${_TMP_MULLE_OBJC_RUNTIME_ROOT}/include/${_TMP_MULLE_OBJC_RUNTIME_NAME}/objc-loader.inc")
+         if( EXISTS "${_TMP_MULLE_OBJC_RUNTIME_FILE}")
+            set( INHERITED_OBJC_LOADERS
+               ${INHERITED_OBJC_LOADERS}
+               ${_TMP_MULLE_OBJC_RUNTIME_FILE}
                CACHE INTERNAL "need to cache this"
             )
             break()
