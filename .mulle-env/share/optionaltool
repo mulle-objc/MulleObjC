@@ -1,15 +1,16 @@
 
-fswatch
+otool
+install_name_tool
+xcrun
+xcodebuild
+inotifywait
 ssh
 curl
+wget
 uuidgen
 cc
 clang
 gcc
 ld
-otool
-install_name_tool
-xcrun
-xcodebuild
 ninja
 make

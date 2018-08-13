@@ -33,6 +33,7 @@ if( NOT __ENVIRONMENT__CMAKE__)
    ### Additional search paths based on build style
 
    if( NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+
       set( CMAKE_INCLUDE_PATH
          "${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/include"
          ${CMAKE_INCLUDE_PATH}
@@ -49,12 +50,57 @@ if( NOT __ENVIRONMENT__CMAKE__)
       include_directories( BEFORE SYSTEM
          ${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/include
       )
+   else()
+      ### If you build DEBUG buildorder, but want RELEASE interspersed, so that
+      ### the debugger doesn't trace through too much fluff then set the
+      ### FALLBACK_BUILD_TYPE (for lack of a better name)
+
+      if( NOT FALLBACK_BUILD_TYPE)
+         set( FALLBACK_BUILD_TYPE "$ENV{MULLE_OBJC_FALLBACK_BUILD_TYPE}")
+         if( NOT FALLBACK_BUILD_TYPE)
+            set( FALLBACK_BUILD_TYPE "$ENV{MULLE_OBJC_RUNTIME_FALLBACK_BUILD_TYPE}")
+            if( NOT FALLBACK_BUILD_TYPE)
+               set( FALLBACK_BUILD_TYPE "$ENV{FALLBACK_BUILD_TYPE}")
+            endif()
+            if( NOT FALLBACK_BUILD_TYPE)
+               set( FALLBACK_BUILD_TYPE "Debug")
+            endif()
+         endif()
+      endif()
+      
+      if( FALLBACK_BUILD_TYPE STREQUAL "Release")
+         unset( FALLBACK_BUILD_TYPE)
+      endif()
+
+      if( FALLBACK_BUILD_TYPE)
+         set( CMAKE_INCLUDE_PATH
+            ${CMAKE_INCLUDE_PATH}
+            "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/include"
+         )
+         set( CMAKE_LIBRARY_PATH
+            ${CMAKE_LIBRARY_PATH}
+            "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/lib"
+         )
+         set( CMAKE_FRAMEWORK_PATH
+            ${CMAKE_FRAMEWORK_PATH}
+            "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/Frameworks"
+         )
+         message( STATUS "FALLBACK_BUILD_TYPE=\"${FALLBACK_BUILD_TYPE}\"" )
+      endif()
    endif()
+
 
    include_directories( BEFORE SYSTEM
       ${DEPENDENCY_DIR}/include
       ${ADDICTION_DIR}/include
    )
+
+   # after release include
+   if( FALLBACK_BUILD_TYPE)
+      include_directories( BEFORE SYSTEM
+         ${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/include
+      )
+   endif()
 
    set( CMAKE_INCLUDES
       "cmake/DependenciesAndLibraries.cmake"
