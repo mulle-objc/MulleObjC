@@ -22,7 +22,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
          get_filename_component( _TMP_DL_ROOT "${_TMP_DL_ROOT}" DIRECTORY)
    
          # search for DependenciesAndLibraries.cmake to include
-         foreach( _TMP_DL_NAME in dl,dlfcn,dlfcn)
+         foreach( _TMP_DL_NAME "dl" "dlfcn" "dlfcn")
             set( _TMP_DL_DIR "${_TMP_DL_ROOT}/include/${_TMP_DL_NAME}/cmake")
             # use explicit path to avoid "surprises"
             if( EXISTS "${_TMP_DL_DIR}/DependenciesAndLibraries.cmake")
@@ -63,7 +63,7 @@ if( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
          get_filename_component( _TMP_PSAPI_ROOT "${_TMP_PSAPI_ROOT}" DIRECTORY)
    
          # search for DependenciesAndLibraries.cmake to include
-         foreach( _TMP_PSAPI_NAME in psapi)
+         foreach( _TMP_PSAPI_NAME "psapi")
             set( _TMP_PSAPI_DIR "${_TMP_PSAPI_ROOT}/include/${_TMP_PSAPI_NAME}/cmake")
             # use explicit path to avoid "surprises"
             if( EXISTS "${_TMP_PSAPI_DIR}/DependenciesAndLibraries.cmake")

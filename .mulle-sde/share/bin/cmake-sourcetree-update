@@ -148,10 +148,13 @@ _emit_cmake_find_library()
 
    local libraries
    local i
+   local quoted_names
 
    IFS=","; set -o noglob
    for i in ${names}
    do
+      quoted_names="`concat "${quoted_names}" "\\\"${i}\\\"" `"
+   
       case "${preference}" in
          "static")
             libraries="`concat "${libraries}" "\\\${CMAKE_STATIC_LIBRARY_PREFIX}${i}\\\${CMAKE_STATIC_LIBRARY_SUFFIX}"`"
@@ -210,7 +213,7 @@ ${indent}      get_filename_component( _TMP_${identifier}_ROOT "\${${identifier}
 ${indent}      get_filename_component( _TMP_${identifier}_ROOT "\${_TMP_${identifier}_ROOT}" DIRECTORY)
 ${indent}
 ${indent}      # search for DependenciesAndLibraries.cmake to include
-${indent}      foreach( _TMP_${identifier}_NAME in ${names})
+${indent}      foreach( _TMP_${identifier}_NAME ${quoted_names})
 ${indent}         set( _TMP_${identifier}_DIR "\${_TMP_${identifier}_ROOT}/include/\${_TMP_${identifier}_NAME}/cmake")
 ${indent}         # use explicit path to avoid "surprises"
 ${indent}         if( EXISTS "\${_TMP_${identifier}_DIR}/DependenciesAndLibraries.cmake")
@@ -228,6 +231,8 @@ ${indent}         endif()
 ${indent}      endforeach()
 EOF
 
+# ${indent}         message( STATUS "_TMP_${identifier}_DIR is \${_TMP_${identifier}_DIR}")
+
    #
    # for objective-c we find objc-loader.inc in the public include files
    #
@@ -239,7 +244,7 @@ EOF
          cat <<EOF
 ${indent}
 ${indent}      # search for objc-loader.inc in include directory
-${indent}      foreach( _TMP_${identifier}_NAME in ${names})
+${indent}      foreach( _TMP_${identifier}_NAME ${quoted_names})
 ${indent}         set( _TMP_${identifier}_FILE "\${_TMP_${identifier}_ROOT}/include/\${_TMP_${identifier}_NAME}/objc-loader.inc")
 ${indent}         if( EXISTS "\${_TMP_${identifier}_FILE}")
 ${indent}            set( INHERITED_OBJC_LOADERS

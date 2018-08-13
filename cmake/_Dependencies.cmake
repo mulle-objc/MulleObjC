@@ -21,7 +21,7 @@ if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
       get_filename_component( _TMP_MULLE_OBJC_RUNTIME_ROOT "${_TMP_MULLE_OBJC_RUNTIME_ROOT}" DIRECTORY)
 
       # search for DependenciesAndLibraries.cmake to include
-      foreach( _TMP_MULLE_OBJC_RUNTIME_NAME in mulle-objc-runtime)
+      foreach( _TMP_MULLE_OBJC_RUNTIME_NAME "mulle-objc-runtime")
          set( _TMP_MULLE_OBJC_RUNTIME_DIR "${_TMP_MULLE_OBJC_RUNTIME_ROOT}/include/${_TMP_MULLE_OBJC_RUNTIME_NAME}/cmake")
          # use explicit path to avoid "surprises"
          if( EXISTS "${_TMP_MULLE_OBJC_RUNTIME_DIR}/DependenciesAndLibraries.cmake")
@@ -39,7 +39,7 @@ if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
       endforeach()
 
       # search for objc-loader.inc in include directory
-      foreach( _TMP_MULLE_OBJC_RUNTIME_NAME in mulle-objc-runtime)
+      foreach( _TMP_MULLE_OBJC_RUNTIME_NAME "mulle-objc-runtime")
          set( _TMP_MULLE_OBJC_RUNTIME_FILE "${_TMP_MULLE_OBJC_RUNTIME_ROOT}/include/${_TMP_MULLE_OBJC_RUNTIME_NAME}/objc-loader.inc")
          if( EXISTS "${_TMP_MULLE_OBJC_RUNTIME_FILE}")
             set( INHERITED_OBJC_LOADERS
@@ -73,7 +73,7 @@ if( NOT MULLE_CONTAINER_LIBRARY)
       get_filename_component( _TMP_MULLE_CONTAINER_ROOT "${_TMP_MULLE_CONTAINER_ROOT}" DIRECTORY)
 
       # search for DependenciesAndLibraries.cmake to include
-      foreach( _TMP_MULLE_CONTAINER_NAME in mulle-container)
+      foreach( _TMP_MULLE_CONTAINER_NAME "mulle-container")
          set( _TMP_MULLE_CONTAINER_DIR "${_TMP_MULLE_CONTAINER_ROOT}/include/${_TMP_MULLE_CONTAINER_NAME}/cmake")
          # use explicit path to avoid "surprises"
          if( EXISTS "${_TMP_MULLE_CONTAINER_DIR}/DependenciesAndLibraries.cmake")
