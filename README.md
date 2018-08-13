@@ -45,7 +45,7 @@ which supports the metaABI required for the mulle-objc runtime.
 
 ## Required Libraries and Tools
 
-![Libraries and Tools](https://raw.githubusercontent.com/mulle-nat/MulleObjC/release/dox/MulleObjC-dependencies.png)
+![Libraries and Tools](https://raw.githubusercontent.com/mulle-objc/MulleObjC/release/dox/MulleObjC-dependencies.png)
 
   Name         | Build Status | Release Version
 ---------------|--------------|---------------------------------
