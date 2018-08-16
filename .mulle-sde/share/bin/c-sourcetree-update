@@ -592,8 +592,8 @@ main()
    [ -z "${PROJECT_SOURCE_DIR}" ] && internal_fail "PROJECT_SOURCE_DIR not set"
    [ -z "${PROJECT_DIALECT}" ] && log_warning "PROJECT_DIALECT not set"
 
-   c_include "${PROJECT_NAME}" "${PROJECT_DOWNCASE_IDENTIFIER}"
-   c_include_private "${PROJECT_NAME}" "${PROJECT_DOWNCASE_IDENTIFIER}"
+   c_include "${PROJECT_NAME}" "${PROJECT_DOWNCASE_IDENTIFIER}" || exit 1
+   c_include_private "${PROJECT_NAME}" "${PROJECT_DOWNCASE_IDENTIFIER}" || exit 1
 
    if [ "${PROJECT_DIALECT}" = "objc" ]
    then
@@ -602,8 +602,8 @@ main()
          OPTION_IMPORT="YES"
       fi
 
-      objc_import "${PROJECT_NAME}" "${PROJECT_DOWNCASE_IDENTIFIER}"
-      objc_import_private "${PROJECT_NAME}" "${PROJECT_DOWNCASE_IDENTIFIER}"
+      objc_import "${PROJECT_NAME}" "${PROJECT_DOWNCASE_IDENTIFIER}" || exit 1 
+      objc_import_private "${PROJECT_NAME}" "${PROJECT_DOWNCASE_IDENTIFIER}" || exit 1
    fi
 }
 

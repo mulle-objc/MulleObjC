@@ -21,20 +21,20 @@ if( NOT __EXECUTABLE_OBJC_CMAKE__)
             message( FATAL "STARTUP_LIBRARY_NAME is undefined (use Foundation if unsure)")
          endif()
 
-         find_library( STARTUP_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}${STARTUP_LIBRARY_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX} 
+         find_library( STARTUP_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}${STARTUP_LIBRARY_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
                                              ${STARTUP_LIBRARY_NAME}
          )
       endif()
 
       message( STATUS "STARTUP_LIBRARY is ${STARTUP_LIBRARY}")
 
-      set( EXECUTABLE_LIBRARY_LIST
-        ${EXECUTABLE_LIBRARY_LIST}
+      set( DEPENDENCY_LIBRARIES
+        ${DEPENDENCY_LIBRARIES}
         ${STARTUP_LIBRARY}
       )
    endif()
 
-   #   
+   #
    # need this for .aam projects
    #
    set_target_properties( "${EXECUTABLE_NAME}"
