@@ -20,12 +20,16 @@ compile_apple()
 
 compile_mulle()
 {
+   #
+   # MEMO DOES NOT WORK ANYMORE BECAUSE mulle-bootstrap code has been
+   # removed here. It turns out, I really need a mulle-compile and a
+   # mulle-link command
+   #
    eval mulle-clang "'$1'" \
        -arch "'${arch}'" \
        -g \
        -DNDEBUG \
        -DNSBLOCKASSERTIONS \
-       `mulle-bootstrap paths -q "'" cppflags` \
        -Wl,-rpath '$PWD/../tests/lib' \
        -I../tests/include  \
        ../tests/lib/libMulleObjCStandalone.dylib \

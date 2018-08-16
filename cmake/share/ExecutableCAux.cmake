@@ -5,9 +5,9 @@ if( NOT __EXECUTABLE_C_AUX_CMAKE__)
       message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
    endif()
 
-   include( ExecutableObjC)
-   include( OptimizedLinkObjC)
-
+   # up here for orthogonality with C
    include( ExecutableObjCAux OPTIONAL)
 
+   include( ExecutableObjC)
+   include( OptimizedLinkObjC)
 endif()

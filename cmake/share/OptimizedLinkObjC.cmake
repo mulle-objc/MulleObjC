@@ -24,9 +24,6 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       #    EXECUTABLE_NAME
       #    OBJC_DEPENDENCY_LIBRARIES
       #
-      # Optional:
-      #    OBJC_OPTIMIZABLE_LIBRARIES
-      #
       # Output:
       #    ALL_LOAD_LIBRARY     # force link this
       #    NORMAL_LOAD_LIBRARY  # regular link this
@@ -46,16 +43,11 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       endif()
 
 
-      if( NOT OBJC_OPTIMIZABLE_LIBRARIES)
-        set( OBJC_OPTIMIZABLE_LIBRARIES ${ALL_LOAD_DEPENDENCY_LIBRARIES})
-      endif()
-
-      set( ALL_LOAD_NAME "${CMAKE_STATIC_LIBRARY_PREFIX}_$LIBRARY_NAME}_ObjC${CMAKE_STATIC_LIBRARY_SUFFIX}")
-      set( OPTIMIZABLE_LOAD_NAME  "${CMAKE_STATIC_LIBRARY_PREFIX}_$LIBRARY_NAME}_c${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set( ALL_LOAD_NAME "${CMAKE_STATIC_LIBRARY_PREFIX}_${LIBRARY_NAME}_ObjC${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set( OPTIMIZABLE_LOAD_NAME  "${CMAKE_STATIC_LIBRARY_PREFIX}_${LIBRARY_NAME}_c${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
       message( STATUS "OPTIMIZABLE_LOAD_NAME is ${OPTIMIZABLE_LOAD_NAME}")
       message( STATUS "ALL_LOAD_NAME is ${ALL_LOAD_NAME}")
-      message( STATUS "DEPENDENCY_DIR is ${DEPENDENCY_DIR}")
       message( STATUS "COVERAGE_DIR is ${COVERAGE_DIR}")
       message( STATUS "OPTIMIZE_DIR is ${OPTIMIZE_DIR}")
 
@@ -65,18 +57,30 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       )
 
       if( MSVC)
-         find_program( UNARCHIVE mulle-objc-unarchive.bat "${DEPENDENCY_DIR}/bin")
-         find_program( OPTIMIZE mulle-objc-optimize.bat "${DEPENDENCY_DIR}/bin")
+         find_program( UNARCHIVE mulle-objc-unarchive.bat
+                           PATHS "${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/bin"
+                                 "${DEPENDENCY_DIR}/bin"
+                                 "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/bin")
+         find_program( OPTIMIZE mulle-objc-optimize.bat
+                           PATHS "${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/bin"
+                                 "${DEPENDENCY_DIR}/bin"
+                                 "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/bin")
       else()
-         find_program( UNARCHIVE mulle-objc-unarchive "${DEPENDENCY_DIR}/bin")
-         find_program( OPTIMIZE mulle-objc-optimize "${DEPENDENCY_DIR}/bin")
+         find_program( UNARCHIVE mulle-objc-unarchive
+                           PATHS "${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/bin"
+                                 "${DEPENDENCY_DIR}/bin"
+                                 "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/bin")
+         find_program( OPTIMIZE mulle-objc-optimize
+                           PATHS "${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/bin"
+                                 "${DEPENDENCY_DIR}/bin"
+                                 "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/bin")
       endif()
 
 
       add_custom_command( OUTPUT ${CUSTOM_OUTPUT}
        COMMAND chmod -R +w ${DEPENDENCY_DIR}
        COMMAND ${UNARCHIVE} --unarchive-dir ${DEPENDENCY_DIR}/unarchive
-                            ${OBJC_OPTIMIZABLE_LIBRARIES}
+                            ${ALL_LOAD_DEPENDENCY_LIBRARIES}
        COMMAND chmod -R -w ${DEPENDENCY_DIR}
        COMMAND ${OPTIMIZE} --c-name ${OPTIMIZABLE_LOAD_NAME}
                            --objc-name ${ALL_LOAD_NAME}
@@ -84,25 +88,31 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
                            --dependency-dir ${DEPENDENCY_DIR}
                            --optimize-dir ${OPTIMIZE_DIR}
                            --coverage-dir ${COVERAGE_DIR}
-                           ${OBJC_OPTIMIZABLE_LIBRARIES}
-       DEPENDS ${OBJC_OPTIMIZABLE_LIBRARIES}
+                           ${ALL_LOAD_DEPENDENCY_LIBRARIES}
+       DEPENDS ${ALL_LOAD_DEPENDENCY_LIBRARIES}
        COMMENT "Create optimizable Objective-C libraries"
       )
 
 
-      add_custom_target( "_$LIBRARY_NAME}_optimized_libraries"
+      add_custom_target( "_${LIBRARY_NAME}_optimized_libraries"
          DEPENDS ${CUSTOM_OUTPUT}
       )
 
-      set( ALL_LOAD_LIBRARY
+      # replace ALL_LOAD_DEPENDENCY_LIBRARIES with the non-optimzable stuff
+      set( ALL_LOAD_DEPENDENCY_LIBRARIES
          ${OPTIMIZE_DIR}/${ALL_LOAD_NAME}
       )
 
-      set( NORMAL_LOAD_LIBRARY
+      #
+      # move the rest which are optimized into regular DEPENDENCY_LIBRARIES
+      # to pick up regular C symbols
+      #
+      set( DEPENDENCY_LIBRARIES
+         ${DEPENDENCY_LIBRARIES}
          ${OPTIMIZE_DIR}/${OPTIMIZABLE_LOAD_NAME}
       )
 
-      add_dependencies( $LIBRARY_NAME} "_$LIBRARY_NAME}_optimized_libraries")
+      add_dependencies( ${LIBRARY_NAME} "_${LIBRARY_NAME}_optimized_libraries")
    endif()
 
    include( OptimizedLinkObjCAux OPTIONAL)
