@@ -6,6 +6,6 @@
 #ifndef _mulle_objc_import_h__
 #define _mulle_objc_import_h__
 
-/* no headers */
+# import <mulle-objc-runtime/mulle-objc-runtime.h>   // mulle-objc-runtime
 
 #endif

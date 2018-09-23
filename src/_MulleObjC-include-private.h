@@ -6,6 +6,12 @@
 #ifndef _mulle_objc_include_private_h__
 #define _mulle_objc_include_private_h__
 
-# include <mulle-objc-runtime/mulle-objc-runtime.h>   // mulle-objc-runtime
+# if ! defined( _WIN32)
+#  include <dlfcn.h>   // dlfcn
+# endif
+
+# if defined( _WIN32)
+#  include <psapi.h>   // psapi
+# endif
 
 #endif

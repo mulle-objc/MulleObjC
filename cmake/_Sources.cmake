@@ -5,35 +5,36 @@ if( MULLE_TRACE_INCLUDE)
 endif()
 
 set( SOURCES
-src/MulleObjCAllocation.m
-src/MulleObjCFunctions.m
-src/NSAutoreleasePool.m
-src/NSDebug.m
-src/NSInvocation.m
-src/NSLock.m
-src/NSMethodSignature.m
-src/NSObject+NSCodingSupport.m
-src/NSObject.m
-src/NSProxy.m
-src/NSRecursiveLock.m
-src/NSThread.m
-src/ns_breakpoint.c
-src/ns_debug.m
-src/ns_exception.m
-src/ns_objc_setup.m
-src/ns_range.m
-src/ns_rootconfiguration.m
-src/ns_test_allocation.m
-src/protocols/MulleObjCClassCluster.m
-src/protocols/MulleObjCException.m
-src/protocols/MulleObjCSingleton.m
-src/protocols/MulleObjCTaggedPointer.m
-src/protocols/NSCoding.m
-src/protocols/NSCopying.m
+src/class/NSAutoreleasePool.m
+src/class/NSInvocation.m
+src/class/NSLock.m
+src/class/NSMethodSignature.m
+src/class/NSObject+NSCodingSupport.m
+src/class/NSObject.m
+src/class/NSProxy.m
+src/class/NSRecursiveLock.m
+src/class/NSThread.m
+src/function/MulleObjCAllocation.m
+src/function/MulleObjCExceptionHandler.m
+src/function/MulleObjCFunctions.m
+src/function/MulleObjCStackFrame.m
+src/function/NSDebug.m
+src/mulle-objc-breakpoint.c
+src/mulle-objc-rootconfiguration.m
+src/mulle-objc-setup.m
+src/mulle-objc-testallocator.m
+src/mulle-objc-threadconfiguration.m
+src/protocol/MulleObjCClassCluster.m
+src/protocol/MulleObjCException.m
+src/protocol/MulleObjCSingleton.m
+src/protocol/MulleObjCTaggedPointer.m
+src/protocol/NSCoding.m
+src/protocol/NSCopying.m
+src/struct/NSRange.m
 )
 
 set( STAGE2_SOURCES
-src/MulleObjCLoader.m
+src/class/MulleObjCLoader.m
 )
 
 set( STANDALONE_SOURCES

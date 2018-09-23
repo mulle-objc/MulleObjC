@@ -25,10 +25,22 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
          foreach( _TMP_DL_NAME "dl" "dlfcn" "dlfcn")
             set( _TMP_DL_DIR "${_TMP_DL_ROOT}/include/${_TMP_DL_NAME}/cmake")
             # use explicit path to avoid "surprises"
+            message( STATUS "_TMP_DL_DIR is ${_TMP_DL_DIR}")
             if( EXISTS "${_TMP_DL_DIR}/DependenciesAndLibraries.cmake")
                unset( DL_DEFINITIONS)
                list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_DL_DIR}")
+               # we only want top level INHERIT_OBJC_LOADERS, so disable them
+               if( NOT NO_INHERIT_OBJC_LOADERS)
+                  set( NO_INHERIT_OBJC_LOADERS OFF)
+               endif()
+               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+               set( NO_INHERIT_OBJC_LOADERS ON)
+               #
                include( "${_TMP_DL_DIR}/DependenciesAndLibraries.cmake")
+               #
+               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+               #
                list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_DL_DIR}")
                set( INHERITED_DEFINITIONS
                   ${INHERITED_DEFINITIONS}
@@ -36,6 +48,8 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
                   CACHE INTERNAL "need to cache this"
                )
                break()
+            else()
+               message( STATUS "${_TMP_DL_DIR}/DependenciesAndLibraries.cmake not found")
             endif()
          endforeach()
       else()
@@ -66,10 +80,22 @@ if( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
          foreach( _TMP_PSAPI_NAME "psapi")
             set( _TMP_PSAPI_DIR "${_TMP_PSAPI_ROOT}/include/${_TMP_PSAPI_NAME}/cmake")
             # use explicit path to avoid "surprises"
+            message( STATUS "_TMP_PSAPI_DIR is ${_TMP_PSAPI_DIR}")
             if( EXISTS "${_TMP_PSAPI_DIR}/DependenciesAndLibraries.cmake")
                unset( PSAPI_DEFINITIONS)
                list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_PSAPI_DIR}")
+               # we only want top level INHERIT_OBJC_LOADERS, so disable them
+               if( NOT NO_INHERIT_OBJC_LOADERS)
+                  set( NO_INHERIT_OBJC_LOADERS OFF)
+               endif()
+               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+               set( NO_INHERIT_OBJC_LOADERS ON)
+               #
                include( "${_TMP_PSAPI_DIR}/DependenciesAndLibraries.cmake")
+               #
+               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+               #
                list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_PSAPI_DIR}")
                set( INHERITED_DEFINITIONS
                   ${INHERITED_DEFINITIONS}
@@ -77,6 +103,8 @@ if( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
                   CACHE INTERNAL "need to cache this"
                )
                break()
+            else()
+               message( STATUS "${_TMP_PSAPI_DIR}/DependenciesAndLibraries.cmake not found")
             endif()
          endforeach()
       else()

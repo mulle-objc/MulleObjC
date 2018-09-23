@@ -7,3 +7,5 @@ mulle-objc/objc-cmake;buildtool
 mulle-c/c-cmake;buildtool
 mulle-sde/c-cmake;buildtool
 mulle-sde/cmake;buildtool
+mulle-sde/vs-code-clang;extra
+mulle-sde/vs-code;extra

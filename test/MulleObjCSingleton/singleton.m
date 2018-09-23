@@ -2,6 +2,8 @@
 # import <Foundation/Foundation.h>
 #else
 # import <MulleObjC/MulleObjC.h>
+# import <MulleObjC/private/mulle-objc-exceptionhandlertable-private.h>
+# import <MulleObjC/private/mulle-objc-rootconfiguration-private.h>
 #endif
 
 
@@ -47,7 +49,7 @@ main()
    Foo      *foo;
    Bar      *bar;
    Foobar   *foobar;
-   struct _ns_exceptionhandlertable   *exceptions;
+   struct _mulle_objc_exceptionhandlertable   *exceptions;
 
    foo    = [Foo sharedInstance]; // this alloc makes the placeholder
    foobar = [Foobar sharedInstance]; // this alloc makes the placeholder
@@ -56,7 +58,7 @@ main()
    print_bool( [foo isKindOfClass:[Foo class]]);
    print_bool( foo != foobar);
 
-   exceptions = _ns_get_exceptionhandlertable();
+   exceptions = _mulle_objc_get_exceptionhandlertable();
    exceptions->internal_inconsistency = (void *) count_exception;
 
    bar = [Bar sharedInstance];      // this is wrong
