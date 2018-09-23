@@ -33,6 +33,15 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#include "ns_objc_setup.h"
+#import "import-private.h"
 
-#include "ns_objc_startup.inc"
+#import "mulle-objc-type.h"
+#import "MulleObjCIntegralType.h"
+#import "MulleObjCExceptionHandler.h"
+#import "version.h"
+
+#import "mulle-objc-setup-private.h"
+#import "mulle-objc-exceptionhandlertable-private.h"
+#import "mulle-objc-rootconfiguration-private.h"
+
+#import "mulle-objc-startup-private.inc"

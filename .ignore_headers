@@ -1,2 +1,2 @@
-src/_ns_autoreleasepointerarray.h
+src/_ns-autoreleasepointerarray.h
 src/NSMethodSignature+Private.h

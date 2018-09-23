@@ -19,8 +19,40 @@
    sourcetree, then you don't need it.
  */
 
+// if the "real" foundation has defined this, don't use the builtin stuff
+
+#ifndef MULLE_OBJC_FASTCLASSHASH_0
+# include "mulle-objc-fastclassid.h"
+#endif
+#ifndef MULLE_OBJC_FASTMETHODHASH_8
+# include "mulle-objc-fastmethodid.h"
+#endif
+
+// this is the only place where mulle_objc_runtime should be exposed
+
 #include "_MulleObjC-include.h"
 
 /* You can add some more include statements here */
+
+
+#include <assert.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <limits.h>
+
+
+#ifdef __clang__
+# if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && ((__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__-0) <= 1040)
+#  if ! __DARWIN_UNIX03
+#   warning "compiling for 10.4 (not __DARWIN_UNIX03), with __eprintf"
+#  endif
+# endif
+#endif
+
+#if MULLE_CONTAINER_VERSION < ((1 << 20) | (1 << 8) | 0)
+# error "mulle-container is too old"
+#endif
 
 #endif

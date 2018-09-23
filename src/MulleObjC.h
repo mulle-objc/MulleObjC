@@ -37,13 +37,13 @@
 // because standalone versions must define FASTIDs
 
 #ifdef MULLE_OBJC_RUNTIME_VERSION
-# error "do not include mulle_objc.h before MulleObjC.h"
+# error "do not include the mulle-objc-runtime before MulleObjC.h"
 #endif
 
-// version is defined in ns_rootconfiguration.h
+#import "import.h"
 
-#import "ns_objc.h"
-#import "ns_objc_setup.h"
+
+#import "mulle-objc.h"
 
 // objects
 #import "MulleObjCLoader.h"
@@ -74,7 +74,3 @@
 #import "MulleObjCAllocation.h"
 #import "MulleObjCFunctions.h"
 
-
-#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (12 << 8) | 0)
-# error "mulle_objc runtime is too old"
-#endif

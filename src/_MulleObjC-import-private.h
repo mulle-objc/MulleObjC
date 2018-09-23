@@ -6,12 +6,6 @@
 #ifndef _mulle_objc_import_private_h__
 #define _mulle_objc_import_private_h__
 
-# if ! defined( _WIN32)
-#  import <dlfcn.h>   // dlfcn
-# endif
-
-# if defined( _WIN32)
-#  import <psapi.h>   // psapi
-# endif
+/* no headers */
 
 #endif
