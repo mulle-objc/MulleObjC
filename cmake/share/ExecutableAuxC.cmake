@@ -6,7 +6,7 @@ if( NOT __EXECUTABLE_C_AUX_CMAKE__)
    endif()
 
    # up here for orthogonality with C
-   include( ExecutableObjCAux OPTIONAL)
+   include( ExecutableAuxObjC OPTIONAL)
 
    include( ExecutableObjC)
    include( OptimizedLinkObjC)

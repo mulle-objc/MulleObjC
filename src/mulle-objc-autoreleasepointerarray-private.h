@@ -65,7 +65,7 @@ static inline struct _mulle_autoreleasepointerarray *
 
    array = mulle_malloc( sizeof( struct _mulle_autoreleasepointerarray));
    if( ! array)
-      mulle_objc_throw_allocation_exception( sizeof( struct _mulle_autoreleasepointerarray));
+      __mulle_objc_universe_raise_failedallocation( NULL, sizeof( struct _mulle_autoreleasepointerarray));
 
 #if AUTORELEASEPOOL_DEBUG
    fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p allocated (previous = %p)\n", array, previous);

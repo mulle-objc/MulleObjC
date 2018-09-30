@@ -135,10 +135,12 @@ static void  test_class( Class cls)
 main()
 {
 #ifdef __MULLE_OBJC__
-   mulle_objc_check_universe();
+   if( mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__) != mulle_objc_universe_is_ok)
+      return( 1);
 #endif
 
    test_class( [NSObject class]);
    test_class( [Foo class]);
    test_class( [Bar class]);
+   return( 0);
 }

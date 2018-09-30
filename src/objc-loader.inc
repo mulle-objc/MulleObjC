@@ -13,6 +13,7 @@
       { @selector( NSProxy), MULLE_OBJC_NO_CATEGORYID },      // 9a42ec29;NSProxy;;
       { @selector( NSRecursiveLock), MULLE_OBJC_NO_CATEGORYID },      // 8ffcedd9;NSRecursiveLock;;
       { @selector( NSThread), MULLE_OBJC_NO_CATEGORYID },      // c81b9c22;NSThread;;
+      { @selector( _MulleObjCAutoreleaseAllocation), MULLE_OBJC_NO_CATEGORYID },      // e01ebb50;_MulleObjCAutoreleaseAllocation;;
       { @selector( _MulleObjCInstantiatePlaceholder), MULLE_OBJC_NO_CATEGORYID },      // 45dab2c5;_MulleObjCInstantiatePlaceholder;;
       { @selector( _MulleObjCLargeZombie), MULLE_OBJC_NO_CATEGORYID },      // 63fd6ba7;_MulleObjCLargeZombie;;
       { @selector( _MulleObjCZombie), MULLE_OBJC_NO_CATEGORYID },      // 3e4af9b8;_MulleObjCZombie;;

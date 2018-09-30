@@ -7,6 +7,6 @@ if( NOT __POST_FILES_C_AUX_CMAKE__)
 
    include( AAMSupportObjC)
 
-   include( PostFilesObjCAux OPTIONAL)
+   include( PostFilesAuxObjC OPTIONAL)
 
 endif()

@@ -40,8 +40,8 @@
 #import "MulleObjCExceptionHandler.h"
 #import "version.h"
 
-#import "mulle-objc-setup-private.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
-#import "mulle-objc-rootconfiguration-private.h"
+#import "mulle-objc-universefoundationinfo-private.h"
+#import "mulle-objc-universeconfiguration-private.h"
 
 #import "mulle-objc-startup-private.inc"

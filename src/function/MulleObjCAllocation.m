@@ -42,8 +42,9 @@
 // other files in this library
 #import "NSDebug.h"
 #import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
-#import "mulle-objc-rootconfiguration-private.h"
+#import "mulle-objc-universefoundationinfo-private.h"
 
 // std-c and dependencies
 
@@ -57,7 +58,7 @@ int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
                                      void *self)
 {
    if( property->clearer)
-      mulle_objc_object_inline_variable_methodid_call( self, property->clearer, NULL);
+      mulle_objc_object_inlinecall_variablemethodid( self, property->clearer, NULL);
    return( 0);
 }
 
@@ -84,7 +85,7 @@ static void  *calloc_or_raise( size_t n, size_t size)
    if( ! size)
       return( p);
 
-   mulle_objc_throw_allocation_exception( size);
+   __mulle_objc_universe_raise_failedallocation( NULL, size);
    return( NULL);
 }
 
@@ -100,7 +101,7 @@ static void  *realloc_or_raise( void *block, size_t size)
    if( ! size)
       return( p);
 
-   mulle_objc_throw_allocation_exception( size);
+   __mulle_objc_universe_raise_failedallocation( NULL, size);
    return( NULL);
 }
 
@@ -185,14 +186,15 @@ void   _MulleObjCObjectClearProperties( id obj)
 void   _MulleObjCObjectFree( id obj)
 {
    struct _mulle_objc_objectheader   *header;
-   struct _mulle_objc_rootconfiguration      *config;
+   struct _mulle_objc_universefoundationinfo      *config;
    struct mulle_allocator            *allocator;
    struct _mulle_objc_universe       *universe;
    struct _mulle_objc_infraclass     *infra;
    struct _mulle_objc_class          *cls;
 
-   universe = _mulle_objc_object_get_universe( obj);
-   config   = _mulle_objc_universe_get_foundationdata( universe);
+   cls      = _mulle_objc_object_get_isa( obj);
+   universe = _mulle_objc_class_get_universe( cls);
+   config   = _mulle_objc_universe_get_universefoundationinfo( universe);
    if( config->object.zombieenabled)
    {
       MulleObjCZombifyObject( obj);
@@ -200,7 +202,6 @@ void   _MulleObjCObjectFree( id obj)
          return;
    }
 
-   cls       = _mulle_objc_object_get_isa( obj);
    // if it's a meta class it's an error during debug
    assert( _mulle_objc_class_is_infraclass( cls));
    infra     = _mulle_objc_class_as_infraclass( cls);

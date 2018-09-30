@@ -4,4 +4,4 @@ endif()
 
 include( DefineLoaderIncObjC)
 
-include( PreLibraryObjCAux OPTIONAL)
+include( PreLibraryAuxObjC OPTIONAL)

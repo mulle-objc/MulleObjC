@@ -47,8 +47,7 @@
 #import "NSRange.h"
 #import "version.h"
 
-#import "mulle-objc-exceptionhandlertable-private.h"
-#import "mulle-objc-rootconfiguration-private.h"
+#import "mulle-objc-universefoundationinfo-private.h"
 
 
 // std-c and dependencies
@@ -95,7 +94,7 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
    placeholder = NSAllocateObject( infraCls, 0, NULL);
    cls         = _mulle_objc_infraclass_as_class( infraCls);
    sel         = @selector( __initPlaceholder);
-   imp         = _mulle_objc_class_lookup_implementation_no_forward( cls, sel);
+   imp         = _mulle_objc_class_lookup_implementation_noforward( cls, sel);
    if( imp)
       (*imp)( placeholder, sel, NULL);
 
@@ -120,7 +119,8 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 
 + (instancetype) alloc
 {
-   struct _mulle_objc_object   *placeholder;
+   struct _mulle_objc_object    *placeholder;
+   struct _mulle_objc_universe  *universe;
 
    //
    // only the class marked as MulleObjCClassCluster gets the
@@ -141,7 +141,8 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
    if( ! placeholder)
    {
       placeholder = (struct _mulle_objc_object *) MulleObjCNewClassClusterPlaceholder( self);
-      _mulle_objc_add_placeholder( placeholder);
+      universe    = _mulle_objc_infraclass_get_universe( self);
+      _mulle_objc_universe_add_rootplaceholder( universe, placeholder);
       _mulle_objc_infraclass_set_auxplaceholder( self, placeholder);
    }
 

@@ -67,9 +67,9 @@ struct MulleObjCAutoreleasePoolConfiguration;
 - (void) main;
 
 
-// mulle additons
-
 + (BOOL) isMultiThreaded;   // __attribute__((availability(mulleobjc,introduced=0.2)));
+
+// mulle additons for tests
 
 // don't call join on a detached thread
 - (void) join;              // __attribute__((availability(mulleobjc,introduced=0.2)));
@@ -78,21 +78,21 @@ struct MulleObjCAutoreleasePoolConfiguration;
 
 //
 // a pthread or C11 thread that wants to call ObjC functions must minimally call
-// _mulle_objc_threadbecome_runtime_thread beforehand and must call
-// _mulle_objc_threadresignas_runtimethread before exiting
+// _mulle_objc_thread_become_universethread beforehand and must call
+// _mulle_objc_thread_resignas_universethread before exiting
 //
-void  _mulle_objc_threadbecome_runtime_thread( void);
-void  _mulle_objc_threadresignas_runtimethread( void);       // NSThread object should be gone already
+void  _mulle_objc_thread_become_universethread( struct _mulle_objc_universe *universe);
+void  _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *universe);       // NSThread object should be gone already
 
 
 #pragma mark -
 #pragma mark Internal
 
 // don't call these functions yourself
-NSThread  *_NSThreadNewRuntimeThread( void);
-void       _NSThreadResignAsRuntimeThreadAndDeallocate( NSThread *self);
+NSThread  *_NSThreadNewUniverseThreadObject( struct _mulle_objc_universe *universe);
+void       _NSThreadResignAsUniverseThreadObjectAndDeallocate( NSThread *self);
 
-NSThread  *_NSThreadNewMainThread( void);
-void  _NSThreadResignAsMainThread( void);
+NSThread  *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe);
+void       _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe);
 
 @end

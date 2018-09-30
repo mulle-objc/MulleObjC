@@ -18,12 +18,15 @@
 main()
 {
 #if defined( __MULLE_OBJC__)
-   extern void   mulle_objc_htmldump_universe_to_tmp();
-   extern void   mulle_objc_dotdump_to_tmp();
+   struct _mulle_objc_universe    *universe;
 
-   mulle_objc_check_universe();
-   mulle_objc_dotdump_to_tmp();
-   mulle_objc_htmldump_universe_to_tmp();
+   if( mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__) != mulle_objc_universe_is_ok)
+   {
+      MulleObjCHTMLDumpUniverse();
+      MulleObjCDotdumpUniverse();
+      return( 1);
+   }
 #endif
+
    return( 0);
 }

@@ -30,7 +30,7 @@
 #   POSSIBILITY OF SUCH DAMAGE.
 #
 
-[ "${TRACE}" = "YES" ] && set -x && : "$0" "$@"
+[ "${TRACE}" = 'YES' ] && set -x && : "$0" "$@"
 
 
 CMAKE_SOURCETREE_UPDATE_VERSION="0.0.2"
@@ -44,8 +44,28 @@ usage()
 Usage:
    ${MULLE_USAGE_NAME} <action> <filename> <category>
 
+   Create the _Dependencies.cmake and _Libraries.cmake files from the
+   information contained in the subtree.
+
+   ${MULLE_USAGE_NAME} has to run in a mulle-sde environment. You can run it
+   with \`mulle-sde run ${MULLE_USAGE_NAME}\`.
+
+   Subtree marks used:
+      no-all-load        : do not emit ObjC specifica
+      no-cmakeadd        : do not add to the list of libraries to link
+      no-cmakedependency : don't inherit foreign DependenciesAndLibraries.cmake
+      no-cmakeinherit    : do not inherit anything from foreign library
+      no-cmakeloader     : don't inherit foreign objc-loader.h
+      no-require         : combines no-require-link and no-require-header
+      no-require-header  : the header does not need to exist
+      no-require-link    : the library need not exist, omit from link if missing
+
    Let mulle-monitor run this for you. None of the arguments are actually
    used.
+
+Environment:
+   MULLE_SDE_DEPENDENCIES_FILE  : name of the dependencies output file
+   MULLE_SDE_LIBRARIES_FILE     : name of the libraries output file
 
 EOF
    exit 1
@@ -53,9 +73,9 @@ EOF
 
 
 # https://cmake.org/Wiki/CMake_Checking_Platform
-uname_to_cmake()
+r_uname_to_cmake()
 {
-   log_entry "uname_to_cmake" "$@"
+   log_entry "r_uname_to_cmake" "$@"
 
    local uname="$1"
 
@@ -76,17 +96,15 @@ uname_to_cmake()
       ;;
    esac
 
-   echo "\${CMAKE_SYSTEM_NAME} MATCHES \"${systemname}\""
+   RVAL="\${CMAKE_SYSTEM_NAME} MATCHES \"${systemname}\""
 }
 
 
-osexclude_to_cmake_if()
+r_osexclude_to_cmake_if()
 {
-   log_entry "osexclude_to_cmake_if" "$@"
+   log_entry "r_osexclude_to_cmake_if" "$@"
 
    local marks="$1"
-
-   local cmakevar
 
    local excludes
    local onlys
@@ -99,13 +117,15 @@ osexclude_to_cmake_if()
 
       case "${osexclude}" in
          only-os-*)
-            cmakevar="`uname_to_cmake "${osexclude:8}"`"
-            onlys="`concat "${onlys}" "${cmakevar}" " OR " `"
+            r_uname_to_cmake "${osexclude:8}"
+            r_concat "${onlys}" "${RVAL}" " OR "
+            onlys="${RVAL}"
          ;;
 
          no-os-*)
-            cmakevar="`uname_to_cmake "${osexclude:6}"`"
-            excludes="`concat "${excludes}" "${cmakevar}" " AND "`"
+            r_uname_to_cmake "${osexclude:6}"
+            r_concat "${excludes}" "${RVAL}" " AND "
+            excludes="${RVAL}"
          ;;
       esac
    done
@@ -115,7 +135,7 @@ osexclude_to_cmake_if()
 
    if [ ! -z "${onlys}" ]
    then
-      echo "if( ${onlys})"
+      RVAL="if( ${onlys})"
       return
    fi
 
@@ -123,14 +143,18 @@ osexclude_to_cmake_if()
    then
       case "${excludes}" in
          *" OR "*)
-            echo "if( NOT (${excludes}))"
+            RVAL="if( NOT (${excludes}))"
+            return
          ;;
 
          *)
-            echo "if( NOT ${excludes})"
+            RVAL="if( NOT ${excludes})"
+            return
          ;;
       esac
    fi
+
+   RVAL=""
 }
 
 
@@ -153,12 +177,19 @@ _emit_dependencies_loader_cmake_code()
       quoted_names="IN LISTS _TMP_${identifier}_NAME"
    fi
 
-   cat <<EOF
-${indent}      # search for DependenciesAndLibraries.cmake to include
+   case ",${marks}," in
+      *,no-cmakedependency,*)
+      ;;
+
+      *)
+         cat <<EOF
+${indent}      #
+${indent}      # Search for "DependenciesAndLibraries.cmake" to include.
+${indent}      # Disable with: \`mark no-cmakedependency\`
+${indent}      #
 ${indent}      foreach( _TMP_${identifier}_NAME ${quoted_names})
 ${indent}         set( _TMP_${identifier}_DIR "\${_TMP_${identifier}_ROOT}/include/\${_TMP_${identifier}_NAME}/cmake")
 ${indent}         # use explicit path to avoid "surprises"
-${indent}         message( STATUS "_TMP_${identifier}_DIR is \${_TMP_${identifier}_DIR}")
 ${indent}         if( EXISTS "\${_TMP_${identifier}_DIR}/DependenciesAndLibraries.cmake")
 ${indent}            unset( ${identifier}_DEFINITIONS)
 ${indent}            list( INSERT CMAKE_MODULE_PATH 0 "\${_TMP_${identifier}_DIR}")
@@ -186,18 +217,21 @@ ${indent}            message( STATUS "\${_TMP_${identifier}_DIR}/DependenciesAnd
 ${indent}         endif()
 ${indent}      endforeach()
 EOF
+   esac
+
    #
    # for objective-c we find objc-loader.inc in the public include files
    #
    case ",${marks}," in
-      *,no-all-load,*)
+      *,no-all-load,*|*,no-cmakeloader,*)
       ;;
 
       *)
          cat <<EOF
-${indent}
-${indent}      # search for objc-loader.inc in include directory
-${indent}      # this can be turned  off (see above)
+${indent}      #
+${indent}      # Search for "objc-loader.inc" in include directory.
+${indent}      # Disable with: \`mark no-cmakeloader\`
+${indent}      #
 ${indent}      if( NOT NO_INHERIT_OBJC_LOADERS)
 ${indent}         foreach( _TMP_${identifier}_NAME ${quoted_names})
 ${indent}            set( _TMP_${identifier}_FILE "\${_TMP_${identifier}_ROOT}/include/\${_TMP_${identifier}_NAME}/objc-loader.inc")
@@ -243,20 +277,24 @@ _emit_cmake_find_library()
    IFS=","; set -o noglob
    for i in ${names}
    do
-      quoted_names="`concat "${quoted_names}" "\\\"${i}\\\"" `"
+      r_concat "${quoted_names}" "\"${i}\""
+      quoted_names="${RVAL}"
 
       case "${preference}" in
          "static")
-            libraries="`concat "${libraries}" "\\\${CMAKE_STATIC_LIBRARY_PREFIX}${i}\\\${CMAKE_STATIC_LIBRARY_SUFFIX}"`"
+            r_concat "${libraries}" "\${CMAKE_STATIC_LIBRARY_PREFIX}${i}\${CMAKE_STATIC_LIBRARY_SUFFIX}"
+            libraries="${RVAL}"
          ;;
 
          "shared")
-            libraries="`concat "${libraries}" "\\\${CMAKE_SHARED_LIBRARY_PREFIX}${i}\\\${CMAKE_SHARED_LIBRARY_SUFFIX}"`"
+            r_concat "${libraries}" "\${CMAKE_SHARED_LIBRARY_PREFIX}${i}\${CMAKE_SHARED_LIBRARY_SUFFIX}"
+            libraries="${RVAL}"
          ;;
       esac
 
       # fallback to whatever linkage
-      libraries="`concat "${libraries}" "${i}"`"
+      r_concat "${libraries}" "${i}"
+      libraries="${RVAL}"
    done
    IFS="${DEFAULT_IFS}"; set -o noglob
 
@@ -289,7 +327,7 @@ _emit_cmake_find_library()
 ${indent}if( NOT ${identifier}_LIBRARY)
 ${indent}   find_library( ${identifier}_LIBRARY NAMES ${libraries})
 ${indent}   message( STATUS "${identifier}_LIBRARY is \${${identifier}_LIBRARY}")
-${indent}
+${indent}   #
 ${indent}   # the order looks ascending, but due to the way this file is read
 ${indent}   # it ends up being descending, which is what we need
 ${indent}   if( ${identifier}_LIBRARY)
@@ -300,6 +338,10 @@ EOF
 
       *)
          cat <<EOF
+${indent}      #
+${indent}      # Add to ${identifier}_LIBRARY list.
+${indent}      # Disable with: \`mark no-cmakeadd\`
+${indent}      #
 ${indent}      set( ${containername}
 ${indent}         \${${containername}}
 ${indent}         \${${identifier}_LIBRARY}
@@ -310,15 +352,22 @@ EOF
    esac
 
    case ",${marks}," in
-      *',no-cmakeloader,'*)
+      *',no-cmakeinherit,'*)
+         cat <<EOF
+${indent}      # intentionally left blank
+EOF
       ;;
 
       *)
          cat <<EOF
-${indent}      # temporarily expand CMAKE_MODULE_PATH
+${indent}      #
+${indent}      # Inherit ObjC loader and link dependency info.
+${indent}      # Disable with: \`mark no-cmakeinherit\`
+${indent}      #
+${indent}      # // temporarily expand CMAKE_MODULE_PATH
 ${indent}      get_filename_component( _TMP_${identifier}_ROOT "\${${identifier}_LIBRARY}" DIRECTORY)
 ${indent}      get_filename_component( _TMP_${identifier}_ROOT "\${_TMP_${identifier}_ROOT}" DIRECTORY)
-${indent}
+${indent}      #
 EOF
 
       _emit_dependencies_loader_cmake_code "${identifier}" \
@@ -372,9 +421,11 @@ _emit_cmake_header_only()
    IFS=","; set -o noglob
    for i in ${names}
    do
-      headers="`concat "${headers}" "${i}/${i}.h"`"
-      headers="`concat "${headers}" "${i}.h"`"
+      r_concat "${headers}" "${i}/${i}.h"
+      r_concat "${RVAL}" "${i}.h"
+      headers="${RVAL}"
    done
+
    IFS="${DEFAULT_IFS}"; set +o noglob
 
    case ",${marks}," in
@@ -405,6 +456,7 @@ _emit_cmake_header_only()
 ${indent}if( NOT ${identifier}_HEADER)
 ${indent}   find_file( ${identifier}_HEADER NAMES ${headers})
 ${indent}   message( STATUS "${identifier}_HEADER is \${${identifier}_HEADER}")
+
 EOF
 
    case ",${marks}," in
@@ -413,6 +465,10 @@ EOF
 
       *)
          cat <<EOF
+${indent}   #
+${indent}   # Add to list of header files.
+${indent}   # Disable with: \`mark no-cmakeadd\`
+${indent}   #
 ${indent}   set( ${containername}
 ${indent}      \${${identifier}_HEADER}
 ${indent}      \${${containername}}
@@ -428,18 +484,22 @@ EOF
 
 
    case ",${marks}," in
-      *',no-cmakeloader,'*)
+      *',no-cmakeinherit,'*)
+         cat <<EOF
+${indent}      # intentionally left blank
+EOF
       ;;
 
       *)
          cat <<EOF
-${indent}      # search for DependenciesAndLibraries.cmake to include
+${indent}      #
+${indent}      # Inherit ObjC loader and link dependency info.
+${indent}      # Disable with: \`mark no-cmakeinherit\`
+${indent}      #
 ${indent}      get_filename_component( _TMP_${identifier}_ROOT "\${${identifier}_HEADER}" DIRECTORY)
 ${indent}      get_filename_component( _TMP_${identifier}_NAME "\${_TMP_${identifier}_ROOT}" NAME)
 ${indent}      get_filename_component( _TMP_${identifier}_ROOT "\${_TMP_${identifier}_ROOT}" DIRECTORY)
 ${indent}      get_filename_component( _TMP_${identifier}_ROOT "\${_TMP_${identifier}_ROOT}" DIRECTORY)
-${indent}      message( STATUS "_TMP_${identifier}_NAME is \${_TMP_${identifier}_NAME}")
-${indent}      message( STATUS "_TMP_${identifier}_ROOT is \${_TMP_${identifier}_ROOT}")
 EOF
 
          #
@@ -447,8 +507,8 @@ EOF
          # MulleObjCOSFoundation
          #
           _emit_dependencies_loader_cmake_code "${identifier}" \
-                                              "" \
-                                              "${marks}"
+                                               "" \
+                                               "${marks}"
       ;;
    esac
 
@@ -457,6 +517,7 @@ ${indent}   else()
 ${indent}      message( ${failstatus} "${failstring}")
 ${indent}   endif()
 ${indent}endif()
+
 EOF
 }
 
@@ -479,6 +540,7 @@ emit_cmake_dependency()
    local ifstatement
    local endifstatement
    local name
+   local RVAL
 
    #
    # ALL_LOAD_ is the default for Objective-C static libraries and is the
@@ -489,7 +551,9 @@ emit_cmake_dependency()
 
    if [ ! -z "${marks}" ]
    then
-      ifstatement="`osexclude_to_cmake_if "${marks}" `"
+      r_osexclude_to_cmake_if "${marks}"
+      ifstatement="${RVAL}"
+
       if [ ! -z "${ifstatement}" ]
       then
          indent="   "
@@ -507,14 +571,20 @@ emit_cmake_dependency()
       echo "${ifstatement}"
    fi
 
+   local addressname
    local identifier
    local filename
    local names
+   local RVAL
 
-   names="`comma_concat "${aliases}" "${address}" `"
+   r_fast_basename "${address}"
+   addressname="${RVAL}"
+   r_comma_concat "${aliases}" "${addressname}"
+   names="${RVAL}"
 
    # first alias determines the identifier
-   filename="`fast_basename "${names%%,*}"`"
+   r_fast_basename "${names%%,*}"
+   filename="${RVAL}"
 
    if [ -z "${MULLE_CASE_SH}" ]
    then
@@ -522,8 +592,10 @@ emit_cmake_dependency()
       . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-case.sh" || return 1
    fi
 
-   identifier="`tweaked_de_camel_case "${filename}"`"
-   identifier="`printf "%s" "${identifier}" | tr -c 'a-zA-Z0-9' '_'`"
+   local RVAL
+
+   r_tweaked_de_camel_case "${addressname}"
+   identifier="`printf "%s" "${RVAL}" | tr -c 'a-zA-Z0-9' '_'`"
    identifier="`tr 'a-z' 'A-Z' <<< "${identifier}"`"
 
    "${emitter}" "${names}" \
@@ -675,7 +747,8 @@ write_libraries_file()
    fi
    MULLE_SDE_LIBRARIES_FILE="${MULLE_SDE_LIBRARIES_FILE:-cmake/_Libraries.cmake}"
 
-   text_lib="# ${MULLE_SDE_LIBRARIES_FILE} is generated by \`mulle-sde\`. Edits will be lost.
+   text_lib="#
+# ${MULLE_SDE_LIBRARIES_FILE} is generated by \`mulle-sde\`. Edits will be lost.
 #
 if( MULLE_TRACE_INCLUDE)
    message( STATUS \"# Include \\\"\${CMAKE_CURRENT_LIST_FILE}\\\"\" )
@@ -684,8 +757,10 @@ endif()
 ${text_lib}"
 
    log_verbose "Writing ${C_RESET_BOLD}${MULLE_SDE_LIBRARIES_FILE}"
-   exekutor mkdir -p  "`fast_dirname "${MULLE_SDE_LIBRARIES_FILE}"`" 2> /dev/null
+   r_fast_dirname "${MULLE_SDE_LIBRARIES_FILE}"
+   exekutor mkdir -p "${RVAL}" 2> /dev/null
    exekutor chmod a+w "${MULLE_SDE_LIBRARIES_FILE}"  2> /dev/null
+   r_mkdir_parent_if_missing "${MULLE_SDE_LIBRARIES_FILE}"
    redirect_exekutor "${MULLE_SDE_LIBRARIES_FILE}" echo "${text_lib}"
    exekutor chmod a-w "${MULLE_SDE_LIBRARIES_FILE}"
 }
@@ -711,7 +786,8 @@ write_dependencies_file()
 
    MULLE_SDE_DEPENDENCIES_FILE="${MULLE_SDE_DEPENDENCIES_FILE:-cmake/_Dependencies.cmake}"
 
-   text_dep="# ${MULLE_SDE_DEPENDENCIES_FILE} is generated by \`mulle-sde\`. Edits will be lost.
+   text_dep="#
+# ${MULLE_SDE_DEPENDENCIES_FILE} is generated by \`mulle-sde\`. Edits will be lost.
 #
 if( MULLE_TRACE_INCLUDE)
    message( STATUS \"# Include \\\"\${CMAKE_CURRENT_LIST_FILE}\\\"\" )
@@ -722,8 +798,10 @@ ${text_dep}"
    log_fluff "Create cmake files (${PWD})"
 
    log_verbose "Writing ${C_RESET_BOLD}${MULLE_SDE_DEPENDENCIES_FILE}"
-   exekutor mkdir -p  "`fast_dirname "${MULLE_SDE_DEPENDENCIES_FILE}"`" 2> /dev/null
+   r_fast_dirname "${MULLE_SDE_DEPENDENCIES_FILE}"
+   exekutor mkdir -p "${RVAL}" 2> /dev/null
    exekutor chmod a+w "${MULLE_SDE_DEPENDENCIES_FILE}"  2> /dev/null
+   r_mkdir_parent_if_missing "${MULLE_SDE_DEPENDENCIES_FILE}"
    redirect_exekutor "${MULLE_SDE_DEPENDENCIES_FILE}" echo "${text_dep}"
    exekutor chmod a-w "${MULLE_SDE_DEPENDENCIES_FILE}"
 }
@@ -734,23 +812,23 @@ main()
    log_entry "main" "$@"
 
    local MULLE_TRACE
-   local MULLE_FLAG_DONT_DEFER="NO"
-   local MULLE_FLAG_EXEKUTOR_DRY_RUN="NO"
-   local MULLE_FLAG_FOLLOW_SYMLINKS="YES"
-   local MULLE_FLAG_LOG_CACHE="NO"
-   local MULLE_FLAG_LOG_DEBUG="NO"
-   local MULLE_FLAG_LOG_EXEKUTOR="NO"
-   local MULLE_FLAG_LOG_FLUFF="NO"
-   local MULLE_FLAG_LOG_MERGE="NO"
-   local MULLE_FLAG_LOG_SCRIPTS="NO"
-   local MULLE_FLAG_LOG_SETTINGS="NO"
-   local MULLE_FLAG_LOG_VERBOSE="NO"
-   local MULLE_TRACE_PATHS_FLIP_X="NO"
-   local MULLE_TRACE_POSTPONE="NO"
-   local MULLE_TRACE_RESOLVER_FLIP_X="NO"
-   local MULLE_TRACE_SETTINGS_FLIP_X="NO"
+   local MULLE_FLAG_DONT_DEFER='NO'
+   local MULLE_FLAG_EXEKUTOR_DRY_RUN='NO'
+   local MULLE_FLAG_FOLLOW_SYMLINKS='YES'
+   local MULLE_FLAG_LOG_CACHE='NO'
+   local MULLE_FLAG_LOG_DEBUG='NO'
+   local MULLE_FLAG_LOG_EXEKUTOR='NO'
+   local MULLE_FLAG_LOG_FLUFF='NO'
+   local MULLE_FLAG_LOG_MERGE='NO'
+   local MULLE_FLAG_LOG_SCRIPTS='NO'
+   local MULLE_FLAG_LOG_SETTINGS='NO'
+   local MULLE_FLAG_LOG_VERBOSE='NO'
+   local MULLE_TRACE_PATHS_FLIP_X='NO'
+   local MULLE_TRACE_POSTPONE='NO'
+   local MULLE_TRACE_RESOLVER_FLIP_X='NO'
+   local MULLE_TRACE_SETTINGS_FLIP_X='NO'
 
-   local OPTION_PARALLEL="YES"
+   local OPTION_PARALLEL='YES'
 
    while [ $# -ne 0 ]
    do
@@ -773,7 +851,7 @@ main()
          ;;
 
          --no-parallel)
-            OPTION_PARALLEL="NO"
+            OPTION_PARALLEL='NO'
          ;;
 
          --version)
@@ -801,7 +879,9 @@ main()
 
    options_setup_trace "${MULLE_TRACE}"
 
-   if [ "${OPTION_PARALLEL}" = "YES" ]
+   [ -z "${MULLE_VIRTUAL_ROOT}" ] && fail "Must run inside the mulle-sde environment"
+
+   if [ "${OPTION_PARALLEL}" = 'YES' ]
    then
       write_dependencies_file "${categorized_files}" &
       write_libraries_file "${categorized_files}" &
@@ -826,7 +906,7 @@ _init()
          exit 1
    fi
 
-   . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-bashfunctions.sh" "minimal" || exit 1
+   . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-bashfunctions.sh" || exit 1
 }
 
 _init "$@"

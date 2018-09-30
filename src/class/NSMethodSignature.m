@@ -38,6 +38,7 @@
 #import "NSAutoreleasePool.h"
 #import "MulleObjCAllocation.h"
 #import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 #import "NSRange.h"
 
 
@@ -260,7 +261,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
       ++p;
    }
 
-   assert( p == sentinel);
+   assert( p <= sentinel);
    return( self->_infos);
 }
 
@@ -268,7 +269,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 - (char *) getArgumentTypeAtIndex:(NSUInteger) i
 {
    if( i >= _count)
-      mulle_objc_throw_invalid_index_exception( i);
+      __mulle_objc_universe_raise_invalidindex( _mulle_objc_object_get_universe( self), i);
 
    // will have trailing garbage, but who cares ?
    return( get_infos( self)[ 1 + i].type);
@@ -288,7 +289,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 - (MulleObjCMethodSignatureTypeinfo *) _runtimeTypeInfoAtIndex:(NSUInteger) i
 {
    if( i >= _count + 1)
-      mulle_objc_throw_invalid_index_exception( i);
+      __mulle_objc_universe_raise_invalidindex( _mulle_objc_object_get_universe( self), i);
 
    return( &get_infos( self)[ i]);
 }

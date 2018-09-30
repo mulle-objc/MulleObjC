@@ -8,7 +8,6 @@ if( NOT __DEFINE_LOADER_INC_OBJC_CMAKE__)
 
    # check if available first
 
-
    if( NOT MULLE_OBJC_LOADER_TOOL)
       if( MSVC)
          find_program( MULLE_OBJC_LOADER_TOOL mulle-objc-loader-tool.bat
@@ -26,8 +25,12 @@ if( NOT __DEFINE_LOADER_INC_OBJC_CMAKE__)
       message( STATUS "MULLE_OBJC_LOADER_TOOL is ${MULLE_OBJC_LOADER_TOOL}")
    endif()
 
-   option( CREATE_OBJC_LOADER_INC "Create objc-loader.inc for Objective-C libraries" ON)
+   if( MULLE_OBJC_LOADER_TOOL)
+      option( CREATE_OBJC_LOADER_INC "Create objc-loader.inc for Objective-C libraries" ON)
+   else()
+      option( CREATE_OBJC_LOADER_INC "Create objc-loader.inc for Objective-C libraries" OFF)
+   endif()
 
-   include( DefineLoaderIncObjCAux OPTIONAL)
+   include( DefineLoaderIncAuxObjC OPTIONAL)
 
 endif()

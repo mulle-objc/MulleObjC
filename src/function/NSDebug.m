@@ -41,8 +41,11 @@
 #import "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
-#import "mulle-objc-rootconfiguration-private.h"
+#import "mulle-objc-universefoundationinfo-private.h"
+#import <mulle-objc-runtime/mulle-objc-dotdump.h>
+#import <mulle-objc-runtime/mulle-objc-htmldump.h>
 
 // std-c and dependencies
 
@@ -52,11 +55,12 @@
 
 char   *_NSPrintForDebugger( id a)
 {
-   IMP                         imp;
-   char                        *aux;
-   char                        *spacer;
-   char                        buf[ 256];
-   struct _mulle_objc_class    *cls;
+   IMP                           imp;
+   char                          *aux;
+   char                          *spacer;
+   char                          buf[ 256];
+   struct _mulle_objc_class      *cls;
+   struct _mulle_objc_universe   *universe;
 
    if( ! a)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*nil*"));
@@ -64,6 +68,8 @@ char   *_NSPrintForDebugger( id a)
    cls = _mulle_objc_object_get_isa( a);
    if( ! cls)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*not an object (anymore ?)*"));
+
+   universe = _mulle_objc_class_get_universe( cls);
 
    // typical "released" isa values
    if( cls == (void *) (intptr_t) 0xDEADDEADDEADDEAD || // our scribble
@@ -73,18 +79,18 @@ char   *_NSPrintForDebugger( id a)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
    }
 
-   imp = (IMP) _mulle_objc_class_noncachinglookup_implementation_no_forward( cls, @selector( debugDescription));
+   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( debugDescription));
    if( imp)
    {
       void   *s;
 
       s = (*imp)( a, @selector( debugDescription), NULL);
-      return( _mulle_objc_characters( s));
+      return( _mulle_objc_universe_characters( universe, s));
    }
 
    spacer = "";
    aux    = "";
-   imp    = (IMP) _mulle_objc_class_noncachinglookup_implementation_no_forward( cls, @selector( description));
+   imp    = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( description));
    if( imp)
    {
       void   *s;
@@ -92,7 +98,7 @@ char   *_NSPrintForDebugger( id a)
       s = (*imp)( a, @selector( description), NULL);
       if( s)
       {
-         aux = _mulle_objc_characters( s);
+         aux = _mulle_objc_universe_characters( universe, s);
          if( strlen( aux))
             spacer=" ";
       }
@@ -111,7 +117,8 @@ char   *_NSPrintForDebugger( id a)
 
 @implementation _MulleObjCZombie
 
-static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was sent a \"%s\" message\n";
+static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was "
+										  "sent a %x message (\"%s\")\n";
 
 - (char *) _originalClassName
 {
@@ -121,12 +128,20 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 
 - (void) forward:(SEL) sel :(void *) _params
 {
-   int    isMeta;
+   int                          isMeta;
+   struct _mulle_objc_universe  *universe;
+   char                         *hashname;
 
    // possibly bullshit ;)
-   isMeta = _mulle_objc_class_is_metaclass( _mulle_objc_object_get_isa( self));
-
-   fprintf( stderr, zombie_format, self, isMeta ? "meta" : "", [self _originalClassName], mulle_objc_search_debughashname( (mulle_objc_methodid_t) sel));
+   isMeta   = _mulle_objc_class_is_metaclass( _mulle_objc_object_get_isa( self));
+   universe = _mulle_objc_object_get_universe( self);
+   hashname = _mulle_objc_universe_search_debughashname( universe,
+   																	  (mulle_objc_methodid_t) sel);
+   fprintf( stderr, zombie_format, self,
+   										  isMeta ? "meta" : "",
+   										  [self _originalClassName],
+   										  (mulle_objc_methodid_t) sel,
+   										  hashname ? hashname : "???");
    abort();
 }
 
@@ -158,10 +173,12 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was s
 
 static void   zombifyLargeObject( id obj)
 {
-   _MulleObjCLargeZombie   *zombie;
-   Class                   cls;
+   _MulleObjCLargeZombie        *zombie;
+   Class                        cls;
+   struct _mulle_objc_universe  *universe;
 
-   cls = mulle_objc_unfailingfastlookup_infraclass( @selector( _MulleObjCLargeZombie));
+   universe = _mulle_objc_object_get_universe( obj);
+   cls      = _mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( _MulleObjCLargeZombie));
    assert( cls);
 
    zombie = obj;
@@ -199,18 +216,21 @@ static void   zombifyObject( id obj)
    sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_infraclass_get_name( cls));
 
    classid = mulle_objc_classid_from_string( buf);
-   cls     = _mulle_objc_universe_fastlookup_infraclass( universe, classid);
+   cls     = _mulle_objc_universe_lookup_infraclass( universe, classid);
 
    if( ! cls)
    {
-      super_class = _mulle_objc_universe_fastlookup_infraclass( universe, @selector( _MulleObjCZombie));
+      super_class = _mulle_objc_universe_lookup_infraclass( universe, @selector( _MulleObjCZombie));
 
-      pair  = mulle_objc_unfailingnew_classpair( classid, buf, sizeof( id), super_class);
+      pair  = mulle_objc_universe_new_classpair( universe, classid, buf, sizeof( id), 0, super_class);
+      if( ! pair)
+         mulle_objc_universe_fail_errno( universe);  // unfailing vectors through there
+
       infra = mulle_objc_classpair_get_infraclass( pair);
       meta  = mulle_objc_classpair_get_metaclass( pair);
-      mulle_objc_infraclass_unfailingadd_methodlist( infra, NULL);
-      mulle_objc_metaclass_unfailingadd_methodlist( meta, NULL);
-      mulle_objc_universe_unfailingadd_infraclass( universe, infra);
+      mulle_objc_infraclass_add_methodlist_nofail( infra, NULL);
+      mulle_objc_metaclass_add_methodlist_nofail( meta, NULL);
+      mulle_objc_universe_add_infraclass_nofail( universe, infra);
    }
 
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
@@ -231,4 +251,149 @@ void   MulleObjCZombifyObject( id obj)
    }
 
    zombifyObject( obj);
+}
+
+
+static char   *_mulle_objc_get_tmpdir( void)
+{
+   char  *s;
+
+   s = getenv( "TMPDIR");
+   if( s)
+      return( s);
+   s = getenv( "TMP");
+   if( s)
+      return( s);
+   s = getenv( "TEMP");
+   if( s)
+      return( s);
+   s = getenv( "TEMPDIR");
+   if( s)
+      return( s);
+
+#ifdef _WIN32
+   return( ".");
+#else
+   return( "/tmp");
+#endif
+}
+
+
+
+#pragma mark - dreaded conveniences
+
+
+void   MulleObjCHTMLDumpUniverseToDirectory( char *directory)
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = MulleObjCGetUniverse();
+   mulle_objc_universe_htmldump_to_directory( universe, directory);
+}
+
+
+void   MulleObjCHTMLDumpUniverseToTmp( void)
+{
+   struct _mulle_objc_universe   *universe;
+   char                          *tmp;
+
+   universe = MulleObjCGetUniverse();
+   tmp      = _mulle_objc_get_tmpdir();
+   mulle_objc_universe_htmldump_to_directory( universe, tmp);
+}
+
+
+void   MulleObjCHTMLDumpUniverse( void)
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = MulleObjCGetUniverse();
+   mulle_objc_universe_htmldump_to_directory( universe, ".");
+}
+
+
+void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory)
+{
+   struct _mulle_objc_universe    *universe;
+   struct _mulle_objc_class       *cls;
+   struct _mulle_objc_infraclass  *infra;
+   mulle_objc_classid_t           classid;
+
+   if( ! classname || ! *classname)
+   {
+      fprintf( stderr, "Invalid classname\n");
+      return;
+   }
+
+   universe = MulleObjCGetUniverse();
+   classid  = mulle_objc_classid_from_string( classname);
+   infra    = _mulle_objc_universe_lookup_infraclass( universe, classid);
+   if( ! infra)
+   {
+      fprintf( stderr, "Class \"%s\" is unknown to the universe\n", classname);
+      return;
+   }
+
+   cls = _mulle_objc_infraclass_as_class( infra);
+   mulle_objc_class_htmldump_to_directory( cls, directory);
+}
+
+
+void   MulleObjCHTMLDumpClass( char *classname)
+{
+   MulleObjCHTMLDumpClassToDirectory( classname, ".");
+}
+
+
+void   MulleObjCHTMLDumpClassToTmp( char *classname)
+{
+   char   *tmp;
+
+   tmp = _mulle_objc_get_tmpdir();
+   MulleObjCHTMLDumpClassToDirectory( classname, tmp);
+}
+
+
+
+
+#pragma mark - conveniences
+
+
+void   MulleObjCDotdumpUniverseToTmp()
+{
+   struct _mulle_objc_universe *universe;
+   char                        *tmp;
+
+   universe = MulleObjCGetUniverse();
+   tmp      = _mulle_objc_get_tmpdir();
+   mulle_objc_universe_dotdump_to_directory( universe, tmp);
+}
+
+
+void   MulleObjCDotdumpClassToTmp( struct _mulle_objc_class *cls)
+{
+   char   *tmp;
+
+   tmp = _mulle_objc_get_tmpdir();
+   mulle_objc_class_dotdump_to_directory( cls, tmp);
+}
+
+
+void   MulleObjCDotdumpUniverseFrameToTmp()
+{
+   struct _mulle_objc_universe   *universe;
+   char                          *tmp;
+
+   universe = MulleObjCGetUniverse();
+   tmp       = _mulle_objc_get_tmpdir();
+   mulle_objc_universe_dotdump_frame_to_directory( universe, tmp);
+}
+
+
+void   MulleObjCDotdumpUniverse( void)
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = MulleObjCGetUniverse();
+   mulle_objc_universe_dotdump_to_directory( universe, ".");
 }

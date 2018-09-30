@@ -33,11 +33,7 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#include "include.h"
-
-#include "mulle-objc-type.h"
-#include "MulleObjCIntegralType.h"
-#include "NSZone.h"
+#include "mulle-objc.h"
 
 
 extern struct mulle_allocator    mulle_allocator_objc;
@@ -167,7 +163,7 @@ static inline void   NSIncrementExtraRefCount( id obj)
 
 static inline BOOL  NSDecrementExtraRefCountWasZero( id obj)
 {
-   return( (BOOL) (obj ? _mulle_objc_object_decrement_retaincount_was_zero( obj) : 0));
+   return( (BOOL) (obj ? _mulle_objc_object_decrement_retaincount_waszero( obj) : 0));
 }
 
 

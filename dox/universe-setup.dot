@@ -1,0 +1,12 @@
+digraph xxx
+{
+   "__register_mulle_objc_universe()" -> "_mulle_objc_universe_bang( universe, bang, NULL, info)"
+
+   bang())
+      universe->config.ignore_ivarhash_mismatch = 1;
+   }
+   return( universe);
+}
+
+
+}

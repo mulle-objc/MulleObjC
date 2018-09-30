@@ -21,12 +21,6 @@
 
 // if the "real" foundation has defined this, don't use the builtin stuff
 
-#ifndef MULLE_OBJC_FASTCLASSHASH_0
-# include "mulle-objc-fastclassid.h"
-#endif
-#ifndef MULLE_OBJC_FASTMETHODHASH_8
-# include "mulle-objc-fastmethodid.h"
-#endif
 
 // this is the only place where mulle_objc_runtime should be exposed
 

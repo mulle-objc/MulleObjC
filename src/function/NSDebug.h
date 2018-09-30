@@ -49,3 +49,17 @@ void   MulleObjCZombifyObject( id obj);
 extern int   mulle_objc_is_debug_enabled( void);
 
 #define NSDebugEnabled   mulle_objc_is_debug_enabled()
+
+
+void   MulleObjCHTMLDumpUniverseToDirectory( char *directory);
+void   MulleObjCHTMLDumpUniverseToTmp( void);
+void   MulleObjCHTMLDumpUniverse( void);
+void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory);
+void   MulleObjCHTMLDumpClass( char *classname);
+void   MulleObjCHTMLDumpClassToTmp( char *classname);
+
+void   MulleObjCDotdumpUniverseToTmp( void);
+void   MulleObjCDotdumpClassToTmp( struct _mulle_objc_class *cls);
+void   MulleObjCDotdumpUniverseFrameToTmp( void);
+void   MulleObjCDotdumpUniverseToTmp( void);
+void   MulleObjCDotdumpUniverse( void);

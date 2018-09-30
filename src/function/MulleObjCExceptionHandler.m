@@ -36,22 +36,29 @@
 #import "import-private.h"
 
 #import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 
 #import "NSRange.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
-#import "mulle-objc-rootconfiguration-private.h"
+#import "mulle-objc-universefoundationinfo-private.h"
 #import "version.h"
 #include <stdio.h>
 
 
 #pragma mark - C
 
-MULLE_C_NO_RETURN void   mulle_objc_throw_allocation_exception( size_t bytes)
+/*
+ * this code is here, because we don't have a NSString class yet
+ * but we must throw exception from MulleObjC
+ */
+MULLE_C_NO_RETURN void
+	__mulle_objc_universe_raise_failedallocation( struct _mulle_objc_universe *universe,
+																 size_t bytes)
 {
    struct _mulle_objc_exceptionhandlertable   *vectors;
 
    mulle_objc_break_exception();
-   vectors = _mulle_objc_get_exceptionhandlertable();
+   vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
    if( ! vectors)
    {
       fprintf( stderr, "Out of memory allocating %lu bytes\n", (long) bytes);
@@ -62,103 +69,112 @@ MULLE_C_NO_RETURN void   mulle_objc_throw_allocation_exception( size_t bytes)
 
 
 MULLE_C_NO_RETURN void
-   mulle_objc_throw_invalid_argument_exception_v( char *format, va_list args)
+   mulle_objc_universe_raisev_invalidargument( struct _mulle_objc_universe *universe,
+   														  char *format,
+   														  va_list args)
 {
    struct _mulle_objc_exceptionhandlertable   *vectors;
    id                                         s;
 
    mulle_objc_break_exception();
-   vectors = _mulle_objc_get_exceptionhandlertable();
+   vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
    if( ! vectors)
    {
       vfprintf( stderr, format, args);
       exit( 1);
    }
 
-   s = _mulle_objc_string( format);
+   s = _mulle_objc_universe_string( universe, format);
    vectors->invalid_argument( s, args);
 }
 
 
 MULLE_C_NO_RETURN void
-   mulle_objc_throw_invalid_argument_exception( char *format, ...)
+   __mulle_objc_universe_raise_invalidargument( struct _mulle_objc_universe *universe,
+   														   char *format, ...)
 {
    va_list   args;
 
    va_start( args, format);
-   mulle_objc_throw_invalid_argument_exception_v( format, args);
+   mulle_objc_universe_raisev_invalidargument( universe, format, args);
    va_end( args);
 }
 
 
 MULLE_C_NO_RETURN void
-   mulle_objc_throw_internal_inconsistency_exception_v( char *format,
-                                                        va_list args)
+   mulle_objc_universe_raisev_internalinconsistency( struct _mulle_objc_universe *universe,
+   															     char *format,
+                                                     va_list args)
 {
-   id                                 s;
+   id                                         s;
    struct _mulle_objc_exceptionhandlertable   *vectors;
 
    mulle_objc_break_exception();
-   vectors = _mulle_objc_get_exceptionhandlertable();
+   vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
    if( ! vectors)
    {
       vfprintf( stderr, format, args);
       exit( 1);
    }
-   s = _mulle_objc_string( format);
+   s = _mulle_objc_universe_string( universe, format);
 
    vectors->internal_inconsistency( s, args);
 }
 
 
 MULLE_C_NO_RETURN void
-   mulle_objc_throw_internal_inconsistency_exception( char *format, ...)
+   __mulle_objc_universe_raise_internalinconsistency( struct _mulle_objc_universe *universe,
+   																   char *format, ...)
 {
    va_list   args;
 
    va_start( args, format);
-   mulle_objc_throw_internal_inconsistency_exception_v( format, args);
+   mulle_objc_universe_raisev_internalinconsistency( universe, format, args);
    va_end( args);
 }
 
 
 MULLE_C_NO_RETURN void
-   mulle_objc_throw_errno_exception_v( char *format, va_list args)
+   mulle_objc_universe_raisev_errno( struct _mulle_objc_universe *universe,
+   										    char *format,
+   										    va_list args)
 {
    id                                         s;
    struct _mulle_objc_exceptionhandlertable   *vectors;
 
    mulle_objc_break_exception();
-   vectors = _mulle_objc_get_exceptionhandlertable();
+   vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
    if( ! vectors)
    {
       vfprintf( stderr, format, args);
       exit( 1);
    }
 
-   s = _mulle_objc_string( format);
+   s = _mulle_objc_universe_string( universe, format);
    vectors->errno_error( s, args);
 }
 
 
 MULLE_C_NO_RETURN void
-   mulle_objc_throw_errno_exception( char *format, ...)
+   __mulle_objc_universe_raise_errno( struct _mulle_objc_universe *universe,
+   											  char *format, ...)
 {
    va_list  args;
 
    va_start( args, format);
-   mulle_objc_throw_errno_exception_v( format, args);
+   mulle_objc_universe_raisev_errno( universe, format, args);
    va_end( args);
 }
 
 
 MULLE_C_NO_RETURN void
-   mulle_objc_throw_invalid_index_exception( NSUInteger index)
+   __mulle_objc_universe_raise_invalidindex( struct _mulle_objc_universe *universe,
+   														NSUInteger index)
 {
    struct _mulle_objc_exceptionhandlertable   *vectors;
 
    mulle_objc_break_exception();
-   vectors = _mulle_objc_get_exceptionhandlertable();
+   vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
    if( ! vectors)
    {
       fprintf( stderr, "invalid index %lu\n", (long) index);
@@ -172,19 +188,22 @@ MULLE_C_NO_RETURN void
 MULLE_C_NO_RETURN void
    mulle_objc_throw( void *exception)
 {
+   struct _mulle_objc_universe   *universe;
+
    mulle_objc_break_exception();
-   _mulle_objc_universe_throw( mulle_objc_get_universe(), exception);
+   universe = _mulle_objc_object_get_universe( exception);
+   _mulle_objc_universe_throw( universe, exception);
 }
 
 
 #pragma mark -
 #pragma mark Uncaught Exceptions
 
-NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void)
+NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler()
 {
    struct _mulle_objc_universe   *universe;
 
-   universe = mulle_objc_get_universe();
+   universe = mulle_objc_global_get_defaultuniverse();
    return( (NSUncaughtExceptionHandler *) universe->failures.uncaughtexception);
 }
 
@@ -193,6 +212,6 @@ void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler)
 {
    struct _mulle_objc_universe      *universe;
 
-   universe = mulle_objc_get_universe();
+   universe = mulle_objc_global_get_defaultuniverse();
    universe->failures.uncaughtexception = (void (*)()) handler;
 }

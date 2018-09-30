@@ -594,11 +594,11 @@ int   main( int argc, char  *argv[])
 
       // put in NSMutableDictionary
       cls = mulle_objc_unfailingget_class( MULLE_OBJC_CLASSID( MULLE_OBJC_FASTCLASSHASH_10));
-      _mulle_objc_universe_set_fastclass( mulle_objc_inlineget_universe(), cls, 10);
+      _mulle_objc_universe_set_fastclass( mulle_objc_global_inlineget_universe(), cls, 10);
 
       // put in NSNumber
       cls = mulle_objc_unfailingget_class( MULLE_OBJC_CLASSID( MULLE_OBJC_FASTCLASSHASH_13));
-      _mulle_objc_universe_set_fastclass( mulle_objc_inlineget_universe(), cls, 13);
+      _mulle_objc_universe_set_fastclass( mulle_objc_global_inlineget_universe(), cls, 13);
    }
 #endif
    foo = [Foobar new];
@@ -640,9 +640,7 @@ int   main( int argc, char  *argv[])
       fprintf( stderr, "doFour::::    = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doFour::::)));
       fprintf( stderr, "doSuperNo     = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doSuperNo)));
       fprintf( stderr, "Foobar;doNo      = %d\n", _mulle_objc_cache_find_entryindex( cache, mulle_objc_superid_from_string( "Foobar;doNo")));
-
-      mulle_objc_dotdump_to_tmp();
-   }
+     }
 #endif
 
    test_loop = NULL;

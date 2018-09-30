@@ -116,6 +116,7 @@
 
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
+- (char *) cStringDescription;  // returns autoreleased c string
 
 - (void) _performFinalize;
 

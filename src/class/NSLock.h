@@ -38,9 +38,13 @@
 #import "NSLocking.h"
 
 // it's in MulleObjC because
+//
 //  a) NSThread and NSLock kinda go hand in hand
 //  b) no POSIX dependency
 //  c) no real C stdlib dependency (just mulle_thread)
+//
+// using a NSLock object is really too heavyweight. Consider using
+// mulle_thread_mutex_t directly
 //
 @interface NSLock : NSObject < NSLocking>
 {

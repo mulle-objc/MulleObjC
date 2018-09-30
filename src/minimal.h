@@ -46,15 +46,17 @@
 // safe to be included by .c files without the need to
 // define __MULLE_TPS__ and friends.
 //
+#include "include.h"
 
 #include "mulle-objc-type.h"
 
 #include "MulleObjCCompiler.h"
 #include "MulleObjCIntegralType.h"
+#include "MulleObjCUniverse.h"
 
 #include "NSByteOrder.h"
 #include "NSRange.h"
 #include "NSZone.h"
-
+#include "version.h"
 
 #endif /* mulle_objc_root_h */

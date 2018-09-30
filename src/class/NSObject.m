@@ -41,6 +41,7 @@
 #import "mulle-objc-type.h"
 #import "mulle-objc-classbit.h"
 #import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCAllocation.h"
 #import "MulleObjCSingleton.h"
@@ -50,7 +51,7 @@
 #import "NSMethodSignature.h"
 #import "NSInvocation.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
-#import "mulle-objc-rootconfiguration-private.h"
+#import "mulle-objc-universefoundationinfo-private.h"
 
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
@@ -110,7 +111,7 @@
 #endif
 
    obj = [_cls alloc];
-   obj = mulle_objc_object_inline_variable_methodid_call( obj, (mulle_objc_methodid_t) _cmd, _param);
+   obj = mulle_objc_object_inlinecall_variablemethodid( obj, (mulle_objc_methodid_t) _cmd, _param);
    [obj autorelease];
    return( obj);
 }
@@ -128,7 +129,7 @@
 
 - (void) release
 {
-   _mulle_objc_object_release( self);
+   _mulle_objc_object_inlinerelease( self);
 }
 
 @end
@@ -191,7 +192,13 @@ static BOOL   MulleObjCSingleThreadedCheckReleaseAndAutorelease = YES;
 #if DEBUG
    if( MulleObjCSingleThreadedCheckReleaseAndAutorelease)
       if( [NSAutoreleasePool _countObject:self] )
-         mulle_objc_throw_internal_inconsistency_exception( "deallocing object %p still in autoreleasepool", self);
+      {
+      	struct _mulle_objc_universe   *universe;
+
+			universe = _mulle_objc_object_get_universe( self);
+         __mulle_objc_universe_raise_internalinconsistency( universe,
+         					"deallocing object %p still in autoreleasepool", self);
+      }
 #endif
    _MulleObjCObjectFree( self);
 }
@@ -221,8 +228,13 @@ static void   checkAutoreleaseRelease( NSObject *self)
 
       autoreleaseCount = [NSAutoreleasePool _countObject:self];
       retainCount      = [self retainCount];
-      if(  autoreleaseCount >= retainCount)
-         mulle_objc_throw_internal_inconsistency_exception( "object %p would be autoreleased to often", self);
+      if( autoreleaseCount >= retainCount)
+      {
+      	struct _mulle_objc_universe   *universe;
+
+			universe = _mulle_objc_object_get_universe( self);
+         __mulle_objc_universe_raise_internalinconsistency( universe, "object %p would be autoreleased to often", self);
+   	}
    }
 }
 #else
@@ -236,7 +248,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 {
    checkAutoreleaseRelease( self);
 
-   _mulle_objc_object_release( self);
+   _mulle_objc_object_inlinerelease( self);
 }
 
 
@@ -268,8 +280,9 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 // infraClass is the placeholder class, of which we create an instance
 // the infraClass with classid is placed into the placeholder
 //
-static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Class infraCls,
-                                                                              mulle_objc_classid_t classid)
+static struct _mulle_objc_object   *
+   _MulleObjCClassNewInstantiatePlaceholder( Class infraCls,
+                                             mulle_objc_classid_t classid)
 {
    struct _mulle_objc_universe        *universe;
    struct _mulle_objc_infraclass      *placeholderInfracls;
@@ -281,14 +294,14 @@ static struct _mulle_objc_object   *_MulleObjCClassNewInstantiatePlaceholder( Cl
    assert( classid);
 
    universe             = _mulle_objc_infraclass_get_universe( infraCls);
-   placeholderInfracls  = _mulle_objc_universe_unfailingfastlookup_infraclass( universe, classid);
+   placeholderInfracls  = _mulle_objc_universe_lookup_infraclass_nofail( universe, classid);
 
    placeholder       = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
    placeholder->_cls = infraCls;
 
    initSel = @selector( __initPlaceholder);
    pcls    = _mulle_objc_infraclass_as_class( placeholderInfracls);
-   imp     = _mulle_objc_class_lookup_implementation_no_forward( pcls, (mulle_objc_methodid_t) initSel);
+   imp     = _mulle_objc_class_lookup_implementation_noforward( pcls, (mulle_objc_methodid_t) initSel);
    if( imp)
       (*imp)( placeholder, (mulle_objc_methodid_t) initSel, NULL);
 
@@ -311,7 +324,7 @@ retry:
    if( ! placeholder)
    {
       placeholder = _MulleObjCClassNewInstantiatePlaceholder( self, [self __instantiatePlaceholderClassid]);
-      _mulle_objc_add_placeholder( placeholder);
+      _mulle_objc_universe_add_rootplaceholder( _mulle_objc_infraclass_get_universe( self), placeholder);
 
       if( ! _mulle_objc_infraclass_set_placeholder( self, placeholder))
       {
@@ -344,7 +357,7 @@ retry:
 + (NSUInteger) _getRootObjects:(id *) buf
                         length:(NSUInteger) length
 {
-   struct _mulle_objc_rootconfiguration   *config;
+   struct _mulle_objc_universefoundationinfo   *config;
    struct _mulle_objc_universe            *universe;
    NSUInteger                             count;
    struct mulle_setenumerator             rover;
@@ -377,13 +390,13 @@ retry:
 
 - (BOOL) _isRootObject
 {
-   struct _mulle_objc_rootconfiguration   *config;
-   struct _mulle_objc_universe            *universe;
-   struct mulle_setenumerator             rover;
-   id                                     obj;
+   struct _mulle_objc_universefoundationinfo   *config;
+   struct _mulle_objc_universe                 *universe;
+   struct mulle_setenumerator                  rover;
+   id                                          obj;
 
    universe = _mulle_objc_object_get_universe( self);
-   obj     = nil;
+   obj      = nil;
 
    _mulle_objc_universe_lock( universe);
    {
@@ -405,16 +418,22 @@ retry:
 
 - (void) _becomeRootObject
 {
+   struct _mulle_objc_universe   *universe;
+
    assert( ! [self _isRootObject]);
 
    [self retain];
-   _mulle_objc_add_root( self);
+   universe = _mulle_objc_object_get_universe( self);
+   _mulle_objc_universe_add_rootobject( universe, self);
 }
 
 
 - (void) _resignAsRootObject
 {
-   _mulle_objc_remove_root( self);
+   struct _mulle_objc_universe   *universe;
+
+   universe = _mulle_objc_object_get_universe( self);
+   _mulle_objc_universe_remove_rootobject( universe, self);
    [self autorelease];
 }
 
@@ -478,7 +497,7 @@ static void   assert_key( id key)
 
          default :
             errno = rval;
-            mulle_objc_throw_errno_exception( "failed to remove key");
+            __mulle_objc_universe_raise_errno( _mulle_objc_object_get_universe( self), "failed to remove key");
       }
    }
    return;
@@ -505,7 +524,7 @@ static void   assert_key( id key)
 
    default :
       errno = rval;
-      mulle_objc_throw_errno_exception( "failed to insert key");
+      __mulle_objc_universe_raise_errno( _mulle_objc_infraclass_get_universe( self), "failed to insert key");
    }
 }
 
@@ -662,6 +681,25 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
+- (char *) cStringDescription
+{
+   char        *result;
+   char        *s;
+   auto char   buf[ 64];
+   size_t      len;
+
+   s = _mulle_objc_infraclass_get_name( _mulle_objc_object_get_isa( self));
+   sprintf( buf, "%p",  self);
+
+   len    = strlen( s) + strlen( buf) + 4; //"< >\0"
+   result = mulle_malloc( len);
+   sprintf( result, "<%s %s>", s, buf);
+   MulleObjCAutoreleaseAllocation( result, NULL);
+
+   return( result);
+}
+
+
 #pragma mark -
 #pragma mark protocol introspection
 
@@ -670,10 +708,13 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    struct _mulle_objc_class       *cls;
    struct _mulle_objc_classpair   *pair;
 
+   if( ! protocol)
+      return( NO);
+
    cls  = _mulle_objc_object_get_isa( self);
    pair = _mulle_objc_class_get_classpair( cls);
    return( (BOOL) _mulle_objc_classpair_conformsto_protocolid( pair,
-                                                             (mulle_objc_protocolid_t) protocol));
+                                                              (mulle_objc_protocolid_t) protocol));
 }
 
 
@@ -682,14 +723,14 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (id) performSelector:(SEL) sel
 {
-   return( mulle_objc_object_inline_variable_methodid_call( self, (mulle_objc_methodid_t) sel, (void *) 0));
+   return( mulle_objc_object_inlinecall_variablemethodid( self, (mulle_objc_methodid_t) sel, (void *) 0));
 }
 
 
 - (id) performSelector:(SEL) sel
             withObject:(id) obj
 {
-   return( mulle_objc_object_inline_variable_methodid_call( self, (mulle_objc_methodid_t) sel, (void *) obj));
+   return( mulle_objc_object_inlinecall_variablemethodid( self, (mulle_objc_methodid_t) sel, (void *) obj));
 }
 
 
@@ -711,7 +752,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    param.p.obj1 = obj1;
    param.p.obj2 = obj2;
 
-   return( mulle_objc_object_inline_variable_methodid_call( self, (mulle_objc_methodid_t) sel, &param));
+   return( mulle_objc_object_inlinecall_variablemethodid( self, (mulle_objc_methodid_t) sel, &param));
 }
 
 
@@ -720,14 +761,19 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    struct _mulle_objc_class   *cls;
    IMP                        imp;
 
+   // OS X compatible
+   if( ! sel)
+      return( NO);
+
    cls = _mulle_objc_object_get_isa( self);
-   imp = (IMP) _mulle_objc_class_lookup_implementation_no_forward( cls, (mulle_objc_methodid_t) sel);
+   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward( cls, (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
 
 
 - (IMP) methodForSelector:(SEL) sel
 {
+   // this produces NSInvalidArgumentException on OS X for (SEL) 0
    return( (IMP) _mulle_objc_object_lookup_implementation( (void *) self, (mulle_objc_methodid_t) sel));
 }
 
@@ -737,25 +783,32 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    struct _mulle_objc_class   *cls;
    IMP                        imp;
 
+   // OS X compatible
+   if( ! sel)
+      return( NO);
+
    //
    // must be non caching for technical reasons (them being)
    // that the infraclass cache may not be ready yet
    //
    cls = _mulle_objc_infraclass_as_class( self);
-   imp = (IMP) _mulle_objc_class_noncachinglookup_implementation_no_forward( cls, (mulle_objc_methodid_t) sel);
+   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
+
 
 + (IMP) instanceMethodForSelector:(SEL) sel
 {
    struct _mulle_objc_class   *cls;
 
+   // this produces NSInvalidArgumentException on OS X for (SEL) 0
+
    //
    // must be non caching for technical reasons (them being)
    // that the infraclass cache may not be ready yet
    //
    cls = _mulle_objc_infraclass_as_class( self);
-   return( (IMP) _mulle_objc_class_noncachinglookup_implementation( cls, (mulle_objc_methodid_t) sel));
+   return( (IMP) _mulle_objc_class_lookup_implementation_nocache( cls, (mulle_objc_methodid_t) sel));
 }
 
 
@@ -832,16 +885,18 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 
 - (void) doesNotForwardVariadicSelector:(SEL) sel
 {
-   mulle_objc_throw_internal_inconsistency_exception( "variadic methods can not be forwarded using invocations");
+   __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self), "variadic methods can not be forwarded using invocations");
 }
 
 
 - (void) doesNotRecognizeSelector:(SEL) sel
 {
-   struct _mulle_objc_class   *cls;
+   struct _mulle_objc_universe   *universe;
+   struct _mulle_objc_class      *cls;
 
-   cls = _mulle_objc_object_get_isa( self);
-   _mulle_objc_class_raise_method_not_found_exception( cls, (mulle_objc_methodid_t) sel);
+   cls      = _mulle_objc_object_get_isa( self);
+   universe = _mulle_objc_class_get_universe( cls);
+   mulle_objc_universe_fail_methodnotfound( universe, cls, (mulle_objc_methodid_t) sel);
 }
 
 
@@ -849,6 +904,10 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 {
    struct _mulle_objc_class    *cls;
    struct _mulle_objc_method   *method;
+
+   // OS X compatible
+   if( ! sel)
+      return( NO);
 
    cls    = _mulle_objc_object_get_isa( self);
    method = mulle_objc_class_defaultsearch_method( cls,
@@ -864,6 +923,10 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 + (NSMethodSignature *) instanceMethodSignatureForSelector:(SEL) sel
 {
    struct _mulle_objc_method   *method;
+
+   // OS X compatible
+   if( ! sel)
+      return( NO);
 
    assert( _mulle_objc_class_is_infraclass( (void *)  self));
    method = mulle_objc_class_defaultsearch_method( _mulle_objc_infraclass_as_class( self),
@@ -887,7 +950,9 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 
    target = [self forwardingTargetForSelector:_cmd];
    if( target)
-      return( mulle_objc_object_inline_variable_methodid_call( target, (mulle_objc_methodid_t) _cmd, _param));
+      return( mulle_objc_object_inlinecall_variablemethodid( target,
+                                                             (mulle_objc_methodid_t) _cmd,
+                                                             _param));
 
    /*
     * the slowness of these operations can not even be charted
@@ -1021,7 +1086,8 @@ int   _MulleObjCGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t 
 static void  throw_unknown_ivarid( struct _mulle_objc_class *cls,
                                    mulle_objc_ivarid_t ivarid)
 {
-   mulle_objc_throw_invalid_argument_exception( "Class %08x \"%s\" has no ivar with id %08x found",
+   __mulle_objc_universe_raise_invalidargument( _mulle_objc_class_get_universe( cls),
+                                              "Class %08x \"%s\" has no ivar with id %08x found",
                                                _mulle_objc_class_get_classid( cls),
                                                _mulle_objc_class_get_name( cls),
                                                ivarid);
@@ -1066,7 +1132,7 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
 
    offset = _mulle_objc_ivar_get_offset( ivar);
    if( offset == -1)
-      mulle_objc_throw_internal_inconsistency_exception( "hashed access not yet implemented");
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self), "hashed access not yet implemented");
 
    p         = (id *) &((char *) self)[ offset];
    signature = _mulle_objc_ivar_get_signature( ivar);
