@@ -34,11 +34,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-// this
-#import "import.h"
-
-#import "mulle-objc-type.h"
-#import "MulleObjCIntegralType.h"
+#include "minimal.h"
 
 
 char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
@@ -56,6 +52,17 @@ static inline id   MulleObjCCallIMP0( IMP imp, id obj, SEL sel)
 static inline id   MulleObjCCallIMP( IMP imp, id obj, SEL sel, id argument)
 {
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, argument));
+}
+
+
+static inline id   MulleObjCCallIMP2( IMP imp, id obj, SEL sel, id arg1, id arg2)
+{
+   mulle_objc_metaabi_param_block_void_return( struct { id a; id b;})  _param;
+
+   _param.p.a = arg1;
+   _param.p.b = arg2;
+
+   return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &_param));
 }
 
 
@@ -234,16 +241,6 @@ static inline unsigned long long
 }
 
 
-static inline id   MulleObjCCallIMP2( IMP imp, id obj, SEL sel, id arg1, id arg2)
-{
-   mulle_objc_metaabi_param_block_void_return( struct { id a; id b;})  _param;
-
-   _param.p.a = arg1;
-   _param.p.b = arg2;
-
-   return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &_param));
-}
-
 
 #pragma mark - find overriden or specific methods
 
@@ -291,7 +288,7 @@ static inline id   MulleObjCPerformSelector( id obj, SEL sel, id argument)
 }
 
 
-static inline void   MulleObjCMakeObjectsPerformSelector0( id *objects, NSUInteger n, SEL sel, id argument)
+static inline void   MulleObjCMakeObjectsPerformSelector0( id *objects, NSUInteger n, SEL sel)
 {
    mulle_objc_objects_call( (void **) objects, (unsigned int) n, (mulle_objc_methodid_t) sel, NULL);
 }
@@ -335,7 +332,7 @@ void    MulleObjCSetClass( id obj, Class cls);
 static inline void   MulleObjCInfiniteRetain( id obj)
 {
    if( obj)
-      _mulle_objc_object_nonatomic_infiniteretain( obj);
+      _mulle_objc_object_infiniteretain_noatomic( obj);
 }
 
 Class   NSClassFromObject( id object);
@@ -345,6 +342,17 @@ char   *MulleObjCSelectorGetName( SEL sel);
 Class  MulleObjCLookupClassByName( char *name);
 SEL    MulleObjCCreateSelector( char *name);
 
+
+static inline void   *MulleObjCGetClassExtra( Class cls)
+{
+   return( cls ? _mulle_objc_infraclass_get_classextra( cls) : NULL);
+}
+
+
+static inline void   *MulleObjCGetInstanceExtra( id obj)
+{
+   return( obj ? _mulle_objc_object_get_extra( obj) : NULL);
+}
 
 //
 // allow isa with cpp define

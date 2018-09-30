@@ -55,7 +55,7 @@ static void  test_param( SEL sel, MulleObjCMetaABIType expect)
    type = [signature _methodMetaABIParameterType];
    if( type != expect)
    {
-      printf( "%s failed with %d (expect %d)\n", mulle_objc_lookup_methodname( sel), type, expect);
+      printf( "%s failed with %d (expect %d)\n", mulle_objc_global_lookup_methodname( 0, sel), type, expect);
       abort();
    }
 }
@@ -89,7 +89,7 @@ static void  test_rval( SEL sel, MulleObjCMetaABIType expect)
    type = [signature _methodMetaABIReturnType];
    if( type != expect) //  != )
    {
-      printf( "%s failed with %d (expect %d)\n",  mulle_objc_lookup_methodname( sel), type, expect);
+      printf( "%s failed with %d (expect %d)\n",  mulle_objc_global_lookup_methodname( 0, sel), type, expect);
       abort();
    }
 }

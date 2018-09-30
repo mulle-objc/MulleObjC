@@ -34,18 +34,19 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "mulle-objc-testallocator.h"
+#include <mulle-testallocator/mulle-testallocator.h>
+
+#include "mulle-objc-testallocator-private.h"
 
 #include "MulleObjCExceptionHandler.h"
-
-#include <mulle-test-allocator/mulle-test-allocator.h>
+#include "MulleObjCExceptionHandler-Private.h"
 
 
 static void  *test_calloc_or_raise( size_t n, size_t size)
 {
    void     *p;
 
-   p = _mulle_allocator_calloc( &mulle_test_allocator, n, size);
+   p = _mulle_allocator_calloc( &mulle_testallocator, n, size);
    if( p)
       return( p);
 
@@ -53,7 +54,7 @@ static void  *test_calloc_or_raise( size_t n, size_t size)
    if( ! size)
       return( p);
 
-   mulle_objc_throw_allocation_exception( size);
+   __mulle_objc_universe_raise_failedallocation( NULL, size);
    return( NULL);
 }
 
@@ -62,28 +63,28 @@ static void  *test_realloc_or_raise( void *block, size_t size)
 {
    void   *p;
 
-   p = _mulle_allocator_realloc( &mulle_test_allocator, block, size);
+   p = _mulle_allocator_realloc( &mulle_testallocator, block, size);
    if( p || ! size)
       return( p);
 
-   mulle_objc_throw_allocation_exception( size);
+   __mulle_objc_universe_raise_failedallocation( NULL, size);
    return( NULL);
 }
 
 
 static void  test_free( void *block)
 {
-   _mulle_allocator_free( &mulle_test_allocator, block);
+   _mulle_allocator_free( &mulle_testallocator, block);
 }
 
 
-MULLE_C_NO_RETURN
-static void  test_exception( void *block, size_t size)
+MULLE_C_NO_RETURN static void
+   test_exception( void *block, size_t size)
 {
    if( block)
-      mulle_objc_throw_errno_exception( "Couldn't not allocate %ld bytes for block %p", block, size);
+      __mulle_objc_universe_raise_errno( NULL, "Couldn't not allocate %ld bytes for block %p", block, size);
    else
-      mulle_objc_throw_errno_exception( "Couldn't not allocate %ld bytes", size);
+      __mulle_objc_universe_raise_errno( NULL, "Couldn't not allocate %ld bytes", size);
 }
 
 

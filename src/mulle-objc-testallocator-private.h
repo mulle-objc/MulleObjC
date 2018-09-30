@@ -37,25 +37,28 @@
 #ifndef mulle_objc_testallocator__h__
 #define mulle_objc_testallocator__h__
 
-#include <mulle-test-allocator/mulle-test-allocator.h>
 
-
+//
+// the testallocator is just used during setup of the foundation
+// It's the same as the mulle_testallocator but vectors through
+// universe exceptions on error, instead of aborting
+//
 extern struct mulle_allocator    mulle_objc_testallocator;
 
 
 static inline void   mulle_objc_testallocator_initialize()
 {
-   extern void   mulle_test_allocator_initialize();
+   extern void   mulle_testallocator_initialize();
 
-   mulle_test_allocator_initialize();
+   mulle_testallocator_initialize();
 }
 
 
 static inline void   mulle_objc_testallocator_reset()
 {
-   extern void   mulle_test_allocator_reset();
+   extern void   mulle_testallocator_reset();
 
-   mulle_test_allocator_reset();
+   mulle_testallocator_reset();
 }
 
 

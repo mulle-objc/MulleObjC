@@ -34,8 +34,8 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef mulle_objc_threadconfiguration__h__
-#define mulle_objc_threadconfiguration__h__
+#ifndef mulle_objc_threadfoundationinfo__h__
+#define mulle_objc_threadfoundationinfo__h__
 
 #include "include.h"
 
@@ -64,7 +64,7 @@ struct _mulle_objc_poolconfiguration
 };
 
 
-struct _mulle_objc_threadlocalconfiguration
+struct _mulle_objc_threadfoundationinfo
 {
    struct _mulle_objc_poolconfiguration   poolconfig;
 
@@ -73,43 +73,47 @@ struct _mulle_objc_threadlocalconfiguration
 };
 
 
-MULLE_C_CONST_NON_NULL_RETURN struct _mulle_objc_threadlocalconfiguration *
-   mulle_objc_get_threadlocalconfiguration( void);
+MULLE_C_CONST_NON_NULL_RETURN struct _mulle_objc_threadfoundationinfo *
+   mulle_objc_thread_get_threadfoundationinfo( struct _mulle_objc_universe *universe);
 
-static inline void   *mulle_objc_threadget_userinfo( void)
+
+static inline void *mulle_objc_thread_get_userinfo( struct _mulle_objc_universe *universe)
 {
-   return( mulle_objc_get_threadlocalconfiguration()->userinfo);
+   return (mulle_objc_thread_get_threadfoundationinfo( universe)->userinfo);
+}
+
+static inline void mulle_objc_thread_set_userinfo( struct _mulle_objc_universe *universe,
+                                                   void *userinfo)
+{
+   mulle_objc_thread_get_threadfoundationinfo( universe)->userinfo = userinfo;
 }
 
 
-static inline void   mulle_objc_threadset_userinfo( void *userinfo)
+// get NSThread
+static inline id
+   mulle_objc_thread_get_threadobject( struct _mulle_objc_universe *universe)
 {
-   mulle_objc_get_threadlocalconfiguration()->userinfo = userinfo;
+   return( mulle_objc_thread_get_threadfoundationinfo( universe)->thread);
+}
+
+// set NSThread
+static inline void
+   mulle_objc_thread_set_threadobject( struct _mulle_objc_universe *universe, void *thread)
+{
+   mulle_objc_thread_get_threadfoundationinfo( universe)->thread = thread;
+}
+
+static inline struct _mulle_objc_poolconfiguration *
+   mulle_objc_thread_get_poolconfiguration( struct _mulle_objc_universe *universe)
+{
+   return( &mulle_objc_thread_get_threadfoundationinfo( universe)->poolconfig);
+}
+
+static inline struct _mulle_objc_infraclass *
+   _mulle_objc_thread_get_autoreleasepoolclass( struct _mulle_objc_universe *universe)
+{
+   return( mulle_objc_thread_get_threadfoundationinfo(universe)->poolconfig.poolClass);
 }
 
 
-static inline id   mulle_objc_threadget_threadobject( void)
-{
-   return( mulle_objc_get_threadlocalconfiguration()->thread);
-}
-
-
-static inline void   mulle_objc_threadset_threadobject( void *thread)
-{
-   mulle_objc_get_threadlocalconfiguration()->thread = thread;
-}
-
-
-static inline struct _mulle_objc_poolconfiguration   *mulle_objc_threadget_poolconfiguration( void)
-{
-   return( &mulle_objc_get_threadlocalconfiguration()->poolconfig);
-}
-
-
-static inline struct _mulle_objc_infraclass   *_mulle_objc_threadget_autoreleasepoolclass( void)
-{
-   return( mulle_objc_get_threadlocalconfiguration()->poolconfig.poolClass);
-}
-
-
-#endif /* ns_threadconfiguration_h */
+#endif

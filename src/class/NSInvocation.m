@@ -41,6 +41,7 @@
 #import "NSAutoreleasePool.h"
 #import "NSCopying.h"
 #import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 
 
 #pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
@@ -58,7 +59,8 @@
    if( ! signature)
    {
       [self release];
-      mulle_objc_throw_invalid_argument_exception( "signature is nil");
+      __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
+                                                 "signature is nil");
       return( nil);
    }
 
@@ -162,7 +164,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    size = p->natural_size;
 
    if( frameRangeCheck( self, adr, size))
-      mulle_objc_throw_invalid_index_exception( i);
+      __mulle_objc_universe_raise_invalidindex( NULL, i);
 
    *p_adr  = adr;
    *p_size = size;
@@ -236,7 +238,8 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    }
 
    if( [_methodSignature isVariadic])
-      mulle_objc_throw_internal_inconsistency_exception( "NSInvocation can not retain the arguments of variadic methods");
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                       "NSInvocation can not retain the arguments of variadic methods");
 
    _argumentsRetained = YES;
 
@@ -333,7 +336,8 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 
    sel = [self selector];
    if( ! sel)
-      mulle_objc_throw_internal_inconsistency_exception( "NSInvocation: selector has not been set yet");
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                      "NSInvocation: selector has not been set yet");
 
    pType = [_methodSignature _methodMetaABIParameterType];
    rType = [_methodSignature _methodMetaABIReturnType];
@@ -346,23 +350,23 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       {
          info  = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
          param = &self->_storage[ info->offset];
-         rval  = mulle_objc_object_inline_variable_methodid_call( target, sel, param);
+         rval  = mulle_objc_object_inlinecall_variablemethodid( target, sel, param);
          break;
       }
 
-      rval = mulle_objc_object_inline_variable_methodid_call( target, sel, target);
+      rval = mulle_objc_object_inlinecall_variablemethodid( target, sel, target);
       break;
 
    case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &self->_storage[ info->offset];
-      rval  = mulle_objc_object_inline_variable_methodid_call( target, sel, *(void **) param);
+      rval  = mulle_objc_object_inlinecall_variablemethodid( target, sel, *(void **) param);
       break;
 
    case MulleObjCMetaABITypeParameterBlock :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &self->_storage[ info->offset];
-      rval  = mulle_objc_object_inline_variable_methodid_call( target, sel, param);
+      rval  = mulle_objc_object_inlinecall_variablemethodid( target, sel, param);
       break;
    }
 

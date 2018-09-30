@@ -1,5 +1,5 @@
 //
-//  ns_threadconfiguration.m
+//  ns_threadinfouration.m
 //  MulleObjC
 //
 //  Copyright (c) 2018 Nat! - Mulle kybernetiK.
@@ -34,42 +34,33 @@
 //
 #import "import-private.h"
 
-#import "mulle-objc-threadconfiguration.h"
+#import "mulle-objc-threadfoundationinfo.h"
 #import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 #import "NSThread.h"
 
 
-MULLE_C_CONST_NON_NULL_RETURN struct _mulle_objc_threadconfig *
-   _mulle_objc_unfailingcreate_threadconfig( void)
+MULLE_C_CONST_NON_NULL_RETURN struct _mulle_objc_threadfoundationinfo  *
+   mulle_objc_thread_get_threadfoundationinfo( struct _mulle_objc_universe *universe)
 {
-   struct _mulle_objc_threadconfig       *threadconfig;
-
-   // looks like we are in a "foreign" thread
-   // make it our own
-   _NSThreadNewRuntimeThread();
-   threadconfig = mulle_objc_get_threadconfig();
-   if( ! threadconfig)
-      mulle_objc_throw_internal_inconsistency_exception( "could not make "
-                                  "the current thread a MulleObjC thread");
-   return( threadconfig);
-}
-
-
-MULLE_C_CONST_NON_NULL_RETURN struct _mulle_objc_threadlocalconfiguration  *
-   mulle_objc_get_threadlocalconfiguration( void)
-{
-   struct _mulle_objc_threadconfig               *threadconfig;
-   struct _mulle_objc_threadlocalconfiguration   *local;
-   struct _mulle_objc_threadlocalconfiguration   *
-         _mulle_objc_unfailingcreate_threadlocalconfiguration( void);
+   struct _mulle_objc_threadinfo             *threadinfo;
+   struct _mulle_objc_threadfoundationinfo   *local;
 
    assert( S_MULLE_OBJC_THREADCONFIG_FOUNDATION_SPACE >=
-           sizeof( struct _mulle_objc_threadlocalconfiguration));
+           sizeof( struct _mulle_objc_threadfoundationinfo));
 
-   threadconfig = mulle_objc_get_threadconfig();
-   if( ! threadconfig)
-      threadconfig = _mulle_objc_unfailingcreate_threadconfig();
-   local = _mulle_objc_threadconfig_get_foundationspace( threadconfig);
+   threadinfo = _mulle_objc_thread_get_threadinfo( universe);
+   if( ! threadinfo)
+   {
+      _NSThreadNewUniverseThreadObject( universe);
+
+      threadinfo = _mulle_objc_thread_get_threadinfo( universe);
+      if( ! threadinfo)
+         mulle_objc_universe_fail_inconsistency( universe, "could not make "
+                                     "the current thread a MulleObjC thread");
+   }
+
+   local = _mulle_objc_threadinfo_get_foundationspace( threadinfo);
    return( local);
 }
 

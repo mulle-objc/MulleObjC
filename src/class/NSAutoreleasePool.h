@@ -36,7 +36,7 @@
 #import "NSObject.h"
 
 #import "NSThread.h"
-#import "mulle-objc-threadconfiguration.h"
+#import "mulle-objc-threadfoundationinfo.h"
 
 
 #pragma clang diagnostic push
@@ -97,8 +97,10 @@
 static inline NSAutoreleasePool   *NSPushAutoreleasePool()
 {
    struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
 
-   config = mulle_objc_threadget_poolconfiguration();
+   universe = mulle_objc_global_inlineget_universe( MULLE_OBJC_DEFAULTUNIVERSEID);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
    return( (*config->push)( config));
 }
 
@@ -106,8 +108,10 @@ static inline NSAutoreleasePool   *NSPushAutoreleasePool()
 static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
 {
    struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
 
-   config = mulle_objc_threadget_poolconfiguration();
+   universe = mulle_objc_global_inlineget_universe( MULLE_OBJC_DEFAULTUNIVERSEID);
+   config = mulle_objc_thread_get_poolconfiguration( universe);
    (*config->pop)( config, pool);
 }
 
@@ -115,8 +119,10 @@ static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
 static inline void   _MulleObjCAutoreleaseObject( id obj)
 {
    struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
 
-   config = mulle_objc_threadget_poolconfiguration();
+   universe = _mulle_objc_object_get_universe( obj);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
    (*config->autoreleaseObject)( config, obj);
 }
 
@@ -131,24 +137,35 @@ static inline id   NSAutoreleaseObject( id obj)
 }
 
 
-static inline void   _MulleObjCAutoreleaseObjects( id *objects, NSUInteger count)
+static inline void
+   _MulleObjCAutoreleaseObjects( id *objects,
+                                 NSUInteger count,
+                                 struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_poolconfiguration   *config;
 
-   config = mulle_objc_threadget_poolconfiguration();
+   config  = mulle_objc_thread_get_poolconfiguration( universe);
    (*config->autoreleaseObjects)( config, objects, count, sizeof( id));
 }
 
 
-static inline void   _MulleObjCAutoreleaseSpacedObjects( id *objects, NSUInteger count, NSUInteger step)
+static inline void
+   _MulleObjCAutoreleaseSpacedObjects( id *objects,
+                                       NSUInteger count,
+                                       NSUInteger step,
+                                       struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_poolconfiguration   *config;
 
-   config = mulle_objc_threadget_poolconfiguration();
+   config  = mulle_objc_thread_get_poolconfiguration( universe);
    (*config->autoreleaseObjects)( config, objects, count, step);
 }
 
 
 // for NSThread
-void   mulle_objc_threadnew_poolconfiguration( void);
-void   mulle_objc_threaddone_poolconfiguration( void);
+void   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe);
+void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *universe);
+
+
+void   MulleObjCAutoreleaseAllocation( void *pointer, 
+												   struct mulle_allocator *allocator);

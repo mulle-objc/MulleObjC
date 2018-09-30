@@ -39,44 +39,16 @@
 
 // requires: UNIVERSE
 
-// the "C" interface to NSException
-// by default these all just call abort
-//
-#include "include.h"
+#include "mulle-objc.h"
 
 #include "MulleObjCIntegralType.h"
 #include "NSRange.h"
 #include <stdarg.h>
 
 
-#pragma mark -
-#pragma mark Some C Interfaces with char *
 
-MULLE_C_NO_RETURN void
-   mulle_objc_throw_allocation_exception( size_t bytes);
 
-MULLE_C_NO_RETURN void
-   mulle_objc_throw_invalid_argument_exception( char *format, ...);
-
-MULLE_C_NO_RETURN void
-   mulle_objc_throw_errno_exception( char *format, ...);
-
-MULLE_C_NO_RETURN void
-   mulle_objc_throw_internal_inconsistency_exception( char *format, ...);
-
-MULLE_C_NO_RETURN void
-   mulle_objc_throw_invalid_index_exception( NSUInteger index);
-
-MULLE_C_NO_RETURN void
-   mulle_objc_throw_invalid_argument_exception_v( char *format, va_list args);
-
-MULLE_C_NO_RETURN void
-   mulle_objc_throw_errno_exception_v( char *format, va_list args);
-
-MULLE_C_NO_RETURN void
-   mulle_objc_throw_internal_inconsistency_exception_v( char *format,
-                                                        va_list args);
-
+// calls the runtime to really throw, used by NSException later
 MULLE_C_NO_RETURN void
    mulle_objc_throw( void *exception);
 

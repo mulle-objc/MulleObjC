@@ -37,7 +37,8 @@
 
 #import "MulleObjCTaggedPointer.h"
 
-#include "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 
 
 
@@ -107,7 +108,7 @@
 int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
 {
    struct _mulle_objc_universe  *universe;
-   int                         rval;
+   int                          rval;
 
    if( ! cls)
    {
@@ -115,11 +116,11 @@ int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
       return( -1);
    }
 
-   if( ! index)
-      mulle_objc_throw_invalid_index_exception( index);
-
    universe = _mulle_objc_infraclass_get_universe( cls);
-   rval    = _mulle_objc_universe_set_taggedpointerclass_at_index( universe, cls, index);
+   if( ! index)
+      __mulle_objc_universe_raise_invalidindex( universe, index);
+
+   rval = _mulle_objc_universe_set_taggedpointerclass_at_index( universe, cls, index);
    if( ! rval)
       _mulle_objc_infraclass_set_taggedpointerindex( cls, index);
    return( rval);

@@ -6,4 +6,4 @@ endif()
 
 include( CreateLoaderIncObjC)
 
-include( LibraryObjCAux OPTIONAL)
+include( LibraryAuxObjC OPTIONAL)

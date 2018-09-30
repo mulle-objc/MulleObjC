@@ -13,7 +13,7 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
    if( OBJC_COVERAGE_OPTIMIZED_LIBS)
 
       if( NOT LIBRARY_NAME)
-         set( LIBRARY_NAME "MulleObjC")
+         set( LIBRARY_NAME "${PROJECT_NAME}")
       endif()
 
       #
@@ -115,6 +115,6 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       add_dependencies( ${LIBRARY_NAME} "_${LIBRARY_NAME}_optimized_libraries")
    endif()
 
-   include( OptimizedLinkObjCAux OPTIONAL)
+   include( OptimizedLinkAuxObjC OPTIONAL)
 
 endif()

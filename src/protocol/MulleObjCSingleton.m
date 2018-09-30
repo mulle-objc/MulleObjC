@@ -40,14 +40,13 @@
 #import "mulle-objc-type.h"
 #import "mulle-objc-classbit.h"
 #import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCAllocation.h"
 #import "NSRange.h"
 #import "version.h"
 
-#import "mulle-objc-setup-private.h"
-#import "mulle-objc-exceptionhandlertable-private.h"
-#import "mulle-objc-rootconfiguration-private.h"
+#import "mulle-objc-universefoundationinfo-private.h"
 
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
@@ -89,21 +88,25 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
 
 id  MulleObjCSingletonCreate( Class infraCls)
 {
-   id <NSObject>  singleton;
+   id <NSObject>                 singleton;
+   struct _mulle_objc_universe   *universe;
 
    assert( ! _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_INFRA_IS_CLASSCLUSTER));
-
-   if( ! _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_INFRA_IS_SINGLETON))
-      mulle_objc_throw_internal_inconsistency_exception( "MULLE_OBJC_INFRA_IS_SINGLETON bit is missing on class \"%s\" with id %x", _mulle_objc_infraclass_get_name( infraCls), _mulle_objc_infraclass_get_classid( infraCls));
-
    singleton = (id) _mulle_objc_infraclass_get_auxplaceholder( infraCls);
-   if( ! singleton)
-   {
-      // avoid +alloc here so that subclass can "abort" on alloc if desired
-      singleton = [NSAllocateObject( infraCls, 0, NULL) init];
-      _mulle_objc_add_singleton( singleton);
-      _mulle_objc_infraclass_set_auxplaceholder( infraCls, (void *) singleton);
-   }
+   if( singleton)
+   	return( singleton);
+
+   universe = _mulle_objc_infraclass_get_universe( infraCls);
+   if( ! _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_INFRA_IS_SINGLETON))
+      __mulle_objc_universe_raise_internalinconsistency( universe,
+      			"MULLE_OBJC_INFRA_IS_SINGLETON bit is missing on class "
+      			"\"%s\" with id %x", _mulle_objc_infraclass_get_name( infraCls),
+      									   _mulle_objc_infraclass_get_classid( infraCls));
+
+   // avoid +alloc here so that subclass can "abort" on alloc if desired
+   singleton = [NSAllocateObject( infraCls, 0, NULL) init];
+   _mulle_objc_universe_add_rootsingleton( universe, singleton);
+   _mulle_objc_infraclass_set_auxplaceholder( infraCls, (void *) singleton);
 
    return( (id) singleton);
 }

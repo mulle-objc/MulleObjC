@@ -41,8 +41,9 @@
 #import "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCExceptionHandler.h"
+#import "MulleObjCExceptionHandler-Private.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
-#import "mulle-objc-rootconfiguration-private.h"
+#import "mulle-objc-universefoundationinfo-private.h"
 
 #import "NSObjectProtocol.h"
 
@@ -95,7 +96,7 @@ void   MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n)
       return;
    }
 
-   _mulle_objc_objects_call_release( (void **) objects, (unsigned int) n);
+   _mulle_objc_objects_release( (void **) objects, (unsigned int) n);
 }
 
 
@@ -107,7 +108,7 @@ void   MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n)
       return;
    }
 
-   _mulle_objc_objects_call_retain( (void **) objects, (unsigned int) n);
+   _mulle_objc_objects_retain( (void **) objects, (unsigned int) n);
 }
 
 
@@ -137,27 +138,27 @@ char  *MulleObjCClassGetName( Class cls)
 char   *MulleObjCSelectorGetName( SEL sel)
 {
    struct _mulle_objc_descriptor   *desc;
-   struct _mulle_objc_universe            *universe;
+   struct _mulle_objc_universe     *universe;
 
-   universe = mulle_objc_get_universe();
-   desc    = _mulle_objc_universe_lookup_descriptor( universe, (mulle_objc_methodid_t) sel);
+   universe = MulleObjCGetUniverse();
+   desc     = _mulle_objc_universe_lookup_descriptor( universe,
+                                                      (mulle_objc_methodid_t) sel);
    return( desc ? _mulle_objc_descriptor_get_name( desc) : NULL);
 }
 
 
 Class   MulleObjCLookupClassByName( char *name)
 {
-   struct _mulle_objc_universe     *universe;
-   Class                          cls;
-   mulle_objc_classid_t           classid;
+   Class                         cls;
+   mulle_objc_classid_t          classid;
+   struct _mulle_objc_universe   *universe;
 
    if( ! name)
       return( Nil);
 
-   classid = mulle_objc_classid_from_string( name);
-
-   universe = mulle_objc_get_universe();
-   cls     = _mulle_objc_universe_fastlookup_infraclass( universe, classid);
+   classid  = mulle_objc_classid_from_string( name);
+   universe = MulleObjCGetUniverse();
+   cls      = _mulle_objc_universe_lookup_infraclass( universe, classid);
 
    return( cls);
 }
@@ -198,10 +199,10 @@ static unsigned int   count_params( char *name)
 
 SEL   MulleObjCCreateSelector( char *name)
 {
-   mulle_objc_methodid_t                methodid;
-   struct _mulle_objc_universe           *universe;
+   mulle_objc_methodid_t          methodid;
    struct _mulle_objc_descriptor  *desc;
-   unsigned int                         n;
+   struct _mulle_objc_universe    *universe;
+   unsigned int                   n;
 
    if( ! name)
       return( (SEL) MULLE_OBJC_NO_METHODID);
@@ -210,8 +211,8 @@ SEL   MulleObjCCreateSelector( char *name)
    // if method is not known register a descriptor
    // so that NSStringFromSelector can get something
 
-   universe = mulle_objc_get_universe();
-   desc    = _mulle_objc_universe_lookup_descriptor( universe, methodid);
+   universe = MulleObjCGetUniverse();
+   desc     = _mulle_objc_universe_lookup_descriptor( universe, methodid);
    if( ! desc)
    {
       desc = mulle_objc_universe_calloc( universe, 1, sizeof( struct _mulle_objc_descriptor));
@@ -232,7 +233,7 @@ SEL   MulleObjCCreateSelector( char *name)
          desc->signature[ 2] = ':';
       }
 
-      mulle_objc_universe_unfailingregister_descriptor( universe, desc);
+      mulle_objc_universe_register_descriptor_nofail( universe, desc);
    }
    return( (SEL) (uintptr_t) methodid);
 }
@@ -241,12 +242,15 @@ SEL   MulleObjCCreateSelector( char *name)
 void    MulleObjCSetClass( id obj, Class cls)
 {
    if( ! obj)
-      mulle_objc_throw_invalid_argument_exception( "object can't be NULL");
+      return;
+
    if( ! cls)
-      mulle_objc_throw_invalid_argument_exception( "class can't be NULL");
+      __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
+                                                 "class can't be NULL");
 
    if( _mulle_objc_infraclass_is_taggedpointerclass( cls))
-      mulle_objc_throw_invalid_argument_exception( "class \"%s\" is a tagged pointer class", _mulle_objc_infraclass_get_name( cls));
+      __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
+                                                 "class \"%s\" is a tagged pointer class", _mulle_objc_infraclass_get_name( cls));
 
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
 }

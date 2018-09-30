@@ -37,8 +37,8 @@
 #define mulle_objc_exceptionhandlertable__h__
 
 //
-// these exceptions are kinda lazy shortcuts for the foundation
-// user code just uses NSException and ignores this
+// These exceptions vectors are only used by MulleObjC to generate exceeptions.
+// User code uses NSException, which will ignore this.
 //
 struct _mulle_objc_exceptionhandlertable
 {

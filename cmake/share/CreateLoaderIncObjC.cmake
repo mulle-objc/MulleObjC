@@ -12,40 +12,45 @@ endif()
 
 if( CREATE_OBJC_LOADER_INC)
    if( NOT LIBRARY_NAME)
-      set( LIBRARY_NAME "MulleObjC")
+      set( LIBRARY_NAME "${PROJECT_NAME}")
    endif()
 
-  #
-  # Create src/objc-loader.inc for Objective-C projects. This contains a
-  # list of all the classes and categories, contained in a library.
-  #
-  # runs in build dir
-  if( NOT MULLE_OBJC_LOADER_TOOL)
-     message( FATAL_ERROR "Executable \"mulle-objc-loader-tool\" not found")
-  endif()
+   #
+   # Create src/objc-loader.inc for Objective-C projects. This contains a
+   # list of all the classes and categories, contained in a library.
+   #
+   # runs in build dir
+   if( NOT MULLE_OBJC_LOADER_TOOL)
+      message( FATAL_ERROR "Executable \"mulle-objc-loader-tool\" not found")
+   endif()
 
-  if( NOT OBJC_LOADER_INC)
-     set( OBJC_LOADER_INC "${CMAKE_SOURCE_DIR}/src/objc-loader.inc")
-  endif()
-  set_source_files_properties( "${OBJC_LOADER_INC}"
-     PROPERTIES GENERATED TRUE
-  )
-  message( STATUS "OBJC_LOADER_INC is \"${OBJC_LOADER_INC}\"")
+   if( NOT OBJC_LOADER_INC)
+      set( OBJC_LOADER_INC "${CMAKE_SOURCE_DIR}/src/objc-loader.inc")
+   endif()
 
-  if( INHERITED_OBJC_LOADERS)
-    list( REMOVE_DUPLICATES INHERITED_OBJC_LOADERS)
-  endif()
+   set_source_files_properties( "${OBJC_LOADER_INC}"
+      PROPERTIES GENERATED TRUE
+   )
+   # add to headers being installed, not part of project headers though
+   # because it is too late here
+   set( PUBLIC_HEADERS
+      ${PUBLIC_HEADERS}
+      ${OBJC_LOADER_INC}
+   )
+   message( STATUS "OBJC_LOADER_INC is \"${OBJC_LOADER_INC}\"")
 
-  message( STATUS "INHERITED_OBJC_LOADERS is \"${INHERITED_OBJC_LOADERS}\"")
+   if( INHERITED_OBJC_LOADERS)
+     list( REMOVE_DUPLICATES INHERITED_OBJC_LOADERS)
+   endif()
 
-  set( STAGE2_HEADERS
-     ${STAGE2_HEADERS}
-     ${OBJC_LOADER_INC}
-  )
+   message( STATUS "INHERITED_OBJC_LOADERS is \"${INHERITED_OBJC_LOADERS}\"")
 
+
+   # The preferred way:
    #
    # _1_MulleObjC is an object library (a collection of files).
    # _2_MulleObjC is the loader with OBJC_LOADER_INC.
+   #
    # Produce a static library _3_MulleObjC from _1_MulleObjC
    # to feed into MULLE_OBJC_LOADER_TOOL.
    #
@@ -54,9 +59,24 @@ if( CREATE_OBJC_LOADER_INC)
    # In the end OBJC_LOADER_INC will be generated, which will be
    # included by the Loader.
    #
-   add_library( "_3_${LIBRARY_NAME}" STATIC
-      $<TARGET_OBJECTS:_1_${LIBRARY_NAME}>
-   )
+   # This cmake should also output just a OBJC_LOADER_INC file and nothing
+   # else, if  "_2_${LIBRARY_NAME}" is not defined (and there fore it's
+   if( TARGET "_2_${LIBRARY_NAME}")
+      add_library( "_3_${LIBRARY_NAME}" STATIC
+         $<TARGET_OBJECTS:_1_${LIBRARY_NAME}>
+      )
+      set( OBJC_LOADER_LIBRARY "$<TARGET_FILE:_3_${LIBRARY_NAME}>")
+
+      set( STAGE2_HEADERS
+         ${STAGE2_HEADERS}
+         ${OBJC_LOADER_INC}
+      )
+   else()
+      if( TARGET "_1_${LIBRARY_NAME}")
+         message( FATAL_ERROR "_1_${LIBRARY_NAME} is defined, but _2_${LIBRARY_NAME} is missing")
+      endif()
+      set( OBJC_LOADER_LIBRARY "$<TARGET_FILE:${LIBRARY_NAME}>")
+   endif()
 
    add_custom_command(
       OUTPUT ${OBJC_LOADER_INC}
@@ -65,11 +85,11 @@ if( CREATE_OBJC_LOADER_INC)
                  $ENV{MULLE_OBJC_LOADER_TOOL_FLAGS}
                  -c "${CMAKE_BUILD_TYPE}"
                  -o "${OBJC_LOADER_INC}"
-                 $<TARGET_FILE:_3_${LIBRARY_NAME}>
+                 ${OBJC_LOADER_LIBRARY}
                  ${INHERITED_OBJC_LOADERS}
-      DEPENDS $<TARGET_FILE:_3_${LIBRARY_NAME}>
+      DEPENDS ${OBJC_LOADER_LIBRARY}
               ${ALL_LOAD_DEPENDENCY_LIBRARIES}
-      COMMENT  "Create: ${OBJC_LOADER_INC}"
+      COMMENT "Create: ${OBJC_LOADER_INC}"
       VERBATIM
    )
 
@@ -77,13 +97,12 @@ if( CREATE_OBJC_LOADER_INC)
       DEPENDS ${OBJC_LOADER_INC}
    )
 
-   # add to headers being installed, not part of project headers though
-   # because it is too late here
-   set( PUBLIC_HEADERS
-      ${PUBLIC_HEADERS}
-      ${OBJC_LOADER_INC}
-   )
-   add_dependencies( "_2_${LIBRARY_NAME}" __objc_loader_inc__)
+   if( TARGET "_2_${LIBRARY_NAME}")
+      add_dependencies( "_2_${LIBRARY_NAME}" __objc_loader_inc__)
+   else()
+      add_dependencies( "${LIBRARY_NAME}" __objc_loader_inc__)
+   endif()
+
 endif()
 
-include( CreateLoaderIncObjCAux OPTIONAL)
+include( CreateLoaderIncAuxObjC OPTIONAL)

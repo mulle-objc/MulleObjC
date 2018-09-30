@@ -42,7 +42,6 @@
 
 #import "import.h"
 
-
 #import "mulle-objc.h"
 
 // objects
@@ -69,6 +68,9 @@
 
 // categories
 #import "NSObject+NSCodingSupport.h"
+
+// structs
+#import "MulleObjCContainerCallback.h"
 
 // functions
 #import "MulleObjCAllocation.h"

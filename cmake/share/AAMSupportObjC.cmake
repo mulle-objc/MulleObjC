@@ -29,6 +29,6 @@ if( NOT __AAM_SUPPORT_CMAKE__)
       PROPERTIES LANGUAGE C
    )
 
-   include( AAMSupportObjCAux OPTIONAL)
+   include( AAMSupportAuxObjC OPTIONAL)
 
 endif()
