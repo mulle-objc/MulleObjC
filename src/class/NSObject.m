@@ -687,8 +687,10 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    char        *s;
    auto char   buf[ 64];
    size_t      len;
+   Class       cls;
 
-   s = _mulle_objc_infraclass_get_name( _mulle_objc_object_get_isa( self));
+   cls = _mulle_objc_class_as_infraclass( _mulle_objc_object_get_isa( self));
+   s   = _mulle_objc_infraclass_get_name( cls);
    sprintf( buf, "%p",  self);
 
    len    = strlen( s) + strlen( buf) + 4; //"< >\0"
@@ -766,7 +768,8 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
       return( NO);
 
    cls = _mulle_objc_object_get_isa( self);
-   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward( cls, (mulle_objc_methodid_t) sel);
+   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward( cls,
+                                                                  (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
 
@@ -774,7 +777,8 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 - (IMP) methodForSelector:(SEL) sel
 {
    // this produces NSInvalidArgumentException on OS X for (SEL) 0
-   return( (IMP) _mulle_objc_object_lookup_implementation( (void *) self, (mulle_objc_methodid_t) sel));
+   return( (IMP) _mulle_objc_object_lookup_implementation( (void *) self,
+                                                            (mulle_objc_methodid_t) sel));
 }
 
 
@@ -792,7 +796,8 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    // that the infraclass cache may not be ready yet
    //
    cls = _mulle_objc_infraclass_as_class( self);
-   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, (mulle_objc_methodid_t) sel);
+   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls,
+                                                                          (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
 
@@ -808,7 +813,8 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    // that the infraclass cache may not be ready yet
    //
    cls = _mulle_objc_infraclass_as_class( self);
-   return( (IMP) _mulle_objc_class_lookup_implementation_nocache( cls, (mulle_objc_methodid_t) sel));
+   return( (IMP) _mulle_objc_class_lookup_implementation_nocache( cls,
+                                                                  (mulle_objc_methodid_t) sel));
 }
 
 
@@ -907,7 +913,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 
    // OS X compatible
    if( ! sel)
-      return( NO);
+      return( nil);
 
    cls    = _mulle_objc_object_get_isa( self);
    method = mulle_objc_class_defaultsearch_method( cls,
@@ -926,7 +932,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 
    // OS X compatible
    if( ! sel)
-      return( NO);
+      return( nil);
 
    assert( _mulle_objc_class_is_infraclass( (void *)  self));
    method = mulle_objc_class_defaultsearch_method( _mulle_objc_infraclass_as_class( self),
