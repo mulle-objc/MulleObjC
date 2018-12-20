@@ -1,0 +1,2 @@
+MulleObjC;tar;no-all-load,no-import,no-singlephase,only-standalone;12636033-3A8F-4335-A296-5F12ABA31BF0;${MULLE_OBJC_URL:-https://github.com/mulle-objc/MulleObjC/archive/${MULLE_OBJC_BRANCH:-latest}.tar.gz};;;;
+mulle-testallocator;tar;no-all-load,no-import,no-singlephase;821570FA-2DAA-4A72-A09B-C026CAB91E85;${MULLE_TESTALLOCATOR_URL:-https://github.com/mulle-core/mulle-testallocator/archive/${MULLE_TESTALLOCATOR_BRANCH:-latest}.tar.gz};;;;
