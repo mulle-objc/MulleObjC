@@ -42,13 +42,16 @@
 #import "mulle-objc-universeconfiguration-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
 
+#import "NSObjectProtocol.h"
+#import "NSCopying.h"
+
 
 #pragma mark -
 #pragma mark Int
 
 static void   *
-	mulle_container_callback_int_describe( struct mulle_container_valuecallback *callback, 
-	   												void *p, 
+	mulle_container_callback_int_describe( struct mulle_container_valuecallback *callback,
+	   												void *p,
 			  										   struct mulle_allocator *allocator)
 {
 	struct _mulle_objc_universe   *universe;
@@ -61,8 +64,8 @@ static void   *
 
 
 static void   *
-	mulle_container_callback_intptr_describe( struct mulle_container_valuecallback *callback, 
-														   void *p, 
+	mulle_container_callback_intptr_describe( struct mulle_container_valuecallback *callback,
+														   void *p,
 		   											   struct mulle_allocator *allocator)
 {
 	struct _mulle_objc_universe   *universe;
@@ -120,8 +123,8 @@ struct mulle_container_valuecallback    NSIntegerMapValueCallBacks =
 #pragma mark Pointer
 
 static void   *
-	mulle_container_callback_pointer_describe( struct mulle_container_valuecallback *callback, 
-															 void *p, 
+	mulle_container_callback_pointer_describe( struct mulle_container_valuecallback *callback,
+															 void *p,
 															 struct mulle_allocator *allocator)
 {
 	struct _mulle_objc_universe   *universe;
@@ -182,17 +185,17 @@ struct mulle_container_valuecallback   NSOwnedPointerMapValueCallBacks =
 #pragma mark Object
 
 
-static uintptr_t 
-	mulle_container_keycallback_object_hash( struct mulle_container_keycallback *callback, 
+static uintptr_t
+	mulle_container_keycallback_object_hash( struct mulle_container_keycallback *callback,
 														  id obj)
 {
    return( (uintptr_t) [obj hash]);
 }
 
 
-static int   
-	mulle_container_keycallback_object_is_equal( struct mulle_container_keycallback *callback, 
-																id obj, 
+static int
+	mulle_container_keycallback_object_is_equal( struct mulle_container_keycallback *callback,
+																id obj,
 																id other)
 {
    return( [obj isEqual:other]);
@@ -200,8 +203,8 @@ static int
 
 
 static void   *
-	mulle_container_callback_object_retain( void *callback, 
-													    id obj, 
+	mulle_container_callback_object_retain( void *callback,
+													    id obj,
 													    struct mulle_allocator *allocator)
 {
    return( [obj retain]);
@@ -209,17 +212,17 @@ static void   *
 
 
 static void   *
-	mulle_container_callback_object_copy( void *callback, 
-													  id obj, 
+	mulle_container_callback_object_copy( void *callback,
+													  id obj,
 													  struct mulle_allocator *allocator)
 {
    return( [obj copy]);
 }
 
 
-static void   
-	mulle_container_callback_object_autorelease( void *callback, 
-															   id obj, 
+static void
+	mulle_container_callback_object_autorelease( void *callback,
+															   id obj,
 															   struct mulle_allocator *allocator)
 {
    [obj autorelease];
@@ -227,15 +230,15 @@ static void
 
 
 static void   *
-	mulle_container_callback_object_describe( void *callback, 
-															id obj, 
+	mulle_container_callback_object_describe( void *callback,
+															id obj,
 															struct mulle_allocator *allocator)
 {
    return( mulle_objc_object_call( obj, @selector( description), obj));
 }
 
 
-const struct mulle_container_keycallback   
+const struct mulle_container_keycallback
 	_MulleObjCContainerObjectKeyAssignCallback =
 {
    (uintptr_t (*)()) mulle_container_keycallback_object_hash,
@@ -249,7 +252,7 @@ const struct mulle_container_keycallback
 };
 
 
-const struct mulle_container_valuecallback   
+const struct mulle_container_valuecallback
 	_MulleObjCContainerObjectValueAssignCallback =
 {
    mulle_container_valuecallback_self,
@@ -259,7 +262,7 @@ const struct mulle_container_valuecallback
 };
 
 
-const struct mulle_container_keyvaluecallback   
+const struct mulle_container_keyvaluecallback
 	_MulleObjCContainerObjectKeyRetainValueRetainCallback =
 {
    {
@@ -281,7 +284,7 @@ const struct mulle_container_keyvaluecallback
 };
 
 
-const  struct mulle_container_keyvaluecallback   
+const  struct mulle_container_keyvaluecallback
 	_MulleObjCContainerObjectKeyCopyValueRetainCallback =
 {
    {
@@ -302,7 +305,7 @@ const  struct mulle_container_keyvaluecallback
    }
 };
 
-const  struct mulle_container_keyvaluecallback   
+const  struct mulle_container_keyvaluecallback
 	_MulleObjCContainerObjectKeyRetainValueCopyCallback =
 {
    {
@@ -323,7 +326,7 @@ const  struct mulle_container_keyvaluecallback
    }
 };
 
-const  struct mulle_container_keyvaluecallback   
+const  struct mulle_container_keyvaluecallback
 	_MulleObjCContainerObjectKeyCopyValueCopyCallback =
 {
    {
