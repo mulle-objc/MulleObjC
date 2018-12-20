@@ -21,5 +21,5 @@ before_install:
    - sudo apt-get -y install mulle-clang mulle-sde mulle-test
 
 script:
-   - mulle-sde -vvv craft
-   - mulle-env -c "mulle-test -v --project-dialect objc"
+   - mulle-sde craft
+   - mulle-sde test
