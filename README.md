@@ -1,5 +1,7 @@
 # MulleObjC
 
+💎 A collection of Objective-C root classes for mulle-objc
+
 MulleObjC supplies the most basic runtime components to build a foundation
 on top of it. MulleObjC fundamentally depends on standard C libraries only
 (f.e. no `<unistd.h>`)
@@ -79,7 +81,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 All platforms and compilers supported by
 [mulle-c11](//github.com/mulle-c/mulle-c11/) and
-[mulle-thread](//github.com/mulle-c/mulle-thread/).
+[mulle-thread](//github.com/mulle-concurrent/mulle-thread/).
 
 
 ## Author
