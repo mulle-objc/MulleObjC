@@ -33,6 +33,8 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#define _GNU_SOURCE
+
 #import "import-private.h"
 
 #import "mulle-objc-type.h"
@@ -43,5 +45,24 @@
 #import "mulle-objc-exceptionhandlertable-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
 #import "mulle-objc-universeconfiguration-private.h"
+#import "MulleObjCExceptionHandler-Private.h"
 
-#import "mulle-objc-startup-private.inc"
+#include "mulle-objc-startup-private.inc"
+
+// std-c and other dependencies
+#include <stdlib.h>
+
+
+static void   bang( struct _mulle_objc_universe *universe,
+                    struct mulle_allocator *allocator,
+                    void *userinfo)
+{
+   struct _mulle_objc_universeconfiguration   config;
+
+   memcpy( &config,
+           mulle_objc_global_get_default_universeconfiguration(),
+           sizeof( config));
+
+   MulleObjCBang( universe, allocator, &config);
+}
+

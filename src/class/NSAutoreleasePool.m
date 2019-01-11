@@ -101,6 +101,7 @@ static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_unive
 }
 
 
+//
 // verbage: we are setting a "global" variable, therefore setthread
 //
 void   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe)

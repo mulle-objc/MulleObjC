@@ -44,7 +44,7 @@ main()
       printf( "is mistakingly not a root thread object\n");
 
    fprintf( stderr, "2\n");
-   _NSThreadResignAsMainThreadObject( universe);
+   _mulle_objc_universe_release( universe);
    fprintf( stderr, "3\n");
 
    // DANGEROUS!

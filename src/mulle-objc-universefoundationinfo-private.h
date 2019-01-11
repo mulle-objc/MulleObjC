@@ -105,6 +105,8 @@ struct _mulle_objc_universefoundationinfo
    // stuff used by the MulleStandardOSFoundation
    Class   stringsubclasses[ _MULLE_OBJC_FOUNDATIONINFO_N_STRINGSUBCLASSES];
    Class   numbersubclasses[ _MULLE_OBJC_FOUNDATIONINFO_N_NUMBERSUBCLASSES];
+
+   void     (*teardown_callback)( struct _mulle_objc_universe  *universe);
 };
 
 
@@ -158,6 +160,14 @@ static inline int
 }
 
 
+void
+   _mulle_objc_universefoundationinfo_init( struct _mulle_objc_universefoundationinfo *info,
+                                            struct _mulle_objc_universe *universe,
+                                            struct mulle_allocator *allocator,
+                                            struct _mulle_objc_exceptionhandlertable *exceptiontable);
+
+void
+   _mulle_objc_universefoundationinfo_done( struct _mulle_objc_universefoundationinfo *info);
 
 //
 // There functions are all implicitly "universe" functions.

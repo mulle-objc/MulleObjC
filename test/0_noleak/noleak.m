@@ -5,7 +5,6 @@
 #endif
 
 
-
 @implementation Foo
 @end
 
@@ -22,8 +21,8 @@ main()
 
    if( mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__) != mulle_objc_universe_is_ok)
    {
-      MulleObjCHTMLDumpUniverse();
-      MulleObjCDotdumpUniverse();
+//      MulleObjCHTMLDumpUniverse();
+//      MulleObjCDotdumpUniverse();
       return( 1);
    }
 #endif

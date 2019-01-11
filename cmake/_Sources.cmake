@@ -21,7 +21,6 @@ src/function/MulleObjCFunctions.m
 src/function/MulleObjCStackFrame.m
 src/function/NSDebug.m
 src/mulle-objc-breakpoint.c
-src/mulle-objc-testallocator.m
 src/mulle-objc-threadfoundationinfo.m
 src/mulle-objc-universeconfiguration.m
 src/mulle-objc-universefoundationinfo.m

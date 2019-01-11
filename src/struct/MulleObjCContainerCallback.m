@@ -38,7 +38,6 @@
 
 #import "import-private.h"
 
-#import "mulle-objc-testallocator-private.h"
 #import "mulle-objc-universeconfiguration-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
 

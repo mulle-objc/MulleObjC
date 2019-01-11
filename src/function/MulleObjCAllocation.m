@@ -70,53 +70,6 @@ void   NSDeallocateObject( id self)
 }
 
 
-#pragma mark -
-#pragma mark allocator for
-
-static void  *calloc_or_raise( size_t n, size_t size)
-{
-   void     *p;
-
-   p = calloc( n, size);
-   if( p)
-      return( p);
-
-   size *= n;
-   if( ! size)
-      return( p);
-
-   __mulle_objc_universe_raise_failedallocation( NULL, size);
-   return( NULL);
-}
-
-
-static void  *realloc_or_raise( void *block, size_t size)
-{
-   void   *p;
-
-   p = realloc( block, size);
-   if( p)
-      return( p);
-
-   if( ! size)
-      return( p);
-
-   __mulle_objc_universe_raise_failedallocation( NULL, size);
-   return( NULL);
-}
-
-
-struct mulle_allocator    mulle_allocator_objc =
-{
-   calloc_or_raise,
-   realloc_or_raise,
-   free,
-   0,
-   0,
-   0
-};
-
-
 # pragma mark - improve dealloc speed for classes that don't have properties that need to be released
 
 
@@ -159,7 +112,6 @@ int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass
 }
 
 
-
 void   _MulleObjCObjectClearProperties( id obj)
 {
    extern int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *,
@@ -185,16 +137,17 @@ void   _MulleObjCObjectClearProperties( id obj)
 // this does not zero properties
 void   _MulleObjCObjectFree( id obj)
 {
-   struct _mulle_objc_objectheader   *header;
-   struct _mulle_objc_universefoundationinfo      *config;
-   struct mulle_allocator            *allocator;
-   struct _mulle_objc_universe       *universe;
-   struct _mulle_objc_infraclass     *infra;
-   struct _mulle_objc_class          *cls;
+   struct _mulle_objc_objectheader             *header;
+   struct _mulle_objc_universefoundationinfo   *config;
+   struct mulle_allocator                      *allocator;
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_infraclass               *infra;
+   struct _mulle_objc_class                    *cls;
 
    cls      = _mulle_objc_object_get_isa( obj);
    universe = _mulle_objc_class_get_universe( cls);
    config   = _mulle_objc_universe_get_universefoundationinfo( universe);
+
    if( config->object.zombieenabled)
    {
       MulleObjCZombifyObject( obj);
@@ -206,6 +159,9 @@ void   _MulleObjCObjectFree( id obj)
    assert( _mulle_objc_class_is_infraclass( cls));
    infra     = _mulle_objc_class_as_infraclass( cls);
    allocator = _mulle_objc_infraclass_get_allocator( infra);
+
+   __mulle_objc_object_will_free( (struct _mulle_objc_object *) obj);
+
    header    = _mulle_objc_object_get_objectheader( obj);
 #if DEBUG
    // malloc scribble will kill it though

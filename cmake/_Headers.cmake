@@ -11,7 +11,7 @@ src/class
 src/function
 src/protocol
 src/struct
-) 
+)
 
 set( PRIVATE_HEADERS
 src/class/NSMethodSignature-Private.h
@@ -21,7 +21,6 @@ src/include-private.h
 src/mulle-objc-autoreleasepointerarray-private.h
 src/mulle-objc-exceptionhandlertable-private.h
 src/mulle-objc-startup-private.inc
-src/mulle-objc-testallocator-private.h
 src/mulle-objc-universeconfiguration-private.h
 src/mulle-objc-universefoundationinfo-private.h
 )
@@ -70,5 +69,5 @@ src/struct/MulleObjCContainerCallback.h
 src/struct/NSRange.h
 src/struct/NSZone.h
 src/version.h
-) 
+)
 

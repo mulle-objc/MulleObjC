@@ -6,9 +6,6 @@
 #pragma mark Some C Interfaces with char *
 
 MULLE_C_NO_RETURN void
-   __mulle_objc_universe_raise_failedallocation( struct _mulle_objc_universe *universe, size_t bytes);
-
-MULLE_C_NO_RETURN void
    __mulle_objc_universe_raise_invalidargument( struct _mulle_objc_universe *universe, char *format, ...);
 
 MULLE_C_NO_RETURN void
