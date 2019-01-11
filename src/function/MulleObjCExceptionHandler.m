@@ -47,26 +47,6 @@
 
 #pragma mark - C
 
-/*
- * this code is here, because we don't have a NSString class yet
- * but we must throw exception from MulleObjC
- */
-MULLE_C_NO_RETURN void
-	__mulle_objc_universe_raise_failedallocation( struct _mulle_objc_universe *universe,
-																 size_t bytes)
-{
-   struct _mulle_objc_exceptionhandlertable   *vectors;
-
-   mulle_objc_break_exception();
-   vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
-   if( ! vectors)
-   {
-      fprintf( stderr, "Out of memory allocating %lu bytes\n", (long) bytes);
-      exit( 1);
-   }
-   vectors->allocation_error( bytes);
-}
-
 
 MULLE_C_NO_RETURN void
    mulle_objc_universe_raisev_invalidargument( struct _mulle_objc_universe *universe,

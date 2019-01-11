@@ -32,7 +32,6 @@ main()
    key1 = [NSConstantString new];  // total fake
    key2 = [NSConstantString new];  // total fake
 
-
    bar = [cls classValueForKey:(void *) key1];
    printf( "%s\n", ! bar ? "absent" : "present"),
    bar = [cls classValueForKey:(void *) key2];
@@ -58,6 +57,11 @@ main()
                forKey:key2];
 
    [foo release];
+
+   // release last as we are no true NSConstantString
    [key1 release];
    [key2 release];
+
+   return( 0);
 }
+

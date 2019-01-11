@@ -45,9 +45,9 @@ static void   count_exception( void *format, va_list args)
 
 main()
 {
-   Foo      *foo;
-   Bar      *bar;
-   Foobar   *foobar;
+   Foo                                        *foo;
+   Bar                                        *bar;
+   Foobar                                     *foobar;
    struct _mulle_objc_exceptionhandlertable   *exceptions;
    struct _mulle_objc_universe                *universe;
 

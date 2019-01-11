@@ -48,6 +48,7 @@ struct _mulle_objc_universeconfiguration_classdefaults
    struct mulle_allocator                     *allocator;
    mulle_objc_universefriend_versionassert_t  *versionassert;
    struct _mulle_objc_method                  *forward;
+   struct _mulle_objc_infraclass              *staticstringclass;
 
    void   (*uncaughtexception)( void *exception) MULLE_C_NO_RETURN;
 };
@@ -65,8 +66,8 @@ struct _mulle_objc_universeconfiguration_callbacks
 {
    void  (*setup)( struct _mulle_objc_universeconfiguration *config,
                    struct _mulle_objc_universe *universe);
-   void  (*teardown)( void);
    void  (*postcreate)( struct _mulle_objc_universe *universe);
+   void  (*teardown)( struct _mulle_objc_universe *universe);
 };
 
 

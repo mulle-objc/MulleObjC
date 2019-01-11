@@ -5,71 +5,33 @@ if( MULLE_TRACE_INCLUDE)
    message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
 endif()
 
-if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-   if( NOT DLFCN_LIBRARY)
-      find_library( DLFCN_LIBRARY NAMES dl dlfcn dlfcn)
-      message( STATUS "DLFCN_LIBRARY is ${DLFCN_LIBRARY}")
+# sourcetree: DL;no-all-load,no-cmakeinherit,no-import,no-load-all,no-public,no-require,only-os-mingw;dl,dlfcn
+if( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+   if( NOT DL_LIBRARY)
+      find_library( DL_LIBRARY NAMES dl dlfcn)
+      message( STATUS "DL_LIBRARY is ${DL_LIBRARY}")
       #
       # the order looks ascending, but due to the way this file is read
       # it ends up being descending, which is what we need
-      if( DLFCN_LIBRARY)
+      if( DL_LIBRARY)
          #
-         # Add to DLFCN_LIBRARY list.
+         # Add to DL_LIBRARY list.
          # Disable with: `mark no-cmakeadd`
          #
          set( OS_SPECIFIC_LIBRARIES
             ${OS_SPECIFIC_LIBRARIES}
-            ${DLFCN_LIBRARY}
+            ${DL_LIBRARY}
             CACHE INTERNAL "need to cache this"
          )
-         #
-         # Inherit ObjC loader and link dependency info.
-         # Disable with: `mark no-cmakeinherit`
-         #
-         # // temporarily expand CMAKE_MODULE_PATH
-         get_filename_component( _TMP_DLFCN_ROOT "${DLFCN_LIBRARY}" DIRECTORY)
-         get_filename_component( _TMP_DLFCN_ROOT "${_TMP_DLFCN_ROOT}" DIRECTORY)
-         #
-         #
-         # Search for "DependenciesAndLibraries.cmake" to include.
-         # Disable with: `mark no-cmakedependency`
-         #
-         foreach( _TMP_DLFCN_NAME "dl" "dlfcn" "dlfcn")
-            set( _TMP_DLFCN_DIR "${_TMP_DLFCN_ROOT}/include/${_TMP_DLFCN_NAME}/cmake")
-            # use explicit path to avoid "surprises"
-            if( EXISTS "${_TMP_DLFCN_DIR}/DependenciesAndLibraries.cmake")
-               unset( DLFCN_DEFINITIONS)
-               list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_DLFCN_DIR}")
-               # we only want top level INHERIT_OBJC_LOADERS, so disable them
-               if( NOT NO_INHERIT_OBJC_LOADERS)
-                  set( NO_INHERIT_OBJC_LOADERS OFF)
-               endif()
-               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-               set( NO_INHERIT_OBJC_LOADERS ON)
-               #
-               include( "${_TMP_DLFCN_DIR}/DependenciesAndLibraries.cmake")
-               #
-               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-               #
-               list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_DLFCN_DIR}")
-               set( INHERITED_DEFINITIONS
-                  ${INHERITED_DEFINITIONS}
-                  ${DLFCN_DEFINITIONS}
-                  CACHE INTERNAL "need to cache this"
-               )
-               break()
-            else()
-               message( STATUS "${_TMP_DLFCN_DIR}/DependenciesAndLibraries.cmake not found")
-            endif()
-         endforeach()
+         # intentionally left blank
       else()
-         message( FATAL_ERROR "DLFCN_LIBRARY was not found")
+         message( STATUS "DL_LIBRARY is missing but it is marked as \"no-require\"")
       endif()
    endif()
 endif()
 
 
+# sourcetree: PSAPI;no-all-load,no-cmakeinherit,no-import,no-public,no-require,only-os-mingw;
 if( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    if( NOT PSAPI_LIBRARY)
       find_library( PSAPI_LIBRARY NAMES psapi)
@@ -87,49 +49,35 @@ if( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
             ${PSAPI_LIBRARY}
             CACHE INTERNAL "need to cache this"
          )
-         #
-         # Inherit ObjC loader and link dependency info.
-         # Disable with: `mark no-cmakeinherit`
-         #
-         # // temporarily expand CMAKE_MODULE_PATH
-         get_filename_component( _TMP_PSAPI_ROOT "${PSAPI_LIBRARY}" DIRECTORY)
-         get_filename_component( _TMP_PSAPI_ROOT "${_TMP_PSAPI_ROOT}" DIRECTORY)
-         #
-         #
-         # Search for "DependenciesAndLibraries.cmake" to include.
-         # Disable with: `mark no-cmakedependency`
-         #
-         foreach( _TMP_PSAPI_NAME "psapi")
-            set( _TMP_PSAPI_DIR "${_TMP_PSAPI_ROOT}/include/${_TMP_PSAPI_NAME}/cmake")
-            # use explicit path to avoid "surprises"
-            if( EXISTS "${_TMP_PSAPI_DIR}/DependenciesAndLibraries.cmake")
-               unset( PSAPI_DEFINITIONS)
-               list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_PSAPI_DIR}")
-               # we only want top level INHERIT_OBJC_LOADERS, so disable them
-               if( NOT NO_INHERIT_OBJC_LOADERS)
-                  set( NO_INHERIT_OBJC_LOADERS OFF)
-               endif()
-               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-               set( NO_INHERIT_OBJC_LOADERS ON)
-               #
-               include( "${_TMP_PSAPI_DIR}/DependenciesAndLibraries.cmake")
-               #
-               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-               #
-               list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_PSAPI_DIR}")
-               set( INHERITED_DEFINITIONS
-                  ${INHERITED_DEFINITIONS}
-                  ${PSAPI_DEFINITIONS}
-                  CACHE INTERNAL "need to cache this"
-               )
-               break()
-            else()
-               message( STATUS "${_TMP_PSAPI_DIR}/DependenciesAndLibraries.cmake not found")
-            endif()
-         endforeach()
+         # intentionally left blank
       else()
-         message( FATAL_ERROR "PSAPI_LIBRARY was not found")
+         message( STATUS "PSAPI_LIBRARY is missing but it is marked as \"no-require\"")
+      endif()
+   endif()
+endif()
+
+
+# sourcetree: DL;no-all-load,no-cmakeinherit,no-import,no-load-all,no-os-mingw,no-public,no-require;dl,dlfcn
+if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+   if( NOT DL_LIBRARY)
+      find_library( DL_LIBRARY NAMES dl dlfcn)
+      message( STATUS "DL_LIBRARY is ${DL_LIBRARY}")
+      #
+      # the order looks ascending, but due to the way this file is read
+      # it ends up being descending, which is what we need
+      if( DL_LIBRARY)
+         #
+         # Add to DL_LIBRARY list.
+         # Disable with: `mark no-cmakeadd`
+         #
+         set( OS_SPECIFIC_LIBRARIES
+            ${OS_SPECIFIC_LIBRARIES}
+            ${DL_LIBRARY}
+            CACHE INTERNAL "need to cache this"
+         )
+         # intentionally left blank
+      else()
+         message( STATUS "DL_LIBRARY is missing but it is marked as \"no-require\"")
       endif()
    endif()
 endif()

@@ -43,7 +43,6 @@
 struct _mulle_objc_exceptionhandlertable
 {
    void (*errno_error)( id format, va_list args)            MULLE_C_NO_RETURN;
-   void (*allocation_error)( size_t bytes)                  MULLE_C_NO_RETURN;
    void (*internal_inconsistency)( id format, va_list args) MULLE_C_NO_RETURN;
    void (*invalid_argument)( id format, va_list args)       MULLE_C_NO_RETURN;
    void (*invalid_index)( NSUInteger i)                     MULLE_C_NO_RETURN;

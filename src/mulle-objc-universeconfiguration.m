@@ -46,9 +46,9 @@
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
+#import "MulleObjCContainerCallback.h"
 #import "NSRange.h"
 
-#import "mulle-objc-testallocator-private.h"
 #import "mulle-objc-universeconfiguration-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
 
@@ -58,64 +58,72 @@
 
 #import "version.h"
 
+// clang speciality
+#ifdef __has_include
+# if __has_include( <dlfcn.h>)
+#  include <dlfcn.h>
+#  define HAVE_DLSYM  1
+# endif
+#endif
+
+
 # pragma clang diagnostic ignored "-Wparentheses"
-
-
 
 # pragma mark -
 # pragma mark Configuration of the North Shore
 
-static void   universe_dies( struct _mulle_objc_universe *universe, void *data)
+void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
 {
-   struct _mulle_objc_universefoundationinfo   *config;
+   void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe);
+   int    trace;
+   char   *filename;
 
-   _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
+   trace = mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_UNIVERSE");
+   if( trace)
+      fprintf( stderr, "mulle-objc: teardown of the universe %p in progress\n", universe);
 
-   if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "release placeholders");
-   mulle_set_destroy( config->object.placeholders);
+   if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE"))
+   {
+      fprintf( stderr, "mulle-objc: writing coverage files...\n");
 
-   if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "release singletons");
-   mulle_set_destroy( config->object.singletons);
+      filename = getenv( "MULLE_OBJC_CLASS_CACHESIZES_FILENAME");
+      if( ! filename)
+         filename = "class-cachesizes.csv";
+      mulle_objc_universe_csvdump_cachesizes_to_filename( universe, filename);
 
-   if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "release root objects");
-   mulle_set_destroy( config->object.roots);
+      filename = getenv( "MULLE_OBJC_METHOD_COVERAGE_FILENAME");
+      if( ! filename)
+         filename = "method-coverage.csv";
+      mulle_objc_universe_csvdump_methodcoverage_to_filename( universe, filename);
 
-   if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "release thred objects");
-   mulle_set_destroy( config->object.threads);
-
-   if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "release foundationinfo");
-   if( data != config)
-      free( data);
+      filename = getenv( "MULLE_OBJC_CLASS_COVERAGE_FILENAME");
+      if( ! filename)
+         filename = "class-coverage.csv";
+      mulle_objc_universe_csvdump_classcoverage_to_filename( universe, filename);
+   }
 }
 
 
-static void  *describe_object( struct mulle_container_keycallback *callback,
-                               void *p,
-                               struct mulle_allocator *allocator)
+static void   foundationinfo_release( struct _mulle_objc_universe *universe,
+                                      void *info)
 {
-   // we have no strings yet, someone should patch mulle_allocator_objc
-   // use _mulle_objc_string here ???
-   return( NULL);
+   struct _mulle_objc_universefoundationinfo   *space;
+
+   _mulle_objc_universe_get_foundationspace( universe, (void **) &space, NULL);
+
+   //
+   // this will call mulle_objc_teardown_universe as that is the
+   // teardown_callback in info
+   //
+   _mulle_objc_universefoundationinfo_done( info);
+
+   if( info != space)
+   {
+      if( universe->debug.trace.universe)
+          mulle_objc_universe_trace( universe, "free foundationinfo");
+      mulle_free( info);
+   }
 }
-
-
-static const struct mulle_container_keycallback
-   object_container_keycallback =
-{
-   mulle_container_keycallback_pointer_hash,
-   mulle_container_keycallback_pointer_is_equal,
-   (void *(*)()) mulle_container_callback_self,
-   (void (*)()) mulle_container_callback_nop,
-   describe_object,
-
-   NULL,
-   NULL
-};
 
 
 static void   nop( struct _mulle_objc_universe *universe,
@@ -125,46 +133,25 @@ static void   nop( struct _mulle_objc_universe *universe,
 }
 
 
-/*
- * This function sets up a Foundation on a per thread
- * basis.
- */
-void
-   _mulle_objc_universeconfigurationinfo_init( struct _mulle_objc_universefoundationinfo *info,
-                                               struct _mulle_objc_universe *universe,
-                                               struct mulle_allocator *allocator,
-                                               struct _mulle_objc_exceptionhandlertable *exceptiontable)
+
+//
+// find leaks of universe after it shut down
+//
+static void   reset_testallocator( struct _mulle_objc_universe *universe)
 {
-   info->universe            = universe;
+   void   (*mulle_testallocator_reset)( void);
 
-   /* the callback is copied anyway, but the allocator needs to be stored
-      in the config. It's OK to have a different allocator for Foundation
-      then for the universe. The info->allocator is used to create instances.
-    */
-
-   info->exception.vectors   = *exceptiontable;
-
-   info->object.roots        = mulle_set_create( 32,
-                                                  (void *) &object_container_keycallback,
-                                                  allocator);
-   info->object.singletons   = mulle_set_create( 8,
-                                                  (void *) &object_container_keycallback,
-                                                  allocator);
-   info->object.placeholders = mulle_set_create( 32,
-                                                  (void *) &object_container_keycallback,
-                                                  allocator);
-   info->object.threads      = mulle_set_create( 4,
-                                                  (void *) &object_container_keycallback,
-                                                  allocator);
-
-
-   info->object.debugenabled      = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEBUG_ENABLED") ||
-         mulle_objc_environment_get_yes_no( "NSDebugEnabled");
-   info->object.zombieenabled     = mulle_objc_environment_get_yes_no( "MULLE_OBJC_ZOMBIE_ENABLED") ||
-         mulle_objc_environment_get_yes_no( "NSZombieEnabled");
-   info->object.deallocatezombies = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEALLOCATE_ZOMBIE") ||
-         mulle_objc_environment_get_yes_no( "NSDeallocateZombies");
+   if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_TESTALLOCATOR_ENABLED"))
+   {
+#if HAVE_DLSYM
+      mulle_testallocator_reset = dlsym( RTLD_DEFAULT, "mulle_testallocator");
+      if( mulle_testallocator_reset)
+         (*mulle_testallocator_reset)();
+#endif
+    }
 }
+
+
 
 struct _mulle_objc_universefoundationinfo  *
    _mulle_objc_universeconfiguration_configure_universe( struct _mulle_objc_universeconfiguration *config,
@@ -176,7 +163,7 @@ struct _mulle_objc_universefoundationinfo  *
    struct _mulle_objc_foundation               us;
    struct _mulle_objc_universefoundationinfo   *roots;
 
-   _mulle_objc_universe_init( universe, config->universe.allocator);
+   _mulle_objc_universe_defaultbang( universe,  config->universe.allocator, NULL);
 
    universe->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
    universe->classdefaults.forwardmethod = config->universe.forward;
@@ -188,29 +175,25 @@ struct _mulle_objc_universefoundationinfo  *
 
    _mulle_objc_universe_get_foundationspace( universe, (void **) &roots, &size);
    if( size < neededsize)
-   {
-      roots = (*config->universe.allocator->calloc)( 1, neededsize);
-      if( ! roots)
-         mulle_objc_universe_fail_errno( universe);
-   }
+      roots = mulle_malloc( neededsize);
 
-   _mulle_objc_universeconfigurationinfo_init( roots,
-                                               universe,
-                                               config->universe.allocator,
-                                               &config->foundation.exceptiontable);
+   _mulle_objc_universefoundationinfo_init( roots,
+                                            universe,
+                                            config->universe.allocator,
+                                            &config->foundation.exceptiontable);
+   roots->teardown_callback        = config->callbacks.teardown;
 
-   us.universefriend.data          = roots;
-   us.universefriend.destructor    = universe_dies;
-   us.universefriend.versionassert = config->universe.versionassert
+   us.universefriend.data              = roots;
+   us.staticstringclass                = config->universe.staticstringclass;
+   us.universefriend.destructor        = foundationinfo_release;
+   us.universefriend.versionassert     = config->universe.versionassert
                                         ? config->universe.versionassert
                                         : nop;
-   us.rootclassid                  = @selector( NSObject);
-
-   allocator    = config->foundation.objectallocator
+   us.rootclassid = @selector( NSObject);
+   allocator      = config->foundation.objectallocator
                      ? config->foundation.objectallocator
                      : &mulle_default_allocator;
-
-   us.allocator = *allocator;
+   us.allocator   = *allocator;
 
    _mulle_objc_universe_set_foundation( universe, &us);
 
@@ -274,70 +257,6 @@ struct _mulle_objc_method   NSObject_msgForward_method =
 
 
 
-void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
-{
-   void  _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe);
-   int   trace;
-   char   *filename;
-
-   trace = mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_UNIVERSE");
-   if( trace)
-      fprintf( stderr, "mulle-objc: mulle_objc_teardown_universe %p in progress\n", universe);
-
-   if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE"))
-   {
-      fprintf( stderr, "mulle-objc: writing coverage files...\n");
-
-      filename = getenv( "MULLE_OBJC_CLASS_CACHESIZES_FILENAME");
-      if( ! filename)
-         filename = "class-cachesizes.csv";
-      mulle_objc_universe_csvdump_cachesizes_to_filename( universe, filename);
-
-      filename = getenv( "MULLE_OBJC_METHOD_COVERAGE_FILENAME");
-      if( ! filename)
-         filename = "method-coverage.csv";
-      mulle_objc_universe_csvdump_methodcoverage_to_filename( universe, filename);
-
-      filename = getenv( "MULLE_OBJC_CLASS_COVERAGE_FILENAME");
-      if( ! filename)
-         filename = "class-coverage.csv";
-      mulle_objc_universe_csvdump_classcoverage_to_filename( universe, filename);
-   }
-
-  // this is called by _NSThreadResignAsMainThreadObject:  mulle_objc_release_universe
-   _NSThreadResignAsMainThreadObject( universe);
-}
-
-
-//
-// atexit method (THIS IS A DUPLICATE NOW OF THE BUILTIN CODE)
-// remove this
-//
-static void   teardown_objc( void)
-{
-   struct _mulle_objc_universe  *universe;
-
-   universe = __mulle_objc_global_get_defaultuniverse();
-   if( ! universe)
-      return;
-
-   if( _mulle_objc_universe_is_initialized( universe))
-   {
-      if( universe->debug.trace.universe)
-            mulle_objc_universe_trace( universe, "atexit tears down the universe");
-      mulle_objc_teardown_universe( universe);
-   }
-   else
-      if( universe->debug.trace.universe)
-         mulle_objc_universe_trace( universe,
-                                    "atexit skips teardown of uninitialized universe");
-
-   if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_TESTALLOCATOR"))
-      mulle_objc_testallocator_reset();
-}
-
-
-
 static void   *return_self( void *p)
 {
    return( p);
@@ -347,7 +266,7 @@ static void   *return_self( void *p)
 static void  universe_postcreate( struct _mulle_objc_universe  *universe)
 {
    struct _mulle_objc_universefoundationinfo   *rootconfig;
-   int                             coverage;
+   int                                          coverage;
 
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
@@ -366,11 +285,11 @@ static void  universe_postcreate( struct _mulle_objc_universe  *universe)
    // not so much though
    //
    universe->debug.print.stuck_class_coverage = coverage;
+
+   mulle_objc_list_install_hook( universe);
+
+   universe->callbacks.did_crunch = reset_testallocator;
 }
-
-
-extern struct mulle_allocator   mulle_allocator_objc;
-extern struct mulle_allocator   mulle_objc_testallocator;
 
 
 // a rare case of const use :)
@@ -383,14 +302,14 @@ const struct _mulle_objc_universeconfiguration   *
          NULL,
          versionassert,
          &NSObject_msgForward_method,
+         NULL,       // static string class
          NULL,
       },
       {
          sizeof( struct _mulle_objc_universeconfiguration),
-         &mulle_allocator_objc,
+         &mulle_default_allocator,
          { // exception vectors
             (void (*)()) perror_abort,
-            (void (*)()) abort,
             (void (*)()) abort,
             (void (*)()) abort,
             (void (*)()) abort,
@@ -399,8 +318,8 @@ const struct _mulle_objc_universeconfiguration   *
       },
       {
          (void (*)()) _mulle_objc_universeconfiguration_configure_universe,
-         teardown_objc,
-         universe_postcreate
+         universe_postcreate,
+         mulle_objc_teardown_universe
       }
    };
 
@@ -416,10 +335,6 @@ const struct _mulle_objc_universeconfiguration   *
 void   mulle_objc_universe_configure( struct _mulle_objc_universe *universe,
                                       struct _mulle_objc_universeconfiguration *setup)
 {
-   int   is_pedantic;
-   int   is_test;
-   int   is_coverage;
-
    if( ! _mulle_objc_universe_is_transitioning( universe))
    {
       if( _mulle_objc_universe_is_initialized( universe))
@@ -432,49 +347,6 @@ void   mulle_objc_universe_configure( struct _mulle_objc_universe *universe,
       abort();
    }
 
-   is_pedantic = mulle_objc_environment_get_yes_no( "MULLE_OBJC_PEDANTIC_EXIT");
-   is_test     = mulle_objc_environment_get_yes_no( "MULLE_OBJC_TESTALLOCATOR");
-   is_coverage = mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE");
-
-   if( is_test)
-   {
-      // call this because we are probably also in +load here
-      mulle_objc_testallocator_initialize();
-
-      //
-      // in case of leaks, getting traces of universe allocatios can be
-      // tedious. Assuming universe is leak free, run with a test
-      // allocator for objects only (MULLE_OBJC_TESTALLOCATOR=1)
-      //
-      if( is_test & 0x1)
-         setup->foundation.objectallocator = &mulle_objc_testallocator;
-      if( is_test & 0x2)
-         setup->universe.allocator          = &mulle_objc_testallocator;
-#if DEBUG
-      if( is_test & 0x3)
-         fprintf( stderr, "MulleObjC uses \"mulle_objc_testallocator\" to detect leaks.\n");
-#endif
-   }
-
    (*setup->callbacks.setup)( setup, universe);
    (*setup->callbacks.postcreate)( universe);
-
-   if( is_pedantic || is_test || is_coverage)
-   {
-      struct _mulle_objc_universefoundationinfo *rootcfg;
-
-      rootcfg = _mulle_objc_universe_get_foundationdata( universe);
-
-      // if we retain zombies, we leak, so no point in looking for leaks
-      if( rootcfg->object.zombieenabled && ! rootcfg->object.deallocatezombies)
-         is_test = 0;
-
-      if( universe->debug.trace.universe)
-         fprintf( stderr, "mulle-objc: install atexit handler for universe crunch...\n");
-
-      if( atexit( setup->callbacks.teardown))
-         perror( "atexit:");
-   }
-
-   mulle_objc_list_install_hook( universe);
 }
