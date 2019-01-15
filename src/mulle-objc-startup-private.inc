@@ -7,13 +7,15 @@
 # endif
 #endif
 
+
 static void   bang( struct _mulle_objc_universe *universe,
                     struct mulle_allocator *allocator,
                     void *userinfo);
 
-static void   MulleObjCBang( struct _mulle_objc_universe *universe,
-                             struct mulle_allocator *allocator,
-                             struct _mulle_objc_universeconfiguration *config)
+
+static inline void   MulleObjCBang( struct _mulle_objc_universe *universe,
+                                    struct mulle_allocator *allocator,
+                                    struct _mulle_objc_universeconfiguration *config)
 {
    mulle_objc_universe_configure( universe, config);
 }
