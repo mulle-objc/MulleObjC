@@ -8,7 +8,9 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
    #
    # can only be used in one-library/project cmake project
    #
-   option( OBJC_COVERAGE_OPTIMIZED_LIBS "Create coverage-optimized ObjC libraries" OFF)
+   if( NOT DEFINED OBJC_COVERAGE_OPTIMIZED_LIBS)
+      option( OBJC_COVERAGE_OPTIMIZED_LIBS "Create coverage-optimized ObjC libraries" OFF)
+   endif()
 
    if( OBJC_COVERAGE_OPTIMIZED_LIBS)
 
