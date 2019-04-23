@@ -46,28 +46,33 @@
 // writeprotected storage, which can be convenient for
 // catching accidental writes into them
 //
-extern const struct mulle_container_keyvaluecallback   _MulleObjCContainerObjectKeyRetainValueRetainCallback;
-extern const struct mulle_container_keyvaluecallback   _MulleObjCContainerObjectKeyCopyValueRetainCallback;
+extern const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyRetainValueRetainCallback;
+extern const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyCopyValueRetainCallback;
+
+// NSDictionary uses this for init sometimes
+extern const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyAssignValueAssignCallback;
 // NSDictionary usually uses this
-extern const struct mulle_container_keyvaluecallback   _MulleObjCContainerObjectKeyRetainValueCopyCallback;
-extern const struct mulle_container_keyvaluecallback   _MulleObjCContainerObjectKeyCopyValueCopyCallback;
+extern const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyRetainValueCopyCallback;
+extern const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyCopyValueCopyCallback;
 
 // i was too lazy to multiply it out, do it if needed
-extern const struct mulle_container_keycallback      _MulleObjCContainerObjectKeyAssignCallback;
-extern const struct mulle_container_valuecallback    _MulleObjCContainerObjectValueAssignCallback;
+extern const struct mulle_container_keycallback      _MulleObjCContainerKeyAssignCallback;
+extern const struct mulle_container_valuecallback    _MulleObjCContainerValueAssignCallback;
+
+extern const struct mulle_container_keycallback      _MulleObjCContainerKeyRetainPointerCompareCallback;
 
 
-extern struct mulle_container_keycallback     *MulleObjCContainerObjectKeyRetainCallback;
+extern struct mulle_container_keycallback     *MulleObjCContainerKeyRetainCallback;
 // NSSet usually uses this
-extern struct mulle_container_keycallback     *MulleObjCContainerObjectKeyCopyCallback;
-extern struct mulle_container_valuecallback   *MulleObjCContainerObjectValueRetainCallback;
-extern struct mulle_container_valuecallback   *MulleObjCContainerObjectValueCopyCallback;
+extern struct mulle_container_keycallback     *MulleObjCContainerKeyCopyCallback;
+extern struct mulle_container_valuecallback   *MulleObjCContainerValueRetainCallback;
+extern struct mulle_container_valuecallback   *MulleObjCContainerValueCopyCallback;
 
 
-#define NSObjectMapKeyCallBacks                *MulleObjCContainerObjectKeyRetainCallback
-#define NSObjectMapValueCallBacks              *MulleObjCContainerObjectValueRetainCallback
-#define NSNonRetainedObjectMapKeyCallBacks     _MulleObjCContainerObjectKeyAssignCallback
-#define NSNonRetainedObjectMapValueCallBacks   _MulleObjCContainerObjectValueAssignCallback
+#define NSObjectMapKeyCallBacks                *MulleObjCContainerKeyRetainCallback
+#define NSObjectMapValueCallBacks              *MulleObjCContainerValueRetainCallback
+#define NSNonRetainedObjectMapKeyCallBacks     _MulleObjCContainerKeyAssignCallback
+#define NSNonRetainedObjectMapValueCallBacks   _MulleObjCContainerValueAssignCallback
 
 
 extern struct mulle_container_keycallback     NSIntMapKeyCallBacks;

@@ -48,6 +48,7 @@
 #import "MulleObjCExceptionHandler-Private.h"
 #import "MulleObjCContainerCallback.h"
 #import "NSRange.h"
+#import "NSDebug.h"
 
 #import "mulle-objc-universeconfiguration-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
@@ -80,11 +81,11 @@ void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
 
    trace = mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_UNIVERSE");
    if( trace)
-      fprintf( stderr, "mulle-objc: teardown of the universe %p in progress\n", universe);
+      mulle_objc_universe_trace( universe, "teardown of the universe in progress");
 
    if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE"))
    {
-      fprintf( stderr, "mulle-objc: writing coverage files...\n");
+      mulle_objc_universe_trace( universe, "writing coverage files...");
 
       filename = getenv( "MULLE_OBJC_CLASS_CACHESIZES_FILENAME");
       if( ! filename)
@@ -104,7 +105,7 @@ void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
 }
 
 
-static void   foundationinfo_release( struct _mulle_objc_universe *universe,
+static void   foundationinfo_finalize( struct _mulle_objc_universe *universe,
                                       void *info)
 {
    struct _mulle_objc_universefoundationinfo   *space;
@@ -115,6 +116,16 @@ static void   foundationinfo_release( struct _mulle_objc_universe *universe,
    // this will call mulle_objc_teardown_universe as that is the
    // teardown_callback in info
    //
+   _mulle_objc_universefoundationinfo_finalize( info);
+}
+
+
+static void   foundationinfo_done( struct _mulle_objc_universe *universe,
+                                      void *info)
+{
+   struct _mulle_objc_universefoundationinfo   *space;
+
+   _mulle_objc_universe_get_foundationspace( universe, (void **) &space, NULL);
    _mulle_objc_universefoundationinfo_done( info);
 
    if( info != space)
@@ -124,6 +135,7 @@ static void   foundationinfo_release( struct _mulle_objc_universe *universe,
       mulle_free( info);
    }
 }
+
 
 
 static void   nop( struct _mulle_objc_universe *universe,
@@ -141,14 +153,11 @@ static void   reset_testallocator( struct _mulle_objc_universe *universe)
 {
    void   (*mulle_testallocator_reset)( void);
 
-   if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_TESTALLOCATOR_ENABLED"))
-   {
 #if HAVE_DLSYM
-      mulle_testallocator_reset = dlsym( RTLD_DEFAULT, "mulle_testallocator");
-      if( mulle_testallocator_reset)
-         (*mulle_testallocator_reset)();
+   mulle_testallocator_reset = dlsym( RTLD_DEFAULT, "mulle_testallocator_reset");
+   if( mulle_testallocator_reset)
+      (*mulle_testallocator_reset)();
 #endif
-    }
 }
 
 
@@ -162,6 +171,7 @@ struct _mulle_objc_universefoundationinfo  *
    struct mulle_allocator                      *allocator;
    struct _mulle_objc_foundation               us;
    struct _mulle_objc_universefoundationinfo   *roots;
+   char                                        *kind;
 
    _mulle_objc_universe_defaultbang( universe,  config->universe.allocator, NULL);
 
@@ -181,18 +191,35 @@ struct _mulle_objc_universefoundationinfo  *
                                             universe,
                                             config->universe.allocator,
                                             &config->foundation.exceptiontable);
-   roots->teardown_callback        = config->callbacks.teardown;
+   roots->teardown_callback            = config->callbacks.teardown;
 
    us.universefriend.data              = roots;
    us.staticstringclass                = config->universe.staticstringclass;
-   us.universefriend.destructor        = foundationinfo_release;
+   us.universefriend.finalizer         = foundationinfo_finalize;
+   us.universefriend.destructor        = foundationinfo_done;
    us.universefriend.versionassert     = config->universe.versionassert
                                         ? config->universe.versionassert
                                         : nop;
    us.rootclassid = @selector( NSObject);
-   allocator      = config->foundation.objectallocator
-                     ? config->foundation.objectallocator
-                     : &mulle_default_allocator;
+   allocator      = config->foundation.objectallocator;
+
+   kind = "custom";
+   if( ! allocator)
+   {
+      if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_FOUNDATION_STDLIB_ALLOCATOR"))
+      {
+         allocator = &mulle_stdlib_allocator;
+         kind      = "stdlib";
+      }
+      else
+      {
+         allocator = &mulle_default_allocator;
+         kind      = "default";
+      }
+   }
+   if( universe->debug.trace.universe)
+      mulle_objc_universe_trace( universe, "foundation uses %s allocator: %p", kind, allocator);
+
    us.allocator   = *allocator;
 
    _mulle_objc_universe_set_foundation( universe, &us);
@@ -263,10 +290,11 @@ static void   *return_self( void *p)
 }
 
 
-static void  universe_postcreate( struct _mulle_objc_universe  *universe)
+void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 {
    struct _mulle_objc_universefoundationinfo   *rootconfig;
-   int                                          coverage;
+   int                                         coverage;
+   BOOL                                        objcTestAllocatorEnabled;
 
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
@@ -288,7 +316,22 @@ static void  universe_postcreate( struct _mulle_objc_universe  *universe)
 
    mulle_objc_list_install_hook( universe);
 
-   universe->callbacks.did_crunch = reset_testallocator;
+   objcTestAllocatorEnabled = mulle_objc_environment_get_yes_no( "MULLE_OBJC_TESTALLOCATOR_ENABLED");
+   if( objcTestAllocatorEnabled || mulle_objc_environment_get_yes_no( "MULLE_TESTALLOCATOR"))
+   {
+      void   (*mulle_testallocator_set_stacktracesymbolizer)( void (*)( void));
+
+#if HAVE_DLSYM
+      mulle_testallocator_set_stacktracesymbolizer = dlsym( RTLD_DEFAULT, "mulle_testallocator_set_stacktracesymbolizer");
+      if( mulle_testallocator_set_stacktracesymbolizer)
+         mulle_testallocator_set_stacktracesymbolizer( (void (*)(void)) MulleObjCStacktraceSymbolize);
+#endif
+   }
+
+   // TODO: this isn't currently used at all, since tests use
+   // MULLE_TESTALLOCATOR
+   if( objcTestAllocatorEnabled)
+      universe->callbacks.did_crunch = reset_testallocator;
 }
 
 
@@ -318,7 +361,7 @@ const struct _mulle_objc_universeconfiguration   *
       },
       {
          (void (*)()) _mulle_objc_universeconfiguration_configure_universe,
-         universe_postcreate,
+         mulle_objc_postcreate_universe,
          mulle_objc_teardown_universe
       }
    };

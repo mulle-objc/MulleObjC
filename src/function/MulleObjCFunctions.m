@@ -147,6 +147,18 @@ char   *MulleObjCSelectorGetName( SEL sel)
 }
 
 
+char   *MulleObjCProtocolGetName( PROTOCOL proto)
+{
+   struct _mulle_objc_protocol     *protocol;
+   struct _mulle_objc_universe     *universe;
+
+   universe = MulleObjCGetUniverse();
+   protocol = _mulle_objc_universe_lookup_protocol( universe,
+                                                    (mulle_objc_protocolid_t) proto);
+   return( protocol ? _mulle_objc_protocol_get_name( protocol) : NULL);
+}
+
+
 Class   MulleObjCLookupClassByName( char *name)
 {
    Class                         cls;

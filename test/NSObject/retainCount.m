@@ -27,14 +27,14 @@ main()
 
    foo = [Foo new];
    printf( "a: %lu\n", (unsigned long) [foo retainCount]);
-   [foo _performFinalize] ;
+   [foo mullePerformFinalize] ;
    printf( "b: %lu\n", (unsigned long) [foo retainCount]);
    [foo release];
 
    foo = [Foo new];
    [foo retain];
    printf( "A: %lu\n", (unsigned long) [foo retainCount]);
-   [foo _performFinalize] ;
+   [foo mullePerformFinalize] ;
    printf( "B: %lu\n", (unsigned long) [foo retainCount]);
    [foo retain];
    printf( "C: %lu\n", (unsigned long) [foo retainCount]);

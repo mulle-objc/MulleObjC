@@ -90,6 +90,21 @@ extern NSRange    NSIntersectionRange( NSRange range1, NSRange range2);
 
 
 // mulle additon:
+
+static inline enum _MulleBool  MulleObjCRangeIsValid( NSRange range)
+{
+   // check for overflow
+   return( range.location + range.length >= range.location);
+}
+
+
+static inline enum _MulleBool  MulleObjCRangeIsValidWithLength( NSRange range, NSUInteger length)
+{
+   // check against NSRange( 0, length) more quickly
+   return( range.location + range.length <= length);
+}
+
+
 static inline enum _MulleBool  MulleObjCRangeContainsRange( NSRange big, NSRange small)
 {
    if( ! small.length)

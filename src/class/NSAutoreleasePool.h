@@ -164,8 +164,9 @@ static inline void
 
 // for NSThread
 void   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe);
+void   mulle_objc_thread_reset_poolconfiguration( struct _mulle_objc_universe *universe);
 void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *universe);
 
 
-void   MulleObjCAutoreleaseAllocation( void *pointer, 
+void   MulleObjCAutoreleaseAllocation( void *pointer,
 												   struct mulle_allocator *allocator);

@@ -61,8 +61,9 @@ src/protocol/MulleObjCRuntimeObject.h
 src/protocol/MulleObjCSingleton.h
 src/protocol/MulleObjCTaggedPointer.h
 src/protocol/NSCoding.h
+src/protocol/NSContainer.h
 src/protocol/NSCopying.h
-src/protocol/NSFastEnumeration.h
+src/protocol/NSEnumeration.h
 src/protocol/NSLocking.h
 src/protocol/NSObjectProtocol.h
 src/struct/MulleObjCContainerCallback.h

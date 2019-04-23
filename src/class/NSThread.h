@@ -90,9 +90,11 @@ void  _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *u
 
 // don't call these functions yourself
 NSThread  *_NSThreadNewUniverseThreadObject( struct _mulle_objc_universe *universe);
-void       _NSThreadResignAsUniverseThreadObjectAndDeallocate( NSThread *self);
-
 NSThread  *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe);
 void       _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe);
+
+// this will autorelease the threadDictionary, this must be called before
+// the last autoreleasepool dies
+void       _NSThreadFinalizeMainThreadObject( struct _mulle_objc_universe *universe);
 
 @end

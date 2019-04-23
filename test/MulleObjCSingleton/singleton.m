@@ -1,5 +1,6 @@
 #ifndef __MULLE_OBJC__
 # import <Foundation/Foundation.h>
+# import <Foundation/NSDebug.h>
 #else
 # import <MulleObjC/MulleObjC.h>
 # import <MulleObjC/private/mulle-objc-universefoundationinfo-private.h>
@@ -29,16 +30,16 @@
 @implementation  Foobar
 @end
 
+
 static void print_bool( BOOL flag)
 {
    printf( "%s\n", flag ? "YES" : "NO");
 }
 
 
-
 static void   count_exception( void *format, va_list args)
 {
-   printf( "exception\n");
+   printf( "exception caught\n");
    exit( 0);
 }
 

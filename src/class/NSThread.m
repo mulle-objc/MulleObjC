@@ -82,10 +82,17 @@
    _NSThreadNewMainThreadObject( universe);
 }
 
-
+/*
+ * setup threadlocal storage NSAutoreleasePool
+ * setup ABA gc for thread
+ * bond to universe by retaining it
+ */
 void   _mulle_objc_thread_become_universethread( struct _mulle_objc_universe  *universe)
 {
-   // the universe will have done this already for us
+   //
+   // the universe may have done this already for us if we are the
+   // "main" thread
+   //
    if( mulle_thread_self() != universe->thread)
    {
       _mulle_objc_universe_retain( universe);
@@ -102,6 +109,10 @@ void  _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *u
 {
    mulle_objc_thread_done_poolconfiguration( universe);
 
+   //
+   // the universe will do this, if we are the
+   // "main" thread
+   //
    if( mulle_thread_self() != universe->thread)
    {
       _mulle_objc_thread_remove_universe_gc( universe);
@@ -113,54 +124,32 @@ void  _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *u
 
 extern void  NSAutoreleasePoolLoader( struct _mulle_objc_universe *universe);
 
+
+// this is used by mulle_objc_thread_get_threadfoundationinfo to create
+// a new NSThread on demand if needed
+
 NSThread  *_NSThreadNewUniverseThreadObject( struct _mulle_objc_universe *universe)
 {
-   NSThread                                    *thread;
+   NSThread                                    *threadObject;
    struct _mulle_objc_universefoundationinfo   *info;
 
    _mulle_objc_thread_become_universethread( universe);
 
-   thread = [NSThread new];
-   _mulle_objc_universe_add_rootthreadobject( universe, thread);           // does not retain
-   [thread _setAsCurrentThread];
+   threadObject = [NSThread new];
+
+   _mulle_objc_universe_add_threadobject( universe, threadObject);           // does not retain
+   mulle_objc_thread_set_threadobject( universe, threadObject);
 
    info = _mulle_objc_universe_get_universefoundationinfo( universe);
    _mulle_atomic_pointer_increment( &info->thread.n_threads);
 
-   return( thread);
-}
-
-
-void  _NSThreadResignAsUniverseThreadObjectAndDeallocate( NSThread *self)
-{
-   struct _mulle_objc_universefoundationinfo   *info;
-   struct _mulle_objc_universe                 *universe;
-
-   universe = _mulle_objc_object_get_universe( self);
-
-   [self _performFinalize]; // get rid of NSThreadDictionary
-
-  // remove as "root" object
-
-   _mulle_objc_universe_remove_rootthreadobject( universe, self);
-
-   assert( ! self->_target);
-   assert( ! self->_argument);
-   assert( [self retainCount] == 1);
-
-   [self release];
-
-   _mulle_objc_thread_resignas_universethread( universe);
-
-   info  = _mulle_objc_universe_get_universefoundationinfo( universe);
-   _mulle_atomic_pointer_decrement( &info->thread.n_threads);
-//   _MulleObjCObjectFree( self);
+   return( threadObject);
 }
 
 
 NSThread  *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe)
 {
-   NSThread                                    *thread;
+   NSThread                                    *threadObject;
    struct _mulle_objc_universefoundationinfo   *info;
 
    info = _mulle_objc_universe_get_universefoundationinfo( universe);
@@ -172,38 +161,77 @@ NSThread  *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe)
 }
 
 
-// this can only be called during crunch time!
-void  _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
+//
+// this is a special function only to be called during universe teardown
+//
+static NSThread   *_NSThreadGetMainThreadObject( struct _mulle_objc_universe *universe)
 {
-   NSThread   *thread;
+   NSThread                                    *threadObject;
+   struct _mulle_objc_universefoundationinfo   *info;
 
    if( ! universe)
-      return;
+      return( NULL);
 
    //
    // can happen in mulle-objc-list, that NSThread isn't really
    // there
    //
    if( ! _mulle_objc_universe_lookup_infraclass( universe, @selector( NSThread)))
-      return;
+      return( NULL);
 
-   thread = mulle_objc_thread_get_threadobject( universe);
-   if( ! thread)
+   threadObject = mulle_objc_thread_get_threadobject( universe);
+   if( ! threadObject)
    {
       // i mean it's bad, but we are probably going down anyway
 #if DEBUG
       fprintf( stderr, "*** Main thread was never set up. [NSThread load] did not run!***\n");
 #endif
-      return;
+      return( NULL);
    }
 
    assert( ! [NSThread isMultiThreaded]);
+
+   return( threadObject);
+}
+
+
+// this can only be called during crunch time!
+void   _NSThreadFinalizeMainThreadObject( struct _mulle_objc_universe *universe)
+{
+   NSThread   *threadObject;
+
+   threadObject = _NSThreadGetMainThreadObject( universe);
+   [threadObject mullePerformFinalize]; // get rid of NSThreadDictionary
+}
+
+
+// this can only be called during crunch time!
+void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
+{
+   NSThread                                    *threadObject;
+   struct _mulle_objc_universefoundationinfo   *info;
+
+   threadObject = _NSThreadGetMainThreadObject( universe);
+   if( ! threadObject)
+      return;
 
    if( _mulle_objc_universe_get_version( universe)  != mulle_objc_universe_is_deinitializing)
       mulle_objc_universe_fail_inconsistency( universe,
          "_NSThreadResignAsMainThreadObject can only be called inside the crunch");
 
-   _NSThreadResignAsUniverseThreadObjectAndDeallocate( thread);
+   info  = _mulle_objc_universe_get_universefoundationinfo( universe);
+   _mulle_atomic_pointer_decrement( &info->thread.n_threads);
+
+   _mulle_objc_universe_remove_threadobject( universe, threadObject);
+   mulle_objc_thread_set_threadobject( universe, nil);
+
+   assert( ! threadObject->_target);
+   assert( ! threadObject->_argument);
+   assert( [threadObject retainCount] == 1);
+
+   [threadObject release];
+
+   _mulle_objc_thread_resignas_universethread( universe);
 }
 
 
@@ -229,28 +257,22 @@ void  _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
 {
    [self->_userInfo autorelease];
    self->_userInfo = nil;
+
+   if( self->_target != self)
+      [self->_target autorelease];
+   self->_target = nil;
+
+   if( self->_argument != self)
+      [self->_argument autorelease];
+   self->_argument = nil;
+
+   [super finalize];
 }
 
 
 - (void) dealloc
 {
-   if( self->_target != self)
-      [self->_target release];
-   if( self->_argument != self)
-      [self->_argument release];
-
    _MulleObjCObjectFree( self);
-}
-
-
-- (void) _setAsCurrentThread
-{
-   struct _mulle_objc_universe   *universe;
-
-   universe = _mulle_objc_object_get_universe( self);
-
-   // remember NSThread in mulle-thread
-   mulle_objc_thread_set_threadobject( universe, self);
 }
 
 
@@ -295,10 +317,13 @@ void  _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
    struct _mulle_objc_universe                 *universe;
 
    universe = _mulle_objc_object_get_universe( self);
-   info   = _mulle_objc_universe_get_universefoundationinfo( universe);
+   info     = _mulle_objc_universe_get_universefoundationinfo( universe);
+
    info->thread.is_multi_threaded = YES;
 
-   [self _setAsCurrentThread];
+   _mulle_objc_universe_add_threadobject( universe, self);           // does not retain
+
+   mulle_objc_thread_set_threadobject( universe, self);
 }
 
 
@@ -310,21 +335,20 @@ void  _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
    [self _threadWillExit];
 
    universe = _mulle_objc_object_get_universe( self);
-   info   = _mulle_objc_universe_get_universefoundationinfo( universe);
+   info     = _mulle_objc_universe_get_universefoundationinfo( universe);
    if( _mulle_atomic_pointer_decrement( &info->thread.n_threads) == (void *) 2)
    {
       [NSThread _goingSingleThreaded];
       info->thread.is_multi_threaded = NO;
    }
 
+   _mulle_objc_universe_remove_threadobject( universe, self);           // does not retain
+   mulle_objc_thread_set_threadobject( universe, nil);
+
    _thread = (mulle_thread_t) 0;   // allow to start again (in case someone retained us)
 
    if( _isDetached)
-   {
-      _mulle_objc_universe_remove_rootobject( universe, self);
-      _isDetached = NO;
       [self release];  // can't autorelease here
-   }
 }
 
 
@@ -359,12 +383,7 @@ static void   bouncyBounce( void *arg)
 */
 - (void) detach
 {
-   struct _mulle_objc_universe   *universe;
-
    [self retain];
-
-   universe = _mulle_objc_object_get_universe( self);
-   _mulle_objc_universe_add_rootobject( universe, self);
 
    self->_isDetached = YES;
    mulle_thread_detach( self->_thread);
@@ -399,8 +418,7 @@ static void   bouncyBounce( void *arg)
       __mulle_objc_universe_raise_internalinconsistency( universe, "thread already running");
 
    universe = _mulle_objc_object_get_universe( self);
-   info   = _mulle_objc_universe_get_universefoundationinfo( universe);
-
+   info     = _mulle_objc_universe_get_universefoundationinfo( universe);
    if( _mulle_atomic_pointer_increment( &info->thread.n_threads) == (void *) 1)
       [NSThread _isGoingMultiThreaded];
 

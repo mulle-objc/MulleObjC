@@ -23,7 +23,7 @@ then
    MULLE_HOSTNAME="`PATH=/bin:/usr/bin:/sbin:/usr/sbin hostname -s`"
    if [ "${MULLE_HOSTNAME:0:1}" = '.' ]
    then
-      MULLE_HOSTNAME="_walitza"
+      MULLE_HOSTNAME="_terodde"
    fi
    export MULLE_HOSTNAME
 fi
@@ -78,8 +78,7 @@ case "${MULLE_SHELL_MODE}" in
       # source in any bash completion files
       #
       DEFAULT_IFS="${IFS}"
-      shopt -s nullglob; IFS="
-"
+      shopt -s nullglob; IFS=$'\n'
       for FILENAME in "${MULLE_VIRTUAL_ROOT}/.mulle/share/env/libexec"/*-bash-completion.sh
       do
          . "${FILENAME}"
@@ -136,6 +135,18 @@ case "${MULLE_SHELL_MODE}" in
          alias patternfile="mulle-sde patternfile"
          alias subproject="mulle-sde subproject"
          alias update="mulle-sde update"
+      fi
+
+      if [ -z "" ]
+      then
+         alias b="mulle-sde craft"
+         alias C="mulle-sde clean all"
+         alias c="mulle-sde clean"
+         alias u="mulle-sde update"
+         alias l="mulle-sde list"
+         alias t="mulle-sde test --serial"
+         alias T="mulle-sde test craft ; mulle-sde test"
+         alias TT="mulle-sde test clean ; mulle-sde test"
       fi
    ;;
 esac

@@ -46,10 +46,7 @@
 struct _mulle_objc_universefoundationinfo_object
 {
    struct mulle_set    *roots;
-
-   // single out some known classes into their own sets
-   struct mulle_set    *placeholders;
-   struct mulle_set    *singletons;
+   // single out thread into their own set
    struct mulle_set    *threads;
 
    unsigned char       debugenabled;
@@ -167,6 +164,9 @@ void
                                             struct _mulle_objc_exceptionhandlertable *exceptiontable);
 
 void
+   _mulle_objc_universefoundationinfo_finalize( struct _mulle_objc_universefoundationinfo *info);
+
+void
    _mulle_objc_universefoundationinfo_done( struct _mulle_objc_universefoundationinfo *info);
 
 //
@@ -178,14 +178,8 @@ void _mulle_objc_universefoundationinfo_add_rootobject( struct _mulle_objc_unive
 void _mulle_objc_universefoundationinfo_remove_rootobject(  struct _mulle_objc_universefoundationinfo *config, void *obj);
 void _mulle_objc_universefoundationinfo_release_rootobjects(  struct _mulle_objc_universefoundationinfo *config);
 
-void _mulle_objc_universefoundationinfo_add_placeholder( struct _mulle_objc_universefoundationinfo *config, void *obj);
-void _mulle_objc_universefoundationinfo_release_placeholders( struct _mulle_objc_universefoundationinfo *config);
-
-void _mulle_objc_universefoundationinfo_add_singleton( struct _mulle_objc_universefoundationinfo *config, void *obj);
-void _mulle_objc_universefoundationinfo_release_singletons( struct _mulle_objc_universefoundationinfo *config);
-
-void _mulle_objc_universefoundationinfo_add_rootthreadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
-void _mulle_objc_universefoundationinfo_remove_rootthreadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
+void _mulle_objc_universefoundationinfo_add_threadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
+void _mulle_objc_universefoundationinfo_remove_threadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
 
 void _mulle_objc_universe_lockedcall_universefoundationinfo( struct _mulle_objc_universe *universe,
                                                              void (*f)(struct _mulle_objc_universefoundationinfo *));
@@ -225,57 +219,21 @@ static inline void
 
 
 static inline void
-	_mulle_objc_universe_add_rootplaceholder( struct _mulle_objc_universe *universe,
-												         void *obj)
-{
-   _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
-   		_mulle_objc_universefoundationinfo_add_placeholder,
-   		obj);
-}
-
-
-static inline void
-	_mulle_objc_universe_release_rootplaceholders( struct _mulle_objc_universe *universe)
-{
-   _mulle_objc_universe_lockedcall_universefoundationinfo( universe,
-   		_mulle_objc_universefoundationinfo_release_placeholders);
-}
-
-
-static inline void
-	_mulle_objc_universe_add_rootsingleton( struct _mulle_objc_universe *universe,
-													    void *obj)
-{
-   _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
-   				_mulle_objc_universefoundationinfo_add_singleton,
-   				obj);
-}
-
-
-static inline void
-	_mulle_objc_universe_release_rootsingletons( struct _mulle_objc_universe *universe)
-{
-   _mulle_objc_universe_lockedcall_universefoundationinfo( universe,
-   		_mulle_objc_universefoundationinfo_release_singletons);
-}
-
-
-static inline void
-	_mulle_objc_universe_add_rootthreadobject( struct _mulle_objc_universe *universe,
+	_mulle_objc_universe_add_threadobject( struct _mulle_objc_universe *universe,
 															 void *obj)
 {
    _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
-   		_mulle_objc_universefoundationinfo_add_rootthreadobject,
+   		_mulle_objc_universefoundationinfo_add_threadobject,
    		obj);
 }
 
 
 static inline void
-	_mulle_objc_universe_remove_rootthreadobject( struct _mulle_objc_universe *universe,
+	_mulle_objc_universe_remove_threadobject( struct _mulle_objc_universe *universe,
 															    void *obj)
 {
    _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
-   	 _mulle_objc_universefoundationinfo_remove_rootthreadobject,
+   	 _mulle_objc_universefoundationinfo_remove_threadobject,
    	 obj);
 }
 

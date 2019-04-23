@@ -55,15 +55,52 @@ static inline id   MulleObjCCallIMP( IMP imp, id obj, SEL sel, id argument)
 }
 
 
-static inline id   MulleObjCCallIMP2( IMP imp, id obj, SEL sel, id arg1, id arg2)
+static inline id   MulleObjCCallIMP2( IMP imp, id obj, SEL sel, id a, id b)
 {
    mulle_objc_metaabi_param_block_void_return( struct { id a; id b;})  _param;
 
-   _param.p.a = arg1;
-   _param.p.b = arg2;
+   _param.p.a = a;
+   _param.p.b = b;
 
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &_param));
 }
+
+static inline id   MulleObjCCallIMP3( IMP imp, id obj, SEL sel, id a, id b, id c)
+{
+   mulle_objc_metaabi_param_block_void_return( struct { id a; id b; id c;})  _param;
+
+   _param.p.a = a;
+   _param.p.b = b;
+   _param.p.c = c;
+
+   return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &_param));
+}
+
+static inline id   MulleObjCCallIMP4( IMP imp, id obj, SEL sel, id a, id b, id c, id d)
+{
+   mulle_objc_metaabi_param_block_void_return( struct { id a; id b; id c; id d;})  _param;
+
+   _param.p.a = a;
+   _param.p.b = b;
+   _param.p.c = c;
+   _param.p.d = d;
+
+   return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &_param));
+}
+
+static inline id   MulleObjCCallIMP5( IMP imp, id obj, SEL sel, id a, id b, id c, id d, id e)
+{
+   mulle_objc_metaabi_param_block_void_return( struct { id a; id b; id c; id d; id e;})  _param;
+
+   _param.p.a = a;
+   _param.p.b = b;
+   _param.p.c = c;
+   _param.p.d = d;
+   _param.p.e = e;
+
+   return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &_param));
+}
+
 
 
 #pragma mark - KVC support (write)
@@ -294,21 +331,61 @@ static inline void   MulleObjCMakeObjectsPerformSelector0( id *objects, NSUInteg
 }
 
 
-static inline void   MulleObjCMakeObjectsPerformSelector( id *objects, NSUInteger n, SEL sel, id argument)
+static inline void   MulleObjCMakeObjectsPerformSelector( id *objects, NSUInteger n, SEL sel, id a)
 {
-   mulle_objc_objects_call( (void **) objects, (unsigned int) n, (mulle_objc_methodid_t) sel, argument);
+   mulle_objc_objects_call( (void **) objects, (unsigned int) n, (mulle_objc_methodid_t) sel, a);
 }
 
 
-static inline id   MulleObjCPerformSelector2( id obj, SEL sel, id arg1, id arg2)
+static inline id   MulleObjCPerformSelector2( id obj, SEL sel, id a, id b)
 {
-   mulle_objc_metaabi_param_block_void_return( struct { id a; id b;})  _param;
+   mulle_objc_metaabi_param_block_void_return( struct { id a; id b; })  _param;
 
-   _param.p.a = arg1;
-   _param.p.b = arg2;
+   _param.p.a = a;
+   _param.p.b = b;
 
    return( mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &_param));
 }
+
+
+static inline id   MulleObjCPerformSelector3( id obj, SEL sel, id a, id b, id c)
+{
+   mulle_objc_metaabi_param_block_void_return( struct { id a; id b; id c; })  _param;
+
+   _param.p.a = a;
+   _param.p.b = b;
+   _param.p.c = c;
+
+   return( mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &_param));
+}
+
+
+static inline id   MulleObjCPerformSelector4( id obj, SEL sel, id a, id b, id c, id d)
+{
+   mulle_objc_metaabi_param_block_void_return( struct { id a; id b; id c; id d; })  _param;
+
+   _param.p.a = a;
+   _param.p.b = b;
+   _param.p.c = c;
+   _param.p.d = d;
+
+   return( mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &_param));
+}
+
+
+static inline id   MulleObjCPerformSelector5( id obj, SEL sel, id a, id b, id c, id d, id e)
+{
+   mulle_objc_metaabi_param_block_void_return( struct { id a; id b; id c; id d; id e; })  _param;
+
+   _param.p.a = a;
+   _param.p.b = b;
+   _param.p.c = c;
+   _param.p.d = d;
+   _param.p.e = e;
+
+   return( mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &_param));
+}
+
 
 void    MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel, id argument, id argument2);
 
@@ -329,16 +406,17 @@ void    MulleObjCSetClass( id obj, Class cls);
 // this must be used in init and nowhere else, as it is
 // not atomic
 //
-static inline void   MulleObjCInfiniteRetain( id obj)
+static inline void   MulleObjCObjectConstantify( id obj)
 {
    if( obj)
-      _mulle_objc_object_infiniteretain_noatomic( obj);
+      _mulle_objc_object_constantify_noatomic( obj);
 }
 
 Class   NSClassFromObject( id object);
 
 char   *MulleObjCClassGetName( Class cls);
 char   *MulleObjCSelectorGetName( SEL sel);
+char   *MulleObjCProtocolGetName( PROTOCOL sel);
 Class  MulleObjCLookupClassByName( char *name);
 SEL    MulleObjCCreateSelector( char *name);
 
@@ -358,7 +436,7 @@ static inline void   *MulleObjCGetInstanceExtra( id obj)
 // allow isa with cpp define
 // The cast is not really type correct, as isa can be the metaclass
 //
-#ifdef MULLE_OBJC_ISA_HACK
-# define isa   ((Class) MulleObjCGetIsa( self))
+#ifndef MULLE_OBJC_NO_ISA_HACK
+# define isa   MulleObjCGetClass( self)
 #endif
 

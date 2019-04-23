@@ -36,10 +36,6 @@ main()
    //
    if( mulle_set_get( config->object.roots, thread))
       printf( "is mistakingly root object\n");
-   if( mulle_set_get( config->object.placeholders, thread))
-      printf( "is mistakingly placeholder\n");
-   if( mulle_set_get( config->object.singletons, thread))
-      printf( "is mistakingly singleton\n");
    if( ! mulle_set_get( config->object.threads, thread))
       printf( "is mistakingly not a root thread object\n");
 

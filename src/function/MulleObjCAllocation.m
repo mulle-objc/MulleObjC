@@ -47,6 +47,7 @@
 #import "mulle-objc-universefoundationinfo-private.h"
 
 // std-c and dependencies
+#include <stdarg.h>
 
 
 int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
@@ -57,8 +58,42 @@ int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
                                      struct _mulle_objc_infraclass *cls,
                                      void *self)
 {
-   if( property->clearer)
-      mulle_objc_object_inlinecall_variablemethodid( self, property->clearer, NULL);
+   uint32_t                   bits;
+   ptrdiff_t                  offset;
+   struct _mulle_objc_ivar    *ivar;
+   mulle_objc_ivarid_t        ivarid;
+
+   bits = _mulle_objc_property_get_bits( property);
+   if( bits & _mulle_objc_property_setterclear)
+   {
+      mulle_objc_object_inlinecall_variablemethodid( self, property->setter, NULL);
+      return( 0);
+   }
+
+   //
+   // This happens for readonly properties, which have no setter.
+   // They are penalized with a bsearch for the ivar.
+   //
+   // Why ?
+   //    Readonly properties are unneccesary. Use a regular accessor.
+   //    The property has no direct link to the ivar. The compiler can't emit
+   //    this as the ivar could reside in the superclass.
+   //    Adding the ivar at runtime into the loaded structure breaks the
+   //    constness of the setup, which I'd like to keep and blows up the
+   //    runtime for supporting readonly, which I find superflous and
+   //    likely to be removed.
+   //
+   // Remedy?
+   //    Compiler emits setter code for readonly properties. Let the compiler
+   //    complain/warn about the missing setter.
+   //
+   if( bits & _mulle_objc_property_autoreleaseclear)
+   {
+      ivarid = _mulle_objc_property_get_ivarid( property);
+      ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
+      offset = _mulle_objc_ivar_get_offset( ivar);
+      mulle_objc_object_set_property_value( self, 0, offset, NULL, 0, 0);
+   }
    return( 0);
 }
 
@@ -74,18 +109,18 @@ void   NSDeallocateObject( id self)
 
 
 int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
-                                                    mulle_objc_walkpropertiescallback f,
-                                                    void *userinfo);
+                                                   mulle_objc_walkpropertiescallback f,
+                                                   void *userinfo);
 
 int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
-                                                    mulle_objc_walkpropertiescallback f,
-                                                    void *userinfo)
+                                                   mulle_objc_walkpropertiescallback f,
+                                                   void *userinfo)
 {
-   int                                                     rval;
    struct _mulle_objc_propertylist                         *list;
    struct mulle_concurrent_pointerarrayreverseenumerator   rover;
-   unsigned int                                            n;
    struct _mulle_objc_infraclass                           *superclass;
+   unsigned int                                            n;
+   int                                                     rval;
 
    // protocol properties are part of the class
    if( _mulle_objc_infraclass_get_state_bit( infra, MULLE_OBJC_INFRACLASS_HAS_CLEARABLE_PROPERTY))
@@ -148,6 +183,8 @@ void   _MulleObjCObjectFree( id obj)
    universe = _mulle_objc_class_get_universe( cls);
    config   = _mulle_objc_universe_get_universefoundationinfo( universe);
 
+   assert( ! _mulle_objc_object_is_constant( obj));
+
    if( config->object.zombieenabled)
    {
       MulleObjCZombifyObject( obj);
@@ -172,3 +209,67 @@ void   _MulleObjCObjectFree( id obj)
 #endif
    _mulle_allocator_free( allocator, header);
 }
+
+
+NSUInteger   MulleObjCCopyObjects( id *objects,
+                                   NSUInteger length,
+                                   NSUInteger count, ...)
+{
+   va_list      args;
+   id           *sentinel;
+   id           obj;
+   NSUInteger   n;
+
+   assert( objects || ! length);
+
+   sentinel = &objects[ length];
+   n        = 0;
+
+   va_start( args, count);
+   while( count)
+   {
+      obj = va_arg( args, id);
+      if( obj)
+      {
+         ++n;
+         if( objects < sentinel)
+            *objects++ = obj;
+      }
+      --count;
+   }
+   va_end( args);
+
+   return( n);
+}
+
+
+NSUInteger   MulleObjCCopyObjectArray( id *objects,
+                                       NSUInteger length,
+                                       id *array,
+                                       NSUInteger count)
+{
+   va_list      args;
+   id           *sentinel;
+   id           obj;
+   NSUInteger   n;
+
+   assert( objects || ! length);
+
+   sentinel = &objects[ length];
+   n        = 0;
+
+   while( count)
+   {
+      obj = *array++;
+      if( obj)
+      {
+         ++n;
+         if( objects < sentinel)
+            *objects++ = obj;
+      }
+      --count;
+   }
+
+   return( n);
+}
+

@@ -90,7 +90,7 @@ static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_unive
       config->object_map = &config->_object_map;
    }
 
-   s = getenv( "MULLE_OBJC_TRACE_AUTORELEASEPOOL");
+   s = getenv( "MULLE_OBJC_AUTORELEASEPOOL_TRACE");
    if( s && strlen( s))
    {
       config->trace = atoi( s);
@@ -111,6 +111,20 @@ void   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *uni
 }
 
 
+void   mulle_objc_thread_reset_poolconfiguration( struct _mulle_objc_universe *universe)
+{
+   struct _mulle_objc_poolconfiguration   *config;
+
+   config = mulle_objc_thread_get_poolconfiguration( universe);
+   assert( config);
+
+   // remove all pools
+   while( config->tail)
+      (*config->pop)( config, config->tail);
+   (*config->push)( config);  // create a pool
+}
+
+
 void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_poolconfiguration   *config;
@@ -123,7 +137,10 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
       (*config->pop)( config, config->tail);
 
    if( config->object_map == &config->_object_map)
+   {
       mulle_map_done( &config->_object_map);
+      config->object_map = NULL;
+   }
 }
 
 
@@ -325,7 +342,7 @@ static inline void   addObjects( NSAutoreleasePool *self,
 
    universe = _mulle_objc_infraclass_get_universe( self);
    config   = mulle_objc_thread_get_poolconfiguration( universe);
-   pool   = config->tail;
+   pool     = config->tail;
    if( pool)
       pool = pool->_owner;
    return( pool);
@@ -345,7 +362,7 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
    if( ! config->tail)
    {
       if( config->trace)
-         fprintf( stderr, "[pool] trying to autorelease object %p with no pool in place\n", p);
+         fprintf( stderr, "[pool] %p tryed to autorelease with no pool in place\n", p);
 #if DEBUG
       fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
       abort();
@@ -363,7 +380,10 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
       // or finalize
       // --------------------------------------------------------------------
       if( config->trace & 0x2)
-         fprintf( stderr, "[pool] %p immediately releases object %p\n", config->tail, p);
+         fprintf( stderr, "[pool] %p (RC: %ld) immediate release from pool %p)\n",
+                                  p,
+                                  mulle_objc_object_get_retaincount( p),
+                                  config->tail);
       [p release];
       return( nil);
    }
@@ -378,10 +398,11 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
    addObject( config->tail, p);
 
    if( config->trace & 0x1)
-      fprintf( stderr, "[pool] %p added object %p to storage %p\n",
-                           config->tail,
+      fprintf( stderr, "[pool] %p (RC: %ld) added to storage %p of pool %p)\n",
                            p,
-                           ((NSAutoreleasePool *) config->tail)->_storage);
+                           mulle_objc_object_get_retaincount( p),
+                           ((NSAutoreleasePool *) config->tail)->_storage,
+                           config->tail);
 }
 
 
@@ -389,9 +410,22 @@ static inline void   autoreleaseObject( id p, struct _mulle_objc_universe *unive
 {
    struct _mulle_objc_poolconfiguration   *config;
 
-   config   = mulle_objc_thread_get_poolconfiguration( universe);
+   config = mulle_objc_thread_get_poolconfiguration( universe);
    _autoreleaseObject( config, p);
 }
+
+
+- (void) addObject:(id) p
+{
+   autoreleaseObject( p, _mulle_objc_object_get_universe( self));
+}
+
+
++ (void) addObject:(id) p
+{
+   autoreleaseObject( p, _mulle_objc_infraclass_get_universe( self));
+}
+
 
 
 static void   _autoreleaseObjects( struct _mulle_objc_poolconfiguration *config,
@@ -444,7 +478,7 @@ static void   _autoreleaseObjects( struct _mulle_objc_poolconfiguration *config,
    {
       id   *sentinel;
 
-      fprintf( stderr, "[pool] %p added objects:\n", config->tail);
+      fprintf( stderr, "[pool] added objects to pool %p:\n", config->tail);
       sentinel = &objects[ count];
 
       do
@@ -454,24 +488,14 @@ static void   _autoreleaseObjects( struct _mulle_objc_poolconfiguration *config,
 }
 
 
-static inline void   autoreleaseObjects( id *objects, NSUInteger count, struct _mulle_objc_universe *universe)
+static inline void   autoreleaseObjects( id *objects,
+                                         NSUInteger count,
+                                         struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_poolconfiguration   *config;
 
    config = mulle_objc_thread_get_poolconfiguration( universe);
    _autoreleaseObjects( config, objects, count, sizeof( id));
-}
-
-
-- (void) addObject:(id) p
-{
-   autoreleaseObject( p, _mulle_objc_object_get_universe( self));
-}
-
-
-+ (void) addObject:(id) p
-{
-   autoreleaseObject( p, _mulle_objc_infraclass_get_universe( self));
 }
 
 
@@ -574,7 +598,7 @@ static void   *pushAutoreleasePool( struct _mulle_objc_poolconfiguration *config
    config->releasing = 0;
 
    if( config->trace & 0x4)
-      fprintf( stderr, "[pool] pushed %p in thread 0x%lx\n", pool, (long) mulle_thread_self());
+      fprintf( stderr, "[pool] pushed pool %p in thread 0x%lx\n", pool, (long) mulle_thread_self());
 
    return( pool);
 }
@@ -604,7 +628,7 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
    config->releasing = 1;
 
    if( config->trace & 0x4)
-      fprintf( stderr, "[pool] popping %p in thread 0x%lx\n",
+      fprintf( stderr, "[pool] popping pool %p in thread 0x%lx\n",
                         pool, (long) mulle_thread_self());
 
 //   exception = nil;
@@ -634,7 +658,7 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 
 //   [exception raise];
    if( config->trace & 0x4)
-      fprintf( stderr, "[pool] %p deallocates\n", pool);
+      fprintf( stderr, "[pool] %p pool deallocates\n", pool);
    NSDeallocateObject( pool);
 }
 

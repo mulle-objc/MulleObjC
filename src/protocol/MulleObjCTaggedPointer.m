@@ -46,11 +46,7 @@
 #pragma clang diagnostic ignored "-Wprotocol"
 
 
-@interface MulleObjCTaggedPointer < MulleObjCTaggedPointer>
-@end
-
-
-@implementation MulleObjCTaggedPointer
+PROTOCOLCLASS_IMPLEMENTATION( MulleObjCTaggedPointer)
 
 + (instancetype) alloc
 {
@@ -126,4 +122,4 @@ int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
    return( rval);
 }
 
-@end
+PROTOCOLCLASS_END()

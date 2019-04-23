@@ -56,12 +56,8 @@
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 #pragma clang diagnostic ignored "-Wprotocol"
 
+PROTOCOLCLASS_IMPLEMENTATION( MulleObjCClassCluster)
 
-@interface MulleObjCClassCluster < MulleObjCClassCluster>
-@end
-
-
-@implementation MulleObjCClassCluster
 
 //
 // MULLE_OBJC_IS_CLASSCLUSTER gets inherited by the class, that implements the
@@ -80,7 +76,33 @@ void   MulleObjCClassClusterMarkClassAsClassCluster( Class self)
 
 + (void) initialize
 {
-   MulleObjCClassClusterMarkClassAsClassCluster( self);
+   // mark subclasses but not MulleObjCClassCluster itself
+   if( _mulle_objc_infraclass_get_classid( self) != @selector( MulleObjCClassCluster))
+      MulleObjCClassClusterMarkClassAsClassCluster( self);
+}
+
+
+/*
+ * because we don't allocate the placeholder using the infraClass
+ * allocator, we must release it with a custom function, that
+ * gets the proper allocator from the universe
+ */
+- (void) __deallocPlaceholder
+{
+   struct _mulle_objc_universe     *universe;
+   struct _mulle_objc_infraclass   *infra;
+   struct mulle_allocator          *allocator;
+
+   infra     = _mulle_objc_class_as_infraclass( _mulle_objc_object_get_isa( self));
+   universe  = _mulle_objc_infraclass_get_universe( infra);
+   allocator = _mulle_objc_universe_get_allocator( universe);
+   __mulle_objc_object_free( (void *) self, allocator);
+}
+
+
++ (Class) __placeholderClass
+{
+   return( self);
 }
 
 
@@ -88,17 +110,27 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 {
    mulle_objc_implementation_t   imp;
    mulle_objc_methodid_t         sel;
+   struct _mulle_objc_universe   *universe;
    struct _mulle_objc_class      *cls;
-   id                            placeholder;
+   struct mulle_allocator        *allocator;
+   struct _mulle_objc_object     *placeholder;
 
-   placeholder = NSAllocateObject( infraCls, 0, NULL);
+   //
+   // so that the placeholder doesn't show up in leak tests
+   // we place it into the universe allocator
+   // if the __initPlaceholder does allocations he should do the same
+   // but that's gonna be a bit more tricky
+   //
+   universe    = _mulle_objc_infraclass_get_universe( infraCls);
+   allocator   = _mulle_objc_universe_get_allocator( universe);
+   placeholder = __mulle_objc_infraclass_alloc_instance_extra( infraCls, 0, allocator);
    cls         = _mulle_objc_infraclass_as_class( infraCls);
    sel         = @selector( __initPlaceholder);
    imp         = _mulle_objc_class_lookup_implementation_noforward( cls, sel);
    if( imp)
       (*imp)( placeholder, sel, NULL);
 
-   return( placeholder);
+   return( (MulleObjCClassCluster *) placeholder);
 }
 
 
@@ -121,6 +153,7 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 {
    struct _mulle_objc_object    *placeholder;
    struct _mulle_objc_universe  *universe;
+   Class                        placeholderClass;
 
    //
    // only the class marked as MulleObjCClassCluster gets the
@@ -135,25 +168,48 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 #endif
       return( NSAllocateObject( self, 0, NULL));
    }
+
    assert( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_SINGLETON));
 
-   placeholder = _mulle_objc_infraclass_get_auxplaceholder( self);
-   if( ! placeholder)
+   for(;;)
    {
-      placeholder = (struct _mulle_objc_object *) MulleObjCNewClassClusterPlaceholder( self);
-      universe    = _mulle_objc_infraclass_get_universe( self);
-      _mulle_objc_universe_add_rootplaceholder( universe, placeholder);
-      _mulle_objc_infraclass_set_auxplaceholder( self, placeholder);
-   }
+      placeholder = (struct _mulle_objc_object *) _mulle_objc_infraclass_get_placeholder( self);
+      if( placeholder)
+         return( (MulleObjCClassCluster *) placeholder);
 
-   // retain the placeholder
-   return( [(id) placeholder retain]);
+      placeholderClass = [self __placeholderClass];
+      placeholder      = (struct _mulle_objc_object *) MulleObjCNewClassClusterPlaceholder( placeholderClass);
+      if( _mulle_objc_infraclass_set_placeholder( self, placeholder))
+      {
+         _mulle_objc_object_constantify_noatomic( placeholder);
+         universe = _mulle_objc_infraclass_get_universe( self);
+         if( universe->debug.trace.method_cache)
+            mulle_objc_universe_trace( universe, "Class \"%s\" (%08x) gets a placeholder %p",
+                                                   _mulle_objc_infraclass_get_classid( self),
+                                                   _mulle_objc_infraclass_get_name( self),
+                                                   placeholder);
+         return( (MulleObjCClassCluster *) placeholder);
+      }
+   }
 }
 
 
++ (instancetype) allocWithZone:(NSZone *) zone
+{
+   return( [self alloc]);
+}
+
+
+// this has to be implemented, because new is not alloc/init usually in NSObject
 + (instancetype) new
 {
-   return( [[self alloc] init]);
+   return( [(id) [self alloc] init]);
 }
 
-@end
+
+- (BOOL) __isClassClusterPlaceholderObject
+{
+   return( _mulle_objc_object_is_constant( self));
+}
+
+PROTOCOLCLASS_END()

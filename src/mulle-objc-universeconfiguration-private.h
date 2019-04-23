@@ -97,6 +97,7 @@ const struct _mulle_objc_universeconfiguration   *
 void   mulle_objc_universe_configure( struct _mulle_objc_universe *universe,
                                       struct _mulle_objc_universeconfiguration *setup);
 
+void   mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe);
 void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe);
 
 #endif

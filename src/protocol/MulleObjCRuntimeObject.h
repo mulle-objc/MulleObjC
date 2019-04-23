@@ -17,6 +17,61 @@
 #endif
 
 
+// make this somewhat "official" by removing the underscore prefix
+typedef struct _mulle_objc_dependency     mulle_objc_dependency_t;
+
+
+#define MULLE_OBJC_CLASS_DEPENDENCY( classname) \
+      { @selector( classname), MULLE_OBJC_NO_CATEGORYID }
+#define MULLE_OBJC_CATEGORY_DEPENDENCY( classname, categoryname) \
+      { @selector( classname), @selector( categoryname) }
+#define MULLE_OBJC_LIBRARY_DEPENDENCY( libname) \
+      { @selector( MulleObjCLoader), @selector( libname) }
+
+#define MULLE_OBJC_NO_DEPENDENCY  \
+      { MULLE_OBJC_NO_CLASSID, MULLE_OBJC_NO_CATEGORYID }
+
+
+
+#define MULLE_OBJC_DEPENDS_ON_LIBRARY( libname)             \
+                                                            \
++ (mulle_objc_dependency_t *) dependencies                  \
+{                                                           \
+   static mulle_objc_dependency_t   dependencies[] =        \
+   {                                                        \
+      MULLE_OBJC_LIBRARY_DEPENDENCY( libname),              \
+      MULLE_OBJC_NO_DEPENDENCY                              \
+   };                                                       \
+   return( dependencies);                                   \
+}                                                           \
+/* gobble up semicolon with known external definition */    \
+extern void   NSDeallocateObject( id obj)
+
+
+/*
+ * Helper macros to declare protocol classes
+ */
+#define PROTOCOLCLASS_INTERFACE0( name)  \
+@class name;                             \
+@protocol name
+
+#define PROTOCOLCLASS_INTERFACE( name, ...)  \
+@class name;                                 \
+@protocol name < __VA_ARGS__ >
+
+
+#define PROTOCOLCLASS_END()   @end
+
+
+
+#define PROTOCOLCLASS_IMPLEMENTATION( name)  \
+@interface name < name>                      \
+@end                                         \
+                                             \
+@implementation name
+
+
+
 @protocol MulleObjCRuntimeObject
 
 //
@@ -38,7 +93,7 @@
 - (instancetype) immutableInstance;
 
 // ObjectGraph support
-- (void) _becomeRootObject;
+- (id) _becomeRootObject;
 - (void) _pushToParentAutoreleasePool;
 
 @end

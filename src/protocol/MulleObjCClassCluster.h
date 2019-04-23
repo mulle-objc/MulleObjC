@@ -36,6 +36,7 @@
 #import "import.h"
 
 #import "mulle-objc-type.h"
+#import "MulleObjCRuntimeObject.h"
 
 
 //
@@ -50,14 +51,13 @@
 // When you call +alloc you get a retained placeholder back. In your
 // init method, you should release it.
 //
-@class MulleObjCClassCluster; // to make this a protocolclass
-@protocol MulleObjCClassCluster
+PROTOCOLCLASS_INTERFACE0( MulleObjCClassCluster)
 
 @optional
 + (void) initialize;  // #1#
 + (mulle_objc_classid_t) __instantiatePlaceholderClassid;
 
-@end
+PROTOCOLCLASS_END()
 
 
 // #1#

@@ -62,7 +62,8 @@
 #import "MulleObjCTaggedPointer.h"
 #import "NSCopying.h"
 #import "NSCoding.h"
-#import "NSFastEnumeration.h"
+#import "NSContainer.h"
+#import "NSEnumeration.h"
 #import "NSLocking.h"
 #import "NSObjectProtocol.h"
 
