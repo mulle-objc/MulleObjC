@@ -28,4 +28,12 @@
 #include "MulleObjCFunctions.h"
 #include "MulleObjCContainerCallback.h"
 
+
+#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (15 << 8) | 0)
+# error "mulle-objc-runtime is too old"
+#endif
+#if MULLE_CONTAINER_VERSION < ((1 << 20) | (1 << 8) | 8)
+# error "mulle-container is too old"
+#endif
+
 #endif

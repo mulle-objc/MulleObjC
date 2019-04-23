@@ -36,9 +36,6 @@
 #include "mulle-objc.h"
 
 
-extern struct mulle_allocator    mulle_allocator_objc;
-
-
 __attribute__((const))
 static inline struct mulle_allocator   *MulleObjCObjectGetAllocator( id obj)
 {
@@ -107,6 +104,8 @@ static inline void  MulleObjCObjectDeallocateMemory( id self, void *p)
 #pragma mark -
 #pragma mark object creation
 
+
+// resist the urge to add placeholder detection code here
 __attribute__((returns_nonnull))
 static inline id    _MulleObjCClassAllocateObject( Class infraCls, NSUInteger extra)
 {
@@ -178,3 +177,14 @@ static inline BOOL    NSShouldRetainWithZone( id p, NSZone *zone)
    return( YES);
 }
 
+
+//
+// convenience function for implementing _getOwnedObjects:length:
+//
+NSUInteger   MulleObjCCopyObjects( id *dst,
+                                   NSUInteger dstCount,
+                                   NSUInteger srcCount, ...);
+NSUInteger   MulleObjCCopyObjectArray( id *dst,
+                                       NSUInteger dstCount,
+                                       id *src,
+                                       NSUInteger srcCount);

@@ -149,16 +149,13 @@
 
 + (instancetype) allocWithZone:(NSZone *) zone
 {
-   return( NSAllocateObject( self, 0, NULL));
+   return( NSAllocateObject( self, 0, zone));
 }
 
 
 + (instancetype) new
 {
-   id   p;
-
-   p = [NSAllocateObject( self, 0, NULL) init];
-   return( p);
+   return( [NSAllocateObject( self, 0, NULL) init]);
 }
 
 
@@ -168,15 +165,15 @@
 }
 
 
-- (void) _performFinalize
+- (void) mullePerformFinalize
 {
    _mulle_objc_object_perform_finalize( self);
 }
 
 
-// not advertise to the outside world
 - (void) finalize
 {
+   _MulleObjCObjectClearProperties( self);
 }
 
 
@@ -187,8 +184,6 @@ static BOOL   MulleObjCSingleThreadedCheckReleaseAndAutorelease = YES;
 
 - (void) dealloc
 {
-   _MulleObjCObjectClearProperties( self);
-
 #if DEBUG
    if( MulleObjCSingleThreadedCheckReleaseAndAutorelease)
       if( [NSAutoreleasePool _countObject:self] )
@@ -273,6 +268,22 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
+
+#pragma mark -
+#pragma mark singleton/classcluster support
+
+- (BOOL) __isSingletonObject
+{
+   return( NO);
+}
+
+
+- (BOOL) __isClassClusterPlaceholderObject
+{
+   return( NO);
+}
+
+
 #pragma mark -
 #pragma mark aam support
 
@@ -297,6 +308,7 @@ static struct _mulle_objc_object   *
    placeholderInfracls  = _mulle_objc_universe_lookup_infraclass_nofail( universe, classid);
 
    placeholder       = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
+   _mulle_objc_object_constantify_noatomic( placeholder);
    placeholder->_cls = infraCls;
 
    initSel = @selector( __initPlaceholder);
@@ -324,8 +336,6 @@ retry:
    if( ! placeholder)
    {
       placeholder = _MulleObjCClassNewInstantiatePlaceholder( self, [self __instantiatePlaceholderClassid]);
-      _mulle_objc_universe_add_rootplaceholder( _mulle_objc_infraclass_get_universe( self), placeholder);
-
       if( ! _mulle_objc_infraclass_set_placeholder( self, placeholder))
       {
          _MulleObjCObjectFree( (id) placeholder);
@@ -416,29 +426,36 @@ retry:
 }
 
 
-- (void) _becomeRootObject
+- (id) _becomeRootObject
 {
    struct _mulle_objc_universe   *universe;
+
+   if( _mulle_objc_object_is_constant( self))
+      return( self);
 
    assert( ! [self _isRootObject]);
 
-   [self retain];
+   self = [self retain];
    universe = _mulle_objc_object_get_universe( self);
    _mulle_objc_universe_add_rootobject( universe, self);
+   return( self);
 }
 
 
-- (void) _resignAsRootObject
+- (id) _resignAsRootObject
 {
    struct _mulle_objc_universe   *universe;
 
+   if( _mulle_objc_object_is_constant( self))
+      return( self);
+
    universe = _mulle_objc_object_get_universe( self);
    _mulle_objc_universe_remove_rootobject( universe, self);
-   [self autorelease];
+   return( [self autorelease]);
 }
 
 
-- (void) _pushToParentAutoreleasePool
+- (id) _pushToParentAutoreleasePool
 {
    NSAutoreleasePool   *pool;
 
@@ -447,57 +464,44 @@ retry:
    {
       [self retain];
       [pool addObject:self];
-      return;
+      return( self);
    }
 
-   [self _becomeRootObject];
+   return( [self _becomeRootObject]);
 }
 
 
 # pragma mark -
 # pragma mark class "variable" support
 
-#ifdef NDEBUG
-
-# define assert_key( key)
-
-#else
-static void   assert_key( id key)
-{
-   struct _mulle_objc_class   *cls;
-
-   assert( cls = _mulle_objc_object_get_isa( key));
-   assert( ! strcmp( "NSConstantString", _mulle_objc_class_get_name( cls)) ||
-           ! strstr( "TaggedPointer", _mulle_objc_class_get_name( cls)));
-}
-#endif
-
-
-/* every value becomes a "root". It is an error to set a "root" object
-   as a value. The classvalues are all taken down when the runtime
-   collapses. (way before classes are deallocated !)
+/* The classvalues are all taken down when the runtime
+   collapses. (before classes are deallocated !)
  */
 
-+ (void) removeClassValueForKey:(id) key
++ (void) removeClassValueForKey:(id) aKey
 {
-   id    old;
-   int   rval;
+   struct _mulle_objc_universe   *universe;
+   struct _mulle_objc_object     *key;
+   int                           rval;
+   id                            old;
 
-   assert_key( key);
+   key = (struct _mulle_objc_object *) aKey;
+   assert( key);
+   assert( _mulle_objc_object_is_constant( key));
 
    while( old = _mulle_objc_infraclass_get_cvar( self, key))
    {
       switch( (rval = _mulle_objc_infraclass_remove_cvar( self, key, old)))
       {
          case 0 :
-            if( ! _mulle_objc_object_is_constant( old) && ! MulleObjCIsSingletonInstance( old))
-               [old _resignAsRootObject];
+            [old autorelease];
          case ENOENT :
             return;
 
          default :
-            errno = rval;
-            __mulle_objc_universe_raise_errno( _mulle_objc_object_get_universe( self), "failed to remove key");
+            errno    = rval;
+            universe = _mulle_objc_object_get_universe( self);
+            __mulle_objc_universe_raise_errno( universe, "failed to remove key");
       }
    }
    return;
@@ -505,50 +509,62 @@ static void   assert_key( id key)
 
 
 + (BOOL) insertClassValue:(id) value
-                   forKey:(id) key
+                   forKey:(id) aKey
 {
-   int   rval;
+   struct _mulle_objc_universe   *universe;
+   struct _mulle_objc_object     *key;
+   int                           rval;
 
+   key = (struct _mulle_objc_object *) aKey;
    assert( value);
-   assert_key( key);
+   assert( key);
+   assert( _mulle_objc_object_is_constant( key));
 
+   [value retain];
    switch( (rval = _mulle_objc_infraclass_set_cvar( self, key, value)))
    {
    case 0 :
-      if( ! _mulle_objc_object_is_constant( value) && ! MulleObjCIsSingletonInstance( value))
-         [value _becomeRootObject];
       return( YES);
 
    case EEXIST :
+      [value autorelease];
       return( NO);
 
    default :
-      errno = rval;
-      __mulle_objc_universe_raise_errno( _mulle_objc_infraclass_get_universe( self), "failed to insert key");
+      [value autorelease];
+      errno    = rval;
+      universe = _mulle_objc_object_get_universe( self);
+      __mulle_objc_universe_raise_errno( universe, "failed to insert key");
    }
 }
 
 
 + (void) setClassValue:(id) value
-                forKey:(id) key
+                forKey:(id) aKey
 {
    if( ! value)
    {
-      [self removeClassValueForKey:key];
+      [self removeClassValueForKey:aKey];
       return;
    }
 
+   //
+   // predict an empty place, otherwise remove
+   // previous
+   //
    while( ! [self insertClassValue:value
-                            forKey:key])
-   {
-      [self removeClassValueForKey:key];
-   }
+                            forKey:aKey])
+      [self removeClassValueForKey:aKey];
 }
 
 
-+ (id) classValueForKey:(id) key
++ (id) classValueForKey:(id) aKey
 {
-   assert_key( key);
+   struct _mulle_objc_object   *key;
+
+   key = (struct _mulle_objc_object *) aKey;
+   assert( key);
+   assert( _mulle_objc_object_is_constant( key));
 
    return( _mulle_objc_infraclass_get_cvar( self, key));
 }
@@ -849,6 +865,13 @@ static int   collect( struct _mulle_objc_ivar *ivar,
       }
       ++info->n;
    }
+   return( 0);
+}
+
+
++ (NSUInteger) _getOwnedObjects:(id *) objects
+                         length:(NSUInteger) length
+{
    return( 0);
 }
 
@@ -1172,7 +1195,8 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
 + (void) __reference_lldb_functions__
 {
    mulle_objc_lldb_get_dangerous_classstorage_pointer();
-   mulle_objc_lldb_lookup_implementation( 0, 0, 0, 0, 0, 0);
+   mulle_objc_lldb_lookup_implementation( 0, 0, 0, 0, 0);
+   mulle_objc_lldb_lookup_isa( 0, 0);
    mulle_objc_lldb_check_object( 0, 0);
    mulle_objc_lldb_lookup_descriptor_by_name( 0);
 }

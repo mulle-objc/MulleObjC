@@ -47,7 +47,6 @@
 
 
 
-
 // calls the runtime to really throw, used by NSException later
 MULLE_C_NO_RETURN void
    mulle_objc_throw( void *exception);

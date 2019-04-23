@@ -39,6 +39,13 @@
 #import "MulleObjCIntegralType.h"
 
 
+@protocol NSEnumeration
+
+- (id) nextObject;
+
+@end
+
+
 typedef struct
 {
    unsigned long   state;

@@ -1,5 +1,5 @@
 mulle-testallocator;tar;no-all-load,no-import,no-singlephase,no-static-link,only-os-darwin;9E12A25D-5983-48E3-9DB4-AE1546C75A9C;${MULLE_TESTALLOCATOR_URL:-https://github.com/mulle-core/mulle-testallocator/archive/${MULLE_TESTALLOCATOR_BRANCH:-latest}.tar.gz};;;;
 MulleObjC;tar;no-all-load,no-import,only-standalone;DEC5E977-D2D9-47D8-B997-16036D59C962;${MULLE_OBJC_URL:-https://github.com/mulle-objc/MulleObjC/archive/${MULLE_OBJC_BRANCH:-latest}.tar.gz};;;;
 mulle-testallocator#1;tar;no-import,no-os-darwin,no-singlephase,no-static-link;98E6DD42-F353-45DA-80E7-6A48090E748E;${MULLE_TESTALLOCATOR_URL:-https://github.com/mulle-core/mulle-testallocator/archive/${MULLE_TESTALLOCATOR_BRANCH:-latest}.tar.gz};;;;
-mulle-allocator;tar;no-all-load,no-import,no-singlephase,no-static-link;55B0DFAC-CA6B-486D-BB7F-AAD8C1A4887C;${MULLE_ALLOCATOR_URL:-https://github.com/mulle-c/mulle-allocator/archive/${MULLE_ALLOCATOR_BRANCH:-latest}.tar.gz};;;;
+mulle-allocator;tar;no-all-load,no-import,no-singlephase;55B0DFAC-CA6B-486D-BB7F-AAD8C1A4887C;${MULLE_ALLOCATOR_URL:-https://github.com/mulle-c/mulle-allocator/archive/${MULLE_ALLOCATOR_BRANCH:-latest}.tar.gz};;;;
 mulle-stacktrace;tar;no-all-load,no-import,no-singlephase;2B8519D0-E411-4908-B236-AEA7BDEE9BA7;${MULLE_STACKTRACE_URL:-https://github.com/mulle-core/mulle-stacktrace/archive/${MULLE_STACKTRACE_BRANCH:-latest}.tar.gz};;;;

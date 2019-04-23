@@ -59,8 +59,6 @@ if( CREATE_OBJC_LOADER_INC)
    # In the end OBJC_LOADER_INC will be generated, which will be
    # included by the Loader.
    #
-   # This cmake should also output just a OBJC_LOADER_INC file and nothing
-   # else, if  "_2_${LIBRARY_NAME}" is not defined (and there fore it's
    if( TARGET "_2_${LIBRARY_NAME}")
       add_library( "_3_${LIBRARY_NAME}" STATIC
          $<TARGET_OBJECTS:_1_${LIBRARY_NAME}>

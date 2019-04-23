@@ -40,8 +40,7 @@
 # warning NSObject protocol included
 #endif
 
-@class NSObject;
-@protocol NSObject < MulleObjCRuntimeObject>
+PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 
 - (Class) superclass;
 - (Class) class;
@@ -69,4 +68,5 @@
 - (NSUInteger) hash;
 - (BOOL) isEqual:(id) obj;
 
-@end
+PROTOCOLCLASS_END()
+

@@ -29,8 +29,11 @@ main()
 
    cls  = [Foo class];
    foo  = [Foo new];
+
    key1 = [NSConstantString new];  // total fake
    key2 = [NSConstantString new];  // total fake
+   _mulle_objc_object_constantify_noatomic( key1);
+   _mulle_objc_object_constantify_noatomic( key2);
 
    bar = [cls classValueForKey:(void *) key1];
    printf( "%s\n", ! bar ? "absent" : "present"),
@@ -52,13 +55,12 @@ main()
    bar = [cls classValueForKey:(void *) key1];
    printf( "%s\n", ! bar ? "absent" : "present"),
 
-   // should be reclaimed by +dealloc
-   [cls setClassValue:foo
-               forKey:key2];
-
    [foo release];
 
    // release last as we are no true NSConstantString
+   _mulle_objc_object_deconstantify_noatomic( key1);
+   _mulle_objc_object_deconstantify_noatomic( key2);
+
    [key1 release];
    [key2 release];
 

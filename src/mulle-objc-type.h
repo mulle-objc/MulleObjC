@@ -87,4 +87,18 @@ typedef id                          (*IMP)( id, SEL, void *);
 #define nil   ((id) 0)
 #define Nil   ((Class) 0)
 
+// idee ? statt isa
+// #define Self  object_getClass( self)
+
+// defined some Apple macros, for easier compilation and porting
+
+#define NS_ASSUME_NONNULL_BEGIN
+#define NS_ASSUME_NONNULL_END
+#define NS_SWIFT_NAME( unused)
+#define NS_SWIFT_UNAVAILABLE( unused)
+
+// https://nshipster.com/ns_enum-ns_options/
+#define NS_ENUM(_type, _name) enum _name : _type _name; enum _name : _type
+#define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
+
 #endif

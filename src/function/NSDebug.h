@@ -46,9 +46,10 @@
 char   *_NSPrintForDebugger( id a);
 void   MulleObjCZombifyObject( id obj);
 
-extern int   mulle_objc_is_debug_enabled( void);
+MULLE_C_CONST_RETURN
+BOOL   MulleObjCIsDebugEnabled( void);
 
-#define NSDebugEnabled   mulle_objc_is_debug_enabled()
+#define NSDebugEnabled  MulleObjCIsDebugEnabled()
 
 
 void   MulleObjCHTMLDumpUniverseToDirectory( char *directory);
@@ -63,3 +64,12 @@ void   MulleObjCDotdumpClassToTmp( struct _mulle_objc_class *cls);
 void   MulleObjCDotdumpUniverseFrameToTmp( void);
 void   MulleObjCDotdumpUniverseToTmp( void);
 void   MulleObjCDotdumpUniverse( void);
+
+// interfaces with mulle-stacktrace value enhancer
+char   *MulleObjCStacktraceSymbolize( void *addresse,
+                                      size_t max,
+                                      char *buf,
+                                      size_t len,
+                                      void **userinfo);
+
+void  MulleObjCCSVDumpMethodsToTmp( void);

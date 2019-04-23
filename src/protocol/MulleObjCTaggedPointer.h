@@ -37,15 +37,15 @@
 
 #import "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
+#import "MulleObjCRuntimeObject.h"
 
 
-@class MulleObjCTaggedPointer; // to make this a protocolclass
-@protocol MulleObjCTaggedPointer
+PROTOCOLCLASS_INTERFACE0( MulleObjCTaggedPointer)
 
 @optional
 + (BOOL) isTaggedPointerEnabled;
 
-@end
+PROTOCOLCLASS_END()
 
 
 

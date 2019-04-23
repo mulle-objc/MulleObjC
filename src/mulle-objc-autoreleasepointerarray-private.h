@@ -37,6 +37,9 @@
 #define mulle_objc_autoreleasepointerarray__h___
 
 
+#include <stdio.h>
+
+
 // for an NSAutoreleasePool we'd like to allocate two memory pages (8k)
 // so that's
 //  sizeof( NSAutoreleasePool) == 2 * sizeof( intptr_t)
@@ -93,13 +96,16 @@ static inline void
       q            = p->previous_;
       p->previous_ = NULL;
 
-      objects = p->objects_;
-      sentinel = &objects[ p->used_];
+      // release in reverse fashion, because that should be better for the
+      // memory manager
+      objects  = &p->objects_[ p->used_];
+      sentinel = p->objects_;
+
       if( object_map)
       {
-         while( objects < sentinel)
+         while( objects > sentinel)
          {
-            opfer = *objects++;
+            opfer = *--objects;
             value = (NSUInteger) mulle_map_get( object_map, opfer);
             assert( value && "object appeared in pool out of nowhere");
             --value;
@@ -112,8 +118,8 @@ static inline void
          }
       }
       else
-         while( objects < sentinel)
-            mulle_objc_object_release( *objects++);
+         while( objects > sentinel)
+            mulle_objc_object_release( *--objects);
 
       if( p != staticStorage)
       {
@@ -142,7 +148,12 @@ static inline void
       objects  = p->objects_;
       sentinel = &p->objects_[ p->used_];
       while( objects < sentinel)
-         fprintf( stderr, "\t%p\n", *objects++);
+      {
+         fprintf( stderr, "[pool] %p released (RC: %ld)\n",
+                              *objects,
+                              mulle_objc_object_get_retaincount( *objects));
+         objects++;
+      }
    }
 }
 

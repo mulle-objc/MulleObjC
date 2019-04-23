@@ -116,30 +116,42 @@
 
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
-- (char *) cStringDescription;  // returns autoreleased c string
-
-- (void) _performFinalize;
+- (void) mullePerformFinalize;
 
 // advanced Autorelease and ObjectGraph support
 
-- (void) _becomeRootObject;        // retains  #1#
-- (void) _resignAsRootObject;      // autoreleases
+- (id) _becomeRootObject;          // retains  #1#, returns self
+- (id) _resignAsRootObject;        // autoreleases, returns self
 - (BOOL) _isRootObject;
 
-- (void) _pushToParentAutoreleasePool;
+- (id) _pushToParentAutoreleasePool;  // returns self
 
 // not part of NSObject protocol
+
+/*
+   Return all instances retained by static variables managed by the class.
+   This is not deep!
+   This should also be part of a category that keeps static instances.
+ */
+
++ (NSUInteger) _getOwnedObjects:(id *) objects
+                         length:(NSUInteger) length;
 
 /*
    Returns all objects, retained by this instance.
    This is not deep!
 
    Every class that stores objects in C-arrays, must
-   implement this. Oherwise the default implementation
+   implement this. Otherwise the default implementation
    is good enough.
+
+   Returns needed length if objects and length is NULL.
  */
 - (NSUInteger) _getOwnedObjects:(id *) objects
                          length:(NSUInteger) length;
+
+- (BOOL) __isSingletonObject;
+- (BOOL) __isClassClusterPlaceholderObject;
 
 @end
 
@@ -160,6 +172,14 @@
 //
 - (void *) forward:(void *) _param;
 - (void) forwardInvocation:(NSInvocation *) anInvocation;
+
+@end
+
+
+// likely to be overwritten by Foundation
+@interface NSObject ( cStringDescription)
+
+- (char *) cStringDescription;  // returns autoreleased c string
 
 @end
 

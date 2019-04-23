@@ -38,19 +38,32 @@
 #import "import-private.h"
 
 // other files in this library
-#import "mulle-objc-type.h"
+#include "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
-#import <mulle-objc-runtime/mulle-objc-dotdump.h>
-#import <mulle-objc-runtime/mulle-objc-htmldump.h>
+#include <mulle-objc-runtime/mulle-objc-dotdump.h>
+#include <mulle-objc-runtime/mulle-objc-htmldump.h>
+#include <mulle-objc-runtime/mulle-objc-symbolizer.h>
+
+#include <string.h>
 
 // std-c and dependencies
 
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
+MULLE_C_CONST_RETURN
+BOOL   MulleObjCIsDebugEnabled( void)
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = mulle_objc_global_inlineget_universe( __MULLE_OBJC_UNIVERSEID__);
+   return( _mulle_objc_universe_is_debugenabled( universe));
+}
 
 
 char   *_NSPrintForDebugger( id a)
@@ -61,6 +74,7 @@ char   *_NSPrintForDebugger( id a)
    char                          buf[ 256];
    struct _mulle_objc_class      *cls;
    struct _mulle_objc_universe   *universe;
+   void                          *s;
 
    if( ! a)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*nil*"));
@@ -79,13 +93,25 @@ char   *_NSPrintForDebugger( id a)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
    }
 
+   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( cDebugDescription));
+   if( imp)
+   {
+      s = (*imp)( a, @selector( cDebugDescription), NULL);
+      return( s);
+   }
+
    imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( debugDescription));
    if( imp)
    {
-      void   *s;
-
       s = (*imp)( a, @selector( debugDescription), NULL);
       return( _mulle_objc_universe_characters( universe, s));
+   }
+
+   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( cStringDescription));
+   if( imp)
+   {
+      s = (*imp)( a, @selector( cDebugDescription), NULL);
+      return( s);
    }
 
    spacer = "";
@@ -93,8 +119,6 @@ char   *_NSPrintForDebugger( id a)
    imp    = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( description));
    if( imp)
    {
-      void   *s;
-
       s = (*imp)( a, @selector( description), NULL);
       if( s)
       {
@@ -396,4 +420,81 @@ void   MulleObjCDotdumpUniverse( void)
 
    universe = MulleObjCGetUniverse();
    mulle_objc_universe_dotdump_to_directory( universe, ".");
+}
+
+
+/*
+ * Stacktrace enhancer for testallocator
+ * get a string to parse in 's', that is OS dependent AFAIK
+ * get a buffer with len to snprintf into
+ * get a non-null userinfo to store something into
+ * s=NULL signals setup (*userinfo will be set to NULL) or teardown
+ *
+ * return s or buf, but nothing else
+ */
+char   *MulleObjCStacktraceSymbolize( void *address,
+                                      size_t max,
+                                      char *buf,
+                                      size_t len,
+                                      void **userinfo)
+{
+   struct mulle_objc_symbolizer   *symbolizer;
+   struct _mulle_objc_universe    *universe;
+
+   assert( userinfo);
+
+   symbolizer = *userinfo;
+   if( address == NULL)
+   {
+      if( symbolizer)
+      {
+         mulle_objc_symbolizer_destroy( symbolizer);
+         *userinfo = NULL; // just in case...
+         return( NULL);
+      }
+
+      universe   = mulle_objc_global_get_universe( __MULLE_OBJC_UNIVERSEID__);
+      symbolizer = _mulle_objc_symbolizer_create( universe);
+      *userinfo  = symbolizer;
+      return( NULL);
+   }
+
+
+   if( mulle_objc_symbolizer_snprint( symbolizer, address, max, buf, len) > 0)
+      return( buf);
+
+   return( NULL);
+}
+
+
+void  MulleObjCCSVDumpMethodsToTmp( void)
+{
+   char                          *tmp;
+   char                          *buf;
+   size_t                        len;
+   char                          separator;
+   char                          *name;
+   FILE                          *fp;
+   struct _mulle_objc_universe   *universe;
+
+   tmp =  _mulle_objc_get_tmpdir();
+
+#ifdef _WIN32
+    separator = '\\';
+#else
+    separator = '/';
+#endif
+   name = "objc-methods.csv";
+   len  = strlen( name) + strlen( tmp) + 2;
+   buf  = mulle_malloc(  len);
+   sprintf( buf, "%s%c%s", tmp, separator, name);
+
+   fp = fopen( buf, "w");
+   if( fp)
+   {
+      universe   = mulle_objc_global_get_universe( __MULLE_OBJC_UNIVERSEID__);
+      _mulle_objc_universe_csvdump_methods( universe, fp);
+      fclose( fp);
+   }
+   mulle_free( buf);
 }

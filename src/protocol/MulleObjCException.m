@@ -63,5 +63,11 @@
    mulle_objc_throw( self);
 }
 
+
+- (char *) cStringDescription
+{
+   return( _mulle_objc_class_get_name( _mulle_objc_object_get_isa( self)));
+}
+
 @end
 

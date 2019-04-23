@@ -39,13 +39,14 @@
 
 #import "mulle-objc-universefoundationinfo-private.h"
 #import "NSThread.h"
+#import "NSAutoreleasePool.h"
 
 
 static void  *describe_object( struct mulle_container_keycallback *callback,
                                void *p,
                                struct mulle_allocator *allocator)
 {
-   // we have no strings yet, someone should patch mulle_allocator_objc
+   // we have no strings yet
    // use _mulle_objc_string here ???
    return( NULL);
 }
@@ -87,12 +88,6 @@ void
    info->object.roots        = mulle_set_create( 32,
                                                   (void *) &object_container_keycallback,
                                                   allocator);
-   info->object.singletons   = mulle_set_create( 8,
-                                                  (void *) &object_container_keycallback,
-                                                  allocator);
-   info->object.placeholders = mulle_set_create( 32,
-                                                  (void *) &object_container_keycallback,
-                                                  allocator);
    info->object.threads      = mulle_set_create( 4,
                                                   (void *) &object_container_keycallback,
                                                   allocator);
@@ -106,6 +101,147 @@ void
 }
 
 
+static void
+   _mulle_objc_infraclass_release_cvars( struct _mulle_objc_infraclass *infra)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct mulle_allocator                      *allocator;
+   struct mulle_concurrent_hashmapenumerator   rover;
+   intptr_t                                    key;
+   id                                          value;
+
+   rover = mulle_concurrent_hashmap_enumerate( &infra->cvars);
+   while( mulle_concurrent_hashmapenumerator_next( &rover, &key, (void **) &value) == 1)
+      [value release];
+   mulle_concurrent_hashmapenumerator_done( &rover);
+
+   // reset the hashmap now
+   universe  = _mulle_objc_infraclass_get_universe( infra);
+   allocator = _mulle_objc_universe_get_allocator( universe);
+      _mulle_concurrent_hashmap_done( &infra->cvars);
+   _mulle_concurrent_hashmap_init( &infra->cvars, 0, allocator);
+}
+
+
+static void
+   _mulle_objc_universe_release_cvars( struct _mulle_objc_universe *universe)
+{
+   struct _mulle_objc_infraclass               *infra;
+   struct mulle_concurrent_hashmapenumerator   rover;
+
+   rover = mulle_concurrent_hashmap_enumerate( &universe->classtable);
+   while( _mulle_concurrent_hashmapenumerator_next( &rover, NULL, (void **) &infra))
+      _mulle_objc_infraclass_release_cvars( infra);
+   mulle_concurrent_hashmapenumerator_done( &rover);
+}
+
+
+
+static void
+   _mulle_objc_universe_finalize_singletons( struct _mulle_objc_universe *universe)
+{
+   struct _mulle_objc_infraclass               *infra;
+   struct mulle_concurrent_hashmapenumerator   rover;
+   id                                          obj;
+   int                                         is_constant;
+
+   //
+   // performFinalize on singletons, this will add stuff to the
+   // autoreleasepool, we want our singletons to be releases later,
+   // so we autorelease them later
+
+   rover = mulle_concurrent_hashmap_enumerate( &universe->classtable);
+   while( _mulle_concurrent_hashmapenumerator_next( &rover, NULL, (void **) &infra))
+   {
+      obj = (id) _mulle_objc_infraclass_get_singleton( infra);
+      if( ! obj)
+         continue;
+
+      // singletons can be ephemeral and not constant, but we want to
+      // deal with both
+      is_constant = _mulle_objc_object_is_constant( obj);
+      if( is_constant)
+         _mulle_objc_object_deconstantify_noatomic( obj);
+
+      [obj mullePerformFinalize];
+
+      // this weird dance is there, because we can not otherwise call
+      // -finalize, but we need to keep it constant because some code
+      // may depend on it later in +unload
+      if( is_constant)
+         _mulle_objc_object_constantify_noatomic( obj);
+   }
+   mulle_concurrent_hashmapenumerator_done( &rover);
+}
+
+
+void
+   _mulle_objc_universefoundationinfo_finalize( struct _mulle_objc_universefoundationinfo *info)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_infraclass               *infra;
+   struct mulle_concurrent_hashmapenumerator   rover;
+
+   universe = info->universe;
+   assert( universe);
+
+   /* technically interesting is that we releasing the root objects here
+      yet objects in the NSThread autoreleasepool may still need them.
+      So the teardown_callback should empty the root autoreleasepool now.
+   */
+   if( info->teardown_callback)
+      (*info->teardown_callback)( universe);
+
+   //
+   // we empty out the pools now before singletons are reclaimed
+   //
+   if( universe->debug.trace.universe)
+       mulle_objc_universe_trace( universe, "pop autoreleasepools");
+   mulle_objc_thread_reset_poolconfiguration( universe);
+
+   //
+   // dealloc singletons. A singleton could assume that stuff from +initialize
+   // is still present
+   //
+   if( universe->debug.trace.universe)
+      mulle_objc_universe_trace( universe,
+                                 "universe (foundation) releases class variables");
+   _mulle_objc_universe_release_cvars( universe);
+
+   //
+   // dealloc singletons. A singleton could assume that stuff from +initialize
+   // is still present
+   //
+   if( universe->debug.trace.universe)
+      mulle_objc_universe_trace( universe,
+                                 "universe (foundation) finalizes singletons");
+   _mulle_objc_universe_finalize_singletons( universe);
+
+
+   // get rid of thread dictionary
+   if( universe->debug.trace.universe)
+       mulle_objc_universe_trace( universe, "finalize main thread object");
+   _NSThreadFinalizeMainThreadObject( universe);
+
+   //
+   // we empty out the pools again now, but put up a new one for our roots
+   //
+   if( universe->debug.trace.universe)
+       mulle_objc_universe_trace( universe, "pop autoreleasepools");
+   mulle_objc_thread_reset_poolconfiguration( universe);
+
+
+   if( universe->debug.trace.universe)
+       mulle_objc_universe_trace( universe, "release root objects");
+    _mulle_objc_universefoundationinfo_release_rootobjects( info);
+   mulle_set_destroy( info->object.roots);
+}
+
+
+//
+// second stage, this cleans the autoreleasepool and this is about the
+// very last thing that happens in a universe
+//
 void
    _mulle_objc_universefoundationinfo_done( struct _mulle_objc_universefoundationinfo *info)
 {
@@ -114,34 +250,17 @@ void
    universe = info->universe;
    assert( universe);
 
-   if( info->teardown_callback)
-      (*info->teardown_callback)( universe);
-
    if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "release placeholders");
-    _mulle_objc_universefoundationinfo_release_placeholders( info);
-   mulle_set_destroy( info->object.placeholders);
-
-   if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "release singletons");
-    _mulle_objc_universefoundationinfo_release_singletons( info);
-   mulle_set_destroy( info->object.singletons);
-
-   if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "release root objects");
-    _mulle_objc_universefoundationinfo_release_rootobjects( info);
-   mulle_set_destroy( info->object.roots);
-
-   if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "release thread objects");
-
+       mulle_objc_universe_trace( universe, "resign main thread object");
    _NSThreadResignAsMainThreadObject( universe);
+
+   if( universe->debug.trace.universe)
+       mulle_objc_universe_trace( universe, "release thread storage");
 
    // threads should be gone by now
    assert( mulle_set_get_count( info->object.threads) == 0);
    mulle_set_destroy( info->object.threads);
 }
-
 
 
 # pragma mark -
@@ -150,9 +269,7 @@ void
 void   _mulle_objc_universefoundationinfo_add_rootobject( struct _mulle_objc_universefoundationinfo *info,
                                                           void *obj)
 {
-   assert( mulle_set_get( info->object.placeholders, obj) == NULL);
    assert( mulle_set_get( info->object.roots, obj) == NULL);
-   assert( mulle_set_get( info->object.singletons, obj) == NULL);
    assert( mulle_set_get( info->object.threads, obj) == NULL);
 
    // no constant strings or tagged pointers
@@ -188,81 +305,19 @@ void   _mulle_objc_universefoundationinfo_release_rootobjects( struct _mulle_obj
 
 
 # pragma mark -
-# pragma mark placeholder storage
-
-void   _mulle_objc_universefoundationinfo_add_placeholder( struct _mulle_objc_universefoundationinfo *info,
-                                                           void *obj)
-{
-   assert( mulle_set_get( info->object.placeholders, obj) == NULL);
-   assert( mulle_set_get( info->object.roots, obj) == NULL);
-   assert( mulle_set_get( info->object.singletons, obj) == NULL);
-   assert( mulle_set_get( info->object.threads, obj) == NULL);
-
-   mulle_set_set( info->object.placeholders, obj);
-}
-
-
-void   _mulle_objc_universefoundationinfo_release_placeholders( struct _mulle_objc_universefoundationinfo *info)
-{
-   struct mulle_setenumerator   rover;
-   void                         *obj;
-
-   /* remove all root objects: need to have an enclosing
-    * autoreleasepool here
-    */
-   rover = mulle_set_enumerate( info->object.placeholders);
-   while( obj = mulle_setenumerator_next( &rover))
-      mulle_objc_object_release( obj);
-   mulle_setenumerator_done( &rover);
-}
-
-
-# pragma mark -
-# pragma mark singleton storage
-
-void   _mulle_objc_universefoundationinfo_add_singleton( struct _mulle_objc_universefoundationinfo *info,
-                                                         void *obj)
-{
-   assert( mulle_set_get( info->object.placeholders, obj) == NULL);
-   assert( mulle_set_get( info->object.roots, obj) == NULL);
-   assert( mulle_set_get( info->object.singletons, obj) == NULL);
-   assert( mulle_set_get( info->object.threads, obj) == NULL);
-
-   mulle_set_set( info->object.singletons, obj);
-}
-
-
-void   _mulle_objc_universefoundationinfo_release_singletons( struct _mulle_objc_universefoundationinfo *info)
-{
-   struct mulle_setenumerator   rover;
-   void                         *obj;
-
-   /* remove all root objects: need to have an enclosing
-    * autoreleasepool here
-    */
-   rover = mulle_set_enumerate( info->object.singletons);
-   while( obj = mulle_setenumerator_next( &rover))
-      mulle_objc_object_release( obj);
-   mulle_setenumerator_done( &rover);
-}
-
-
-# pragma mark -
 # pragma mark thread storage
 
-void   _mulle_objc_universefoundationinfo_add_rootthreadobject( struct _mulle_objc_universefoundationinfo *info,
+void   _mulle_objc_universefoundationinfo_add_threadobject( struct _mulle_objc_universefoundationinfo *info,
                                                                 void *obj)
 {
-   assert( mulle_set_get( info->object.placeholders, obj) == NULL);
    assert( mulle_set_get( info->object.roots, obj) == NULL);
-   assert( mulle_set_get( info->object.singletons, obj) == NULL);
    assert( mulle_set_get( info->object.threads, obj) == NULL);
 
    mulle_set_set( info->object.threads, obj);
 }
 
 
-void   _mulle_objc_universefoundationinfo_remove_rootthreadobject( struct _mulle_objc_universefoundationinfo *info,
+void   _mulle_objc_universefoundationinfo_remove_threadobject( struct _mulle_objc_universefoundationinfo *info,
                                                                    void *obj)
 {
    assert( mulle_set_get( info->object.threads, obj) != NULL);
