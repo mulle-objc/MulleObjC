@@ -42,6 +42,8 @@
 
 #include "MulleObjCIntegralType.h"
 
+#include <assert.h>
+
 
 typedef struct
 {
@@ -93,15 +95,39 @@ extern NSRange    NSIntersectionRange( NSRange range1, NSRange range2);
 
 static inline enum _MulleBool  MulleObjCRangeIsValid( NSRange range)
 {
+   NSUInteger   end;
+
+   end = range.location + range.length;
    // check for overflow
-   return( range.location + range.length >= range.location);
+   return( end >= range.location || end == 0); //|| (end == range.location && range.length == 0));
 }
 
 
 static inline enum _MulleBool  MulleObjCRangeIsValidWithLength( NSRange range, NSUInteger length)
 {
-   // check against NSRange( 0, length) more quickly
-   return( range.location + range.length <= length);
+   NSUInteger   end;
+
+   if( ! MulleObjCRangeIsValid( range))
+      return( NO);
+
+   end = range.location + range.length;
+   return( end <= length && range.location <= length);
+}
+
+
+// other must have been validated already!
+static inline enum _MulleBool  MulleObjCRangeIsValidInRange( NSRange range, NSRange other)
+{
+   NSUInteger   end;
+   NSUInteger   other_end;
+
+   assert( MulleObjCRangeIsValid( other));
+   if( ! MulleObjCRangeIsValid( range))
+      return( NO);
+
+   end       = range.location + range.length;
+   other_end = other.location + other.length;
+   return( end <= other_end && range.location >= other.location);
 }
 
 
