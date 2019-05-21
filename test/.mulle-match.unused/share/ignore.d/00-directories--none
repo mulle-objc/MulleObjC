@@ -1,0 +1,6 @@
+bin/
+include/
+share/
+lib/
+libexec/
+tmp/
