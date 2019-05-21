@@ -432,11 +432,4 @@ static inline void   *MulleObjCGetInstanceExtra( id obj)
    return( obj ? _mulle_objc_object_get_extra( obj) : NULL);
 }
 
-//
-// allow isa with cpp define
-// The cast is not really type correct, as isa can be the metaclass
-//
-#ifndef MULLE_OBJC_NO_ISA_HACK
-# define isa   MulleObjCGetClass( self)
-#endif
-
+NSUInteger   MulleObjCClassGetLoadAddress( Class cls);

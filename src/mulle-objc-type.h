@@ -96,6 +96,7 @@ typedef id                          (*IMP)( id, SEL, void *);
 #define NS_ASSUME_NONNULL_END
 #define NS_SWIFT_NAME( unused)
 #define NS_SWIFT_UNAVAILABLE( unused)
+#define NS_REQUIRES_NIL_TERMINATION
 
 // https://nshipster.com/ns_enum-ns_options/
 #define NS_ENUM(_type, _name) enum _name : _type _name; enum _name : _type

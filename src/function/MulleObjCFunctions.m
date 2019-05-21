@@ -139,11 +139,22 @@ char   *MulleObjCSelectorGetName( SEL sel)
 {
    struct _mulle_objc_descriptor   *desc;
    struct _mulle_objc_universe     *universe;
+   char                            *s;
 
    universe = MulleObjCGetUniverse();
    desc     = _mulle_objc_universe_lookup_descriptor( universe,
                                                       (mulle_objc_methodid_t) sel);
-   return( desc ? _mulle_objc_descriptor_get_name( desc) : NULL);
+
+   //
+   // due to forwarding, we also search through the hashstrings
+   // e.g. [foo callForwardSomething], doesn't create a selector by the
+   // compiler, but a hashstring
+   //
+   if( desc)
+      return( _mulle_objc_descriptor_get_name( desc));
+
+   s = _mulle_objc_universe_search_hashstring( universe, (mulle_objc_uniqueid_t) sel);
+   return( s);
 }
 
 
@@ -155,6 +166,7 @@ char   *MulleObjCProtocolGetName( PROTOCOL proto)
    universe = MulleObjCGetUniverse();
    protocol = _mulle_objc_universe_lookup_protocol( universe,
                                                     (mulle_objc_protocolid_t) proto);
+   // do we need forwarding for protocols ? don't thinks so
    return( protocol ? _mulle_objc_protocol_get_name( protocol) : NULL);
 }
 
@@ -358,3 +370,14 @@ IMP   MulleObjCSearchSpecificIMP( id obj,
    return( (IMP) imp);
 }
 
+
+NSUInteger   MulleObjCClassGetLoadAddress( Class cls)
+{
+   struct _mulle_objc_classpair   *pair;
+
+   if( ! cls)
+      return( 0);
+
+   pair = _mulle_objc_infraclass_get_classpair( cls);
+   return( (NSUInteger) _mulle_objc_classpair_get_loadclass( pair));
+}

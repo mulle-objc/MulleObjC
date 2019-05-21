@@ -730,6 +730,9 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 @end
 
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
+
 @interface _MulleObjCAutoreleaseAllocation
 {
 	void                     *_pointer;
