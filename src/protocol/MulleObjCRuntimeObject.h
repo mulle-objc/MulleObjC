@@ -32,6 +32,20 @@ typedef struct _mulle_objc_dependency     mulle_objc_dependency_t;
       { MULLE_OBJC_NO_CLASSID, MULLE_OBJC_NO_CATEGORYID }
 
 
+#define MULLE_OBJC_DEPENDS_ON_CLASS( classname)             \
+                                                            \
++ (mulle_objc_dependency_t *) dependencies                  \
+{                                                           \
+   static mulle_objc_dependency_t   dependencies[] =        \
+   {                                                        \
+      MULLE_OBJC_CLASS_DEPENDENCY( classname),              \
+      MULLE_OBJC_NO_DEPENDENCY                              \
+   };                                                       \
+   return( dependencies);                                   \
+}                                                           \
+/* gobble up semicolon with known external definition */    \
+extern void   NSDeallocateObject( id obj)
+
 
 #define MULLE_OBJC_DEPENDS_ON_LIBRARY( libname)             \
                                                             \
@@ -52,22 +66,31 @@ extern void   NSDeallocateObject( id obj)
  * Helper macros to declare protocol classes
  */
 #define PROTOCOLCLASS_INTERFACE0( name)  \
+_Pragma("clang diagnostic push")         \
 @class name;                             \
 @protocol name
 
 #define PROTOCOLCLASS_INTERFACE( name, ...)  \
+_Pragma("clang diagnostic push")             \
 @class name;                                 \
 @protocol name < __VA_ARGS__ >
 
 
-#define PROTOCOLCLASS_END()   @end
+#define PROTOCOLCLASS_END()     \
+_Pragma("clang diagnostic pop") \
+@end
 
 
 
-#define PROTOCOLCLASS_IMPLEMENTATION( name)  \
-@interface name < name>                      \
-@end                                         \
-                                             \
+#define PROTOCOLCLASS_IMPLEMENTATION( name)                        \
+_Pragma("clang diagnostic push")                                   \
+_Pragma("clang diagnostic ignored \"-Wprotocol\"")                 \
+_Pragma("clang diagnostic ignored \"-Wobjc-root-class\"")          \
+_Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
+                                                                   \
+@interface name < name>                                            \
+@end                                                               \
+                                                                   \
 @implementation name
 
 

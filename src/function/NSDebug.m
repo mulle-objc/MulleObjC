@@ -159,7 +159,7 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was "
    // possibly bullshit ;)
    isMeta   = _mulle_objc_class_is_metaclass( _mulle_objc_object_get_isa( self));
    universe = _mulle_objc_object_get_universe( self);
-   hashname = _mulle_objc_universe_search_debughashname( universe,
+   hashname = _mulle_objc_universe_search_hashstring( universe,
    																	  (mulle_objc_methodid_t) sel);
    fprintf( stderr, zombie_format, self,
    										  isMeta ? "meta" : "",

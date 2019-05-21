@@ -1197,7 +1197,7 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
    mulle_objc_lldb_get_dangerous_classstorage_pointer();
    mulle_objc_lldb_lookup_implementation( 0, 0, 0, 0, 0);
    mulle_objc_lldb_lookup_isa( 0, 0);
-   mulle_objc_lldb_check_object( 0, 0);
+   $__lldb_objc_object_check( 0, 0);
    mulle_objc_lldb_lookup_descriptor_by_name( 0);
 }
 

@@ -58,6 +58,7 @@
 
 + (id) alloc;
 + (id) new;
+- (id) init;
 - (void) release;
 
 + (void) addObject:(id) object;
