@@ -393,13 +393,13 @@ void    MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n);
 void    MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n);
 
 
-static inline Class   MulleObjCGetClass( id obj)
+static inline Class   MulleObjCObjectGetClass( id obj)
 {
    return( obj ? (Class) _mulle_objc_object_get_isa( obj) : Nil);
 }
 
 
-void    MulleObjCSetClass( id obj, Class cls);
+void    MulleObjCObjectSetClass( id obj, Class cls);
 
 //
 // only cheatin' strings should use this

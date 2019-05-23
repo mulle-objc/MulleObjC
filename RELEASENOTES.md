@@ -1,3 +1,12 @@
+## 0.15.0
+
+* rename MulleObjCGetClass to MulleObjCObjectGetClass and SetClass too
+* remove PROTOCOLCLASS warnings with `_Pragma`
+* added MulleObjCClassGetLoadAddress
+* NSFastEnumeration gains -count as member
+* Improved NSRange validation with tests
+
+
 ### 0.14.1
 
 * modernized mulle-sde with .mulle folder
