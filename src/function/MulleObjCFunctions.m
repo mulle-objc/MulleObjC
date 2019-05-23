@@ -263,7 +263,7 @@ SEL   MulleObjCCreateSelector( char *name)
 }
 
 
-void    MulleObjCSetClass( id obj, Class cls)
+void    MulleObjCObjectSetClass( id obj, Class cls)
 {
    if( ! obj)
       return;
