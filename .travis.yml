@@ -1,16 +1,6 @@
 language: c
 
-dist: trusty
-sudo: required
-
-addons:
-  apt:
-    sources:
-      - sourceline: 'ppa:george-edison55/cmake-3.x'
-
-    packages:
-      - cmake
-      - cmake-data
+dist: xenial
 
 before_install:
    - curl -sS https://www.codeon.de/dists/codeon-pub.asc | sudo apt-key add -
@@ -18,7 +8,7 @@ before_install:
    - curl -sS "https://www.mulle-kybernetik.com/dists/debian-admin-pub.asc" | sudo apt-key add -
    - echo "deb [arch=all] http://www.mulle-kybernetik.com `lsb_release -c -s` main" | sudo tee "/etc/apt/sources.list.d/mulle-kybernetik.com-main.list" > /dev/null
    - sudo apt-get update
-   - sudo apt-get -y install mulle-clang mulle-sde mulle-test
+   - sudo apt-get -y install mulle-clang cmake mulle-sde mulle-test
 
 script:
    - mulle-sde craft
