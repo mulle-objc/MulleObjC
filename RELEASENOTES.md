@@ -1,3 +1,7 @@
+### 0.15.1
+
+* remove mistakenly added craftinfo
+
 ## 0.15.0
 
 * rename MulleObjCGetClass to MulleObjCObjectGetClass and SetClass too
