@@ -143,13 +143,9 @@
 }
 
 
-static int   frameRangeCheck( NSInvocation *self, char *adr, size_t size)
+static int   NSInvocationIsFrameRangeValid( NSInvocation *self, char *adr, size_t size)
 {
-   if( &adr[ size] < self->_storage)
-      return( -1);
-   if( &adr[ size] > self->_sentinel)
-      return( -1);
-   return( 0);
+   return( (adr >= self->_storage) && (&adr[ size] <= self->_sentinel));
 }
 
 
@@ -163,7 +159,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    adr  = &((char *) self->_storage)[ p->offset];
    size = p->natural_size;
 
-   if( frameRangeCheck( self, adr, size))
+   if( ! NSInvocationIsFrameRangeValid( self, adr, size))
       __mulle_objc_universe_raise_invalidindex( NULL, i);
 
    *p_adr  = adr;
@@ -400,7 +396,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
-      assert( ! frameRangeCheck( self, param, sizeof( void *)));
+      assert( NSInvocationIsFrameRangeValid( self, param, sizeof( void *)));
 
       *((void **) param) = frame;
       break;
@@ -409,7 +405,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
       size  = [_methodSignature frameLength];
-      assert( ! frameRangeCheck( self, param, size));
+      assert( NSInvocationIsFrameRangeValid( self, param, size - sizeof( id) - sizeof( SEL)));
 
       memcpy( param, frame, size);
       break;
