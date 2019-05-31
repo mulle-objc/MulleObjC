@@ -757,10 +757,28 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 	return( allocation);
 }
 
+static void   dealloc( _MulleObjCAutoreleaseAllocation *self)
+{
+   mulle_allocator_free( self->_allocator, self->_pointer);
+   NSDeallocateObject( self);
+}
 
+
+- (void) dealloc
+{
+   dealloc( self);
+}
+
+
+// called by inline release
+- (void) finalize
+{
+}
+
+// we are just in an autoreleasepool and don't retaincount
 - (void) release
 {
-	mulle_allocator_free( _allocator, _pointer);
+   dealloc( self);
 }
 
 
