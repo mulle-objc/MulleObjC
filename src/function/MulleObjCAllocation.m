@@ -63,7 +63,11 @@ int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
    struct _mulle_objc_ivar    *ivar;
    mulle_objc_ivarid_t        ivarid;
 
+   // don't clear readonly properties for (seems incompatible with Apple)
    bits = _mulle_objc_property_get_bits( property);
+   if( bits & _mulle_objc_property_readonly)
+      return( 0);
+
    if( bits & _mulle_objc_property_setterclear)
    {
       mulle_objc_object_inlinecall_variablemethodid( self, property->setter, NULL);
@@ -75,7 +79,7 @@ int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
    // They are penalized with a bsearch for the ivar.
    //
    // Why ?
-   //    Readonly properties are unneccesary. Use a regular accessor.
+   //    Readonly properties are unneccessary. Use a regular accessor.
    //    The property has no direct link to the ivar. The compiler can't emit
    //    this as the ivar could reside in the superclass.
    //    Adding the ivar at runtime into the loaded structure breaks the

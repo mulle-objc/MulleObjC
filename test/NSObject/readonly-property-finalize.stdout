@@ -1,0 +1,4 @@
+-[Bar finalize]
+-[Bar dealloc]
+-[Foo finalize]
+-[Foo dealloc]

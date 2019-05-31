@@ -1,3 +1,7 @@
+### 0.15.2
+
+* readonly properties aren't cleared anymore for compatibility
+
 ### 0.15.1
 
 * remove mistakenly added craftinfo

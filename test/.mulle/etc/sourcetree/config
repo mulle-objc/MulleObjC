@@ -1,5 +1,6 @@
+mulle-testallocator;tar;no-import,no-singlephase,only-os-darwin;9E12A25D-5983-48E3-9DB4-AE1546C75A9C;${MULLE_TESTALLOCATOR_URL:-https://github.com/mulle-core/mulle-testallocator/archive/${MULLE_TESTALLOCATOR_BRANCH:-latest}.tar.gz};;;;
 MulleObjC;tar;no-all-load,no-import;DEC5E977-D2D9-47D8-B997-16036D59C962;${MULLE_OBJC_URL:-https://github.com/mulle-objc/MulleObjC/archive/${MULLE_OBJC_BRANCH:-latest}.tar.gz};;;;
-MulleObjC-startup;none;no-build,no-cmakeinherit,no-delete,no-dependency,no-fs,no-share,no-update;4e975d6e-a5a5-46b2-a2df-10ee03060bc9;;;;;
+MulleObjC-startup;none;no-build,no-cmakeinherit,no-delete,no-fs,no-share,no-update;4e975d6e-a5a5-46b2-a2df-10ee03060bc9;;;;;
 dlfcn;none;no-all-load,no-build,no-cmakeinherit,no-delete,no-dependency,no-fs,no-import,no-public,no-require,no-share,no-update,only-os-mingw;da22ac5f-c8b9-4821-8826-1621792304fe;;;;;aliases=dl,dlfcn
 dl;none;no-all-load,no-build,no-cmakeinherit,no-delete,no-dependency,no-fs,no-import,no-os-mingw,no-public,no-require,no-share,no-update;345bb4fb-d0a9-43c9-9d56-4e39763ed693;;;;;base64:YmFzZTY0OllXeHBZWE5sY3oxa2JDeGtiR1pqYmdwcGJtTnNkV1JsUFdSc1ptTnVMbWdLCg==
-mulle-testallocator;tar;no-import,no-singlephase;9E12A25D-5983-48E3-9DB4-AE1546C75A9C;${MULLE_TESTALLOCATOR_URL:-https://github.com/mulle-core/mulle-testallocator/archive/${MULLE_TESTALLOCATOR_BRANCH:-latest}.tar.gz};;;;
+mulle-testallocator#1;tar;no-import,no-os-darwin,no-singlephase,no-static-link;5a2bc124-a2b4-4774-8cb2-883cc8a634af;${MULLE_TESTALLOCATOR_URL:-https://github.com/mulle-core/mulle-testallocator/archive/${MULLE_TESTALLOCATOR_BRANCH:-latest}.tar.gz};;;;
