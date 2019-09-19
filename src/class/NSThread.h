@@ -43,18 +43,20 @@ struct MulleObjCAutoreleasePoolConfiguration;
 
 @interface NSThread : NSObject
 {
-   id               _target;
-   SEL              _selector;
-   id               _argument;
-   mulle_thread_t   _thread;
-   BOOL             _isDetached;
-   id               _userInfo;
+   id                       _target;
+   SEL                      _selector;
+   id                       _argument;
+   mulle_thread_t           _thread;
+   mulle_atomic_pointer_t   _runLoop;
+   id                       _userInfo;
+   BOOL                     _isDetached;
 }
 
 - (instancetype) initWithTarget:(id) target
                        selector:(SEL) sel
                          object:(id) argument;
 
++ (NSThread *) mainThread;
 + (NSThread *) currentThread;
 
 + (void) detachNewThreadSelector:(SEL) sel
@@ -69,12 +71,23 @@ struct MulleObjCAutoreleasePoolConfiguration;
 
 + (BOOL) isMultiThreaded;   // __attribute__((availability(mulleobjc,introduced=0.2)));
 
+//
+// this actually indicates the current state, contrary to what
+// Foundation does
+//
++ (BOOL) mulleIsMultiThreaded;   // __attribute__((availability(mulleobjc,introduced=0.2)));
+
 // mulle additons for tests
 
 // don't call join on a detached thread
 - (void) join;              // __attribute__((availability(mulleobjc,introduced=0.2)));
 - (void) detach;            // __attribute__((availability(mulleobjc,introduced=0.2)));
 - (void) startUndetached;   // __attribute__((availability(mulleobjc,introduced=0.2)));
+
+// do this only once, the runloop will be retained by NSThread
+// do not use the passed in runLoop, instead use the return value
+- (id) setRunLoop:(id) runLoop;
+- (id) runLoop;
 
 //
 // a pthread or C11 thread that wants to call ObjC functions must minimally call
@@ -92,6 +105,7 @@ void  _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *u
 NSThread  *_NSThreadNewUniverseThreadObject( struct _mulle_objc_universe *universe);
 NSThread  *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe);
 void       _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe);
+NSThread  *_NSThreadGetUniverseThreadObject( struct _mulle_objc_universe *universe);
 
 // this will autorelease the threadDictionary, this must be called before
 // the last autoreleasepool dies

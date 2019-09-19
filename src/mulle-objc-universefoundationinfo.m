@@ -42,16 +42,6 @@
 #import "NSAutoreleasePool.h"
 
 
-static void  *describe_object( struct mulle_container_keycallback *callback,
-                               void *p,
-                               struct mulle_allocator *allocator)
-{
-   // we have no strings yet
-   // use _mulle_objc_string here ???
-   return( NULL);
-}
-
-
 // TODO: MulleObjCContainer.h ??
 
 static const struct mulle_container_keycallback
@@ -59,13 +49,33 @@ static const struct mulle_container_keycallback
 {
    mulle_container_keycallback_pointer_hash,
    mulle_container_keycallback_pointer_is_equal,
-   (void *(*)()) mulle_container_callback_self,
-   (void (*)()) mulle_container_callback_nop,
-   describe_object,
+   mulle_container_keycallback_self,
+   mulle_container_keycallback_nop,
+   mulle_container_keycallback_no_description,
 
    NULL,
    NULL
 };
+
+
+//
+// this is unfortunately linkorder and platform dependent
+//
+static void   assert_proper_testallocator_linkorder( void)
+{
+   char  *s;
+
+   if( ! mulle_objc_environment_get_yes_no( "MULLE_TESTALLOCATOR"))
+      return;
+
+   if( mulle_default_allocator.free == free)
+   {
+      fprintf( stderr,
+         "The testallocator is not linked in or not in the proper order.\n"
+         "The universe is initialized first. Flip linkorder for this platform ?\n");
+      abort();
+   }
+}
 
 
 void
@@ -83,11 +93,14 @@ void
    if( universe->debug.trace.universe)
       mulle_objc_universe_trace( universe, "setting up root/singleton/etc sets");
 
+#if DEBUG
+   assert_proper_testallocator_linkorder();
+#endif
    info->exception.vectors   = *exceptiontable;
 
    info->object.roots        = mulle_set_create( 32,
-                                                  (void *) &object_container_keycallback,
-                                                  allocator);
+                                                 (void *) &object_container_keycallback,
+                                                 allocator);
    info->object.threads      = mulle_set_create( 4,
                                                   (void *) &object_container_keycallback,
                                                   allocator);
@@ -101,6 +114,7 @@ void
 }
 
 
+#if 0
 static void
    _mulle_objc_infraclass_release_cvars( struct _mulle_objc_infraclass *infra)
 {
@@ -134,8 +148,7 @@ static void
       _mulle_objc_infraclass_release_cvars( infra);
    mulle_concurrent_hashmapenumerator_done( &rover);
 }
-
-
+#endif
 
 static void
    _mulle_objc_universe_finalize_singletons( struct _mulle_objc_universe *universe)
@@ -176,6 +189,39 @@ static void
 
 
 void
+   _mulle_objc_universefoundationinfo_willfinalize( struct _mulle_objc_universefoundationinfo *info)
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = info->universe;
+   assert( universe);
+
+   //
+   // we empty out the pool with the remaining user objects now before anything
+   // else
+   //
+   if( universe->debug.trace.universe)
+       mulle_objc_universe_trace( universe, "pop autoreleasepools");
+   mulle_objc_thread_reset_poolconfiguration( universe);
+
+   //
+   // get rid of runloop and thread dictionary
+   //
+   if( universe->debug.trace.universe)
+       mulle_objc_universe_trace( universe, "finalize main thread object");
+   _NSThreadFinalizeMainThreadObject( universe);
+
+   //
+   // we empty out the pools now before anything else is reclaimed during
+   // shutdown
+   //
+   if( universe->debug.trace.universe)
+       mulle_objc_universe_trace( universe, "pop autoreleasepools");
+   mulle_objc_thread_reset_poolconfiguration( universe);
+}
+
+
+void
    _mulle_objc_universefoundationinfo_finalize( struct _mulle_objc_universefoundationinfo *info)
 {
    struct _mulle_objc_universe                 *universe;
@@ -185,8 +231,8 @@ void
    universe = info->universe;
    assert( universe);
 
-   /* technically interesting is that we releasing the root objects here
-      yet objects in the NSThread autoreleasepool may still need them.
+   /* technically interesting is that we are releasing the root objects here.
+      Yet objects in the NSThread autoreleasepool may still need them.
       So the teardown_callback should empty the root autoreleasepool now.
    */
    if( info->teardown_callback)
@@ -199,14 +245,15 @@ void
        mulle_objc_universe_trace( universe, "pop autoreleasepools");
    mulle_objc_thread_reset_poolconfiguration( universe);
 
+#if 0
    //
-   // dealloc singletons. A singleton could assume that stuff from +initialize
-   // is still present
+   // dealloc class vars
    //
    if( universe->debug.trace.universe)
       mulle_objc_universe_trace( universe,
                                  "universe (foundation) releases class variables");
    _mulle_objc_universe_release_cvars( universe);
+#endif
 
    //
    // dealloc singletons. A singleton could assume that stuff from +initialize
@@ -218,11 +265,6 @@ void
    _mulle_objc_universe_finalize_singletons( universe);
 
 
-   // get rid of thread dictionary
-   if( universe->debug.trace.universe)
-       mulle_objc_universe_trace( universe, "finalize main thread object");
-   _NSThreadFinalizeMainThreadObject( universe);
-
    //
    // we empty out the pools again now, but put up a new one for our roots
    //
@@ -230,10 +272,14 @@ void
        mulle_objc_universe_trace( universe, "pop autoreleasepools");
    mulle_objc_thread_reset_poolconfiguration( universe);
 
-
+   // autoreleasepool should be the last root to go
    if( universe->debug.trace.universe)
        mulle_objc_universe_trace( universe, "release root objects");
-    _mulle_objc_universefoundationinfo_release_rootobjects( info);
+   _mulle_objc_universefoundationinfo_release_rootobjects( info);
+
+   // crashing here with a false free ? Then testallocator was not
+   // initialized ahead of the universe. Flip linkorder for this
+   // platform
    mulle_set_destroy( info->object.roots);
 }
 
@@ -308,7 +354,7 @@ void   _mulle_objc_universefoundationinfo_release_rootobjects( struct _mulle_obj
 # pragma mark thread storage
 
 void   _mulle_objc_universefoundationinfo_add_threadobject( struct _mulle_objc_universefoundationinfo *info,
-                                                                void *obj)
+                                                            void *obj)
 {
    assert( mulle_set_get( info->object.roots, obj) == NULL);
    assert( mulle_set_get( info->object.threads, obj) == NULL);
@@ -318,11 +364,27 @@ void   _mulle_objc_universefoundationinfo_add_threadobject( struct _mulle_objc_u
 
 
 void   _mulle_objc_universefoundationinfo_remove_threadobject( struct _mulle_objc_universefoundationinfo *info,
-                                                                   void *obj)
+                                                               void *obj)
 {
    assert( mulle_set_get( info->object.threads, obj) != NULL);
 
    mulle_set_remove( info->object.threads, obj);
+}
+
+
+//
+// mainthread doesn't need to be accessed locked, since it doesn't change
+//
+void   _mulle_objc_universefoundationinfo_set_mainthreadobject( struct _mulle_objc_universefoundationinfo *info,
+                                                                 void *obj)
+{
+   info->thread.mainthread = obj;  //
+}
+
+
+void   *_mulle_objc_universefoundationinfo_get_mainthreadobject( struct _mulle_objc_universefoundationinfo *info)
+{
+   return( info->thread.mainthread);
 }
 
 
@@ -360,5 +422,3 @@ void  _mulle_objc_universe_lockedcall1_universefoundationinfo( struct _mulle_obj
    }
    _mulle_objc_universe_unlock( universe);
 }
-
-

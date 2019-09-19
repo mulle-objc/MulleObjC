@@ -44,7 +44,6 @@
 
 
 char   *_NSPrintForDebugger( id a);
-void   MulleObjCZombifyObject( id obj);
 
 MULLE_C_CONST_RETURN
 BOOL   MulleObjCIsDebugEnabled( void);
@@ -55,12 +54,15 @@ BOOL   MulleObjCIsDebugEnabled( void);
 void   MulleObjCHTMLDumpUniverseToDirectory( char *directory);
 void   MulleObjCHTMLDumpUniverseToTmp( void);
 void   MulleObjCHTMLDumpUniverse( void);
+
 void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory);
 void   MulleObjCHTMLDumpClass( char *classname);
 void   MulleObjCHTMLDumpClassToTmp( char *classname);
 
-void   MulleObjCDotdumpUniverseToTmp( void);
-void   MulleObjCDotdumpClassToTmp( struct _mulle_objc_class *cls);
+void   MulleObjCDotdumpClassToDirectory( char *classname, char *directory);
+void   MulleObjCDotdumpClassToTmp( char *classname);
+void   MulleObjCDotdumpClass( char *classname);
+
 void   MulleObjCDotdumpUniverseFrameToTmp( void);
 void   MulleObjCDotdumpUniverseToTmp( void);
 void   MulleObjCDotdumpUniverse( void);
@@ -72,4 +74,35 @@ char   *MulleObjCStacktraceSymbolize( void *addresse,
                                       size_t len,
                                       void **userinfo);
 
-void  MulleObjCCSVDumpMethodsToTmp( void);
+void   MulleObjCCSVDumpMethodsToTmp( void);
+
+
+void   _MulleObjCZombifyObject( id obj);
+
+static inline void   MulleObjCZombifyObject( id obj)
+{
+   if( ! obj)
+      return;
+
+   _MulleObjCZombifyObject( obj);
+}
+
+
+//
+// now coming up: some unused old junk
+//                that sticks around for compatibility
+enum
+{
+   NSObjectAutoreleasedEvent = 3,
+   NSObjectExtraRefDecrementedEvent = 5,
+   NSObjectExtraRefIncrementedEvent = 4,
+   NSObjectInternalRefDecrementedEvent =7,
+   NSObjectInternalRefIncrementedEvent = 8
+};
+
+extern BOOL   NSKeepAllocationStatistics;
+
+
+static inline void   NSRecordAllocationEvent( int eventType, id object)
+{
+}

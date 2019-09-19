@@ -106,7 +106,8 @@ void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
 
 
 static void   foundationinfo_finalize( struct _mulle_objc_universe *universe,
-                                      void *info)
+                                       void *info,
+                                       enum mulle_objc_finalize_stage stage)
 {
    struct _mulle_objc_universefoundationinfo   *space;
 
@@ -116,7 +117,16 @@ static void   foundationinfo_finalize( struct _mulle_objc_universe *universe,
    // this will call mulle_objc_teardown_universe as that is the
    // teardown_callback in info
    //
-   _mulle_objc_universefoundationinfo_finalize( info);
+   switch( stage)
+   {
+   case mulle_objc_will_finalize :
+      _mulle_objc_universefoundationinfo_willfinalize( info);
+      break;
+
+   case mulle_objc_finalize      :
+      _mulle_objc_universefoundationinfo_finalize( info);
+      break;
+   }
 }
 
 

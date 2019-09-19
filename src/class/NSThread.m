@@ -147,6 +147,18 @@ NSThread  *_NSThreadNewUniverseThreadObject( struct _mulle_objc_universe *univer
 }
 
 
+
+NSThread  *_NSThreadGetUniverseThreadObject( struct _mulle_objc_universe *universe)
+{
+   NSThread                                    *threadObject;
+   struct _mulle_objc_universefoundationinfo   *info;
+
+   info          = _mulle_objc_universe_get_universefoundationinfo( universe);
+   threadObject  = _mulle_objc_universefoundationinfo_get_mainthreadobject( info);
+   return( threadObject);
+}
+
+
 NSThread  *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe)
 {
    NSThread                                    *threadObject;
@@ -157,7 +169,9 @@ NSThread  *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe)
       __mulle_objc_universe_raise_internalinconsistency( universe, \
          "Universe %p is still or already multithreaded", universe);
 
-   return( _NSThreadNewUniverseThreadObject( universe));
+   threadObject = _NSThreadNewUniverseThreadObject( universe);
+   _mulle_objc_universefoundationinfo_set_mainthreadobject( info, threadObject);
+   return( threadObject);
 }
 
 
@@ -189,19 +203,22 @@ static NSThread   *_NSThreadGetMainThreadObject( struct _mulle_objc_universe *un
       return( NULL);
    }
 
-   assert( ! [NSThread isMultiThreaded]);
+   assert( ! [NSThread mulleIsMultiThreaded]);
 
    return( threadObject);
 }
 
 
+//
 // this can only be called during crunch time!
+// it will autorelase the runloop and the thread dictionary
+//
 void   _NSThreadFinalizeMainThreadObject( struct _mulle_objc_universe *universe)
 {
    NSThread   *threadObject;
 
    threadObject = _NSThreadGetMainThreadObject( universe);
-   [threadObject mullePerformFinalize]; // get rid of NSThreadDictionary
+   [threadObject mullePerformFinalize]; // [self finalize]
 }
 
 
@@ -224,6 +241,7 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
 
    _mulle_objc_universe_remove_threadobject( universe, threadObject);
    mulle_objc_thread_set_threadobject( universe, nil);
+   _mulle_objc_universefoundationinfo_set_mainthreadobject( info, NULL);
 
    assert( ! threadObject->_target);
    assert( ! threadObject->_argument);
@@ -255,6 +273,10 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
 
 - (void) finalize
 {
+   [(id) self->_runLoop mullePerformFinalize];
+   [(id) self->_runLoop autorelease];
+   self->_runLoop = nil;
+
    [self->_userInfo autorelease];
    self->_userInfo = nil;
 
@@ -272,7 +294,23 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
 
 - (void) dealloc
 {
+   assert( ! self->_runLoop);
+   assert( ! self->_userInfo);
+
    _MulleObjCObjectFree( self);
+}
+
+
++ (NSThread *) mainThread
+{
+   NSThread                                    *threadObject;
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *info;
+
+   universe     = _mulle_objc_infraclass_get_universe( self);
+   info         = _mulle_objc_universe_get_universefoundationinfo( universe);
+   threadObject = _mulle_objc_universefoundationinfo_get_mainthreadobject( info);
+   return( threadObject);
 }
 
 
@@ -311,6 +349,27 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
 }
 
 
+- (id) runLoop
+{
+   return( _mulle_atomic_pointer_read( &self->_runLoop));
+}
+
+
+- (id) setRunLoop:(id) runLoop
+{
+   id   otherRunloop;
+
+   [runLoop retain];
+   otherRunloop = __mulle_atomic_pointer_compare_and_swap( &self->_runLoop, runLoop, NULL);
+   if( otherRunloop)
+   {
+      [runLoop autorelease];
+      return( otherRunloop);
+   }
+   return( runLoop);
+}
+
+
 - (void) _begin
 {
    struct _mulle_objc_universefoundationinfo   *info;
@@ -319,7 +378,7 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
    universe = _mulle_objc_object_get_universe( self);
    info     = _mulle_objc_universe_get_universefoundationinfo( universe);
 
-   info->thread.is_multi_threaded = YES;
+   info->thread.was_multi_threaded = YES;
 
    _mulle_objc_universe_add_threadobject( universe, self);           // does not retain
 
@@ -339,7 +398,6 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
    if( _mulle_atomic_pointer_decrement( &info->thread.n_threads) == (void *) 2)
    {
       [NSThread _goingSingleThreaded];
-      info->thread.is_multi_threaded = NO;
    }
 
    _mulle_objc_universe_remove_threadobject( universe, self);           // does not retain
@@ -414,10 +472,10 @@ static void   bouncyBounce( void *arg)
    struct _mulle_objc_universefoundationinfo   *info;
    struct _mulle_objc_universe                 *universe;
 
+   universe = _mulle_objc_object_get_universe( self);
    if( self->_thread)
       __mulle_objc_universe_raise_internalinconsistency( universe, "thread already running");
 
-   universe = _mulle_objc_object_get_universe( self);
    info     = _mulle_objc_universe_get_universefoundationinfo( universe);
    if( _mulle_atomic_pointer_increment( &info->thread.n_threads) == (void *) 1)
       [NSThread _isGoingMultiThreaded];
@@ -473,7 +531,18 @@ static void   bouncyBounce( void *arg)
 
    universe = _mulle_objc_infraclass_get_universe( self);
    info   = _mulle_objc_universe_get_universefoundationinfo( universe);
-   return( info->thread.is_multi_threaded);
+   return( info->thread.was_multi_threaded);
+}
+
+
++ (BOOL) mulleIsMultiThreaded
+{
+   struct _mulle_objc_universefoundationinfo   *info;
+   struct _mulle_objc_universe                 *universe;
+
+   universe = _mulle_objc_infraclass_get_universe( self);
+   info   = _mulle_objc_universe_get_universefoundationinfo( universe);
+   return( _mulle_atomic_pointer_read( &info->thread.n_threads) >= (void *) 2);
 }
 
 

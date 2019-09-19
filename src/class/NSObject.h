@@ -81,6 +81,7 @@
 - (BOOL) isKindOfClass:(Class) cls;
 - (BOOL) isMemberOfClass:(Class) cls;
 
+
 - (BOOL) conformsToProtocol:(PROTOCOL) protocol;
 - (BOOL) respondsToSelector:(SEL) sel;
 - (id) performSelector:(SEL) sel;
@@ -102,6 +103,11 @@
 
 #pragma mark mulle additions
 
+// does not search superclasses
+- (BOOL) mulleContainsProtocol:(PROTOCOL) protocol;
+
+// Experimental
+#if 0
 + (void) removeClassValueForKey:(id) key;
 + (BOOL) insertClassValue:(id) value
                    forKey:(id) key;
@@ -109,10 +115,11 @@
                 forKey:(id) key;
 
 + (id) classValueForKey:(id) key;
+#endif
 
 // AAO suport
-+ (instancetype) instantiate;        // alloc + autorelease
-- (instancetype) immutableInstance;  // copy + autorelease
++ (instancetype) instantiate;             // alloc + autorelease
+- (instancetype) immutableInstance;       // copy + autorelease
 
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
@@ -159,6 +166,14 @@
 
 @class NSMethodSignature;
 @class NSInvocation;
+
+
+// class methods available, because NSObject is root
+@interface NSObject ( WrapAround)
+
++ (BOOL) mulleContainsProtocol:(PROTOCOL) protocol;
+
+@end
 
 @interface NSObject ( Forwarding)
 

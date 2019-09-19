@@ -54,9 +54,9 @@
 @end
 
 
-
-
-// what is this ?
+//
+// what is this ? TODO: move this away to compatibility
+//
 // by default NSObject does not implement copyWithZone:
 // I want to keep it this way.
 // But I also don't want to prolong the life of copyWithZone:

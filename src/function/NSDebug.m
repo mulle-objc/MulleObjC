@@ -56,6 +56,11 @@
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
+
+// unused symbols kept for compatibility
+BOOL   NSKeepAllocationStatistics;
+
+
 MULLE_C_CONST_RETURN
 BOOL   MulleObjCIsDebugEnabled( void)
 {
@@ -216,13 +221,13 @@ static void   zombifyLargeObject( id obj)
 
 static void   zombifyObject( id obj)
 {
-   mulle_objc_classid_t           classid;
-   static char                    buf[ 1024];
-   struct _mulle_objc_classpair   *pair;
-   struct _mulle_objc_infraclass  *cls;
-   struct _mulle_objc_metaclass   *meta;
-   struct _mulle_objc_infraclass  *infra;
-   struct _mulle_objc_infraclass  *super_class;
+   mulle_objc_classid_t            classid;
+   char                            buf[ 256];
+   struct _mulle_objc_classpair    *pair;
+   struct _mulle_objc_infraclass   *cls;
+   struct _mulle_objc_metaclass    *meta;
+   struct _mulle_objc_infraclass   *infra;
+   struct _mulle_objc_infraclass   *super_class;
    struct _mulle_objc_universe     *universe;
 
    if( ! obj)
@@ -231,13 +236,13 @@ static void   zombifyObject( id obj)
    cls   = (struct _mulle_objc_infraclass *) _mulle_objc_object_get_isa( obj);
    if( _mulle_objc_class_is_metaclass( (void *) cls))
    {
-      fprintf( stderr, "not zombiying class object %p\n", obj);
+      fprintf( stderr, "not zombifying class object %p\n", obj);
       abort();
    }
 
    universe = _mulle_objc_infraclass_get_universe( cls);
 
-   sprintf( buf, "_MulleObjCZombieOf%.1000s", _mulle_objc_infraclass_get_name( cls));
+   sprintf( buf, "_MulleObjCZombieOf%.200s", _mulle_objc_infraclass_get_name( cls));
 
    classid = mulle_objc_classid_from_string( buf);
    cls     = _mulle_objc_universe_lookup_infraclass( universe, classid);
@@ -254,6 +259,8 @@ static void   zombifyObject( id obj)
       meta  = mulle_objc_classpair_get_metaclass( pair);
       mulle_objc_infraclass_add_methodlist_nofail( infra, NULL);
       mulle_objc_metaclass_add_methodlist_nofail( meta, NULL);
+      mulle_objc_infraclass_add_ivarlist_nofail( infra, NULL);
+      mulle_objc_infraclass_add_propertylist_nofail( infra, NULL);
       mulle_objc_universe_add_infraclass_nofail( universe, infra);
    }
 
@@ -261,12 +268,23 @@ static void   zombifyObject( id obj)
 }
 
 
-void   MulleObjCZombifyObject( id obj)
+void   _MulleObjCZombifyObject( id obj)
 {
-   struct _mulle_objc_class    *cls;
-   size_t                      size;
+   struct _mulle_objc_class      *cls;
+   struct _mulle_objc_universe   *universe;
+   size_t                        size;
 
-   cls  = _mulle_objc_object_get_isa( obj);
+   assert( obj);
+
+   cls      = _mulle_objc_object_get_isa( obj);
+   universe = _mulle_objc_class_get_universe( cls);
+   if( universe->debug.trace.instance)
+   {
+      extern void   _mulle_objc_object_trace_operation( void *obj, char *operation);
+
+      _mulle_objc_object_trace_operation( obj, "zombified");
+   }
+
    size = _mulle_objc_class_get_instancesize( cls);
    if( size >= sizeof( Class)) // sizeof( _MulleObjCLargeZombie)
    {
@@ -336,17 +354,17 @@ void   MulleObjCHTMLDumpUniverse( void)
 }
 
 
-void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory)
+static struct _mulle_objc_class  *class_from_string( char *classname)
 {
-   struct _mulle_objc_universe    *universe;
-   struct _mulle_objc_class       *cls;
-   struct _mulle_objc_infraclass  *infra;
-   mulle_objc_classid_t           classid;
+   struct _mulle_objc_universe     *universe;
+   struct _mulle_objc_class        *cls;
+   struct _mulle_objc_infraclass   *infra;
+   mulle_objc_classid_t            classid;
 
    if( ! classname || ! *classname)
    {
       fprintf( stderr, "Invalid classname\n");
-      return;
+      return( NULL);
    }
 
    universe = MulleObjCGetUniverse();
@@ -355,11 +373,22 @@ void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory)
    if( ! infra)
    {
       fprintf( stderr, "Class \"%s\" is unknown to the universe\n", classname);
-      return;
+      return( NULL);
    }
 
    cls = _mulle_objc_infraclass_as_class( infra);
-   mulle_objc_class_htmldump_to_directory( cls, directory);
+   return( cls);
+}
+
+
+
+void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory)
+{
+   struct _mulle_objc_class   *cls;
+
+   cls = class_from_string( classname);
+   if( cls)
+      mulle_objc_class_htmldump_to_directory( cls, directory);
 }
 
 
@@ -385,8 +414,8 @@ void   MulleObjCHTMLDumpClassToTmp( char *classname)
 
 void   MulleObjCDotdumpUniverseToTmp()
 {
-   struct _mulle_objc_universe *universe;
-   char                        *tmp;
+   struct _mulle_objc_universe   *universe;
+   char                          *tmp;
 
    universe = MulleObjCGetUniverse();
    tmp      = _mulle_objc_get_tmpdir();
@@ -394,16 +423,32 @@ void   MulleObjCDotdumpUniverseToTmp()
 }
 
 
-void   MulleObjCDotdumpClassToTmp( struct _mulle_objc_class *cls)
+void   MulleObjCDotdumpClassToDirectory( char *classname, char *directory)
+{
+   struct _mulle_objc_class  *cls;
+
+   cls = class_from_string( classname);
+   if( cls)
+       mulle_objc_class_dotdump_to_directory( cls, directory);
+}
+
+
+void   MulleObjCDotdumpClassToTmp( char *classname)
 {
    char   *tmp;
 
    tmp = _mulle_objc_get_tmpdir();
-   mulle_objc_class_dotdump_to_directory( cls, tmp);
+   MulleObjCDotdumpClassToDirectory( classname, tmp);
 }
 
 
-void   MulleObjCDotdumpUniverseFrameToTmp()
+void   MulleObjCDotdumpClass( char *classname)
+{
+   MulleObjCDotdumpClassToDirectory( classname, ".");
+}
+
+
+void   MulleObjCDotdumpUniverseFrameToTmp( void)
 {
    struct _mulle_objc_universe   *universe;
    char                          *tmp;
@@ -469,12 +514,12 @@ char   *MulleObjCStacktraceSymbolize( void *address,
 
 void  MulleObjCCSVDumpMethodsToTmp( void)
 {
-   char                          *tmp;
    char                          *buf;
-   size_t                        len;
-   char                          separator;
    char                          *name;
+   char                          *tmp;
+   char                          separator;
    FILE                          *fp;
+   size_t                        len;
    struct _mulle_objc_universe   *universe;
 
    tmp =  _mulle_objc_get_tmpdir();

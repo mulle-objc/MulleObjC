@@ -41,11 +41,6 @@
 #import "MulleObjCExceptionHandler-Private.h"
 
 
-
-#pragma clang diagnostic ignored "-Wobjc-root-class"
-#pragma clang diagnostic ignored "-Wprotocol"
-
-
 PROTOCOLCLASS_IMPLEMENTATION( MulleObjCTaggedPointer)
 
 + (instancetype) alloc

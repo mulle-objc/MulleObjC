@@ -72,7 +72,9 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
       _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_INFRA_IS_SINGLETON);
 #if DEBUG
    else
-      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of MulleObjCSingleton but does not implement it as a protocol\n",
+      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of "
+                       "MulleObjCSingleton but does not implement it "
+                       "as a protocol\n",
            _mulle_objc_infraclass_get_classid( self),
            _mulle_objc_infraclass_get_name( self));
 #endif
@@ -101,7 +103,7 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
 }
 
 
-+ (void) unload
++ (void) deinitialize
 {
    if( useEphemeralSingleton > 0)
    {
@@ -151,6 +153,14 @@ id  MulleObjCSingletonCreate( Class self)
    id <NSObject>                 dup;
    struct _mulle_objc_universe   *universe;
 
+   //
+   // if the universe is deinitializing, we are not creating singletons
+   // anymore
+   //
+   universe = _mulle_objc_infraclass_get_universe( self);
+   if( _mulle_objc_universe_is_deinitializing( universe))
+      return( nil);
+
    assert( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_CLASSCLUSTER));
 
    if( useEphemeralSingleton)
@@ -162,7 +172,6 @@ id  MulleObjCSingletonCreate( Class self)
 
       if( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_SINGLETON))
       {
-         universe = _mulle_objc_infraclass_get_universe( self);
          __mulle_objc_universe_raise_internalinconsistency( universe,
                   "MULLE_OBJC_INFRA_IS_SINGLETON bit is missing on class "
                   "\"%s\" with id %x", _mulle_objc_infraclass_get_name( self),

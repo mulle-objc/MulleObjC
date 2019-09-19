@@ -58,8 +58,9 @@ struct _mulle_objc_universefoundationinfo_object
 
 struct _mulle_objc_universefoundationinfo_thread
 {
-   volatile BOOL             is_multi_threaded;
+   void                      *mainthread;  // NSThread object not retained
    mulle_atomic_pointer_t    n_threads;
+   BOOL                      was_multi_threaded;
 };
 
 
@@ -164,6 +165,8 @@ void
                                             struct _mulle_objc_exceptionhandlertable *exceptiontable);
 
 void
+   _mulle_objc_universefoundationinfo_willfinalize( struct _mulle_objc_universefoundationinfo *info);
+void
    _mulle_objc_universefoundationinfo_finalize( struct _mulle_objc_universefoundationinfo *info);
 
 void
@@ -180,6 +183,10 @@ void _mulle_objc_universefoundationinfo_release_rootobjects(  struct _mulle_objc
 
 void _mulle_objc_universefoundationinfo_add_threadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
 void _mulle_objc_universefoundationinfo_remove_threadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
+
+void   _mulle_objc_universefoundationinfo_set_mainthreadobject( struct _mulle_objc_universefoundationinfo *info,
+                                                                 void *obj);
+void   *_mulle_objc_universefoundationinfo_get_mainthreadobject( struct _mulle_objc_universefoundationinfo *info);
 
 void _mulle_objc_universe_lockedcall_universefoundationinfo( struct _mulle_objc_universe *universe,
                                                              void (*f)(struct _mulle_objc_universefoundationinfo *));
@@ -220,7 +227,7 @@ static inline void
 
 static inline void
 	_mulle_objc_universe_add_threadobject( struct _mulle_objc_universe *universe,
-															 void *obj)
+														void *obj)
 {
    _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
    		_mulle_objc_universefoundationinfo_add_threadobject,
@@ -230,7 +237,7 @@ static inline void
 
 static inline void
 	_mulle_objc_universe_remove_threadobject( struct _mulle_objc_universe *universe,
-															    void *obj)
+															void *obj)
 {
    _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
    	 _mulle_objc_universefoundationinfo_remove_threadobject,
@@ -241,6 +248,9 @@ static inline void
 static inline struct _mulle_objc_exceptionhandlertable *
    mulle_objc_universe_get_foundationexceptionhandlertable( struct _mulle_objc_universe *universe)
 {
+   // use proper exceptions, only when not in crunch
+   if( ! _mulle_objc_universe_is_initialized( universe))
+      return( NULL);
    return( universe ? &_mulle_objc_universe_get_universefoundationinfo( universe)->exception.vectors : NULL);
 }
 

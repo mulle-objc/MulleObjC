@@ -40,9 +40,8 @@
 #import "MulleObjCRuntimeObject.h"
 
 
-PROTOCOLCLASS_INTERFACE0( MulleObjCTaggedPointer)
+_PROTOCOLCLASS_INTERFACE0( MulleObjCTaggedPointer)
 
-@optional
 + (BOOL) isTaggedPointerEnabled;
 
 PROTOCOLCLASS_END()

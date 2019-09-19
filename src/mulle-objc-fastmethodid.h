@@ -41,10 +41,12 @@
 
 // we define some fastmethods, where the id MUST be a constant integer
 //
-// a good candidate is a method, which is called often AND
+// A good candidate is a method, which is called often AND
 // few instructions are executed (i.e. the overhead of
 // the call is most noticable). e.g. objectForKey: is NOT that
-// great, -class is though.
+// great, -class is though. objectForKey: could be good, if is used very often
+// for space saving.
+//
 // https://www.mulle-kybernetik.com/weblog/2015/mulle_objc_selector_statistics.html
 //
 #define MULLE_OBJC_FASTMETHODHASH_8    MULLE_OBJC_METHODID( 0x3d036158)   // "length"
