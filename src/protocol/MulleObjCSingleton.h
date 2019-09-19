@@ -42,7 +42,7 @@
 // singletons are expected to be created through "sharedInstance"
 // and not through alloc, if you use alloc you get another instance
 //
-PROTOCOLCLASS_INTERFACE0( MulleObjCSingleton)
+_PROTOCOLCLASS_INTERFACE0( MulleObjCSingleton)
 
 @optional  // MulleObjCSingleton implements this for you
 + (void) initialize;  // #1#

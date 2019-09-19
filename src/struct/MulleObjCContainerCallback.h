@@ -83,12 +83,45 @@ extern struct mulle_container_keycallback     NSNonOwnedPointerMapKeyCallBacks;
 extern struct mulle_container_valuecallback   NSNonOwnedPointerMapValueCallBacks;
 extern struct mulle_container_keycallback     NSOwnedPointerMapKeyCallBacks;
 extern struct mulle_container_valuecallback   NSOwnedPointerMapValueCallBacks;
+extern struct mulle_container_keycallback     NSNonOwnedPointerOrNullMapKeyCallBacks;
 
 
 
 //extern NSHashTableCallBacks   MulleObjCNonRetainedObjectHashCallBacks;
 //extern NSHashTableCallBacks   MulleObjCObjectHashCallBacks;
 //extern NSHashTableCallBacks   MulleObjCOwnedObjectIdentityHashCallBacks;
+
+
+
+uintptr_t
+   mulle_container_keycallback_object_hash( struct mulle_container_keycallback *callback,
+                                            id obj);
+int
+   mulle_container_keycallback_object_is_equal( struct mulle_container_keycallback *callback,
+                                                id obj,
+                                                id other);
+void   *
+   mulle_container_callback_object_assign( void *callback,
+                                           id obj,
+                                           struct mulle_allocator *allocator);
+void   *
+   mulle_container_callback_object_retain( void *callback,
+                                           id obj,
+                                           struct mulle_allocator *allocator);
+void   *
+   mulle_container_callback_object_copy( void *callback,
+                                         id obj,
+                                         struct mulle_allocator *allocator);
+void
+   mulle_container_callback_object_autorelease( void *callback,
+                                                id obj,
+                                                struct mulle_allocator *allocator);
+
+// p_allocator is **! will be zeroed out
+char *
+   mulle_container_callback_object_describe( void *callback,
+                                             id obj,
+                                             struct mulle_allocator **p_allocator);
 
 
 #endif

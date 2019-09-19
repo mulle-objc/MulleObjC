@@ -90,7 +90,7 @@ static inline void mulle_objc_thread_set_userinfo( struct _mulle_objc_universe *
 
 
 // get NSThread as currentThread from thread local storage
-static inline id
+static inline void *
    mulle_objc_thread_get_threadobject( struct _mulle_objc_universe *universe)
 {
    return( mulle_objc_thread_get_threadfoundationinfo( universe)->thread);
@@ -98,7 +98,8 @@ static inline id
 
 // set NSThread as currentThread in thread local storage
 static inline void
-   mulle_objc_thread_set_threadobject( struct _mulle_objc_universe *universe, void *thread)
+   mulle_objc_thread_set_threadobject( struct _mulle_objc_universe *universe,
+                                       void *thread)
 {
    mulle_objc_thread_get_threadfoundationinfo( universe)->thread = thread;
 }

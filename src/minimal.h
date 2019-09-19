@@ -34,8 +34,8 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-// This header should be includeable by C and must not require inclusion
-// or link the runtime
+// This header should be includable by C and must not require linking with
+// the runtime
 
 #ifndef mulle_objc_minimal__h__
 #define mulle_objc_minimal__h__

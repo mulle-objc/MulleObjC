@@ -61,7 +61,7 @@ MULLE_C_NO_RETURN void
    if( ! vectors)
    {
       vfprintf( stderr, format, args);
-      exit( 1);
+      abort();
    }
 
    s = _mulle_objc_universe_string( universe, format);
@@ -94,7 +94,7 @@ MULLE_C_NO_RETURN void
    if( ! vectors)
    {
       vfprintf( stderr, format, args);
-      exit( 1);
+      abort();
    }
    s = _mulle_objc_universe_string( universe, format);
 
@@ -127,7 +127,7 @@ MULLE_C_NO_RETURN void
    if( ! vectors)
    {
       vfprintf( stderr, format, args);
-      exit( 1);
+      abort();
    }
 
    s = _mulle_objc_universe_string( universe, format);
@@ -158,7 +158,7 @@ MULLE_C_NO_RETURN void
    if( ! vectors)
    {
       fprintf( stderr, "invalid index %lu\n", (long) index);
-      exit( 1);
+      abort();
    }
 
    vectors->invalid_index( index);

@@ -270,11 +270,11 @@ void    MulleObjCObjectSetClass( id obj, Class cls)
 
    if( ! cls)
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
-                                                 "class can't be NULL");
+                                                   "class can't be NULL");
 
    if( _mulle_objc_infraclass_is_taggedpointerclass( cls))
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
-                                                 "class \"%s\" is a tagged pointer class", _mulle_objc_infraclass_get_name( cls));
+                                                   "class \"%s\" is a tagged pointer class", _mulle_objc_infraclass_get_name( cls));
 
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
 }

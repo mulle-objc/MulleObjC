@@ -62,18 +62,41 @@ extern void   NSDeallocateObject( id obj)
 extern void   NSDeallocateObject( id obj)
 
 
+@protocol NSObject;
+
 /*
- * Helper macros to declare protocol classes
+ * Helper macros to declare protocol classes.
+ * They always implement NSObject. This should be harmless and reduces
+ * warnings.y By default all methods are declared optional, since the
+ * protocolclass usually implements them (so they are optional for the
+ * consumer)
  */
+#define _PROTOCOLCLASS_INTERFACE0( name) \
+_Pragma("clang diagnostic push")         \
+@class name;                             \
+@protocol name                           \
+@optional
+
+
 #define PROTOCOLCLASS_INTERFACE0( name)  \
 _Pragma("clang diagnostic push")         \
 @class name;                             \
-@protocol name
+@protocol name < NSObject>               \
+@optional
+
+
+#define _PROTOCOLCLASS_INTERFACE( name, ...) \
+_Pragma("clang diagnostic push")             \
+@class name;                                 \
+@protocol name < __VA_ARGS__ >               \
+@optional
+
 
 #define PROTOCOLCLASS_INTERFACE( name, ...)  \
 _Pragma("clang diagnostic push")             \
 @class name;                                 \
-@protocol name < __VA_ARGS__ >
+@protocol name < NSObject, __VA_ARGS__ >     \
+@optional
 
 
 #define PROTOCOLCLASS_END()     \

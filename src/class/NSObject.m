@@ -45,6 +45,7 @@
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCAllocation.h"
 #import "MulleObjCSingleton.h"
+#import "NSDebug.h"
 #import "NSRange.h"
 #import "NSCopying.h"
 #import "NSAutoreleasePool.h"
@@ -177,23 +178,21 @@
 }
 
 
-#if DEBUG
-static BOOL   MulleObjCSingleThreadedCheckReleaseAndAutorelease = YES;
-#endif
-
-
 - (void) dealloc
 {
 #if DEBUG
-   if( MulleObjCSingleThreadedCheckReleaseAndAutorelease)
-      if( [NSAutoreleasePool _countObject:self] )
-      {
-      	struct _mulle_objc_universe   *universe;
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *config;
 
-			universe = _mulle_objc_object_get_universe( self);
+   universe = _mulle_objc_object_get_universe( self);
+   config   = _mulle_objc_universe_get_universefoundationinfo( universe);
+
+   if( config->object.zombieenabled)
+   {
+      if( [NSAutoreleasePool _countObject:self] )
          __mulle_objc_universe_raise_internalinconsistency( universe,
          					"deallocing object %p still in autoreleasepool", self);
-      }
+   }
 #endif
    _MulleObjCObjectFree( self);
 }
@@ -202,21 +201,22 @@ static BOOL   MulleObjCSingleThreadedCheckReleaseAndAutorelease = YES;
 #pragma mark -
 #pragma mark lifetime management
 
-- (instancetype) retain
-{
-   return( (id) mulle_objc_object_retain( (struct _mulle_objc_object *) self));
-}
-
 
 //
 // this "facility" catches release/autorelease mistakes, but only for
 // single threaded programs. For multithreaded one would need to suspend all
 // other threads and inspect their autorelease pools as well
 //
-#if DEBUG
+#ifdef DEBUG
 static void   checkAutoreleaseRelease( NSObject *self)
 {
-   if( MulleObjCSingleThreadedCheckReleaseAndAutorelease)
+   struct _mulle_objc_universe                  *universe;
+   struct _mulle_objc_universefoundationinfo   *config;
+
+   universe = _mulle_objc_object_get_universe( self);
+   config   = _mulle_objc_universe_get_universefoundationinfo( universe);
+
+   if( config->object.zombieenabled)
    {
       NSUInteger   autoreleaseCount;
       NSUInteger   retainCount;
@@ -225,10 +225,8 @@ static void   checkAutoreleaseRelease( NSObject *self)
       retainCount      = [self retainCount];
       if( autoreleaseCount >= retainCount)
       {
-      	struct _mulle_objc_universe   *universe;
-
-			universe = _mulle_objc_object_get_universe( self);
-         __mulle_objc_universe_raise_internalinconsistency( universe, "object %p would be autoreleased to often", self);
+         __mulle_objc_universe_raise_internalinconsistency( universe,
+               "object %p would be autoreleased to often", self);
    	}
    }
 }
@@ -253,6 +251,12 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 
    _MulleObjCAutoreleaseObject( self);
    return( self);
+}
+
+
+- (instancetype) retain
+{
+   return( (id) mulle_objc_object_retain( (struct _mulle_objc_object *) self));
 }
 
 
@@ -295,12 +299,12 @@ static struct _mulle_objc_object   *
    _MulleObjCClassNewInstantiatePlaceholder( Class infraCls,
                                              mulle_objc_classid_t classid)
 {
-   struct _mulle_objc_universe        *universe;
-   struct _mulle_objc_infraclass      *placeholderInfracls;
-   struct _mulle_objc_class           *pcls;
    _MulleObjCInstantiatePlaceholder   *placeholder;
-   SEL                                initSel;
    mulle_objc_implementation_t        imp;
+   SEL                                initSel;
+   struct _mulle_objc_class           *pcls;
+   struct _mulle_objc_infraclass      *placeholderInfracls;
+   struct _mulle_objc_universe        *universe;
 
    assert( classid);
 
@@ -471,6 +475,7 @@ retry:
 }
 
 
+#if HAVE_CLASS_VALUE
 # pragma mark -
 # pragma mark class "variable" support
 
@@ -569,6 +574,7 @@ retry:
    return( _mulle_objc_infraclass_get_cvar( self, key));
 }
 
+#endif
 
 
 # pragma mark -
@@ -721,13 +727,22 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 #pragma mark -
 #pragma mark protocol introspection
 
-- (BOOL) conformsToProtocol:(PROTOCOL) protocol
+- (BOOL) mulleContainsProtocol:(PROTOCOL) protocol
 {
    struct _mulle_objc_class       *cls;
    struct _mulle_objc_classpair   *pair;
 
-   if( ! protocol)
-      return( NO);
+   cls  = _mulle_objc_object_get_isa( self);
+   pair = _mulle_objc_class_get_classpair( cls);
+   return( (BOOL) _mulle_objc_classpair_has_protocolid( pair,
+                                                        (mulle_objc_protocolid_t) protocol));
+}
+
+
+- (BOOL) conformsToProtocol:(PROTOCOL) protocol
+{
+   struct _mulle_objc_class       *cls;
+   struct _mulle_objc_classpair   *pair;
 
    cls  = _mulle_objc_object_get_isa( self);
    pair = _mulle_objc_class_get_classpair( cls);
@@ -1001,6 +1016,8 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    }
 
    invocation = [NSInvocation invocationWithMethodSignature:signature];
+   // could set target here, but seems pointless (Apple seems to do it though)
+   // and a waste of time
    [invocation setSelector:_cmd];
    [invocation _setMetaABIFrame:_param];
    [self forwardInvocation:invocation];

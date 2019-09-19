@@ -135,16 +135,28 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
 
 
 #if DEBUG
-// provide a breakpoint opportunity.
+//
+// provide a breakpoint opportunity. This warning is useful for the
+// Foundation itself, not so much for user code though.
+//
 void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self);
 void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 {
-   fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of "
-                    "MulleObjCClassCluster but gets allocated directly. "
-                    "(Non classcluster subclasses should implement +alloc, \n"
-                    "break on _mulle_objc_warn_classcluster to debug)\n",
-              _mulle_objc_infraclass_get_classid( self),
-              _mulle_objc_infraclass_get_name( self));
+   char   *name;
+
+   name = _mulle_objc_infraclass_get_name( self);
+   if( ! strncmp( name, "NS", 2) ||
+       ! strncmp( name, "MulleObjC", 9))
+   {
+      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of "
+                       "MulleObjCClassCluster but it gets allocated directly.\n"
+                       "(Non classcluster Foundation subclasses should implement "
+                       "+alloc, for user classes this is fine as\n"
+                       "NSAllocateObject will be used)\n"
+                       "break on _mulle_objc_warn_classcluster to debug)\n",
+                 _mulle_objc_infraclass_get_classid( self),
+                 name);
+   }
 }
 #endif
 
@@ -157,9 +169,8 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 
    //
    // only the class marked as MulleObjCClassCluster gets the
-   // placeholder, subclasses use regular alloc
-   // the class being a classcluster marks itself during
-   // +initialize
+   // placeholder, subclasses use regular alloc.
+   // The class being a classcluster marks itself during +initialize.
    //
    if( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_CLASSCLUSTER))
    {

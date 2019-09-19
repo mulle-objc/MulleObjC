@@ -198,21 +198,6 @@ static inline int   _containsObject( NSAutoreleasePool *self, id p)
 }
 
 
-static inline int   _countObject( NSAutoreleasePool *self, id p)
-{
-   struct _mulle_autoreleasepointerarray   *array;
-
-   if( ! self)
-      return( 0);
-
-   array = (struct _mulle_autoreleasepointerarray *) self->_storage;
-   if( ! array)
-      return( 0);
-
-   return( _mulle_autoreleasepointerarray_count_object( array, p));
-}
-
-
 static inline void   addObject( NSAutoreleasePool *self, id p)
 {
    struct _mulle_autoreleasepointerarray   *array;
@@ -227,7 +212,8 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
    assert( _mulle_objc_class_get_universe( _mulle_objc_object_get_isa( p)) ==
            _mulle_objc_infraclass_get_universe( _mulle_objc_thread_get_autoreleasepoolclass( universe))) ;
    assert( _mulle_objc_object_get_infraclass( p) != _mulle_objc_thread_get_autoreleasepoolclass( universe));
-   assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
+// this messages ObjC too much, which gets boring in traces
+//   assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
 #endif
 
    array = (struct _mulle_autoreleasepointerarray *) self->_storage;
@@ -276,7 +262,7 @@ static inline void   addObjects( NSAutoreleasePool *self,
 
          assert( q != nil);
          assert( _mulle_objc_object_get_infraclass( q) != _mulle_objc_object_get_infraclass( self));
-         assert( [q isProxy] || [q respondsToSelector:@selector( release)]);
+         // assert( [q isProxy] || [q respondsToSelector:@selector( release)]);
       }
    }
 #endif
@@ -362,7 +348,7 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
    if( ! config->tail)
    {
       if( config->trace)
-         fprintf( stderr, "[pool] %p tryed to autorelease with no pool in place\n", p);
+         fprintf( stderr, "[pool] %p tried to autorelease with no pool in place\n", p);
 #if DEBUG
       fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
       abort();
@@ -521,6 +507,21 @@ static inline void   autoreleaseObjects( id *objects,
    universe = _mulle_objc_object_get_universe( self);
    config   = mulle_objc_thread_get_poolconfiguration( universe);
    return( _containsObject( config->tail, p));
+}
+
+
+static inline int   _countObject( NSAutoreleasePool *self, id p)
+{
+   struct _mulle_autoreleasepointerarray   *array;
+
+   if( ! self)
+      return( 0);
+
+   array = (struct _mulle_autoreleasepointerarray *) self->_storage;
+   if( ! array)
+      return( 0);
+
+   return( _mulle_autoreleasepointerarray_count_object( array, p));
 }
 
 

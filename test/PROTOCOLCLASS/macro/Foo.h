@@ -6,11 +6,11 @@ struct FooIvars
    int   a;
 };
 
-PROTOCOLCLASS_INTERFACE0( Foo)
 
-- (struct FooIvars *) getFooIvars;
-@optional
+_PROTOCOLCLASS_INTERFACE0( Foo)
+
 - (void) doTheFooThing;
+- (struct FooIvars *) getFooIvars;
 
 PROTOCOLCLASS_END()
 

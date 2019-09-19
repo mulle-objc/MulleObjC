@@ -17,6 +17,10 @@ static inline void   MulleObjCBang( struct _mulle_objc_universe *universe,
                                     struct mulle_allocator *allocator,
                                     struct _mulle_objc_universeconfiguration *config)
 {
+   //
+   // allocator not used in this bang, it's already
+   // set in the universe
+   //
    mulle_objc_universe_configure( universe, config);
 }
 
@@ -29,6 +33,7 @@ MULLE_C_CONST_RETURN struct _mulle_objc_universe  *
    struct _mulle_objc_universe   *universe;
    struct mulle_allocator        *allocator;
 
+   allocator = NULL;
    if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_TESTALLOCATOR_ENABLED"))
    {
 #if HAVE_DLSYM

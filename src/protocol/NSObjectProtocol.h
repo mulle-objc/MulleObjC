@@ -40,7 +40,8 @@
 # warning NSObject protocol included
 #endif
 
-PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
+
+_PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 
 - (Class) superclass;
 - (Class) class;
