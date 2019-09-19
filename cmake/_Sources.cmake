@@ -41,7 +41,3 @@ src/class/MulleObjCLoader.m
 set( STANDALONE_SOURCES
 src/MulleObjC-standalone.m
 )
-
-set( STARTUP_SOURCES
-src/MulleObjC-startup.m
-)
