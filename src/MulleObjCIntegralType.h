@@ -24,7 +24,7 @@ typedef intptr_t    NSInteger;
 #define NSIntegerMax    ((NSInteger) (((NSUInteger) -1) >> 1))
 #define NSIntegerMin    (-((NSInteger) (((NSUInteger) -1) >> 1)) - 1)
 #define NSUIntegerMax   ((NSUInteger) -1)
-#define NSUIntegerMin   0
+#define NSUIntegerMin   (0)
 
 #define NSINTEGER_DEFINED
 
@@ -43,6 +43,10 @@ typedef enum
 } NSComparisonResult;
 
 
+//
+// having YES, NO as an enum messes up the boxed expressions @YES @NO
+// but use @(YES) @(NO) and everything is fine
+//
 enum _MulleBool
 {
    YES = 1,

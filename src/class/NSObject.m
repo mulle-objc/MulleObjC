@@ -390,7 +390,7 @@ retry:
       rover = mulle_set_enumerate( config->object.roots);
       while( buf < sentinel)
       {
-         obj = mulle_setenumerator_next( &rover);
+         obj = mulle_setenumerator_next_nil( &rover);
          assert( obj);
          *buf++ = obj;
       }
@@ -417,7 +417,7 @@ retry:
       _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
 
       rover = mulle_set_enumerate( config->object.roots);
-      while( obj = mulle_setenumerator_next( &rover))
+      while( obj = mulle_setenumerator_next_nil( &rover))
       {
          if( obj == self)
             break;
@@ -997,7 +997,6 @@ static int   collect( struct _mulle_objc_ivar *ivar,
       return( mulle_objc_object_inlinecall_variablemethodid( target,
                                                              (mulle_objc_methodid_t) _cmd,
                                                              _param));
-
    /*
     * the slowness of these operations can not even be charted
     * I need to code something better
@@ -1009,6 +1008,12 @@ static int   collect( struct _mulle_objc_ivar *ivar,
       return( NULL);
    }
 
+   /*
+    * Why not ? The MetaABI doesn't care or ?
+    * Well it does, because though everything is nicely contained in
+    * _param, we have to copy _param into the invocation, but don't know
+    * its size.
+    */
    if( [signature isVariadic])
    {
       [self doesNotForwardVariadicSelector:_cmd];
@@ -1204,6 +1209,7 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
 
 
 #include <mulle-objc-runtime/mulle-objc-lldb.h>
+#include <mulle-objc-runtime/mulle-objc-gdb.h>
 
 //
 // this should never be called
@@ -1212,10 +1218,18 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
 + (void) __reference_lldb_functions__
 {
    mulle_objc_lldb_get_dangerous_classstorage_pointer();
-   mulle_objc_lldb_lookup_implementation( 0, 0, 0, 0, 0);
+   mulle_objc_lldb_lookup_implementation( 0, 0, NULL);
    mulle_objc_lldb_lookup_isa( 0, 0);
    $__lldb_objc_object_check( 0, 0);
    mulle_objc_lldb_lookup_descriptor_by_name( 0);
 }
+
++ (void) __reference_gdb_functions__
+{
+   mulle_objc_gdb_lookup_class( 0);
+   mulle_objc_gdb_lookup_selector( 0);
+   mulle_objc_gdb_lookup_implementation( 0, 0, 0, 0);
+}
+
 
 @end

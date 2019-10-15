@@ -57,6 +57,7 @@ src/mulle-objc-threadfoundationinfo.h
 src/mulle-objc-type.h
 src/protocol/MulleObjCClassCluster.h
 src/protocol/MulleObjCException.h
+src/protocol/MulleObjCProtocol.h
 src/protocol/MulleObjCRuntimeObject.h
 src/protocol/MulleObjCSingleton.h
 src/protocol/MulleObjCTaggedPointer.h

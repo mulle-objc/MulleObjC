@@ -128,12 +128,12 @@ char   *_NSPrintForDebugger( id a)
       if( s)
       {
          aux = _mulle_objc_universe_characters( universe, s);
-         if( strlen( aux))
+         if( aux && strlen( aux))
             spacer=" ";
       }
    }
 
-   sprintf( buf, "<%p %.100s%s%.100s>", a, _mulle_objc_class_get_name( cls), spacer, aux);
+   sprintf( buf, "<%p %.100s%s%.100s>", a, _mulle_objc_class_get_name( cls), spacer, aux ? aux : "");
    return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
 }
 

@@ -44,19 +44,22 @@
 }
 
 
-- (void) foo:(id) obj1, ...
+//
+// forwarding variadic selectors now works ?
+//
+- (void) foo:(id) obj, ...
 {
    mulle_vararg_list   args;
-   id    obj2;
 
-   obj2 = nil;
-   mulle_vararg_start( args, obj1);
-   if( obj1)
-      obj2  = mulle_vararg_next_id( args);
+   mulle_vararg_start( args, obj);
+   do
+   {
+      [obj print];
+      obj = mulle_vararg_next_id( args);
+   }
+   while( obj);
+
    mulle_vararg_end( args);
-
-   [obj1 print];
-   [obj2 print];
 }
 
 @end
@@ -84,8 +87,15 @@ main()
    foo = [[Foo new] autorelease];
    [foo foobar:nil];
 
+   printf( "---\n");
+
    bar = [[Bar new] autorelease];
-   [foo foobar:foo, bar];
+   [foo foobar:foo, bar, nil];
+
+   printf( "---\n");
+
+   // break 5 pointer limitation
+   [foo foobar:foo, bar, foo, bar, foo, bar, nil];
 
    return( 0);
 }

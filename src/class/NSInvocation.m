@@ -405,9 +405,11 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
       size  = [_methodSignature frameLength];
-      assert( NSInvocationIsFrameRangeValid( self, param, size - sizeof( id) - sizeof( SEL)));
+      size -= sizeof( id) - sizeof( SEL);
+      assert( NSInvocationIsFrameRangeValid( self, param, size));
 
-      memcpy( param, frame, size);
+      if( frame)
+         memcpy( param, frame, size);
       break;
    }
 }

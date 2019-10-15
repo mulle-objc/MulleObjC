@@ -355,6 +355,17 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
 }
 
 
+void   MulleThreadSetCurrentThreadUserInfo( id info)
+{
+   NSThread   *thread;
+
+   thread = MulleThreadGetCurrentThread();
+   [thread->_userInfo autorelease];
+   thread->_userInfo = [info retain];
+}
+
+
+
 - (id) setRunLoop:(id) runLoop
 {
    id   otherRunloop;

@@ -266,12 +266,14 @@ static inline MULLE_OBJC_STRING_CLASS_P
 	_mulle_objc_universe_string( struct _mulle_objc_universe *universe, char *s)
 {
    struct _mulle_objc_universefoundationinfo   *config;
+   MULLE_OBJC_STRING_CLASS_P                   obj;
 
    if( ! s)
       return( NULL);
 
    config = _mulle_objc_universe_get_universefoundationinfo( universe);
-   return( config->string.objectfromchars( s));
+   obj    = config->string.objectfromchars( s);
+   return( obj);
 }
 
 

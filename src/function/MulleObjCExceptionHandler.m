@@ -58,14 +58,12 @@ MULLE_C_NO_RETURN void
 
    mulle_objc_break_exception();
    vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
-   if( ! vectors)
-   {
+   s       = vectors ? _mulle_objc_universe_string( universe, format) : 0;
+   if( s && vectors)
+      vectors->invalid_argument( s, args);
+   else
       vfprintf( stderr, format, args);
-      abort();
-   }
-
-   s = _mulle_objc_universe_string( universe, format);
-   vectors->invalid_argument( s, args);
+   abort();
 }
 
 
@@ -91,14 +89,12 @@ MULLE_C_NO_RETURN void
 
    mulle_objc_break_exception();
    vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
-   if( ! vectors)
-   {
+   s       = vectors ? _mulle_objc_universe_string( universe, format) : 0;
+   if( s && vectors)
+      vectors->internal_inconsistency( s, args);
+   else
       vfprintf( stderr, format, args);
-      abort();
-   }
-   s = _mulle_objc_universe_string( universe, format);
-
-   vectors->internal_inconsistency( s, args);
+   abort();
 }
 
 
@@ -124,14 +120,12 @@ MULLE_C_NO_RETURN void
 
    mulle_objc_break_exception();
    vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
-   if( ! vectors)
-   {
+   s       = vectors ? _mulle_objc_universe_string( universe, format) : 0;
+   if( s && vectors)
+      vectors->errno_error( s, args);
+   else
       vfprintf( stderr, format, args);
-      abort();
-   }
-
-   s = _mulle_objc_universe_string( universe, format);
-   vectors->errno_error( s, args);
+   abort();
 }
 
 
@@ -155,13 +149,11 @@ MULLE_C_NO_RETURN void
 
    mulle_objc_break_exception();
    vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
-   if( ! vectors)
-   {
+   if( vectors)
+      vectors->invalid_index( index);
+   else
       fprintf( stderr, "invalid index %lu\n", (long) index);
-      abort();
-   }
-
-   vectors->invalid_index( index);
+   abort();
 }
 
 

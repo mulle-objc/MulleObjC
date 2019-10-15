@@ -38,9 +38,10 @@
 #import "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCRuntimeObject.h"
+#import "MulleObjCProtocol.h"
 
 
-_PROTOCOLCLASS_INTERFACE0( MulleObjCTaggedPointer)
+_PROTOCOLCLASS_INTERFACE( MulleObjCTaggedPointer, MulleObjCImmutable)
 
 + (BOOL) isTaggedPointerEnabled;
 

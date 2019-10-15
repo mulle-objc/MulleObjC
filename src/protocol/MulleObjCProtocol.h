@@ -1,9 +1,9 @@
 //
-//  MulleObjC.h
+//  MulleProtocol.h
 //  MulleObjC
 //
-//  Copyright (c) 2015 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2015 Codeon GmbH.
+//  Copyright (c) 2019 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2019 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -34,47 +34,30 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-// because standalone versions must define FASTIDs
 
-#ifdef MULLE_OBJC_RUNTIME_VERSION
-# error "do not include the mulle-objc-runtime before MulleObjC.h"
-#endif
+//
+// A value is a base type, considered to be one value
+// like NSString, NSDate. Could have named MulleAtom too, but I don't know...
+//
+// A value is not a composite of values or other objects. If it has a settable
+// property (not readonly), it's not a value.
+//
+@protocol MulleObjCValue
+@end
 
-#import "import.h"
+//
+// MulleImmutables are inherently thread safe. Structure your value class
+// to have a MulleObjCPlaceholder like NSData. This is a MulleValue so
+// NSData : NSObject <MulleValue>. Then have a concrete immutable subclass
+// like _NSConcreteData : NSData < MulleImmutable>.
+//
+@protocol MulleObjCImmutable
+@end
 
-#import "mulle-objc.h"
-
-// objects
-#import "MulleObjCLoader.h"
-#import "NSAutoreleasePool.h"
-#import "NSInvocation.h"
-#import "NSMethodSignature.h"
-#import "NSObject.h"
-#import "NSLock.h"
-#import "NSRecursiveLock.h"
-#import "NSProxy.h"
-#import "NSThread.h"
-
-// protocols
-#import "MulleObjCClassCluster.h"
-#import "MulleObjCException.h"
-#import "MulleObjCSingleton.h"
-#import "MulleObjCTaggedPointer.h"
-#import "NSCopying.h"
-#import "NSCoding.h"
-#import "NSContainer.h"
-#import "NSEnumeration.h"
-#import "NSLocking.h"
-#import "NSObjectProtocol.h"
-#import "MulleObjCProtocol.h"
-
-// categories
-#import "NSObject+NSCodingSupport.h"
-
-// structs
-#import "MulleObjCContainerCallback.h"
-
-// functions
-#import "MulleObjCAllocation.h"
-#import "MulleObjCFunctions.h"
+//
+// Inherently any class that isn't marked immutable must be considered
+// mutable, so this doesn't exist.
+//
+// @protocol MulleObjCMutable
+// @end
 
