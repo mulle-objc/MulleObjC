@@ -10,8 +10,9 @@
 #ifndef _mulle_objc_import_h__
 #define _mulle_objc_import_h__
 
+/* no headers */
+
 #include "_MulleObjC-include.h"
 
-/* no headers */
 
 #endif

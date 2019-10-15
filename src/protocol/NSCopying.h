@@ -37,6 +37,7 @@
 
 #import "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
+#import "MulleObjCProtocol.h"
 #import "NSZone.h"
 
 
@@ -46,13 +47,15 @@
 @protocol NSCopying
 
 // not really an instancetype (e.g. NSMutableSet returns NSSet)
+// Should return an instance that is immutable if possible
+//
 - (id) copy;
 
 @end
 
+
+
 @class NSCopying; // needed for the compiler to understand this is
                   // protocol class
-
-
 
 id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone);

@@ -102,6 +102,7 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
 // for classes, that don't implement copy, but
 // just copyWithZone:
 
+
 - (id) copy
 {
    return( [self copyWithZone:NULL]);

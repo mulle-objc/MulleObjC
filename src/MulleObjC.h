@@ -66,6 +66,7 @@
 #import "NSEnumeration.h"
 #import "NSLocking.h"
 #import "NSObjectProtocol.h"
+#import "MulleObjCProtocol.h"
 
 // categories
 #import "NSObject+NSCodingSupport.h"

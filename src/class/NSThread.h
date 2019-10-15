@@ -112,3 +112,35 @@ NSThread  *_NSThreadGetUniverseThreadObject( struct _mulle_objc_universe *univer
 void       _NSThreadFinalizeMainThreadObject( struct _mulle_objc_universe *universe);
 
 @end
+
+
+static inline NSThread   *MulleThreadGetCurrentThread( void)
+{
+   struct _mulle_objc_universe   *universe;
+   NSThread                      *thread;
+
+   universe = mulle_objc_global_get_universe( __MULLE_OBJC_UNIVERSEID__);
+   thread   = mulle_objc_thread_get_threadobject( universe);
+   return( thread);
+}
+
+
+//
+// This is the preferred way to retrieve the threadDictionary
+// of the current thread for reading. But since the threadDictionary is
+// installed lazily (as it is), this is NOT a good way to set values.
+//
+static inline id   MulleThreadGetCurrentThreadUserInfo( void)
+{
+   NSThread   *thread;
+
+   thread = MulleThreadGetCurrentThread();
+   return( ((struct { @defs( NSThread); } *) thread)->_userInfo);
+}
+
+
+// the complementary to above function
+void   MulleThreadSetCurrentThreadUserInfo( id info);
+
+
+

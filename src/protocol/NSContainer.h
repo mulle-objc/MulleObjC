@@ -7,19 +7,32 @@
 #import "NSCopying.h"
 
 
+
+//
+// This doesn't exist because NSFastEnumeration is synonymous technically.
+//
+//@protocol MulleContainer
+//@end
+
+
+
+// TODO: WHY IS THIS IN MulleObjC ??
+
 // These basic protocols declare the "access" of each container. They
 // are not concerned with initialization.
 
 //
 // Note the NSEnumeration is not required, as NSFastEnumeration
-// is now.
-// Use id <NSObject> so that NSProxy and other conforming root class 
+// is now used.NSFastEnumeration is also synonym for MulleContainer, which
+// therefore doesn't exist.
+//
+// Use id <NSObject> so that NSProxy and other conforming root class
 // instances can participate
 //
 @protocol NSArray < NSObject, NSFastEnumeration >
 
 //- (instancetype) init;
-//- (instancetype) initWithObjects:(id <NSObject>) objects 
+//- (instancetype) initWithObjects:(id <NSObject>) objects
 //                           count:(NSUInteger) count;
 - (NSUInteger) count;
 - (id) objectAtIndex:(NSUInteger) i;
@@ -42,7 +55,7 @@
 
 @protocol NSDictionary < NSObject, NSFastEnumeration >
 
-//- (instancetype) init; 
+//- (instancetype) init;
 //- (instancetype) initWithObjects:(id <NSObject>)  objects
 //                         forKeys:(id <NSObject, NSCopying>) keys
 //                           count:(NSUInteger) count;
@@ -54,7 +67,7 @@
 
 @protocol NSMutableDictionary < NSDictionary>
 
-- (void) setObject:(id <NSObject>) object 
+- (void) setObject:(id <NSObject>) object
             forKey:(id <NSObject, NSCopying>) key;
 - (void) removeObjectForKey:(id <NSObject, NSCopying>) key;
 
@@ -65,7 +78,7 @@
 @protocol NSSet < NSObject, NSFastEnumeration >
 
 //- (instancetype) init;
-//- (instancetype) initWithObjects:(id <NSObject> *) objects 
+//- (instancetype) initWithObjects:(id <NSObject> *) objects
 //                           count:(NSUInteger) count;
 - (NSUInteger) count;
 - (BOOL) member:(id <NSObject>) object;

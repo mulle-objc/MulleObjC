@@ -16,7 +16,10 @@ if( NOT __EXECUTABLE_OBJC_CMAKE__)
       PROPERTIES LINKER_LANGUAGE C
    )
 
-   if( APPLE)
+   #
+   # only for mulle-clang
+   #
+   if( APPLE AND MULLE_OBJC)
       target_link_options( "${EXECUTABLE_NAME}"
          PUBLIC
             "SHELL:LINKER:-exported_symbol,___register_mulle_objc_universe"

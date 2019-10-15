@@ -293,7 +293,6 @@ struct _mulle_objc_method   NSObject_msgForward_method =
 };
 
 
-
 static void   *return_self( void *p)
 {
    return( p);
@@ -308,11 +307,12 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
+   // just little hacks
    rootconfig->string.charsfromobject = (char *(*)()) return_self;
    rootconfig->string.objectfromchars = (void *(*)()) return_self;
 
    // needed for coverage, slows things down a bit and bloats caches
-   coverage = mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE");
+   coverage                           = mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE");
    universe->config.repopulate_caches = coverage;
    if( coverage)
       fprintf( stderr, "mulle-objc: coverage files will be written at exit\n");
