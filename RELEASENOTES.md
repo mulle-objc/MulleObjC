@@ -1,3 +1,17 @@
+## 0.16.0
+
+* experimentally added MulleObjCValue and MulleObjCImmutable protocols
+* fix memory clobber in NSInvocation
+* added MulleThreadSetCurrentThreadUserInfo and MulleThreadGetCurrentThreadUserInfo functions
+* fastmethods reshuffle, added objectForKey: and :
+* new NSObject method -mulleContainsProtocol (doesn't ask superclass)
+* moved startup code into own library MulleObjC-startup
+* NSRunLoop is now using an instance variable in NSThread instead of the userInfo
+* new NSThread method +mulleIsMultiThreaded, it knows if you are single-threaded or not
+* uncaught exceptions now use abort instead of exit
+* singletons return nil during universe deinitialization
+
+
 ### 0.15.2
 
 * readonly properties aren't cleared anymore for compatibility
