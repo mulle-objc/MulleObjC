@@ -44,7 +44,11 @@
 
 - (instancetype) init
 {
-   mulle_thread_mutex_init( &self->_lock);
+   if( mulle_thread_mutex_init( &self->_lock))
+   {
+      fprintf( stderr, "%s could not acquire a mutex\n", __FUNCTION__);
+      abort();
+   }
    return( self);
 }
 
