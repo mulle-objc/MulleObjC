@@ -207,7 +207,7 @@ static void   zombifyLargeObject( id obj)
    struct _mulle_objc_universe  *universe;
 
    universe = _mulle_objc_object_get_universe( obj);
-   cls      = _mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( _MulleObjCLargeZombie));
+   cls      = mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( _MulleObjCLargeZombie));
    assert( cls);
 
    zombie = obj;

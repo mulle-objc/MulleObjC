@@ -33,7 +33,9 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#import "NSCopying.h"
 
+#import "MulleObjCRuntimeObject.h"
 
 //
 // A value is a base type, considered to be one value
@@ -51,8 +53,11 @@
 // NSData : NSObject <MulleValue>. Then have a concrete immutable subclass
 // like _NSConcreteData : NSData < MulleImmutable>.
 //
-@protocol MulleObjCImmutable
-@end
+@protocol NSCopying;
+
+_PROTOCOLCLASS_INTERFACE( MulleObjCImmutable, NSCopying)
+PROTOCOLCLASS_END()
+
 
 //
 // Inherently any class that isn't marked immutable must be considered

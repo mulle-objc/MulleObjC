@@ -40,19 +40,17 @@
 #ifndef ns_range__h__
 #define ns_range__h__
 
+#include "include.h"
+
 #include "MulleObjCIntegralType.h"
 
 #include <assert.h>
 
 
-typedef struct
-{
-   NSUInteger   location;
-   NSUInteger   length;
-} NSRange;
+typedef struct mulle_range   NSRange;
+typedef NSRange              *NSRangePointer;
 
-
-typedef NSRange   *NSRangePointer;
+#define NSNotFound           mulle_not_found_e
 
 
 static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
@@ -65,9 +63,9 @@ static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
 }
 
 
-static inline   NSUInteger NSMaxRange( NSRange range)
+static inline NSUInteger   NSMaxRange( NSRange range)
 {
-   return( range.location + range.length);
+   return( mulle_range_get_end( range));
 }
 
 
@@ -77,7 +75,7 @@ static inline   NSUInteger NSMaxRange( NSRange range)
 //
 static inline enum _MulleBool   NSLocationInRange( NSUInteger location, NSRange range)
 {
-   return( location - range.location < range.length);
+   return( mulle_range_contains_location( range, location));
 }
 
 
@@ -87,58 +85,57 @@ static inline enum _MulleBool   NSEqualRanges( NSRange range1, NSRange range2)
 }
 
 
-extern NSRange    NSUnionRange( NSRange range1, NSRange range2);
-extern NSRange    NSIntersectionRange( NSRange range1, NSRange range2);
+static inline NSRange   NSUnionRange( NSRange range1, NSRange range2)
+{
+   return( mulle_range_union( range1, range2));
+}
+
+
+static inline NSRange   NSIntersectionRange( NSRange range1, NSRange range2)
+{
+   return( mulle_range_intersect( range1, range2));
+}
 
 
 // mulle additon:
 
-static inline enum _MulleBool  MulleObjCRangeIsValid( NSRange range)
+static inline enum _MulleBool   MulleObjCRangeIsValid( NSRange range)
 {
-   NSUInteger   end;
-
-   end = range.location + range.length;
-   // check for overflow
-   return( end >= range.location || end == 0); //|| (end == range.location && range.length == 0));
+   return( mulle_range_is_valid( range));
 }
 
 
-static inline enum _MulleBool  MulleObjCRangeIsValidWithLength( NSRange range, NSUInteger length)
+
+static inline enum _MulleBool   MulleObjCRangeContainsRange( NSRange big, NSRange small)
 {
-   NSUInteger   end;
-
-   if( ! MulleObjCRangeIsValid( range))
-      return( NO);
-
-   end = range.location + range.length;
-   return( end <= length && range.location <= length);
+   return( mulle_range_contains( big, small));
 }
 
 
-// other must have been validated already!
-static inline enum _MulleBool  MulleObjCRangeIsValidInRange( NSRange range, NSRange other)
+NSRange  MulleObjCRangeCombine( NSRange aRange, NSRange bRange);
+
+
+static enum _MulleBool   MulleObjCRangeIsCombinableRange( NSRange a, NSRange b)
 {
-   NSUInteger   end;
-   NSUInteger   other_end;
-
-   assert( MulleObjCRangeIsValid( other));
-   if( ! MulleObjCRangeIsValid( range))
-      return( NO);
-
-   end       = range.location + range.length;
-   other_end = other.location + other.length;
-   return( end <= other_end && range.location >= other.location);
+   return( MulleObjCRangeCombine( a, b).length ? YES : NO);
 }
 
 
-static inline enum _MulleBool  MulleObjCRangeContainsRange( NSRange big, NSRange small)
+static enum _MulleBool   MulleObjCRangeIntersectsRange( NSRange a, NSRange b)
 {
-   if( ! small.length)
-      return( NO);
-
-   if( ! NSLocationInRange( small.location, big))
-      return( NO);
-   return( NSLocationInRange( small.location + small.length - 1, big));
+   return( NSIntersectionRange( a, b).length ? YES : NO);
 }
+
+
+static inline NSComparisonResult   MulleObjCRangeCompare( NSRange a, NSRange b)
+{
+   if( a.location != b.location)
+      return( a.location < b.location ? NSOrderedAscending : NSOrderedDescending);
+   if( a.length != b.length)
+      return( a.length < b.length ? NSOrderedAscending : NSOrderedDescending);
+   return( NSOrderedSame);
+}
+
+NSComparisonResult   MulleObjCRangePointerCompare( NSRange *a, NSRange *b);
 
 #endif

@@ -76,26 +76,28 @@ struct MulleObjCAutoreleasePoolConfiguration;
 // Foundation does
 //
 + (BOOL) mulleIsMultiThreaded;   // __attribute__((availability(mulleobjc,introduced=0.2)));
++ (BOOL) mulleMainThreadWaitsAtExit;
++ (void) mulleSetMainThreadWaitsAtExit:(BOOL) flag;
 
 // mulle additons for tests
 
 // don't call join on a detached thread
-- (void) join;              // __attribute__((availability(mulleobjc,introduced=0.2)));
-- (void) detach;            // __attribute__((availability(mulleobjc,introduced=0.2)));
-- (void) startUndetached;   // __attribute__((availability(mulleobjc,introduced=0.2)));
+- (void) mulleJoin;              // __attribute__((availability(mulleobjc,introduced=0.2)));
+- (void) mulleDetach;            // __attribute__((availability(mulleobjc,introduced=0.2)));
+- (void) mulleStartUndetached;   // __attribute__((availability(mulleobjc,introduced=0.2)));
 
 // do this only once, the runloop will be retained by NSThread
 // do not use the passed in runLoop, instead use the return value
-- (id) setRunLoop:(id) runLoop;
-- (id) runLoop;
+- (id) mulleSetRunLoop:(id) runLoop;
+- (id) mulleRunLoop;
 
 //
 // a pthread or C11 thread that wants to call ObjC functions must minimally call
 // _mulle_objc_thread_become_universethread beforehand and must call
 // _mulle_objc_thread_resignas_universethread before exiting
 //
-void  _mulle_objc_thread_become_universethread( struct _mulle_objc_universe *universe);
-void  _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *universe);       // NSThread object should be gone already
+void   _mulle_objc_thread_become_universethread( struct _mulle_objc_universe *universe);
+void   _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *universe);       // NSThread object should be gone already
 
 
 #pragma mark -

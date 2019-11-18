@@ -309,7 +309,7 @@ static struct _mulle_objc_object   *
    assert( classid);
 
    universe             = _mulle_objc_infraclass_get_universe( infraCls);
-   placeholderInfracls  = _mulle_objc_universe_lookup_infraclass_nofail( universe, classid);
+   placeholderInfracls  = mulle_objc_universe_lookup_infraclass_nofail( universe, classid);
 
    placeholder       = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
    _mulle_objc_object_constantify_noatomic( placeholder);
@@ -1221,6 +1221,7 @@ void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
    mulle_objc_lldb_lookup_implementation( 0, 0, NULL);
    mulle_objc_lldb_lookup_isa( 0, 0);
    $__lldb_objc_object_check( 0, 0);
+   mulle_objc_lldb_check_object( 0, 0);
    mulle_objc_lldb_lookup_descriptor_by_name( 0);
 }
 

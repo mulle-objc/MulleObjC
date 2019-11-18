@@ -7,9 +7,9 @@
 
 static void   test_contains_range( NSRange range1, NSRange range2)
 {
-   printf( "[%ld - %ld] contains range [%ld - %ld] ? %s\n",
-               (long) range1.location, (long) (range1.location + range1.length),
-               (long) range2.location, (long) (range2.location + range2.length),
+   printf( "[%ld,%ld] contains range [%ld,%ld] ? %s\n",
+               (long) range1.location, (long) range1.length,
+               (long) range2.location, (long) range2.length,
       MulleObjCRangeContainsRange( range1, range2) ? "YES" : "NO");
 
 }

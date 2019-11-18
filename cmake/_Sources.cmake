@@ -26,6 +26,7 @@ src/mulle-objc-universeconfiguration.m
 src/mulle-objc-universefoundationinfo.m
 src/protocol/MulleObjCClassCluster.m
 src/protocol/MulleObjCException.m
+src/protocol/MulleObjCProtocol.m
 src/protocol/MulleObjCSingleton.m
 src/protocol/MulleObjCTaggedPointer.m
 src/protocol/NSCoding.m

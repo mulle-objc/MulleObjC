@@ -89,34 +89,47 @@
  */
 void   _mulle_objc_thread_become_universethread( struct _mulle_objc_universe  *universe)
 {
+   mulle_thread_t   thread;
+
    //
    // the universe may have done this already for us if we are the
    // "main" thread
    //
-   if( mulle_thread_self() != universe->thread)
+   thread = mulle_thread_self();
+   if( thread != universe->thread)
    {
+      if( universe->debug.trace.universe)
+         mulle_objc_universe_trace( universe, "mulle-thread %p retains the universe",
+                                    (void *) thread);
       _mulle_objc_universe_retain( universe);
       mulle_objc_thread_setup_threadinfo( universe);
       _mulle_objc_thread_register_universe_gc( universe);
    }
 
-   assert( _mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
+   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
    mulle_objc_thread_new_poolconfiguration( universe);
 }
 
 
 void  _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *universe)
 {
+   mulle_thread_t   thread;
+
    mulle_objc_thread_done_poolconfiguration( universe);
 
    //
    // the universe will do this, if we are the
    // "main" thread
    //
-   if( mulle_thread_self() != universe->thread)
+   thread = mulle_thread_self();
+   if( thread != universe->thread)
    {
       _mulle_objc_thread_remove_universe_gc( universe);
       mulle_objc_thread_unset_threadinfo( universe);      // can't call Objective-C anymore
+
+      if( universe->debug.trace.universe)
+         mulle_objc_universe_trace( universe, "mulle-thread %p releases the universe",
+                                    (void *) thread);
       _mulle_objc_universe_release( universe);
    }
 }
@@ -323,6 +336,24 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
 }
 
 
++ (BOOL) mulleMainThreadWaitsAtExit
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = _mulle_objc_infraclass_get_universe( self);
+   return( universe->config.wait_threads_on_exit);
+}
+
+
++ (void) mulleSetMainThreadWaitsAtExit:(BOOL) flag
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = _mulle_objc_infraclass_get_universe( self);
+   universe->config.wait_threads_on_exit = flag;
+}
+
+
 + (void) _goingSingleThreaded
 {
    // but still multi-threaded ATM (!)
@@ -349,7 +380,7 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
 }
 
 
-- (id) runLoop
+- (id) mulleRunLoop
 {
    return( _mulle_atomic_pointer_read( &self->_runLoop));
 }
@@ -366,7 +397,7 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 
 
 
-- (id) setRunLoop:(id) runLoop
+- (id) mulleSetRunLoop:(id) runLoop
 {
    id   otherRunloop;
 
@@ -450,7 +481,7 @@ static void   bouncyBounce( void *arg)
    Once a thread has been detached, it can't be joined with pthread_join(3) or
    be made joinable again.
 */
-- (void) detach
+- (void) mulleDetach
 {
    [self retain];
 
@@ -464,7 +495,7 @@ static void   bouncyBounce( void *arg)
    terminate.  If that thread has already terminated, then pthread_join()
    returns immediately. The thread specified by thread must be joinable.
 */
-- (void) join
+- (void) mulleJoin
 {
    struct _mulle_objc_universe   *universe;
 
@@ -472,13 +503,13 @@ static void   bouncyBounce( void *arg)
    {
       universe = _mulle_objc_object_get_universe( self),
       __mulle_objc_universe_raise_internalinconsistency( universe,
-                        "can't join a detached thread. Use -startUndetached");
+                        "can't join a detached thread. Use -mulleStartUndetached");
    }
    mulle_thread_join( self->_thread);
 }
 
 
-- (void) startUndetached
+- (void) mulleStartUndetached
 {
    struct _mulle_objc_universefoundationinfo   *info;
    struct _mulle_objc_universe                 *universe;
@@ -500,8 +531,8 @@ static void   bouncyBounce( void *arg)
 
 - (void) start
 {
-   [self startUndetached];
-   [self detach];
+   [self mulleStartUndetached];
+   [self mulleDetach];
 }
 
 

@@ -31,10 +31,6 @@ typedef intptr_t    NSInteger;
 #endif
 
 
-// enum can't hold it
-#define NSNotFound    NSIntegerMax
-
-
 typedef enum
 {
    NSOrderedAscending = -1,
