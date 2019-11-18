@@ -36,45 +36,35 @@
 #include "NSRange.h"
 
 
-NSRange   NSIntersectionRange( NSRange range, NSRange other)
+NSComparisonResult  MulleObjCRangePointerCompare( NSRange *a, NSRange *b)
 {
-   NSUInteger   location;
-   NSUInteger   min;
-   NSUInteger   max1;
-   NSUInteger   max2;
-   NSRange      result;
-
-   max1 = NSMaxRange( range);
-   max2 = NSMaxRange( other);
-   min  = (max1 < max2) ? max1 : max2;
-   location  = (range.location > other.location) ? range.location : other.location;
-
-   if( min < location)
-      result.location = result.length = 0;
-   else
-   {
-      result.location = location;
-      result.length   = min - location;
-   }
-
-   return( result);
+   return( MulleObjCRangeCompare( *a, *b));
 }
 
 
-NSRange   NSUnionRange( NSRange range, NSRange other)
+NSRange  MulleObjCRangeCombine( NSRange aRange, NSRange bRange)
 {
-   NSUInteger   location;
-   NSUInteger   max;
-   NSUInteger   max1;
-   NSUInteger   max2;
-   NSRange      result;
+   NSRange      *a = &aRange;
+   NSRange      *b = &bRange;
+   NSUInteger   a_end;
+   NSUInteger   b_end;
 
-   max1 = NSMaxRange( range);
-   max2 = NSMaxRange( other);
-   max  = (max1 > max2) ? max1 : max2;
-   location  = (range.location < other.location) ? range.location : other.location;
+   if( a->location > b->location)
+   {
+      a = &bRange;
+      b = &aRange;
+   }
 
-   result.location = location;
-   result.length   = max - result.location;
-   return(result);
+   //
+   // { 0, 2 } ==  0 1
+   // { 3, 4 } ==  3 4 5 6
+   //
+   a_end = NSMaxRange( *a);
+   if( a_end < b->location)
+      return( NSMakeRange( NSNotFound, 0));
+
+   b_end = NSMaxRange( *b);
+   if( b_end > a_end)
+      a_end = b_end;
+   return( NSMakeRange( a->location, a_end - a->location));
 }

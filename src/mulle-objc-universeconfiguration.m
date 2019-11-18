@@ -1,5 +1,5 @@
 //
-//  mulle-objc_rootconfiguration.m
+//  mulle-objc-rootconfiguration.m
 //  MulleObjC
 //
 //  Copyright (c) 2016 Nat! - Mulle kybernetiK.
@@ -113,12 +113,12 @@ static void   foundationinfo_finalize( struct _mulle_objc_universe *universe,
 
    _mulle_objc_universe_get_foundationspace( universe, (void **) &space, NULL);
 
+   switch( stage)
+   {
    //
    // this will call mulle_objc_teardown_universe as that is the
    // teardown_callback in info
    //
-   switch( stage)
-   {
    case mulle_objc_will_finalize :
       _mulle_objc_universefoundationinfo_willfinalize( info);
       break;
@@ -360,7 +360,7 @@ const struct _mulle_objc_universeconfiguration   *
       },
       {
          sizeof( struct _mulle_objc_universeconfiguration),
-         &mulle_default_allocator,
+         NULL,
          { // exception vectors
             (void (*)()) perror_abort,
             (void (*)()) abort,

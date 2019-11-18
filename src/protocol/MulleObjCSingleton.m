@@ -119,6 +119,7 @@ static id  MulleObjCSingletonNew( Class self)
    mulle_objc_implementation_t   imp;
    mulle_objc_methodid_t         sel;
    struct _mulle_objc_class      *cls;
+
    //
    // avoid +alloc here so that subclass can "abort" on alloc if desired
    // singletons mare allocated with the standard instance allocator,
@@ -139,6 +140,7 @@ static id  MulleObjCSingletonNew( Class self)
    if( imp)
       singleton = (*imp)( singleton, sel, singleton);
 
+   // not really clear what to do/expect if singleton is nil
    return( (id) singleton);
 }
 
@@ -179,9 +181,12 @@ id  MulleObjCSingletonCreate( Class self)
       }
 
       singleton = [MulleObjCSingletonNew( self) autorelease];
-      dup       = _mulle_concurrent_hashmap_register( &ephemeralSingletonInstances,
-                                                    (intptr_t) self,
-                                                    singleton);
+      if( ! singleton)
+         abort();
+
+      dup = _mulle_concurrent_hashmap_register( &ephemeralSingletonInstances,
+                                                (intptr_t) self,
+                                                singleton);
       if( dup == MULLE_CONCURRENT_INVALID_POINTER)
          abort();
       return( dup ? dup : singleton);
@@ -204,6 +209,9 @@ id  MulleObjCSingletonCreate( Class self)
       }
 
       singleton = MulleObjCSingletonNew( self);
+      if( ! singleton)
+         abort();
+
       if( _mulle_objc_infraclass_set_singleton( self, (void *) singleton))
       {
          _mulle_objc_object_constantify_noatomic( singleton); // like autorelease

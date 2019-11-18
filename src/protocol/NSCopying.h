@@ -49,6 +49,7 @@
 // not really an instancetype (e.g. NSMutableSet returns NSSet)
 // Should return an instance that is immutable if possible
 //
+@optional
 - (id) copy;
 
 @end

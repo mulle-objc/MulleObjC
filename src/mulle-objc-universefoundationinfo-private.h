@@ -52,7 +52,6 @@ struct _mulle_objc_universefoundationinfo_object
    unsigned char       debugenabled;
    unsigned char       zombieenabled;
    unsigned char       deallocatezombies;
-   unsigned char       unused;
 };
 
 
@@ -60,7 +59,7 @@ struct _mulle_objc_universefoundationinfo_thread
 {
    void                      *mainthread;  // NSThread object not retained
    mulle_atomic_pointer_t    n_threads;
-   BOOL                      was_multi_threaded;
+   char                      was_multi_threaded;
 };
 
 

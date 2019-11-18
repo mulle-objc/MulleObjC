@@ -48,7 +48,7 @@ static int   n_instances;
 
 
 
-main()
+int main( void)
 {
    NSThread   *thread;
 
@@ -56,7 +56,8 @@ main()
                                           selector:@selector( test)
                                             object:nil];
    printf( "startUndetached\n");
-   [thread startUndetached];
-   [thread join];
+   [thread mulleStartUndetached];
+   [thread mulleJoin];
    printf( "joined\n");
+   return( 0);
 }

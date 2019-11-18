@@ -70,7 +70,7 @@ static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_unive
 {
    char   *s;
 
-   config->poolClass          = _mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool));
+   config->poolClass          = mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool));
    config->autoreleaseObject  = _autoreleaseObject;
    config->autoreleaseObjects = _autoreleaseObjects;
    config->push               = pushAutoreleasePool;

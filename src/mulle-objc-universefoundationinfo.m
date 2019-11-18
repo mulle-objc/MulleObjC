@@ -196,6 +196,8 @@ void
    universe = info->universe;
    assert( universe);
 
+
+
    //
    // we empty out the pool with the remaining user objects now before anything
    // else

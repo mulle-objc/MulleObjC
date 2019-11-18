@@ -47,6 +47,7 @@
 - (void) removeObjectAtIndex:(NSUInteger) i;
 - (void) addObject:(id <NSObject>) obj;
 - (void) removeLastObject;
+- (void) removeAllObjects;
 - (void) replaceObjectAtIndex:(NSUInteger) i
                   withObject:(id <NSObject>) obj;
 
@@ -70,6 +71,7 @@
 - (void) setObject:(id <NSObject>) object
             forKey:(id <NSObject, NSCopying>) key;
 - (void) removeObjectForKey:(id <NSObject, NSCopying>) key;
+- (void) removeAllObjects;
 
 @end
 
@@ -90,6 +92,7 @@
 
 - (void) addObject:(id <NSObject>) obj;
 - (void) removeObject:(id <NSObject>) obj;
+- (void) removeAllObjects;
 
 @end
 
