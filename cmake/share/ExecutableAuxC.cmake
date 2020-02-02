@@ -10,4 +10,5 @@ if( NOT __EXECUTABLE_C_AUX_CMAKE__)
 
    include( ExecutableObjC)
    include( OptimizedLinkObjC)
+
 endif()

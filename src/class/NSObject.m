@@ -117,6 +117,7 @@
    return( obj);
 }
 
+
 - (void) dealloc
 {
    _MulleObjCObjectFree( self);
@@ -308,12 +309,11 @@ static struct _mulle_objc_object   *
 
    assert( classid);
 
-   universe             = _mulle_objc_infraclass_get_universe( infraCls);
-   placeholderInfracls  = mulle_objc_universe_lookup_infraclass_nofail( universe, classid);
-
-   placeholder       = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
+   universe            = _mulle_objc_infraclass_get_universe( infraCls);
+   placeholderInfracls = mulle_objc_universe_lookup_infraclass_nofail( universe, classid);
+   placeholder         = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
+   placeholder->_cls   = infraCls;
    _mulle_objc_object_constantify_noatomic( placeholder);
-   placeholder->_cls = infraCls;
 
    initSel = @selector( __initPlaceholder);
    pcls    = _mulle_objc_infraclass_as_class( placeholderInfracls);
@@ -351,6 +351,12 @@ retry:
 
 
 + (instancetype) instantiatedObject // alloc + autorelease + init
+{
+   return( [[self instantiate] init]);
+}
+
+
++ (instancetype) object // same as above
 {
    return( [[self instantiate] init]);
 }
@@ -982,10 +988,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 }
 
 
-//
-// subclasses should just override this, for best performance
-//
-- (void *) forward:(void *) _param
+- (void *) forward:(void *) param
 {
    id                  target;
    NSMethodSignature   *signature;
@@ -996,7 +999,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    if( target)
       return( mulle_objc_object_inlinecall_variablemethodid( target,
                                                              (mulle_objc_methodid_t) _cmd,
-                                                             _param));
+                                                             param));
    /*
     * the slowness of these operations can not even be charted
     * I need to code something better
@@ -1024,7 +1027,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    // could set target here, but seems pointless (Apple seems to do it though)
    // and a waste of time
    [invocation setSelector:_cmd];
-   [invocation _setMetaABIFrame:_param];
+   [invocation _setMetaABIFrame:param];
    [self forwardInvocation:invocation];
 
    switch( [signature _methodMetaABIReturnType])
@@ -1037,8 +1040,8 @@ static int   collect( struct _mulle_objc_ivar *ivar,
       return( rval);
 
    case MulleObjCMetaABITypeParameterBlock :
-      [invocation getReturnValue:_param];
-      return( _param);
+      [invocation getReturnValue:param];
+      return( param);
    }
 }
 

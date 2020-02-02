@@ -13,6 +13,10 @@ pgomgr.exe;optional
 pgocvt.exe;optional
 pgosweep.exe;optional
 xdcmake.exe;optional
+mulle-clang;remove
+mulle-lldb;remove
+mulle-clang-cl.exe
+mulle-lldb.exe;optional
 cmake;remove
 cmake.exe
 ninja.exe;optional

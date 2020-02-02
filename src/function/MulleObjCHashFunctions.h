@@ -1,9 +1,9 @@
 //
-//  MulleProtocol.h
-//  MulleObjC
+//  MulleObjCHash.h
+//  MulleObjCStandardFoundation
 //
-//  Copyright (c) 2019 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2019 Codeon GmbH.
+//  Copyright (c) 2017 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2017 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -33,37 +33,50 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "NSCopying.h"
+#include "include.h"
 
-#import "MulleObjCRuntimeObject.h"
-
-//
-// A value is a base type, considered to be one value
-// like NSString, NSDate. Could have named MulleAtom too, but I don't know...
-//
-// A value is not a composite of values or other objects. If it has a settable
-// property (not readonly), it's not a value.
-//
-@protocol MulleObjCValue
-@end
-
-//
-// MulleImmutables are inherently thread safe. Structure your value class
-// to have a MulleObjCPlaceholder like NSData. This is a MulleValue so
-// NSData : NSObject <MulleValue>. Then have a concrete immutable subclass
-// like _NSConcreteData : NSData < MulleImmutable>.
-//
-@protocol NSCopying;
-@protocol MulleObjCRuntimeObject;
-
-_PROTOCOLCLASS_INTERFACE( MulleObjCImmutable, NSCopying, MulleObjCRuntimeObject)
-PROTOCOLCLASS_END()
+#include "NSRange.h"
 
 
-//
-// Inherently any class that isn't marked immutable must be considered
-// mutable, so this doesn't exist.
-//
-// @protocol MulleObjCMutable
-// @end
+
+// limit hash to last 48 bytes
+
+static inline NSRange   MulleObjCGetHashBytesRange( NSUInteger length)
+{
+   NSUInteger   offset;
+
+   offset = 0;
+   if( length > 48)
+   {
+      offset = length - 48;
+      length = 48;
+   }
+   return( NSMakeRange( offset, length));
+}
+
+
+static inline NSUInteger   MulleObjCBytesHash( void *buf, NSUInteger length)
+{
+   if( ! buf)
+      return( -1);
+   return( _mulle_objc_fnv1a( buf, length));
+}
+
+
+static inline NSUInteger   MulleObjCBytesHashRange( void *buf, NSRange range)
+{
+   if( ! buf)
+      return( -1);
+   return( _mulle_objc_fnv1a( &((char *)buf)[ range.location], range.length));
+}
+
+
+static inline NSUInteger   MulleObjCBytesPartialHash( void *buf, NSUInteger length)
+{
+   NSRange   range;
+
+   range = MulleObjCGetHashBytesRange( length);
+   return( MulleObjCBytesHashRange( buf, range));
+}
+
 

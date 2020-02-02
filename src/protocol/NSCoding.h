@@ -61,5 +61,16 @@
 //@optional
 //- (void) encodeDecodeWithCoder:(NSCoder *) aDecoder;
 
+@optional
+- (void) encodeValueOfObjCType:(char *) signature
+                            at:(void *) pointer;
+- (void) decodeValueOfObjCType:(char *) signature
+                            at:(void *) pointer;
+- (void *) decodeBytesWithReturnedLength:(NSUInteger *) len_p;
+- (void) encodeBytes:(void *) bytes
+              length:(NSUInteger) length;
+- (void) encodeObject:(id) object;
+- (id) decodeObject;
+
 @end
 

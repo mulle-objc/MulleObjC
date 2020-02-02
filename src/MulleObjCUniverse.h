@@ -1,12 +1,13 @@
 //
-//  ns_int_type.h
+//  MulleObjCUniverse.h
 //  MulleObjC
 //
 //  Created by Nat! on 29.03.17.
 //  Copyright © 2017 Mulle kybernetiK. All rights reserved.
 //
 
-// This should be includeable by C and not require linkage with MulleObjC
+// This must be compiled with the mulle-clang compiler to get the
+// __MULLE_OBJC_UNIVERSEID__
 
 #ifndef MulleObjCUniverse__h__
 #define MulleObjCUniverse__h__

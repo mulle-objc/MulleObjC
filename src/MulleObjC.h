@@ -65,6 +65,7 @@
 #import "NSContainer.h"
 #import "NSEnumeration.h"
 #import "NSLocking.h"
+#import "NSMutableCopying.h"
 #import "NSObjectProtocol.h"
 #import "MulleObjCProtocol.h"
 
@@ -77,4 +78,5 @@
 // functions
 #import "MulleObjCAllocation.h"
 #import "MulleObjCFunctions.h"
+#import "MulleObjCUniverse.h"
 

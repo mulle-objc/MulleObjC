@@ -55,17 +55,18 @@ typedef NSRange              *NSRangePointer;
 
 static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
 {
-    NSRange    range;
+   NSRange    range;
 
-    range.location = location;
-    range.length   = length;
-    return( range);
+   range.location = location;
+   range.length   = length;
+
+   return( range);
 }
 
 
 static inline NSUInteger   NSMaxRange( NSRange range)
 {
-   return( mulle_range_get_end( range));
+  return( mulle_range_get_end( range));
 }
 
 

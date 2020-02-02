@@ -1,9 +1,9 @@
 //
-//  MulleProtocol.h
-//  MulleObjC
+//  NSMutableCopying.h
+//  MulleObjCContainerFoundation
 //
-//  Copyright (c) 2019 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2019 Codeon GmbH.
+//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -33,37 +33,16 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "NSCopying.h"
 
-#import "MulleObjCRuntimeObject.h"
 
 //
-// A value is a base type, considered to be one value
-// like NSString, NSDate. Could have named MulleAtom too, but I don't know...
+// this an ill-conceived legacy protocol. It breaks the possibilty of
+// returning nil, for an empty container. (-copy is fine though)
 //
-// A value is not a composite of values or other objects. If it has a settable
-// property (not readonly), it's not a value.
-//
-@protocol MulleObjCValue
+@protocol NSMutableCopying
+
+- (id) mutableCopy
+   __attribute__((deprecated( "mutableCopy does not work as expected, if the receiver is nil",
+                              "Use a NSMutable<Class> constructor instead")));
+
 @end
-
-//
-// MulleImmutables are inherently thread safe. Structure your value class
-// to have a MulleObjCPlaceholder like NSData. This is a MulleValue so
-// NSData : NSObject <MulleValue>. Then have a concrete immutable subclass
-// like _NSConcreteData : NSData < MulleImmutable>.
-//
-@protocol NSCopying;
-@protocol MulleObjCRuntimeObject;
-
-_PROTOCOLCLASS_INTERFACE( MulleObjCImmutable, NSCopying, MulleObjCRuntimeObject)
-PROTOCOLCLASS_END()
-
-
-//
-// Inherently any class that isn't marked immutable must be considered
-// mutable, so this doesn't exist.
-//
-// @protocol MulleObjCMutable
-// @end
-

@@ -54,8 +54,10 @@ static char   *
 	   												void *p,
 			  										   struct mulle_allocator **p_allocator)
 {
-	auto char   buf[ 64];
+	auto char   buf[ 20 + 1];
    char        *s;
+
+   assert( sizeof( int) <= 8);
 
 	sprintf( buf, "%d", (int) (uintptr_t) p);
    s = mulle_allocator_strdup( *p_allocator, buf);
@@ -69,8 +71,10 @@ static char   *
 														   void *p,
 		   											   struct mulle_allocator **p_allocator)
 {
-	auto char   buf[ 64];
+	auto char   buf[ 40 + 1];
    char        *s;
+
+   assert( sizeof( long long) <= 16);
 
 	sprintf( buf, "%lld", (long long) (uintptr_t) p);
    s = mulle_allocator_strdup( *p_allocator, buf);
@@ -102,6 +106,25 @@ struct mulle_container_keycallback      NSIntegerMapKeyCallBacks =
 };
 
 
+static uintptr_t   mulle_objc_keycallback_no_hash( struct mulle_container_keycallback *callback, void *p)
+{
+   return( (uintptr_t) p);
+}
+
+
+struct mulle_container_keycallback      MulleSELMapKeyCallBacks =
+{
+   mulle_objc_keycallback_no_hash,
+   mulle_container_keycallback_pointer_is_equal,
+   mulle_container_keycallback_self,
+   mulle_container_keycallback_nop,
+   (mulle_container_keycallback_describe_t *)  mulle_container_callback_intptr_describe,
+   mulle_container_not_an_intptr_key,
+   NULL
+};
+
+
+
 struct mulle_container_valuecallback    NSIntMapValueCallBacks =
 {
    mulle_container_valuecallback_self,
@@ -129,8 +152,10 @@ static char   *
 															 void *p,
 															 struct mulle_allocator **p_allocator)
 {
-	auto char   buf[ 64];
+	auto char   buf[ 40 + 2 + 1];
    char        *s;
+
+   assert( sizeof( void *) <= 16);
 
 	sprintf( buf, "%p", p);
    s = mulle_allocator_strdup( *p_allocator, buf);
@@ -192,6 +217,94 @@ struct mulle_container_valuecallback   NSOwnedPointerMapValueCallBacks =
    mulle_container_callback_pointer_describe,
    NULL
 };
+
+
+struct mulle_container_valuecallback   MulleSELMapValueCallBacks =
+{
+   mulle_container_valuecallback_self,
+   mulle_container_valuecallback_nop,
+   mulle_container_callback_pointer_describe,
+   NULL
+};
+
+
+
+// use mulle-container instead ?
+// #pragma mark -
+// #pragma mark CString
+//
+// static char   *
+//    mulle_container_callback_cstring_describe( struct mulle_container_valuecallback *callback,
+//                                               void *p,
+//                                               struct mulle_allocator **p_allocator)
+// {
+//    return( p);
+// }
+//
+//
+// const struct mulle_container_keycallback   MulleNonOwnedCStringMapKeyCallBacks =
+// {
+//    mulle_container_keycallback_cstring_hash,
+//    mulle_container_keycallback_cstring_is_equal,
+//    mulle_container_keycallback_self,
+//    mulle_container_keycallback_nop,
+//    (mulle_container_keycallback_describe_t *) mulle_container_callback_cstring_describe,
+//    NULL,
+//    NULL
+// };
+//
+//
+// const struct mulle_container_keycallback   MulleOwnedCStringMapKeyCallBacks =
+// {
+//    mulle_container_keycallback_cstring_hash,
+//    mulle_container_keycallback_cstring_is_equal,
+//    mulle_container_keycallback_self,
+//    mulle_container_keycallback_pointer_free,
+//    (mulle_container_keycallback_describe_t *) mulle_container_callback_cstring_describe,
+//    NULL,
+//    NULL
+// };
+//
+//
+// const struct mulle_container_keycallback   MulleCopiedCStringMapKeyCallBacks =
+// {
+//    mulle_container_keycallback_cstring_hash,
+//    mulle_container_keycallback_cstring_is_equal,
+//    mulle_container_keycallback_cstring_strdup,
+//    mulle_container_keycallback_pointer_free,
+//    (mulle_container_keycallback_describe_t *) mulle_container_callback_cstring_describe,
+//    NULL,
+//    NULL
+// };
+//
+//
+//
+// const struct mulle_container_valuecallback   MulleNonOwnedCStringMapValueCallBacks =
+// {
+//    mulle_container_valuecallback_self,
+//    mulle_container_valuecallback_nop,
+//    mulle_container_callback_cstring_describe,
+//    NULL
+// };
+//
+//
+// const struct mulle_container_valuecallback   MulleOwnedCStringMapValueCallBacks =
+// {
+//    mulle_container_valuecallback_self,
+//    mulle_container_valuecallback_pointer_free,
+//    mulle_container_callback_cstring_describe,
+//    NULL
+// };
+//
+//
+// const struct mulle_container_valuecallback   MulleCopiedCStringMapValueCallBacks =
+// {
+//    mulle_container_keycallback_cstring_strdup,
+//    mulle_container_valuecallback_pointer_free,
+//    mulle_container_callback_cstring_describe,
+//    NULL
+// };
+//
 
 
 #pragma mark -

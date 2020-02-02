@@ -40,6 +40,7 @@
 // other files in this library
 #include "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
+#import "MulleObjCUniverse.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
 #import "mulle-objc-exceptionhandlertable-private.h"

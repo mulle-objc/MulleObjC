@@ -30,6 +30,7 @@ src/MulleObjCCompiler.h
 src/MulleObjCIntegralType.h
 src/MulleObjCUniverse.h
 src/MulleObjC.h
+src/class/MulleObjCAutoreleasePool.h
 src/class/MulleObjCLoader.h
 src/class/NSAutoreleasePool.h
 src/class/NSInvocation.h
@@ -43,6 +44,7 @@ src/class/NSThread.h
 src/function/MulleObjCAllocation.h
 src/function/MulleObjCExceptionHandler.h
 src/function/MulleObjCFunctions.h
+src/function/MulleObjCHashFunctions.h
 src/function/MulleObjCStackFrame.h
 src/function/NSByteOrder.h
 src/function/NSDebug.h
@@ -66,6 +68,7 @@ src/protocol/NSContainer.h
 src/protocol/NSCopying.h
 src/protocol/NSEnumeration.h
 src/protocol/NSLocking.h
+src/protocol/NSMutableCopying.h
 src/protocol/NSObjectProtocol.h
 src/struct/MulleObjCContainerCallback.h
 src/struct/NSRange.h

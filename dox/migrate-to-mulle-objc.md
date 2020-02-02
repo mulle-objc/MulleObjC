@@ -8,13 +8,13 @@ not.
 
 ### `Protocol` does not exist
 
-`Protocol` as a type and pseudo-class does not exist in **mulle-objc**. Use `PROTOCOL` instead if you can. Rewrite your code do use `PROTOCOL` and make this **typedef** for 
+`Protocol` as a type and pseudo-class does not exist in **mulle-objc**. Use `PROTOCOL` instead if you can. Rewrite your code do use `PROTOCOL` and make this **typedef** for
 other runtimes:
 
 ```
 #ifndef __MULLE_OBJC__
 typedef Protocol    *PROTOCOL;
-#endif   
+#endif
 ```
 
 
@@ -53,7 +53,7 @@ Example:
 
    imp = [foo methodForSelector:@selector( setValue:forKey:)];
 #ifdef __MULLE_OBJC__
-   MulleObjCCallIMP2( imp, foo, @selector( setValue:forKey:), a, b);
+   MulleObjCIMPCall2( imp, foo, @selector( setValue:forKey:), a, b);
 #else
    (*imp)( foo, @selector( setValue:forKey:), a, b);
 #endif

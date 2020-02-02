@@ -394,6 +394,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       break;
 
    case MulleObjCMetaABITypeVoidPointer    :
+      // rval, self, _cmd, _param (3)
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
       assert( NSInvocationIsFrameRangeValid( self, param, sizeof( void *)));
@@ -402,10 +403,10 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       break;
 
    case MulleObjCMetaABITypeParameterBlock :
+      // rval, self, _cmd, _param (3)
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->offset];
-      size  = [_methodSignature frameLength];
-      size -= sizeof( id) - sizeof( SEL);
+      size  = info->natural_size;
       assert( NSInvocationIsFrameRangeValid( self, param, size));
 
       if( frame)

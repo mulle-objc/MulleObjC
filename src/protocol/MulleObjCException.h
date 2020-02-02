@@ -36,8 +36,9 @@
 
 #import "NSObject.h"
 
-
+#import "NSRange.h"
 // base your exception subclass on this
+
 
 @protocol MulleObjCException
 
@@ -51,4 +52,91 @@
 
 @class MulleObjCException; // needed for the compiler to understand this is
                            // protocol class
+
+
+
+/*
+ * All these functions vector through the foundation data of the compiled
+ * for universe. In a usual configuration the
+ * MulleObjCStandardFoundation-startup or derived Foundation-startup will have
+ * installed NSException generating code in the functions vectors of the
+ * universe. So in the end this code will create and raise an NSException in
+ * MulleObjCStandardFoundation.
+ */
+#define MulleObjCThrowInvalidArgumentException( ...) \
+   _MulleObjCThrowInvalidArgumentException( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
+
+#define MulleObjCThrowInvalidIndexException( index) \
+   _MulleObjCThrowInvalidIndexException( __MULLE_OBJC_UNIVERSEID__, (index))
+
+#define MulleObjCThrowInternalInconsistencyException( ...) \
+   _MulleObjCThrowInternalInconsistencyException( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
+
+#define MulleObjCThrowErrnoException( ...) \
+   _MulleObjCThrowErrnoException( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
+
+#define MulleObjCThrowInvalidRangeException( range) \
+   _MulleObjCThrowInvalidRangeException( __MULLE_OBJC_UNIVERSEID__, (range))
+
+
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInvalidIndexException( mulle_objc_universeid_t universeid,
+                                             NSUInteger index);
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInvalidRangeException( mulle_objc_universeid_t universeid,
+                                             NSRange range);
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInvalidArgumentException( mulle_objc_universeid_t universeid,
+                                                id format, ...);
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInternalInconsistencyException( mulle_objc_universeid_t universeid,
+                                                      id format, ...);
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowErrnoException( mulle_objc_universeid_t universeid,
+                                      id format, ...);
+
+
+/*
+ * C String interface
+ */
+#define MulleObjCThrowErrnoExceptionCString( ...) \
+   _MulleObjCThrowErrnoExceptionCString( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
+
+#define MulleObjCThrowInternalInconsistencyExceptionCString( ...) \
+   _MulleObjCThrowInternalInconsistencyExceptionCString( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
+
+#define MulleObjCThrowInvalidArgumentExceptionCString( ...) \
+   _MulleObjCThrowInvalidArgumentExceptionCString( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
+
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInvalidArgumentExceptionCString( mulle_objc_universeid_t universeid,
+                                                       char *format, ...);
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInternalInconsistencyExceptionCString( mulle_objc_universeid_t universeid,
+                                                             char *format, ...);
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowErrnoExceptionCString( mulle_objc_universeid_t universeid,
+                                             char *format, ...);
+
+
+
+static inline void   MulleObjCValidateRangeAgainstLength( NSRange range,
+                                                          NSUInteger length)
+{
+   NSUInteger  end;
+   //
+   // assume NSUInteger is 8 bit, then we need to check for also for a
+   // negative length/location value making things difficult { 3, 255 }
+   //
+   end = mulle_range_get_end( range);
+   if( end > length || end < range.location)
+      MulleObjCThrowInvalidRangeException( range);
+}
 

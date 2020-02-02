@@ -52,7 +52,8 @@
 
 #include "MulleObjCCompiler.h"
 #include "MulleObjCIntegralType.h"
-#include "MulleObjCUniverse.h"
+#include "MulleObjCHashFunctions.h"
+//#include "MulleObjCUniverse.h"
 
 #include "NSByteOrder.h"
 #include "NSRange.h"
