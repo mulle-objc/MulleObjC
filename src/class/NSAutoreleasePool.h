@@ -36,7 +36,8 @@
 #import "NSObject.h"
 
 #import "NSThread.h"
-#import "mulle-objc-threadfoundationinfo.h"
+
+#import "MulleObjCAutoreleasePool.h"
 
 
 #pragma clang diagnostic push
@@ -117,17 +118,6 @@ static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
 }
 
 
-static inline void   _MulleObjCAutoreleaseObject( id obj)
-{
-   struct _mulle_objc_poolconfiguration   *config;
-   struct _mulle_objc_universe            *universe;
-
-   universe = _mulle_objc_object_get_universe( obj);
-   config   = mulle_objc_thread_get_poolconfiguration( universe);
-   (*config->autoreleaseObject)( config, obj);
-}
-
-
 // the compiler will inline this directly
 __attribute__((always_inline))
 static inline id   NSAutoreleaseObject( id obj)
@@ -137,37 +127,3 @@ static inline id   NSAutoreleaseObject( id obj)
    return( obj);
 }
 
-
-static inline void
-   _MulleObjCAutoreleaseObjects( id *objects,
-                                 NSUInteger count,
-                                 struct _mulle_objc_universe *universe)
-{
-   struct _mulle_objc_poolconfiguration   *config;
-
-   config  = mulle_objc_thread_get_poolconfiguration( universe);
-   (*config->autoreleaseObjects)( config, objects, count, sizeof( id));
-}
-
-
-static inline void
-   _MulleObjCAutoreleaseSpacedObjects( id *objects,
-                                       NSUInteger count,
-                                       NSUInteger step,
-                                       struct _mulle_objc_universe *universe)
-{
-   struct _mulle_objc_poolconfiguration   *config;
-
-   config  = mulle_objc_thread_get_poolconfiguration( universe);
-   (*config->autoreleaseObjects)( config, objects, count, step);
-}
-
-
-// for NSThread
-void   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe);
-void   mulle_objc_thread_reset_poolconfiguration( struct _mulle_objc_universe *universe);
-void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *universe);
-
-
-void   MulleObjCAutoreleaseAllocation( void *pointer,
-												   struct mulle_allocator *allocator);

@@ -121,6 +121,10 @@
 + (instancetype) instantiate;             // alloc + autorelease
 - (instancetype) immutableInstance;       // copy + autorelease
 
+// TODO: call this just `object`
++ (instancetype) object;      // alloc + autorelease + init -> new
+
+// old name
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
 - (void) mullePerformFinalize;
@@ -183,9 +187,34 @@
 + (NSMethodSignature *) instanceMethodSignatureForSelector:(SEL) sel;
 
 //
-// subclasses should just override this, for best performance
+// subclasses should override forward:, for best performance. But it can be
+// tricky!
 //
-- (void *) forward:(void *) _param;
+// IMPORTANT!! Do not call [super forward:] as the forwarded selector
+// is contained in _cmd and would be clobbered by a regular method call
+// instead use _mulle_objc_object_inlinesuperlookup_implementation_nofail and
+// them send _cmd and args as received.
+//
+// Use the tool mulle-objc-uniqueid with '<yourclassname>;forward:' to create
+// a superid. Use this to lookup the implementation of super. Call it.
+// Don't forget to register the corresponding _mulle_objc_super in the universe.
+// You can dos this with:
+//
+// + (void) dontevercallme
+// {
+//    [super forward:];  // compiler will create the _mulle_objc_super.
+// }
+// - (void *) forward:(void *) param
+// {
+// #define MYID  0x????????
+//    IMP   imp;
+//    imp = _mulle_objc_object_inlinesuperlookup_implementation_nofail( self, MYID);
+//    return( (*imp)( self, _cmd, args));
+// }
+
+
+- (void *) forward:(void *) param;
+
 - (void) forwardInvocation:(NSInvocation *) anInvocation;
 
 @end

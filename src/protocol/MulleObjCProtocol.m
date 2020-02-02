@@ -11,7 +11,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCImmutable)
 }
 
 
-- (id) copyWithZone:(void *) zone
+- (id) copyWithZone:(NSZone *) zone
 {
    return( [self retain]);
 }

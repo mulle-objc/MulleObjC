@@ -39,6 +39,10 @@
 
 #import "MulleObjCExceptionHandler.h"
 
+#include "mulle-objc-exceptionhandlertable-private.h"
+#include "mulle-objc-universefoundationinfo-private.h"
+#include <stdarg.h>
+
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
@@ -70,4 +74,147 @@
 }
 
 @end
+
+
+
+MULLE_C_NO_RETURN
+void  _MulleObjCThrowInvalidArgumentException( mulle_objc_universeid_t universeid,
+                                              id format, ...)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *rootconfig;
+   va_list                                     args;
+
+   universe   = mulle_objc_global_get_universe( universeid);
+   rootconfig = _mulle_objc_universe_get_foundationdata( universe);
+
+   va_start( args, format);
+   (*rootconfig->exception.vectors.invalid_argument)( format, args);
+   va_end( args);
+}
+
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInvalidIndexException( mulle_objc_universeid_t universeid,
+                                             NSUInteger index)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *rootconfig;
+
+   universe   = mulle_objc_global_get_universe( universeid);
+   rootconfig = _mulle_objc_universe_get_foundationdata( universe);
+
+   (*rootconfig->exception.vectors.invalid_index)( index);
+}
+
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInternalInconsistencyException( mulle_objc_universeid_t universeid,
+                                                      id format, ...)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *rootconfig;
+   va_list                                     args;
+
+   universe   = mulle_objc_global_get_universe( universeid);
+   rootconfig = _mulle_objc_universe_get_foundationdata( universe);
+
+   va_start( args, format);
+   (*rootconfig->exception.vectors.internal_inconsistency)( format, args);
+   va_end( args);
+}
+
+
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInvalidRangeException( mulle_objc_universeid_t universeid,
+                                             NSRange range)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *rootconfig;
+
+   universe   = mulle_objc_global_get_universe( universeid);
+   rootconfig = _mulle_objc_universe_get_foundationdata( universe);
+
+   (*rootconfig->exception.vectors.invalid_range)( range);
+}
+
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowErrnoException( mulle_objc_universeid_t universeid,
+                                      id format, ...)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *rootconfig;
+   va_list                                     args;
+
+   universe   = mulle_objc_global_get_universe( universeid);
+   rootconfig = _mulle_objc_universe_get_foundationdata( universe);
+
+   va_start( args, format);
+   (*rootconfig->exception.vectors.errno_error)( format, args);
+   va_end( args);
+}
+
+
+/*
+ * C String interface
+ */
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInvalidArgumentExceptionCString( mulle_objc_universeid_t universeid,
+                                                       char *format, ...)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *rootconfig;
+   va_list                                     args;
+   id                                          string;
+
+
+   universe   = mulle_objc_global_get_universe( universeid);
+   rootconfig = _mulle_objc_universe_get_foundationdata( universe);
+
+   va_start( args, format);
+   string     = (*rootconfig->string.objectfromchars)( format);
+   (*rootconfig->exception.vectors.invalid_argument)( string, args);
+   va_end( args);
+}
+
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowInternalInconsistencyExceptionCString( mulle_objc_universeid_t universeid,
+                                                             char *format, ...)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *rootconfig;
+   va_list                                     args;
+   id                                          string;
+
+   universe   = mulle_objc_global_get_universe( universeid);
+   rootconfig = _mulle_objc_universe_get_foundationdata( universe);
+
+   va_start( args, format);
+   string     = (*rootconfig->string.objectfromchars)( format);
+   (*rootconfig->exception.vectors.internal_inconsistency)( string, args);
+   va_end( args);
+}
+
+
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowErrnoExceptionCString( mulle_objc_universeid_t universeid,
+                                             char *format, ...)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *rootconfig;
+   va_list                                     args;
+   id                                          string;
+
+   universe   = mulle_objc_global_get_universe( universeid);
+   rootconfig = _mulle_objc_universe_get_foundationdata( universe);
+
+   va_start( args, format);
+   string     = (*rootconfig->string.objectfromchars)( format);
+   (*rootconfig->exception.vectors.errno_error)( string, args);
+   va_end( args);
+}
+
 

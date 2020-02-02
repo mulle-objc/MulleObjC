@@ -24,9 +24,11 @@
 #include "mulle-objc-classbit.h"
 #include "mulle-objc-threadfoundationinfo.h"
 #include "MulleObjCAllocation.h"
+#include "MulleObjCAutoreleasePool.h"
+#include "MulleObjCContainerCallback.h"
 #include "MulleObjCExceptionHandler.h"
 #include "MulleObjCFunctions.h"
-#include "MulleObjCContainerCallback.h"
+#include "MulleObjCUniverse.h"
 
 
 #if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (16 << 8) | 0)

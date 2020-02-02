@@ -38,6 +38,8 @@
 
 #include "mulle-objc-exceptionhandlertable-private.h"
 
+// MEMO: not sure anymore why this is private ?
+
 
 // universe information pertaining to foundation
 // this gets filled during mulle_objc_universe_configure from data

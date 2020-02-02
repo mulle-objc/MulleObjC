@@ -67,6 +67,13 @@ static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 }
 
 
+
+#pragma mark -
+#pragma mark allocate memory to return char * autoreleased
+
+void   *MulleObjCAutoreleasedCalloc( NSUInteger n,
+                                     NSUInteger size);
+
 #pragma mark -
 #pragma mark allocate memory for objects
 
@@ -188,3 +195,7 @@ NSUInteger   MulleObjCCopyObjectArray( id *dst,
                                        NSUInteger dstCount,
                                        id *src,
                                        NSUInteger srcCount);
+
+
+// will not duplicate if *ivar == s
+void   MulleObjCObjectSetDuplicatedCString( id self, char **ivar, char *s);

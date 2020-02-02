@@ -277,3 +277,32 @@ NSUInteger   MulleObjCCopyObjectArray( id *objects,
    return( n);
 }
 
+
+void   MulleObjCObjectSetDuplicatedCString( id self, char **ivar, char *s)
+{
+   struct mulle_allocator  *allocator;
+
+   if( s == *ivar)
+      return;
+
+   allocator = MulleObjCObjectGetAllocator( self);
+   if( s)
+      s = mulle_allocator_strdup( allocator, s);
+
+   mulle_allocator_free( allocator, *ivar);
+   *ivar = s;
+}
+
+
+void   *MulleObjCAutoreleasedCalloc( NSUInteger n,
+                                     NSUInteger size)
+{
+   size_t   total;
+
+   total = n * size;
+   assert( ! total || (total >= size && total >= n));
+
+   return( [NSAllocateObject( [NSObject class],
+                              total,
+                              NULL) autorelease]);
+}

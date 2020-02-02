@@ -237,7 +237,7 @@ id  MulleObjCSingletonCreate( Class self)
                                        (intptr_t) _mulle_objc_object_get_isa( self),
                                        self);
 
-   imp = MulleObjCSearchOverriddenIMP( self, @selector( dealloc), @selector( MulleObjCSingleton), 0);
+   imp = MulleObjCObjectSearchOverriddenIMP( self, @selector( dealloc), @selector( MulleObjCSingleton), 0);
    assert( imp != (IMP) _mulle_objc_class_lookup_implementation( _mulle_objc_object_get_isa( self), @selector( dealloc)));
    (*imp)( self, @selector( dealloc), self);
 }

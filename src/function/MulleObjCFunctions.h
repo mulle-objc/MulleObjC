@@ -43,19 +43,19 @@ char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignm
 #pragma mark - imp calling helpers
 
 
-static inline id   MulleObjCCallIMP0( IMP imp, id obj, SEL sel)
+static inline id   MulleObjCIMPCall0( IMP imp, id obj, SEL sel)
 {
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, obj));
 }
 
 
-static inline id   MulleObjCCallIMP( IMP imp, id obj, SEL sel, id argument)
+static inline id   MulleObjCIMPCall( IMP imp, id obj, SEL sel, id argument)
 {
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, argument));
 }
 
 
-static inline id   MulleObjCCallIMP2( IMP imp, id obj, SEL sel, id a, id b)
+static inline id   MulleObjCIMPCall2( IMP imp, id obj, SEL sel, id a, id b)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { id a; id b;})  param;
 
@@ -65,7 +65,7 @@ static inline id   MulleObjCCallIMP2( IMP imp, id obj, SEL sel, id a, id b)
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
-static inline id   MulleObjCCallIMP3( IMP imp, id obj, SEL sel, id a, id b, id c)
+static inline id   MulleObjCIMPCall3( IMP imp, id obj, SEL sel, id a, id b, id c)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { id a; id b; id c;})  param;
 
@@ -76,7 +76,7 @@ static inline id   MulleObjCCallIMP3( IMP imp, id obj, SEL sel, id a, id b, id c
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
-static inline id   MulleObjCCallIMP4( IMP imp, id obj, SEL sel, id a, id b, id c, id d)
+static inline id   MulleObjCIMPCall4( IMP imp, id obj, SEL sel, id a, id b, id c, id d)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { id a; id b; id c; id d;})  param;
 
@@ -88,7 +88,7 @@ static inline id   MulleObjCCallIMP4( IMP imp, id obj, SEL sel, id a, id b, id c
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
-static inline id   MulleObjCCallIMP5( IMP imp, id obj, SEL sel, id a, id b, id c, id d, id e)
+static inline id   MulleObjCIMPCall5( IMP imp, id obj, SEL sel, id a, id b, id c, id d, id e)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { id a; id b; id c; id d; id e;})  param;
 
@@ -106,7 +106,7 @@ static inline id   MulleObjCCallIMP5( IMP imp, id obj, SEL sel, id a, id b, id c
 #pragma mark - KVC support (write)
 
 static inline id
-   MulleObjCCallIMPWithFloat( IMP imp, id obj, SEL sel, float argument)
+   MulleObjCIMPCallWithFloat( IMP imp, id obj, SEL sel, float argument)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { float a;})  param;
 
@@ -117,7 +117,7 @@ static inline id
 
 
 static inline id
-   MulleObjCCallIMPWithDouble( IMP imp, id obj, SEL sel, double argument)
+   MulleObjCIMPCallWithDouble( IMP imp, id obj, SEL sel, double argument)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { double a;})  param;
 
@@ -128,7 +128,7 @@ static inline id
 
 
 static inline id
-   MulleObjCCallIMPWithLongDouble( IMP imp, id obj, SEL sel, long double argument)
+   MulleObjCIMPCallWithLongDouble( IMP imp, id obj, SEL sel, long double argument)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { long double a;})  param;
 
@@ -139,12 +139,12 @@ static inline id
 
 
 static inline id
-   MulleObjCCallIMPWithLong( IMP imp, id obj, SEL sel, long argument)
+   MulleObjCIMPCallWithLong( IMP imp, id obj, SEL sel, long argument)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { long a;})  param;
 
    if( sizeof( long) <= sizeof( void *))
-      return( MulleObjCCallIMP( imp, obj, sel, (void *) (intptr_t) argument));
+      return( MulleObjCIMPCall( imp, obj, sel, (void *) (intptr_t) argument));
 
    param.p.a = argument;
 
@@ -153,12 +153,12 @@ static inline id
 
 
 static inline id
-   MulleObjCCallIMPWithUnsignedLong( IMP imp, id obj, SEL sel, unsigned long argument)
+   MulleObjCIMPCallWithUnsignedLong( IMP imp, id obj, SEL sel, unsigned long argument)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { unsigned long a;})  param;
 
    if( sizeof( unsigned long) <= sizeof( void *))
-      return( MulleObjCCallIMP( imp, obj, sel, (void *) (intptr_t) argument));
+      return( MulleObjCIMPCall( imp, obj, sel, (void *) (intptr_t) argument));
 
    param.p.a = argument;
 
@@ -167,12 +167,12 @@ static inline id
 
 
 static inline id
-   MulleObjCCallIMPWithLongLong( IMP imp, id obj, SEL sel, long long argument)
+   MulleObjCIMPCallWithLongLong( IMP imp, id obj, SEL sel, long long argument)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { long long a;})  param;
 
    if( sizeof( long long) <= sizeof( void *))
-      return( MulleObjCCallIMP( imp, obj, sel, (void *) (intptr_t) argument));
+      return( MulleObjCIMPCall( imp, obj, sel, (void *) (intptr_t) argument));
 
    param.p.a = argument;
 
@@ -181,7 +181,7 @@ static inline id
 
 
 static inline id
-   MulleObjCCallIMPWithUnsignedLongLong( IMP imp,
+   MulleObjCIMPCallWithUnsignedLongLong( IMP imp,
                                          id obj,
                                          SEL sel,
                                          unsigned long long argument)
@@ -189,7 +189,7 @@ static inline id
    mulle_objc_metaabi_param_block_voidptr_return( struct { unsigned long long a;})  param;
 
    if( sizeof( unsigned long long) <= sizeof( void *))
-      return( MulleObjCCallIMP( imp, obj, sel, (void *) (intptr_t) argument));
+      return( MulleObjCIMPCall( imp, obj, sel, (void *) (intptr_t) argument));
 
    param.p.a = argument;
 
@@ -198,7 +198,7 @@ static inline id
 
 #pragma mark - KVC support (read)
 
-static inline float   MulleObjCCallIMP0ReturningFloat( IMP imp, id obj, SEL sel)
+static inline float   MulleObjCIMPCall0ReturningFloat( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { float a;})  param;
 
@@ -208,7 +208,7 @@ static inline float   MulleObjCCallIMP0ReturningFloat( IMP imp, id obj, SEL sel)
 
 
 static inline double
-   MulleObjCCallIMP0ReturningDouble( IMP imp, id obj, SEL sel)
+   MulleObjCIMPCall0ReturningDouble( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { double a;})  param;
 
@@ -218,7 +218,7 @@ static inline double
 
 
 static inline long double
-   MulleObjCCallIMP0ReturningLongDouble( IMP imp, id obj, SEL sel)
+   MulleObjCIMPCall0ReturningLongDouble( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { long double a;})  param;
 
@@ -227,12 +227,12 @@ static inline long double
 }
 
 
-static inline long   MulleObjCCallIMP0ReturningLong( IMP imp, id obj, SEL sel)
+static inline long   MulleObjCIMPCall0ReturningLong( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { long a;})  param;
 
    if( sizeof( long) <= sizeof( void *))
-      return( (long) MulleObjCCallIMP0( imp, obj, sel));
+      return( (long) MulleObjCIMPCall0( imp, obj, sel));
 
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
@@ -240,12 +240,12 @@ static inline long   MulleObjCCallIMP0ReturningLong( IMP imp, id obj, SEL sel)
 
 
 static inline unsigned long
-   MulleObjCCallIMP0ReturningUnsignedLong( IMP imp, id obj, SEL sel)
+   MulleObjCIMPCall0ReturningUnsignedLong( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { unsigned long a;})  param;
 
    if( sizeof( unsigned long) <= sizeof( void *))
-      return( (unsigned long) MulleObjCCallIMP0( imp, obj, sel));
+      return( (unsigned long) MulleObjCIMPCall0( imp, obj, sel));
 
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
@@ -253,12 +253,12 @@ static inline unsigned long
 
 
 static inline long long
-   MulleObjCCallIMP0ReturningLongLong( IMP imp, id obj, SEL sel)
+   MulleObjCIMPCall0ReturningLongLong( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { long long a;})  param;
 
    if( sizeof( long long) <= sizeof( void *))
-      return( (long long ) MulleObjCCallIMP0( imp, obj, sel));
+      return( (long long ) MulleObjCIMPCall0( imp, obj, sel));
 
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
@@ -266,12 +266,12 @@ static inline long long
 
 
 static inline unsigned long long
-   MulleObjCCallIMP0ReturningUnsignedLongLong( IMP imp, id obj, SEL sel)
+   MulleObjCIMPCall0ReturningUnsignedLongLong( IMP imp, id obj, SEL sel)
 {
    mulle_objc_metaabi_param_block_void_parameter( struct { unsigned long long a;})  param;
 
    if( sizeof( unsigned long long) <= sizeof( void *))
-      return( (unsigned long long ) MulleObjCCallIMP0( imp, obj, sel));
+      return( (unsigned long long ) MulleObjCIMPCall0( imp, obj, sel));
 
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
@@ -285,25 +285,25 @@ static inline unsigned long long
 // slow search routines
 // overridden will probably gain it's own keyword
 //
-IMP   MulleObjCSearchSuperIMP( id obj,
-                               SEL sel,
-                               mulle_objc_classid_t classid);
+IMP   MulleObjCObjectSearchSuperIMP( id obj,
+                                     SEL sel,
+                                     mulle_objc_classid_t classid);
 
-IMP   MulleObjCSearchSpecificIMP( id obj,
-                                 SEL sel,
-                                 mulle_objc_classid_t classid,
-                                 mulle_objc_categoryid_t categoryid);
-IMP   MulleObjCSearchOverriddenIMP( id obj,
-                                   SEL sel,
-                                   mulle_objc_classid_t classid,
-                                   mulle_objc_categoryid_t categoryid);
+IMP   MulleObjCObjectSearchSpecificIMP( id obj,
+                                        SEL sel,
+                                        mulle_objc_classid_t classid,
+                                        mulle_objc_categoryid_t categoryid);
+IMP   MulleObjCObjectSearchOverriddenIMP( id obj,
+                                          SEL sel,
+                                          mulle_objc_classid_t classid,
+                                          mulle_objc_categoryid_t categoryid);
 
 //
 #define MulleObjCOverriddenIMP \
-   MulleObjCSearchOverriddenIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
+   MulleObjCObjectSearchOverriddenIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
 
 #define MulleObjCSpecificIMP \
-   MulleObjCSearchSpecificIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
+   MulleObjCObjectSearchSpecificIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
 
 // avoid this, it's very slow
 #define MulleObjCSuperIMP \
@@ -313,13 +313,13 @@ IMP   MulleObjCSearchOverriddenIMP( id obj,
 
 #pragma mark - message sending helper
 
-static inline id   MulleObjCPerformSelector0( id obj, SEL sel)
+static inline id   MulleObjCObjectPerformSelector0( id obj, SEL sel)
 {
    return( (id) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
 }
 
 
-static inline id   MulleObjCPerformSelector( id obj, SEL sel, id argument)
+static inline id   MulleObjCObjectPerformSelector( id obj, SEL sel, id argument)
 {
    return( (id) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, argument));
 }
@@ -337,7 +337,7 @@ static inline void   MulleObjCMakeObjectsPerformSelector( id *objects, NSUIntege
 }
 
 
-static inline id   MulleObjCPerformSelector2( id obj, SEL sel, id a, id b)
+static inline id   MulleObjCObjectPerformSelector2( id obj, SEL sel, id a, id b)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { id a; id b; })  param;
 
@@ -348,7 +348,7 @@ static inline id   MulleObjCPerformSelector2( id obj, SEL sel, id a, id b)
 }
 
 
-static inline id   MulleObjCPerformSelector3( id obj, SEL sel, id a, id b, id c)
+static inline id   MulleObjCObjectPerformSelector3( id obj, SEL sel, id a, id b, id c)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { id a; id b; id c; })  param;
 
@@ -360,7 +360,7 @@ static inline id   MulleObjCPerformSelector3( id obj, SEL sel, id a, id b, id c)
 }
 
 
-static inline id   MulleObjCPerformSelector4( id obj, SEL sel, id a, id b, id c, id d)
+static inline id   MulleObjCObjectPerformSelector4( id obj, SEL sel, id a, id b, id c, id d)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { id a; id b; id c; id d; })  param;
 
@@ -373,7 +373,7 @@ static inline id   MulleObjCPerformSelector4( id obj, SEL sel, id a, id b, id c,
 }
 
 
-static inline id   MulleObjCPerformSelector5( id obj, SEL sel, id a, id b, id c, id d, id e)
+static inline id   MulleObjCObjectPerformSelector5( id obj, SEL sel, id a, id b, id c, id d, id e)
 {
    mulle_objc_metaabi_param_block_voidptr_return( struct { id a; id b; id c; id d; id e; })  param;
 

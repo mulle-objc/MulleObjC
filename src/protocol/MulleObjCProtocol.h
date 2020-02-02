@@ -54,8 +54,9 @@
 // like _NSConcreteData : NSData < MulleImmutable>.
 //
 @protocol NSCopying;
+@protocol MulleObjCRuntimeObject;
 
-_PROTOCOLCLASS_INTERFACE( MulleObjCImmutable, NSCopying)
+_PROTOCOLCLASS_INTERFACE( MulleObjCImmutable, NSCopying, MulleObjCRuntimeObject)
 PROTOCOLCLASS_END()
 
 

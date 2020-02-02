@@ -75,6 +75,9 @@ extern struct mulle_container_valuecallback   *MulleObjCContainerValueCopyCallba
 #define NSNonRetainedObjectMapValueCallBacks   _MulleObjCContainerValueAssignCallback
 
 
+extern struct mulle_container_keycallback     MulleSELMapKeyCallBacks;
+extern struct mulle_container_valuecallback   MulleSELMapValueCallBacks;
+
 extern struct mulle_container_keycallback     NSIntMapKeyCallBacks;
 extern struct mulle_container_valuecallback   NSIntMapValueCallBacks;
 extern struct mulle_container_keycallback     NSIntegerMapKeyCallBacks;
@@ -85,6 +88,10 @@ extern struct mulle_container_keycallback     NSOwnedPointerMapKeyCallBacks;
 extern struct mulle_container_valuecallback   NSOwnedPointerMapValueCallBacks;
 extern struct mulle_container_keycallback     NSNonOwnedPointerOrNullMapKeyCallBacks;
 
+
+#define NSNotAnIntMapKey         mulle_container_not_an_int_key
+#define NSNotAnIntegerMapKey     mulle_container_not_an_intptr_key
+#define NSNotAPointerMapKey      mulle_container_not_a_pointer_key
 
 
 //extern NSHashTableCallBacks   MulleObjCNonRetainedObjectHashCallBacks;
@@ -124,4 +131,12 @@ char *
                                              struct mulle_allocator **p_allocator);
 
 
+// some mulle additions
+// extern const struct mulle_container_keycallback   MulleNonOwnedCStringMapKeyCallBacks;
+// extern const struct mulle_container_keycallback   MulleOwnedCStringMapKeyCallBacks;
+// extern const struct mulle_container_keycallback   MulleCopiedCStringMapKeyCallBacks;
+// extern const struct mulle_container_valuecallback   MulleNonOwnedCStringMapValueCallBacks;
+// extern const struct mulle_container_valuecallback   MulleOwnedCStringMapValueCallBacks;
+
+// struct mulle_container_valuecallback   MulleCopiedCStringMapValueCallBacks;
 #endif

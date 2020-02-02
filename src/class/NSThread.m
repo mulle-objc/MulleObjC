@@ -141,7 +141,7 @@ extern void  NSAutoreleasePoolLoader( struct _mulle_objc_universe *universe);
 // this is used by mulle_objc_thread_get_threadfoundationinfo to create
 // a new NSThread on demand if needed
 
-NSThread  *_NSThreadNewUniverseThreadObject( struct _mulle_objc_universe *universe)
+NSThread   *_NSThreadNewUniverseThreadObject( struct _mulle_objc_universe *universe)
 {
    NSThread                                    *threadObject;
    struct _mulle_objc_universefoundationinfo   *info;
@@ -160,8 +160,7 @@ NSThread  *_NSThreadNewUniverseThreadObject( struct _mulle_objc_universe *univer
 }
 
 
-
-NSThread  *_NSThreadGetUniverseThreadObject( struct _mulle_objc_universe *universe)
+NSThread   *_NSThreadGetUniverseThreadObject( struct _mulle_objc_universe *universe)
 {
    NSThread                                    *threadObject;
    struct _mulle_objc_universefoundationinfo   *info;
@@ -172,7 +171,7 @@ NSThread  *_NSThreadGetUniverseThreadObject( struct _mulle_objc_universe *univer
 }
 
 
-NSThread  *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe)
+NSThread   *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe)
 {
    NSThread                                    *threadObject;
    struct _mulle_objc_universefoundationinfo   *info;
@@ -272,13 +271,41 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
                        selector:(SEL) sel
                          object:(id) argument
 {
+   NSUInteger   options;
+
+   options = 0;
+   if( self == target)
+      options = (MulleThreadDontRetainTarget|MulleThreadDontReleaseTarget);
+   if( self == argument)
+      options |= (MulleThreadDontRetainArgument|MulleThreadDontReleaseArgument);
+
+   return( [self mulleInitWithTarget:target
+                            selector:sel
+                            argument:argument
+                             options:options]);
+}
+
+
+- (instancetype) mulleInitWithTarget:(id) target
+                            selector:(SEL) sel
+                            argument:(id) argument
+                             options:(NSUInteger) options
+{
    if( ! target || ! sel)
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
-                                                 "target and selector must not be nil");
+                                                  "target and selector must not be nil");
 
-   self->_target   = (target == self) ? self : [target retain];
+   if( ! (options & MulleThreadDontRetainTarget))
+      [target retain];
+   if( ! (options & MulleThreadDontRetainArgument))
+      [argument retain];
+
+   self->_releaseTarget   = ! (options & MulleThreadDontReleaseTarget);
+   self->_releaseArgument = ! (options & MulleThreadDontReleaseArgument);
+
+   self->_target   = target;
    self->_selector = sel;
-   self->_argument = (argument == self) ? self : [argument retain];
+   self->_argument = argument;
 
    return( self);
 }
@@ -293,11 +320,11 @@ void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe)
    [self->_userInfo autorelease];
    self->_userInfo = nil;
 
-   if( self->_target != self)
+   if( self->_releaseTarget)
       [self->_target autorelease];
    self->_target = nil;
 
-   if( self->_argument != self)
+   if( self->_releaseArgument)
       [self->_argument autorelease];
    self->_argument = nil;
 
@@ -390,7 +417,10 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 {
    NSThread   *thread;
 
+   // doing this for a finalized thread is not good
+
    thread = MulleThreadGetCurrentThread();
+   assert( ! info || ! _mulle_objc_object_is_finalized( thread));
    [thread->_userInfo autorelease];
    thread->_userInfo = [info retain];
 }

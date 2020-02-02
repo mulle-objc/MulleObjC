@@ -39,6 +39,7 @@
 
 // other files in this library
 #import "MulleObjCAllocation.h"
+#import "MulleObjCAutoreleasePool.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
 #import "NSDebug.h"
@@ -169,7 +170,6 @@ void  NSAutoreleasePoolLoader( struct _mulle_objc_universe *universe)
 
    _mulle_objc_thread_set_poolconfiguration( universe, config);
 }
-
 
 
 static inline struct _mulle_autoreleasepointerarray   *

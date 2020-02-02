@@ -40,6 +40,14 @@
 @class NSThread;
 struct MulleObjCAutoreleasePoolConfiguration;
 
+enum
+{
+   MulleThreadDontRetainTarget    = 0x1,
+   MulleThreadDontRetainArgument  = 0x2,
+   MulleThreadDontReleaseTarget   = 0x4,
+   MulleThreadDontReleaseArgument = 0x8
+};
+
 
 @interface NSThread : NSObject
 {
@@ -49,7 +57,11 @@ struct MulleObjCAutoreleasePoolConfiguration;
    mulle_thread_t           _thread;
    mulle_atomic_pointer_t   _runLoop;
    id                       _userInfo;
-   BOOL                     _isDetached;
+
+   char                     _isDetached;
+   char                     _releaseTarget;
+   char                     _releaseArgument;
+   char                     _unused;
 }
 
 - (instancetype) initWithTarget:(id) target
@@ -79,11 +91,24 @@ struct MulleObjCAutoreleasePoolConfiguration;
 + (BOOL) mulleMainThreadWaitsAtExit;
 + (void) mulleSetMainThreadWaitsAtExit:(BOOL) flag;
 
+//
+// you can tweak the way thread handles target and argument here, this
+// can be useful if you are managing threads on your own. Specify bits like
+// MulleThreadDontRetainTarget as options
+//
+- (instancetype) mulleInitWithTarget:(id) target
+                            selector:(SEL) sel
+                            argument:(id) argument
+                             options:(NSUInteger) options;
+
 // mulle additons for tests
 
 // don't call join on a detached thread
 - (void) mulleJoin;              // __attribute__((availability(mulleobjc,introduced=0.2)));
 - (void) mulleDetach;            // __attribute__((availability(mulleobjc,introduced=0.2)));
+
+// the thread is started and starts running, but still should be joined or
+// detached
 - (void) mulleStartUndetached;   // __attribute__((availability(mulleobjc,introduced=0.2)));
 
 // do this only once, the runloop will be retained by NSThread

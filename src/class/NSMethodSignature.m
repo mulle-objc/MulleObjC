@@ -112,7 +112,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 
 
 + (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
-                           descriptorBits:(NSUInteger) bits
+                                 descriptorBits:(NSUInteger) bits
 
 {
    NSMethodSignature   *obj;
@@ -215,7 +215,8 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 
 - (NSUInteger) numberOfArguments
 {
-   return( _count - 1);  // don't count "rval"
+   // rval, self, _cmd, ...
+   return( _count - 1);  // don't count "rval" so self,_cmd is 2
 }
 
 
@@ -268,19 +269,21 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 
 - (char *) getArgumentTypeAtIndex:(NSUInteger) i
 {
+   // +1, skip rval: start with self
+   ++i;
    if( i >= _count)
       __mulle_objc_universe_raise_invalidindex( _mulle_objc_object_get_universe( self), i);
 
    // will have trailing garbage, but who cares ?
-   return( get_infos( self)[ 1 + i].type);
+   return( get_infos( self)[ i].type);
 }
 
 
 - (char *) methodReturnType
 {
    //
-   // will have trailing garbage
-   //
+   // type info will have trailing garbage as its just an index into
+   // the string
    return( get_infos( self)[ 0].type);
 }
 
@@ -288,7 +291,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 // internal usage!
 - (MulleObjCMethodSignatureTypeinfo *) _runtimeTypeInfoAtIndex:(NSUInteger) i
 {
-   if( i >= _count + 1)
+   if( i >= _count)
       __mulle_objc_universe_raise_invalidindex( _mulle_objc_object_get_universe( self), i);
 
    return( &get_infos( self)[ i]);
@@ -325,9 +328,13 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 - (NSUInteger) frameLength
 {
    MulleObjCMethodSignatureTypeinfo   *info;
+   NSUInteger                         i;
+   NSUInteger                         length;
 
-   info = &get_infos( self)[ _count - 1];    // get last argument
-   return( info->offset + info->natural_size);
+   i      = _count - 1;
+   info   = &get_infos( self)[ i];    // get last argument
+   length = info->offset + info->natural_size;
+   return( length);
 }
 
 

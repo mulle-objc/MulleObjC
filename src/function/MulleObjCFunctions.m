@@ -40,6 +40,7 @@
 // other files in this library
 #import "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
+#import "MulleObjCUniverse.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
@@ -283,7 +284,7 @@ void    MulleObjCObjectSetClass( id obj, Class cls)
 #pragma mark - search specific methods
 
 
-IMP   MulleObjCSearchSuperIMP( id obj,
+IMP   MulleObjCObjectSearchSuperIMP( id obj,
                                SEL sel,
                                mulle_objc_classid_t classid)
 {
@@ -311,7 +312,7 @@ IMP   MulleObjCSearchSuperIMP( id obj,
 
 
 
-IMP   MulleObjCSearchOverriddenIMP( id obj,
+IMP   MulleObjCObjectSearchOverriddenIMP( id obj,
                                     SEL sel,
                                     mulle_objc_classid_t classid,
                                     mulle_objc_categoryid_t categoryid)
@@ -343,7 +344,7 @@ IMP   MulleObjCSearchOverriddenIMP( id obj,
 //
 // call MulleObjCLookupSpecificIMP( self, _cmd, @selector( Foo), @selector( A))
 //
-IMP   MulleObjCSearchSpecificIMP( id obj,
+IMP   MulleObjCObjectSearchSpecificIMP( id obj,
                                   SEL sel,
                                   mulle_objc_classid_t classid,
                                   mulle_objc_categoryid_t categoryid)
