@@ -55,8 +55,16 @@
 
 PROTOCOLCLASS_IMPLEMENTATION( MulleObjCSingleton)
 
-static struct mulle_concurrent_hashmap   ephemeralSingletonInstances;
-static int    useEphemeralSingleton = -1;
+static struct
+{
+   int                               _useEphemeralSingleton;
+   struct mulle_concurrent_hashmap   _ephemeralSingletonInstances;
+
+} Self =
+{
+   -1
+};
+
 
 //
 // MULLE_OBJC_IS_CLASSCLUSTER gets inherited by the class, that implements the
@@ -87,14 +95,14 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
    struct _mulle_objc_universe   *universe;
 
    MulleObjCSingletonMarkClassAsSingleton( self);
-   if( useEphemeralSingleton == -1)
+   if( Self._useEphemeralSingleton == -1)
    {
-      useEphemeralSingleton = mulle_objc_environment_get_yes_no( "MULLE_OBJC_EPHEMERAL_SINGLETON");
-      if( useEphemeralSingleton)
+      Self._useEphemeralSingleton = mulle_objc_environment_get_yes_no( "MULLE_OBJC_EPHEMERAL_SINGLETON");
+      if( Self._useEphemeralSingleton > 0)
       {
          // universe allocator partakes in aba GC, but not the class allocator
          universe = _mulle_objc_infraclass_get_universe( self);
-         _mulle_concurrent_hashmap_init( &ephemeralSingletonInstances,
+         _mulle_concurrent_hashmap_init( &Self._ephemeralSingletonInstances,
                                          16,
                                          _mulle_objc_universe_get_allocator( universe));
          fprintf( stderr, "warning: MulleObjCSingleton are ephemeral\n");
@@ -102,13 +110,18 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
    }
 }
 
-
-+ (void) deinitialize
+//
+// why is this unload and not deinitialize ?
+// because deinitialize is called before unload, but we need to stick
+// around for other classes that depend on us to unload.
+// TODO: should get rid of deinitialize ????
+//
++ (void) unload
 {
-   if( useEphemeralSingleton > 0)
+   if( Self._useEphemeralSingleton > 0)
    {
-      _mulle_concurrent_hashmap_done( &ephemeralSingletonInstances);
-      useEphemeralSingleton = -1;
+      _mulle_concurrent_hashmap_done( &Self._ephemeralSingletonInstances);
+      Self._useEphemeralSingleton = -1;
    }
 }
 
@@ -165,9 +178,9 @@ id  MulleObjCSingletonCreate( Class self)
 
    assert( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_CLASSCLUSTER));
 
-   if( useEphemeralSingleton)
+   if( Self._useEphemeralSingleton > 0)
    {
-      singleton = _mulle_concurrent_hashmap_lookup( &ephemeralSingletonInstances,
+      singleton = _mulle_concurrent_hashmap_lookup( &Self._ephemeralSingletonInstances,
                                                    (intptr_t) self);
       if( singleton)
          return( singleton);
@@ -184,7 +197,7 @@ id  MulleObjCSingletonCreate( Class self)
       if( ! singleton)
          abort();
 
-      dup = _mulle_concurrent_hashmap_register( &ephemeralSingletonInstances,
+      dup = _mulle_concurrent_hashmap_register( &Self._ephemeralSingletonInstances,
                                                 (intptr_t) self,
                                                 singleton);
       if( dup == MULLE_CONCURRENT_INVALID_POINTER)
@@ -232,8 +245,8 @@ id  MulleObjCSingletonCreate( Class self)
 {
    IMP   imp;
 
-   if( useEphemeralSingleton)
-      _mulle_concurrent_hashmap_remove( &ephemeralSingletonInstances,
+   if( Self._useEphemeralSingleton > 0)
+      _mulle_concurrent_hashmap_remove( &Self._ephemeralSingletonInstances,
                                        (intptr_t) _mulle_objc_object_get_isa( self),
                                        self);
 

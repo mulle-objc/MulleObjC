@@ -11,7 +11,6 @@ static void   test_contains_range( NSRange range1, NSRange range2)
                (long) range1.location, (long) range1.length,
                (long) range2.location, (long) range2.length,
       MulleObjCRangeContainsRange( range1, range2) ? "YES" : "NO");
-
 }
 
 

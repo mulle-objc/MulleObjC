@@ -49,6 +49,7 @@
 #import "MulleObjCContainerCallback.h"
 #import "NSRange.h"
 #import "NSDebug.h"
+#import "NSThread.h"
 
 #import "mulle-objc-universeconfiguration-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
@@ -75,7 +76,7 @@
 
 void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
 {
-   void   _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe);
+   void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
    int    trace;
    char   *filename;
 
@@ -171,7 +172,6 @@ static void   reset_testallocator( struct _mulle_objc_universe *universe)
 }
 
 
-
 struct _mulle_objc_universefoundationinfo  *
    _mulle_objc_universeconfiguration_configure_universe( struct _mulle_objc_universeconfiguration *config,
                                                          struct _mulle_objc_universe *universe)
@@ -179,7 +179,7 @@ struct _mulle_objc_universefoundationinfo  *
    size_t                                      size;
    size_t                                      neededsize;
    struct mulle_allocator                      *allocator;
-   struct _mulle_objc_foundation               us;
+   struct _mulle_objc_foundation               foundation;
    struct _mulle_objc_universefoundationinfo   *roots;
    char                                        *kind;
 
@@ -201,17 +201,21 @@ struct _mulle_objc_universefoundationinfo  *
                                             universe,
                                             config->universe.allocator,
                                             &config->foundation.exceptiontable);
-   roots->teardown_callback            = config->callbacks.teardown;
 
-   us.universefriend.data              = roots;
-   us.staticstringclass                = config->universe.staticstringclass;
-   us.universefriend.finalizer         = foundationinfo_finalize;
-   us.universefriend.destructor        = foundationinfo_done;
-   us.universefriend.versionassert     = config->universe.versionassert
+   roots->teardown_callback                    = config->callbacks.teardown;
+
+   foundation.universefriend.data                  = roots;
+   foundation.staticstringclass                    = config->universe.staticstringclass;
+   foundation.universefriend.finalizer             = foundationinfo_finalize;
+   foundation.universefriend.destructor            = foundationinfo_done;
+   foundation.universefriend.threadinfoinitializer = config->universe.threadinfoinitializer
+                                                     ? config->universe.threadinfoinitializer
+                                                     : _mulle_objc_threadinfo_initializer;
+   foundation.universefriend.versionassert         = config->universe.versionassert
                                         ? config->universe.versionassert
                                         : nop;
-   us.rootclassid = @selector( NSObject);
-   allocator      = config->foundation.objectallocator;
+   foundation.rootclassid = @selector( NSObject);
+   allocator              = config->foundation.objectallocator;
 
    kind = "custom";
    if( ! allocator)
@@ -230,9 +234,9 @@ struct _mulle_objc_universefoundationinfo  *
    if( universe->debug.trace.universe)
       mulle_objc_universe_trace( universe, "foundation uses %s allocator: %p", kind, allocator);
 
-   us.allocator   = *allocator;
+   foundation.allocator  = *allocator;
 
-   _mulle_objc_universe_set_foundation( universe, &us);
+   _mulle_objc_universe_set_foundation( universe, &foundation);
 
    return( roots);
 }
@@ -357,6 +361,7 @@ const struct _mulle_objc_universeconfiguration   *
          &NSObject_msgForward_method,
          NULL,       // static string class
          NULL,
+         NULL
       },
       {
          sizeof( struct _mulle_objc_universeconfiguration),

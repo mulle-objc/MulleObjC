@@ -1,0 +1,8 @@
+START: main
+-[NSThread(Print) _isGoingMultiThreaded]
++[NSThread(Print) doNothing:]
+-[NSThread(Print) _threadWillExit]
++[NSThread(Print) sleep1:]
+-[NSThread(Print) _threadWillExit]
+-[NSThread(Print) _probablyGoingSingleThreaded]
+STOP: main

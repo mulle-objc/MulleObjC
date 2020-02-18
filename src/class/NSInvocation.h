@@ -39,6 +39,10 @@
 @class NSMethodSignature;
 
 
+//
+// NSInvocations can be variable in size, as _storage expands and contracts
+// with MetaABI parameters
+//
 @interface NSInvocation : NSObject
 {
    NSMethodSignature   *_methodSignature;

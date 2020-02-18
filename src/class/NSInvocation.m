@@ -47,37 +47,43 @@
 #pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
 
 
+//
+// what is somewhat tricky in the MetaABI is, that we need to store the
+// parameter block properly aligned. We'd like to index directly into
+// the invocation to get the block. For this we ensure (or rather
+// NSMethodSignature) that "self" + "_cmd" are both pointersize.
+// So if we "long double" align the whole thing we assume we are fine.
+//
 @implementation NSInvocation
 
-- (instancetype) initWithMethodSignature:(NSMethodSignature *) signature
+
++ (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature
 {
-   size_t                   size;
-   struct mulle_allocator   *allocator;
-   size_t                   s_voidptr5;
-   size_t                   underflow;
+   size_t         size;
+   size_t         frame_size;
+   NSInvocation   *invocation;
+   void           *extraBytes;
 
    if( ! signature)
    {
-      [self release];
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
                                                  "signature is nil");
       return( nil);
    }
 
-   size       = [signature frameLength];
-   size      += [signature methodReturnLength];
-   s_voidptr5 = sizeof( void *) * 5;
-   underflow  = size % s_voidptr5;
-   if( underflow)
-      size  += s_voidptr5 - underflow;
+   frame_size  = [signature frameLength];
+   size        = mulle_objc_size_metaabi_param_block( frame_size);
+   size       += [signature methodReturnLength];
+   size       += alignof( long double);  // for alignment
 
-   allocator = MulleObjCObjectGetAllocator( self);
-   _storage  = mulle_allocator_calloc( allocator, 1, size);
-   _sentinel = &((char *) _storage)[ size];
+   invocation = [NSAllocateObject( self, size, NULL) autorelease];
 
-   _methodSignature = [signature retain];
+   extraBytes                   = MulleObjCInstanceGetExtraBytes( invocation);
+   invocation->_storage         = mulle_pointer_align( extraBytes, alignof( long double));
+   invocation->_sentinel        = &((char *) invocation->_storage)[ size];
+   invocation->_methodSignature = [signature retain];
 
-   return( self);
+   return( invocation);
 }
 
 
@@ -118,23 +124,13 @@
 
 - (void) dealloc
 {
-   struct mulle_allocator  *allocator;
-
    if( _argumentsRetained)
       [self _releaseArguments];
-
-   allocator = MulleObjCObjectGetAllocator( self);
-   mulle_allocator_free( allocator, _storage);
    [_methodSignature release];
 
    NSDeallocateObject( self);
 }
 
-
-+ (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature
-{
-   return( [[[self alloc] initWithMethodSignature:signature] autorelease]);
-}
 
 
 - (NSMethodSignature *) methodSignature
@@ -143,7 +139,7 @@
 }
 
 
-static int   NSInvocationIsFrameRangeValid( NSInvocation *self, char *adr, size_t size)
+static int   is_valid_frame_range( NSInvocation *self, char *adr, size_t size)
 {
    return( (adr >= self->_storage) && (&adr[ size] <= self->_sentinel));
 }
@@ -156,10 +152,10 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    size_t    size;
 
    p    = [self->_methodSignature _runtimeTypeInfoAtIndex:i];
-   adr  = &((char *) self->_storage)[ p->offset];
+   adr  = &((char *) self->_storage)[ p->invocation_offset];
    size = p->natural_size;
 
-   if( ! NSInvocationIsFrameRangeValid( self, adr, size))
+   if( ! is_valid_frame_range( self, adr, size))
       __mulle_objc_universe_raise_invalidindex( NULL, i);
 
    *p_adr  = adr;
@@ -345,7 +341,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       if( rType == MulleObjCMetaABITypeParameterBlock)
       {
          info  = [self->_methodSignature _runtimeTypeInfoAtIndex:0];
-         param = &self->_storage[ info->offset];
+         param = &self->_storage[ info->invocation_offset];
          rval  = mulle_objc_object_inlinecall_variablemethodid( target, sel, param);
          break;
       }
@@ -355,13 +351,13 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 
    case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
-      param = &self->_storage[ info->offset];
+      param = &self->_storage[ info->invocation_offset];
       rval  = mulle_objc_object_inlinecall_variablemethodid( target, sel, *(void **) param);
       break;
 
    case MulleObjCMetaABITypeParameterBlock :
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
-      param = &self->_storage[ info->offset];
+      param = &self->_storage[ info->invocation_offset];
       rval  = mulle_objc_object_inlinecall_variablemethodid( target, sel, param);
       break;
    }
@@ -387,6 +383,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    MulleObjCMethodSignatureTypeinfo   *info;
    void                               *param;
    size_t                             size;
+   size_t                             frame_size;
 
    switch( [_methodSignature _methodMetaABIParameterType])
    {
@@ -396,8 +393,8 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    case MulleObjCMetaABITypeVoidPointer    :
       // rval, self, _cmd, _param (3)
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
-      param = &((char *) self->_storage)[ info->offset];
-      assert( NSInvocationIsFrameRangeValid( self, param, sizeof( void *)));
+      param = &((char *) self->_storage)[ info->invocation_offset];
+      assert( is_valid_frame_range( self, param, sizeof( void *)));
 
       *((void **) param) = frame;
       break;
@@ -405,12 +402,19 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    case MulleObjCMetaABITypeParameterBlock :
       // rval, self, _cmd, _param (3)
       info  = [self->_methodSignature _runtimeTypeInfoAtIndex:3];
-      param = &((char *) self->_storage)[ info->offset];
-      size  = info->natural_size;
-      assert( NSInvocationIsFrameRangeValid( self, param, size));
+      param = &((char *) self->_storage)[ info->invocation_offset];
 
-      if( frame)
-         memcpy( param, frame, size);
+      // calculate amount we have to copy (how can frame be NULL ?)
+      assert( frame);
+
+      frame_size  = [_methodSignature frameLength];
+      size        = mulle_objc_size_metaabi_param_block( frame_size);
+      size        -= sizeof( id) + sizeof( SEL); // _cmd is a pointer
+
+      // blow up to metaABI size
+      assert( is_valid_frame_range( self, param, size));
+
+      memcpy( param, frame, size);
       break;
    }
 }

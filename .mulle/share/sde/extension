@@ -12,3 +12,4 @@ mulle-c/c-demo;extra
 mulle-objc/objc-demo;extra
 mulle-sde/vscode-clang;extra
 mulle-sde/vscode;extra
+mulle-objc/vscode-clang;extra

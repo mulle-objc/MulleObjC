@@ -12,6 +12,11 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 
 @implementation Foo
 
+- (void) print
+{
+   printf( "\tfoo\n");
+}
+
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) sel
 {
@@ -34,12 +39,6 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 }
 
 
-- (void) print
-{
-   printf( "foo\n");
-}
-
-
 - (NSRange) foo:(id) obj1 : (id) obj2
 {
    [obj1 print];
@@ -58,13 +57,13 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 
 - (void) print
 {
-   printf( "bar\n");
+   printf( "\tbar\n");
 }
 
 @end
 
 
-main()
+int   main( void)
 {
    Foo   *foo;
    Bar   *bar;
@@ -77,14 +76,21 @@ main()
 
    foo = [Foo new];
    bar = [Bar new];
-   [foo performSelector:@selector( foobar::) withObject:(id) bar withObject:(id) foo];
 
+   printf( "ObjC:\n");
+   [foo foo:foo :bar];
+
+   printf( "Perform:\n");
+   [foo performSelector:@selector( foobar::) withObject:(id) foo withObject:(id) bar];
+
+   printf( "Call:\n");
    param.v.a = foo;
    param.v.b = bar;
 
    mulle_objc_object_call( foo, @selector( foobar::), &param);
 
-   printf( "%ld-%ld\n", param.rval.location, param.rval.length);
+   printf( "Rval\n");
+   printf( "\t%ld-%s\n", param.rval.location, param.rval.length == INT_MIN ? "OK" : "FAIL");
 
    [foo release];
    [bar release];

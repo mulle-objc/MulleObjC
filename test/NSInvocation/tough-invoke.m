@@ -68,13 +68,24 @@ main()
 
    foo = [Foo new];
 
-   param.v.a = 18;
-   param.v.b = foo;
-   param.v.c = -48;
-   param.v.d = 18.48;
-   param.v.e = -18;
+   param.v.a          = 18;
+   param.v.b          = foo;
+   param.v.c          = -48;
+   param.v.d          = 18.48;
+   param.v.e          = -18;
    param.v.f.location = 18;
    param.v.f.length   = 48;
+
+   // example frame x86_64 on mac :
+   // the padding is filled with garbage (also in c)!
+   //
+   // 0x7ffeefbff030: 0x00000012 0x00000000 (a) 0x00400390 0x00000001 (b)
+   // 0x7ffeefbff040: 0xefbff0d0 (c) 0x00007ffe (grbg) 0x47ae147b 0x40327ae1 (d)
+   // 0x7ffeefbff050: 0x000000ee (e) 0x0000000e (grbg) 0x00000012 0x00000000 (f.location)
+   // 0x7ffeefbff060: 0x00000030 0x00000000 (f.length)
+
+   // should stradle two blocks at least
+   assert( sizeof( param.v) > mulle_objc_size_metaabi_param_block( 1));
 
    rval = mulle_objc_object_call( foo, @selector( foobar::::::), &param);
 
@@ -89,3 +100,5 @@ main()
    [foo release];
    return( 0);
 }
+
+

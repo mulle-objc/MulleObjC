@@ -27,7 +27,7 @@ static inline struct _mulle_objc_universe  *MulleObjCObjectGetUniverse( id self)
    if( ! self)
       return( mulle_objc_global_inlineget_universe( __MULLE_OBJC_UNIVERSEID__));
 
-   return( mulle_objc_object_get_universe( self));
+   return( _mulle_objc_object_get_universe( self));
 }
 
 #endif

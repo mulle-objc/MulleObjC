@@ -55,9 +55,9 @@
 
 struct _mulle_autoreleasepointerarray
 {
-   struct _mulle_autoreleasepointerarray   *previous_;
-   NSUInteger                              used_;
-   id                                      objects_[ MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS];
+   struct _mulle_autoreleasepointerarray   *previous;
+   NSUInteger                              used;
+   id                                      objects[ MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS];
 };
 
 
@@ -72,8 +72,8 @@ static inline struct _mulle_autoreleasepointerarray *
    fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p allocated (previous = %p)\n", array, previous);
 #endif
 
-   array->used_     = 0;
-   array->previous_ = previous;
+   array->used     = 0;
+   array->previous = previous;
 
    return( array);
 }
@@ -93,13 +93,13 @@ static inline void
 
    for( p = end; p; p = q)
    {
-      q            = p->previous_;
-      p->previous_ = NULL;
+      q            = p->previous;
+      p->previous = NULL;
 
       // release in reverse fashion, because that should be better for the
       // memory manager
-      objects  = &p->objects_[ p->used_];
-      sentinel = p->objects_;
+      objects  = &p->objects[ p->used];
+      sentinel = p->objects;
 
       if( object_map)
       {
@@ -135,6 +135,7 @@ static inline void
 static inline void
    _mulle_autoreleasepointerarray_dump_objects(
                                struct _mulle_autoreleasepointerarray *end,
+                               char *verb,
                                struct _mulle_autoreleasepointerarray *staticStorage)
 {
    id                                      *objects;
@@ -143,14 +144,15 @@ static inline void
 
    for( p = end; p; p = q)
    {
-      q = p->previous_;
+      q = p->previous;
 
-      objects  = p->objects_;
-      sentinel = &p->objects_[ p->used_];
+      objects  = p->objects;
+      sentinel = &p->objects[ p->used];
       while( objects < sentinel)
       {
-         fprintf( stderr, "[pool] %p released (RC: %ld)\n",
+         fprintf( stderr, "[pool] %p %p (RC: %ld)\n",
                               *objects,
+                              verb,
                               mulle_objc_object_get_retaincount( *objects));
          objects++;
       }
@@ -162,7 +164,7 @@ static inline void
 static inline BOOL
    _mulle_autoreleasepointerarray_is_full( struct _mulle_autoreleasepointerarray *array)
 {
-   return( array->used_ >= MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS);
+   return( array->used >= MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS);
 }
 
 
@@ -176,7 +178,7 @@ static inline BOOL
 static inline size_t
    _mulle_autoreleasepointerarray_space_left( struct _mulle_autoreleasepointerarray *array)
 {
-   return( array ? MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS - array->used_ : 0);
+   return( array ? MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS - array->used : 0);
 }
 
 
@@ -184,8 +186,8 @@ static inline void
    _mulle_autoreleasepointerarray_add( struct _mulle_autoreleasepointerarray *array,
                                        id p)
 {
-   assert( array->used_ < MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS);
-   array->objects_[ array->used_++] = p;
+   assert( array->used < MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS);
+   array->objects[ array->used++] = p;
 }
 
 
@@ -199,13 +201,13 @@ static inline int
 
    do
    {
-      sentinel = array->objects_;
-      q        = &array->objects_[ array->used_];
+      sentinel = array->objects;
+      q        = &array->objects[ array->used];
       while( q > sentinel)
          if( *--q == p)
             return( 1);
    }
-   while( array = array->previous_);
+   while( array = array->previous);
 
    return( 0);
 }
@@ -222,13 +224,13 @@ static inline unsigned int
    count = 0;
    do
    {
-      sentinel = array->objects_;
-      q        = &array->objects_[ array->used_];
+      sentinel = array->objects;
+      q        = &array->objects[ array->used];
       while( q > sentinel)
          if( *--q == p)
             ++count;
    }
-   while( array = array->previous_);
+   while( array = array->previous);
 
    return( count);
 }

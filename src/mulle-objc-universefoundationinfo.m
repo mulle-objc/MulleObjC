@@ -88,7 +88,7 @@ void
 
    /* the callback is copied anyway, but the allocator needs to be stored
       in the info. It's OK to have a different allocator for Foundation
-      then for the universe. The info->allocator is used to create instances.
+      then for the universe.
     */
    if( universe->debug.trace.universe)
       mulle_objc_universe_trace( universe, "setting up root/singleton/etc sets");
@@ -196,8 +196,6 @@ void
    universe = info->universe;
    assert( universe);
 
-
-
    //
    // we empty out the pool with the remaining user objects now before anything
    // else
@@ -211,7 +209,7 @@ void
    //
    if( universe->debug.trace.universe)
        mulle_objc_universe_trace( universe, "finalize main thread object");
-   _NSThreadFinalizeMainThreadObject( universe);
+   _MulleThreadFinalizeMainThreadObjectInUniverse( universe);
 
    //
    // we empty out the pools now before anything else is reclaimed during
@@ -300,7 +298,7 @@ void
 
    if( universe->debug.trace.universe)
        mulle_objc_universe_trace( universe, "resign main thread object");
-   _NSThreadResignAsMainThreadObject( universe);
+   _MulleThreadResignAsMainThreadObjectInUniverse( universe);
 
    if( universe->debug.trace.universe)
        mulle_objc_universe_trace( universe, "release thread storage");
@@ -380,7 +378,7 @@ void   _mulle_objc_universefoundationinfo_remove_threadobject( struct _mulle_obj
 void   _mulle_objc_universefoundationinfo_set_mainthreadobject( struct _mulle_objc_universefoundationinfo *info,
                                                                  void *obj)
 {
-   info->thread.mainthread = obj;  //
+   info->thread.mainthread = obj;  // don't retain
 }
 
 

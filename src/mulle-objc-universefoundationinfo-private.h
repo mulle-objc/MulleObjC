@@ -230,6 +230,9 @@ static inline void
 	_mulle_objc_universe_add_threadobject( struct _mulle_objc_universe *universe,
 														void *obj)
 {
+   if( universe->debug.trace.thread)
+      mulle_objc_universe_trace( universe, "add threadObject %p", obj);
+
    _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
    		_mulle_objc_universefoundationinfo_add_threadobject,
    		obj);
@@ -240,6 +243,9 @@ static inline void
 	_mulle_objc_universe_remove_threadobject( struct _mulle_objc_universe *universe,
 															void *obj)
 {
+   if( universe->debug.trace.thread)
+      mulle_objc_universe_trace( universe, "remove threadObject %p", obj);
+
    _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
    	 _mulle_objc_universefoundationinfo_remove_threadobject,
    	 obj);
