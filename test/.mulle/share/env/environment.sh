@@ -154,7 +154,7 @@ case "${MULLE_SHELL_MODE}" in
          alias T="mulle-sde test craft ; mulle-sde test"
          alias TT="mulle-sde test clean ; mulle-sde test"
          alias r="mulle-sde reflect"
-         alias l="mulle-sde list"
+         alias l="mulle-sde list --files"
       fi
    ;;
 esac

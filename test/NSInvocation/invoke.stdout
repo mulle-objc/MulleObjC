@@ -1,5 +1,11 @@
-bar
-foo
-foo
-bar
-1848--2147483648
+ObjC:
+	foo
+	bar
+Perform:
+	foo
+	bar
+Call:
+	foo
+	bar
+Rval
+	1848-OK

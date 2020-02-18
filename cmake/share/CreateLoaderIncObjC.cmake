@@ -8,7 +8,7 @@ if( MULLE_TRACE_INCLUDE)
    message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
 endif()
 
-# this is the the second part, the option is in DefineLoaderIncObjC.cmake
+# this is the second part, the option is in DefineLoaderIncObjC.cmake
 
 if( CREATE_OBJC_LOADER_INC)
    if( NOT LIBRARY_NAME)

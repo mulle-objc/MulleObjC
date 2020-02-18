@@ -19,7 +19,7 @@ if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
    #
    if( MULLE_OBJC_RUNTIME_LIBRARY)
       #
-      # Add to MULLE_OBJC_RUNTIME_LIBRARY list.
+      # Add to MULLE_OBJC_RUNTIME_LIBRARY to ALL_LOAD_DEPENDENCY_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark mulle-objc-runtime no-cmakeadd`
       #
       set( ALL_LOAD_DEPENDENCY_LIBRARIES
@@ -104,7 +104,7 @@ if( NOT MULLE_CONTAINER_LIBRARY)
    #
    if( MULLE_CONTAINER_LIBRARY)
       #
-      # Add to MULLE_CONTAINER_LIBRARY list.
+      # Add to MULLE_CONTAINER_LIBRARY to DEPENDENCY_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark mulle-container no-cmakeadd`
       #
       set( DEPENDENCY_LIBRARIES

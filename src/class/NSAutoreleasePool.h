@@ -96,25 +96,67 @@
 // in MulleFoundation there is always a root NSAutoreleasePool, ergo this
 // can't leak. Thread local autorelease pools don't have to be thread safe
 //
-static inline NSAutoreleasePool   *NSPushAutoreleasePool()
+static inline NSAutoreleasePool   *__MulleAutoreleasePoolPush( struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_poolconfiguration   *config;
-   struct _mulle_objc_universe            *universe;
 
-   universe = mulle_objc_global_inlineget_universe( MULLE_OBJC_DEFAULTUNIVERSEID);
-   config   = mulle_objc_thread_get_poolconfiguration( universe);
+   if( ! universe)
+      return( NULL);
+
+   config = mulle_objc_thread_get_poolconfiguration( universe);
    return( (*config->push)( config));
 }
 
+//
+// this is what the compiler should call, when @autoreleasepool is used
+//
+static inline NSAutoreleasePool   *_MulleAutoreleasePoolPush( mulle_objc_universeid_t universeid)
+{
+   struct _mulle_objc_universe   *universe;
 
-static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
+   universe = mulle_objc_global_inlineget_universe( universeid);
+   return( __MulleAutoreleasePoolPush( universe));
+}
+
+
+static inline NSAutoreleasePool   *MulleAutoreleasePoolPush( void)
+{
+   return( _MulleAutoreleasePoolPush( __MULLE_OBJC_UNIVERSEID__));
+}
+
+
+
+// we ignore the size
+static inline NSAutoreleasePool   *NSPushAutoreleasePool( unsigned int size)
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = mulle_objc_global_inlineget_universe( MULLE_OBJC_DEFAULTUNIVERSEID);
+   return( __MulleAutoreleasePoolPush( universe));
+}
+
+
+static inline void   MulleAutoreleasePoolPop( NSAutoreleasePool *pool)
 {
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;
 
-   universe = mulle_objc_global_inlineget_universe( MULLE_OBJC_DEFAULTUNIVERSEID);
-   config = mulle_objc_thread_get_poolconfiguration( universe);
-   (*config->pop)( config, pool);
+   if( pool)
+   {
+      universe = _mulle_objc_object_get_universe( pool);
+      config   = mulle_objc_thread_get_poolconfiguration( universe);
+      (*config->pop)( config, pool);
+   }
+}
+
+
+//
+// Apple crashes if pool is NULL
+// otherwise the autorelease pool unwinds until and including NSAutoreleasePool
+//
+static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
+{
+   MulleAutoreleasePoolPop( pool);
 }
 
 
@@ -126,4 +168,3 @@ static inline id   NSAutoreleaseObject( id obj)
       _MulleObjCAutoreleaseObject( obj);
    return( obj);
 }
-

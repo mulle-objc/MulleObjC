@@ -421,13 +421,13 @@ Class   MulleObjCLookupClassByName( char *name);
 SEL     MulleObjCCreateSelector( char *name);
 
 
-static inline void   *MulleObjCGetClassExtra( Class cls)
+static inline void   *MulleObjCClassGetExtraBytes( Class cls)
 {
    return( cls ? _mulle_objc_infraclass_get_classextra( cls) : NULL);
 }
 
 
-static inline void   *MulleObjCGetInstanceExtra( id obj)
+static inline void   *MulleObjCInstanceGetExtraBytes( id obj)
 {
    return( obj ? _mulle_objc_object_get_extra( obj) : NULL);
 }

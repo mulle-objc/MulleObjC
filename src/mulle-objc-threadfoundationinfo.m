@@ -40,7 +40,8 @@
 #import "NSThread.h"
 
 
-MULLE_C_CONST_NON_NULL_RETURN struct _mulle_objc_threadfoundationinfo  *
+MULLE_C_CONST_NON_NULL_RETURN
+struct _mulle_objc_threadfoundationinfo  *
    mulle_objc_thread_get_threadfoundationinfo( struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_threadinfo             *threadinfo;
@@ -49,12 +50,13 @@ MULLE_C_CONST_NON_NULL_RETURN struct _mulle_objc_threadfoundationinfo  *
    assert( S_MULLE_OBJC_THREADCONFIG_FOUNDATION_SPACE >=
            sizeof( struct _mulle_objc_threadfoundationinfo));
 
-   threadinfo = _mulle_objc_thread_get_threadinfo( universe);
+   threadinfo = __mulle_objc_thread_get_threadinfo( universe);
    if( ! threadinfo)
    {
-      _NSThreadNewUniverseThreadObject( universe);
+      // this will create NSThread and the NSAutoreleasePool
+      _MulleThreadCreateThreadObjectInUniverse( universe);
 
-      threadinfo = _mulle_objc_thread_get_threadinfo( universe);
+      threadinfo = __mulle_objc_thread_get_threadinfo( universe);
       if( ! threadinfo)
          mulle_objc_universe_fail_inconsistency( universe, "could not make "
                                      "the current thread a MulleObjC thread");

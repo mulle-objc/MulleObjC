@@ -46,6 +46,10 @@
 #pragma clang diagnostic ignored "-Wparentheses"
 
 
+//
+// The offsets in the signature, are the offsets in the NSInvocation
+// not! the offsets on the stack.
+//
 @implementation NSMethodSignature
 
 //  (#X#)
@@ -228,10 +232,12 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 //
 static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 {
-   char                              *types;
-   MulleObjCMethodSignatureTypeinfo  *p;
-   MulleObjCMethodSignatureTypeinfo  *sentinel;
-   struct mulle_allocator            *allocator;
+   MulleObjCMethodSignatureTypeinfo        *p;
+   MulleObjCMethodSignatureTypeinfo        *sentinel;
+   struct mulle_allocator                  *allocator;
+   struct mulle_objc_signatureenumerator   rover;
+   struct mulle_objc_typeinfo              info;
+   char                                    *types;
 
    assert( self->_count);
    assert( self->_types);
@@ -242,29 +248,35 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 
    if( ! hasExtraMemory( self))
    {
-      allocator    = MulleObjCObjectGetAllocator( self);
-      self->_infos = mulle_allocator_calloc( allocator, self->_count, sizeof( MulleObjCMethodSignatureTypeinfo));
+      allocator          = MulleObjCObjectGetAllocator( self);
+      self->_infos       = mulle_allocator_calloc( allocator, self->_count, sizeof( MulleObjCMethodSignatureTypeinfo));
       self->_prettyTypes = mulle_allocator_strdup( allocator, self->_types);
    }
    else
       strcpy( self->_prettyTypes, self->_types);
 
-   p        = &self->_infos[ 0];
+   p        = &self->_infos[ 1];
    sentinel = &p[ self->_count];
+   types    = self->_prettyTypes;
 
-   types = self->_prettyTypes;
-   while( types = mulle_objc_signature_supply_next_typeinfo( types, p))
+   rover = mulle_objc_signature_enumerate( types);
+   while( _mulle_objc_signatureenumerator_next( &rover, p))
    {
       assert( p < sentinel);
       assert( (p == &self->_infos[ 0] || p[ -1].type != p->pure_type_end) && "need fix for incompatible runtime");
 
-      *p->pure_type_end = 0;  // cut off "offset"
+      *p->pure_type_end = 0;  // cut off to make pretty
       ++p;
    }
 
-   assert( p <= sentinel);
+   p = &self->_infos[ 0];
+   _mulle_objc_signatureenumerator_rval( &rover, p);
+   *p->pure_type_end = 0;  // cut off to make pretty
+
+   mulle_objc_signatureenumerator_done( &rover);
    return( self->_infos);
 }
+
 
 
 - (char *) getArgumentTypeAtIndex:(NSUInteger) i
@@ -333,7 +345,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 
    i      = _count - 1;
    info   = &get_infos( self)[ i];    // get last argument
-   length = info->offset + info->natural_size;
+   length = info->invocation_offset + info->natural_size;
    return( length);
 }
 
@@ -347,4 +359,29 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    return( info->natural_size);
 }
 
+
+- (void) mulleDump
+{
+   NSUInteger                         i;
+   MulleObjCMethodSignatureTypeinfo   *info;
+   void   mulle_objc_typeinfo_dump_to_file( struct mulle_objc_typeinfo *info,
+                                            char *indent,
+                                            FILE *fp);
+
+   fprintf( stderr, "signature:\n\t%s\n", self->_types);
+
+   for( i = 0; i < _count; i++)
+   {
+      switch( i)
+      {
+      case 0  : fprintf( stderr, "rval:\n"); break;
+      case 1  : fprintf( stderr, "self:\n"); break;
+      case 2  : fprintf( stderr, "_cmd:\n"); break;
+      default : fprintf( stderr, "arg%ld:\n", (long) i - 3); break;
+      }
+
+      info = &get_infos( self)[ i];    // get last argument
+      mulle_objc_typeinfo_dump_to_file( info, "\t", stderr);
+   }
+}
 @end

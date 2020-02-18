@@ -61,4 +61,6 @@ int  main()
    [thread mulleStartUndetached];
    [thread mulleJoin];
    printf( "joined\n");
+
+   return( 0);
 }

@@ -67,53 +67,55 @@ struct _mulle_objc_poolconfiguration
 struct _mulle_objc_threadfoundationinfo
 {
    struct _mulle_objc_poolconfiguration   poolconfig;
-
-   void   *thread;
-   void   *userinfo;
 };
 
 
-MULLE_C_CONST_NON_NULL_RETURN struct _mulle_objc_threadfoundationinfo *
+static inline struct _mulle_objc_poolconfiguration *
+   _mulle_objc_threadfoundationinfo_get_poolconfiguration( struct _mulle_objc_threadfoundationinfo *foundation)
+{
+   return( &foundation->poolconfig);
+}
+
+
+/*
+ * Threadinfo interface
+ */
+static inline struct _mulle_objc_poolconfiguration *
+   _mulle_objc_threadinfo_get_poolconfiguration( struct _mulle_objc_threadinfo *config)
+{
+   struct _mulle_objc_threadfoundationinfo   *foundation;
+
+   foundation = _mulle_objc_threadinfo_get_foundationspace( config);
+   return( &foundation->poolconfig);
+}
+
+
+/*
+ * Universe interface
+ */
+MULLE_C_CONST_NON_NULL_RETURN
+struct _mulle_objc_threadfoundationinfo *
    mulle_objc_thread_get_threadfoundationinfo( struct _mulle_objc_universe *universe);
 
 
-static inline void *mulle_objc_thread_get_userinfo( struct _mulle_objc_universe *universe)
-{
-   return (mulle_objc_thread_get_threadfoundationinfo( universe)->userinfo);
-}
-
-static inline void mulle_objc_thread_set_userinfo( struct _mulle_objc_universe *universe,
-                                                   void *userinfo)
-{
-   mulle_objc_thread_get_threadfoundationinfo( universe)->userinfo = userinfo;
-}
-
-
-// get NSThread as currentThread from thread local storage
-static inline void *
-   mulle_objc_thread_get_threadobject( struct _mulle_objc_universe *universe)
-{
-   return( mulle_objc_thread_get_threadfoundationinfo( universe)->thread);
-}
-
-// set NSThread as currentThread in thread local storage
-static inline void
-   mulle_objc_thread_set_threadobject( struct _mulle_objc_universe *universe,
-                                       void *thread)
-{
-   mulle_objc_thread_get_threadfoundationinfo( universe)->thread = thread;
-}
 
 static inline struct _mulle_objc_poolconfiguration *
    mulle_objc_thread_get_poolconfiguration( struct _mulle_objc_universe *universe)
 {
-   return( &mulle_objc_thread_get_threadfoundationinfo( universe)->poolconfig);
+   struct _mulle_objc_threadfoundationinfo   *foundation;
+
+   foundation = mulle_objc_thread_get_threadfoundationinfo( universe);
+   return( _mulle_objc_threadfoundationinfo_get_poolconfiguration( foundation));
 }
+
 
 static inline struct _mulle_objc_infraclass *
    _mulle_objc_thread_get_autoreleasepoolclass( struct _mulle_objc_universe *universe)
 {
-   return( mulle_objc_thread_get_threadfoundationinfo(universe)->poolconfig.poolClass);
+   struct _mulle_objc_poolconfiguration   *poolconfig;
+
+   poolconfig = mulle_objc_thread_get_poolconfiguration( universe);
+   return( poolconfig->poolClass);
 }
 
 

@@ -966,7 +966,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
       return( nil);
 
    return( [NSMethodSignature _signatureWithObjCTypes:method->descriptor.signature
-                                 descriptorBits:method->descriptor.bits]);
+                                       descriptorBits:method->descriptor.bits]);
 }
 
 

@@ -1,0 +1,2 @@
+[NSThread currentThread] is not nil
+[NSThread currentThread] is not [NSThread mainThread]

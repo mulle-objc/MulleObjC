@@ -38,27 +38,42 @@
 
 #include "mulle-objc-universefoundationinfo-private.h"
 
+#include <stddef.h>
 
 #pragma mark - universe configuration
 
 struct _mulle_objc_universeconfiguration;
 
-struct _mulle_objc_universeconfiguration_classdefaults
+
+struct _mulle_objc_universeconfiguration_defaults
 {
+   // allocator that the universe uses for allocating classese etc.
    struct mulle_allocator                     *allocator;
+
    mulle_objc_universefriend_versionassert_t  *versionassert;
    struct _mulle_objc_method                  *forward;
    struct _mulle_objc_infraclass              *staticstringclass;
 
+
    void   (*uncaughtexception)( void *exception) MULLE_C_NO_RETURN;
+
+   // this is called for each new _mulle_objc_threadinfo (i.e. per thread init)
+   mulle_objc_universefriend_threadinfoinit_t   *threadinfoinitializer;
 };
 
 
 struct _mulle_objc_universeconfiguration_foundation
 {
-   size_t                                     configurationsize;
-   struct mulle_allocator                     *objectallocator;
-   struct _mulle_objc_exceptionhandlertable   exceptiontable;
+   // you can increase the size of the foundationspace of the universe
+   // leave at 0 for ample space (512 bytes usually)
+   size_t                                       configurationsize;
+
+   // use a different allocator to create instances than what the universe
+   // is using for its internals
+   struct mulle_allocator                       *objectallocator;
+
+   // the exception table to install
+   struct _mulle_objc_exceptionhandlertable     exceptiontable;
 };
 
 
@@ -73,9 +88,9 @@ struct _mulle_objc_universeconfiguration_callbacks
 
 struct _mulle_objc_universeconfiguration
 {
-   struct _mulle_objc_universeconfiguration_classdefaults   universe;
-   struct _mulle_objc_universeconfiguration_foundation      foundation;
-   struct _mulle_objc_universeconfiguration_callbacks       callbacks;
+   struct _mulle_objc_universeconfiguration_defaults     universe;
+   struct _mulle_objc_universeconfiguration_foundation   foundation;
+   struct _mulle_objc_universeconfiguration_callbacks    callbacks;
 };
 
 

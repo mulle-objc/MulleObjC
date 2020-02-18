@@ -51,17 +51,17 @@ enum
 
 @interface NSThread : NSObject
 {
+   mulle_atomic_pointer_t   _thread;
+
    id                       _target;
    SEL                      _selector;
    id                       _argument;
-   mulle_thread_t           _thread;
    mulle_atomic_pointer_t   _runLoop;
    id                       _userInfo;
 
    char                     _isDetached;
    char                     _releaseTarget;
    char                     _releaseArgument;
-   char                     _unused;
 }
 
 - (instancetype) initWithTarget:(id) target
@@ -116,27 +116,32 @@ enum
 - (id) mulleSetRunLoop:(id) runLoop;
 - (id) mulleRunLoop;
 
-//
-// a pthread or C11 thread that wants to call ObjC functions must minimally call
-// _mulle_objc_thread_become_universethread beforehand and must call
-// _mulle_objc_thread_resignas_universethread before exiting
-//
-void   _mulle_objc_thread_become_universethread( struct _mulle_objc_universe *universe);
-void   _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *universe);       // NSThread object should be gone already
+- (BOOL) wasAutocreated;
 
 
 #pragma mark -
 #pragma mark Internal
 
 // don't call these functions yourself
-NSThread  *_NSThreadNewUniverseThreadObject( struct _mulle_objc_universe *universe);
-NSThread  *_NSThreadNewMainThreadObject( struct _mulle_objc_universe *universe);
-void       _NSThreadResignAsMainThreadObject( struct _mulle_objc_universe *universe);
-NSThread  *_NSThreadGetUniverseThreadObject( struct _mulle_objc_universe *universe);
+NSThread   *_MulleThreadGetCurrentThreadObjectInUniverse( struct _mulle_objc_universe *universe);
+NSThread   *_MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc_universe *universe);
+NSThread   *_MulleThreadCreateMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
+NSThread   *_MulleThreadGetMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
 
-// this will autorelease the threadDictionary, this must be called before
-// the last autoreleasepool dies
-void       _NSThreadFinalizeMainThreadObject( struct _mulle_objc_universe *universe);
+void   _MulleThreadRemoveThreadObjectFromUniverse( NSThread *threadObject,
+                                                   struct _mulle_objc_universe *universe);
+//
+// this can only be called during crunch time!
+// it will autorelase the runloop and the thread dictionary
+//
+void   _MulleThreadFinalizeMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
+void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
+
+// used to setup threads and run atexit stuff on a per thread basis
+void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
+                                          void *foundationspace);
+void   _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config);
+
 
 @end
 
@@ -147,7 +152,7 @@ static inline NSThread   *MulleThreadGetCurrentThread( void)
    NSThread                      *thread;
 
    universe = mulle_objc_global_get_universe( __MULLE_OBJC_UNIVERSEID__);
-   thread   = mulle_objc_thread_get_threadobject( universe);
+   thread   = _mulle_objc_thread_get_threadobject( universe);
    return( thread);
 }
 

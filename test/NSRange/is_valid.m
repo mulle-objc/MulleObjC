@@ -6,7 +6,7 @@
 
 static void   test_is_valid( NSRange range)
 {
-   printf( "[%ld - %ld] is %s\n",
+   printf( "[%ld...%ld] is %s\n",
                (long) range.location,
                (long) (range.location + range.length),
                MulleObjCRangeIsValid( range) ? "OK" : "INVALID");
