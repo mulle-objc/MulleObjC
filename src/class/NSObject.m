@@ -311,6 +311,8 @@ static struct _mulle_objc_object   *
 
    universe            = _mulle_objc_infraclass_get_universe( infraCls);
    placeholderInfracls = mulle_objc_universe_lookup_infraclass_nofail( universe, classid);
+   _mulle_objc_class_setup( _mulle_objc_infraclass_as_class( placeholderInfracls));
+
    placeholder         = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
    placeholder->_cls   = infraCls;
    _mulle_objc_object_constantify_noatomic( placeholder);
@@ -334,12 +336,14 @@ static struct _mulle_objc_object   *
 + (instancetype) instantiate
 {
    struct _mulle_objc_object   *placeholder;
+   mulle_objc_classid_t        classid;
 
 retry:
    placeholder = _mulle_objc_infraclass_get_placeholder( self);
    if( ! placeholder)
    {
-      placeholder = _MulleObjCClassNewInstantiatePlaceholder( self, [self __instantiatePlaceholderClassid]);
+      classid     = [self __instantiatePlaceholderClassid];
+      placeholder = _MulleObjCClassNewInstantiatePlaceholder( self, classid);
       if( ! _mulle_objc_infraclass_set_placeholder( self, placeholder))
       {
          _MulleObjCObjectFree( (id) placeholder);

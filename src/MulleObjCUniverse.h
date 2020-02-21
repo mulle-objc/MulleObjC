@@ -14,14 +14,14 @@
 
 #include "include.h"
 
-MULLE_C_CONST_NON_NULL_RETURN
+MULLE_C_CONST_NONNULL_RETURN
 static inline struct _mulle_objc_universe  *MulleObjCGetUniverse( void)
 {
    return( mulle_objc_global_inlineget_universe( __MULLE_OBJC_UNIVERSEID__));
 }
 
 
-MULLE_C_CONST_NON_NULL_RETURN
+MULLE_C_CONST_NONNULL_RETURN
 static inline struct _mulle_objc_universe  *MulleObjCObjectGetUniverse( id self)
 {
    if( ! self)

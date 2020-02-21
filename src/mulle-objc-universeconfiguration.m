@@ -202,8 +202,7 @@ struct _mulle_objc_universefoundationinfo  *
                                             config->universe.allocator,
                                             &config->foundation.exceptiontable);
 
-   roots->teardown_callback                    = config->callbacks.teardown;
-
+   roots->teardown_callback                        = config->callbacks.teardown;
    foundation.universefriend.data                  = roots;
    foundation.staticstringclass                    = config->universe.staticstringclass;
    foundation.universefriend.finalizer             = foundationinfo_finalize;

@@ -148,14 +148,23 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
    if( ! strncmp( name, "NS", 2) ||
        ! strncmp( name, "MulleObjC", 9))
    {
-      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of "
-                       "MulleObjCClassCluster but it gets allocated directly.\n"
-                       "(Non classcluster Foundation subclasses should implement "
-                       "+alloc, for user classes this is fine as\n"
-                       "NSAllocateObject will be used)\n"
-                       "break on _mulle_objc_warn_classcluster to debug)\n",
-                 _mulle_objc_infraclass_get_classid( self),
-                 name);
+      struct _mulle_objc_universe   *universe;
+
+      universe = _mulle_objc_infraclass_get_universe( self);
+      mulle_objc_universe_fprintf(
+         universe,
+         stderr,
+         "warning: Class %08x \"%s\" is a subclass of "
+         "MulleObjCClassCluster but it gets allocated directly.\n"
+         "(Non classcluster Foundation subclasses should implement "
+         "+alloc, for user classes this is fine as\n"
+         "NSAllocateObject will be used)\n"
+         "break on _mulle_objc_warn_classcluster to debug)\n",
+         _mulle_objc_infraclass_get_classid( self),
+         name);
+
+      if( universe->debug.warn.crash)
+         abort();
    }
 }
 #endif

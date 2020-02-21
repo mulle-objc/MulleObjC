@@ -109,7 +109,7 @@ struct _mulle_objc_universefoundationinfo
 };
 
 
-MULLE_C_CONST_NON_NULL_RETURN static inline
+MULLE_C_CONST_NONNULL_RETURN static inline
    struct _mulle_objc_universefoundationinfo *
       _mulle_objc_universe_get_universefoundationinfo( struct _mulle_objc_universe *universe)
 {

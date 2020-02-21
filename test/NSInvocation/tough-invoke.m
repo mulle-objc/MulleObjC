@@ -79,9 +79,9 @@ main()
    // example frame x86_64 on mac :
    // the padding is filled with garbage (also in c)!
    //
-   // 0x7ffeefbff030: 0x00000012 0x00000000 (a) 0x00400390 0x00000001 (b)
-   // 0x7ffeefbff040: 0xefbff0d0 (c) 0x00007ffe (grbg) 0x47ae147b 0x40327ae1 (d)
-   // 0x7ffeefbff050: 0x000000ee (e) 0x0000000e (grbg) 0x00000012 0x00000000 (f.location)
+   // 0x7ffeefbff030: 0xgggg0012 (a) 0xgggggggg 0x00400390 0x00000001 (b)
+   // 0x7ffeefbff040: 0xggggggd0 (c) 0xgggggggg (grbg) 0x47ae147b 0x40327ae1 (d)
+   // 0x7ffeefbff050: 0xggggggee (e) 0xgggggggg (grbg) 0x00000012 0x00000000 (f.location)
    // 0x7ffeefbff060: 0x00000030 0x00000000 (f.length)
 
    // should stradle two blocks at least

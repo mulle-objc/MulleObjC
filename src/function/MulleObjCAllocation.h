@@ -113,6 +113,7 @@ static inline void  MulleObjCObjectDeallocateMemory( id self, void *p)
 
 
 // resist the urge to add placeholder detection code here
+// resist the urge to add _mulle_objc_class_setup here
 __attribute__((returns_nonnull))
 static inline id    _MulleObjCClassAllocateObject( Class infraCls, NSUInteger extra)
 {

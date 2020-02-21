@@ -121,9 +121,6 @@ static void   _mulle_objc_thread_become_universethread( struct _mulle_objc_unive
    assert( thread != _mulle_objc_universe_get_thread( universe));
 
    rc = _mulle_objc_universe_retain( universe);
-   if( universe->debug.trace.universe)
-      mulle_objc_universe_trace( universe, "mulle-thread %p retained the universe (%ld)",
-                                 (void *) thread, rc);
 
    // during the main thread bang, this is already done
    mulle_objc_thread_setup_threadinfo( universe);
@@ -141,7 +138,6 @@ static void
 {
    mulle_thread_t   thread;
 
-
    //
    // the universe will do this, if we are the
    // "main" thread
@@ -152,9 +148,6 @@ static void
    if( unset)
       mulle_objc_thread_unset_threadinfo( universe);      // can't call Objective-C anymore
 
-   if( universe->debug.trace.universe)
-      mulle_objc_universe_trace( universe, "mulle-thread %p releases the universe",
-                                 (void *) thread);
    _mulle_objc_universe_release( universe);
 }
 
@@ -219,11 +212,14 @@ static NSThread   *__MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc
    threadObject = [NSThread new];
    _mulle_atomic_pointer_nonatomic_write( &threadObject->_thread, (void *) mulle_thread_self());
 
-   _MulleThreadRegisterInUniverse( threadObject, universe, NO);
-
-   // create pool configuration
+   //
+   // create pool configuration, ahead of register so it can
+   // send a notification
+   //
    assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
    mulle_objc_thread_new_poolconfiguration( universe);
+
+   _MulleThreadRegisterInUniverse( threadObject, universe, NO);
 
    return( threadObject);
 }
@@ -635,18 +631,26 @@ static void   bouncyBounce( void *arg)
    // so register this thread to be able to to ObjC calls
    _mulle_objc_thread_become_universethread( universe);
 
+   //
+   // create pool configuration, ahead of register so it can
+   // send a notification
+   //
+   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
+   mulle_objc_thread_new_poolconfiguration( universe);
+
    // make threadObject known to universe and thread
    _MulleThreadRegisterInUniverse( threadObject, universe, YES);
 
    // the caller will have retained it on out behalf already once,
    // so reduce this again, and also the thread count now
+   //
+   // for a short moment, the number of threads will be one too high
+   // but its important so you don get races if you are polling
+   // +mulleIsMultiThreaded
+   //
    _mulle_objc_universe_release( universe);
    info  = _mulle_objc_universe_get_universefoundationinfo( universe);
    _mulle_atomic_pointer_decrement( &info->thread.n_threads);
-
-
-   // create autoreleaspool
-   mulle_objc_thread_new_poolconfiguration( universe);
 
    [threadObject main];
 }
