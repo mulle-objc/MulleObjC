@@ -80,11 +80,16 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
       _mulle_objc_infraclass_set_state_bit( self, MULLE_OBJC_INFRA_IS_SINGLETON);
 #if DEBUG
    else
-      fprintf( stderr, "warning: Class %08x \"%s\" is a subclass of "
-                       "MulleObjCSingleton but does not implement it "
-                       "as a protocol\n",
-           _mulle_objc_infraclass_get_classid( self),
-           _mulle_objc_infraclass_get_name( self));
+   {
+      mulle_objc_universe_fprintf(
+         _mulle_objc_infraclass_get_universe( self),
+         stderr,
+         "warning: Class %08x \"%s\" is a subclass of "
+         "MulleObjCSingleton but does not implement it "
+         "as a protocol\n",
+         _mulle_objc_infraclass_get_classid( self),
+         _mulle_objc_infraclass_get_name( self));
+   }
 #endif
 }
 
@@ -126,12 +131,14 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
 }
 
 
-static id  MulleObjCSingletonNew( Class self)
+MULLE_C_NONNULL_RETURN
+static id   MulleObjCSingletonNew( Class self)
 {
    id <NSObject>                 singleton;
    mulle_objc_implementation_t   imp;
    mulle_objc_methodid_t         sel;
    struct _mulle_objc_class      *cls;
+   struct _mulle_objc_universe   *universe;
 
    //
    // avoid +alloc here so that subclass can "abort" on alloc if desired
@@ -139,6 +146,23 @@ static id  MulleObjCSingletonNew( Class self)
    // because they are a) often complex like NSNotificationCenter and
    // b) the user will expect to "leak" there
    //
+
+   // ensure +initialize has run though (like [self class])
+   _mulle_objc_infraclass_setup_if_needed( self);
+
+   universe = _mulle_objc_infraclass_get_universe( self);
+   if( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_SINGLETON))
+   {
+      __mulle_objc_universe_raise_internalinconsistency( universe,
+               "MULLE_OBJC_INFRA_IS_SINGLETON (%s) bit is missing on class "
+               "\"%s\" %p with id %x (%s)",
+               _mulle_objc_global_lookup_state_bit_name( MULLE_OBJC_INFRA_IS_SINGLETON),
+               _mulle_objc_infraclass_get_name( self),
+               self,
+               _mulle_objc_infraclass_get_classid( self),
+               Self._useEphemeralSingleton > 0 ? "ephemeral": "static");
+   }
+
    singleton = NSAllocateObject( self, 0, NULL);
 
    // allow __initSingleton and init, but prefer __initSingleton
@@ -153,6 +177,9 @@ static id  MulleObjCSingletonNew( Class self)
    if( imp)
       singleton = (*imp)( singleton, sel, singleton);
 
+   if( ! singleton)
+      abort();
+
    // not really clear what to do/expect if singleton is nil
    return( (id) singleton);
 }
@@ -162,7 +189,7 @@ static id  MulleObjCSingletonNew( Class self)
 // for the receiver the returnvalue is considered autoreleased, he doesn't
 // have to retain it, if he doesn't want to keep it
 //
-id  MulleObjCSingletonCreate( Class self)
+id   MulleObjCSingletonCreate( Class self)
 {
    id <NSObject>                 singleton;
    id <NSObject>                 dup;
@@ -185,21 +212,10 @@ id  MulleObjCSingletonCreate( Class self)
       if( singleton)
          return( singleton);
 
-      if( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_SINGLETON))
-      {
-         __mulle_objc_universe_raise_internalinconsistency( universe,
-                  "MULLE_OBJC_INFRA_IS_SINGLETON bit is missing on class "
-                  "\"%s\" with id %x", _mulle_objc_infraclass_get_name( self),
-                                       _mulle_objc_infraclass_get_classid( self));
-      }
-
       singleton = [MulleObjCSingletonNew( self) autorelease];
-      if( ! singleton)
-         abort();
-
-      dup = _mulle_concurrent_hashmap_register( &Self._ephemeralSingletonInstances,
-                                                (intptr_t) self,
-                                                singleton);
+      dup       = _mulle_concurrent_hashmap_register( &Self._ephemeralSingletonInstances,
+                                                     (intptr_t) self,
+                                                     singleton);
       if( dup == MULLE_CONCURRENT_INVALID_POINTER)
          abort();
       return( dup ? dup : singleton);
@@ -212,19 +228,7 @@ id  MulleObjCSingletonCreate( Class self)
       if( singleton)
       	return( singleton);
 
-      if( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_SINGLETON))
-      {
-         universe = _mulle_objc_infraclass_get_universe( self);
-         __mulle_objc_universe_raise_internalinconsistency( universe,
-         			"MULLE_OBJC_INFRA_IS_SINGLETON bit is missing on class "
-         			"\"%s\" with id %x", _mulle_objc_infraclass_get_name( self),
-         									   _mulle_objc_infraclass_get_classid( self));
-      }
-
       singleton = MulleObjCSingletonNew( self);
-      if( ! singleton)
-         abort();
-
       if( _mulle_objc_infraclass_set_singleton( self, (void *) singleton))
       {
          _mulle_objc_object_constantify_noatomic( singleton); // like autorelease
@@ -237,6 +241,7 @@ id  MulleObjCSingletonCreate( Class self)
                                                    singleton);
          return( singleton);
       }
+      [singleton release];
    }
 }
 
@@ -250,8 +255,12 @@ id  MulleObjCSingletonCreate( Class self)
                                        (intptr_t) _mulle_objc_object_get_isa( self),
                                        self);
 
-   imp = MulleObjCObjectSearchOverriddenIMP( self, @selector( dealloc), @selector( MulleObjCSingleton), 0);
-   assert( imp != (IMP) _mulle_objc_class_lookup_implementation( _mulle_objc_object_get_isa( self), @selector( dealloc)));
+   imp = MulleObjCObjectSearchOverriddenIMP( self,
+                                             @selector( dealloc),
+                                             @selector( MulleObjCSingleton),
+                                             0);
+   assert( imp != (IMP) _mulle_objc_class_lookup_implementation( _mulle_objc_object_get_isa( self),
+                                                                 @selector( dealloc)));
    (*imp)( self, @selector( dealloc), self);
 }
 

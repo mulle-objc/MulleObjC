@@ -433,3 +433,19 @@ static inline void   *MulleObjCInstanceGetExtraBytes( id obj)
 }
 
 NSUInteger   MulleObjCClassGetLoadAddress( Class cls);
+
+
+//
+// In your +load methods, if you cache the class for use in C functions
+// you must ensure, that the class is already properly loaded and
+// initialized (this will trigger +initialize). You could also
+// "just" call [self class]
+//
+//static void   MulleObjCClassTouch( Class cls)
+//{
+//   struct _mulle_objc_class  *p;
+
+//   p = _mulle_objc_infraclass_as_class( cls);
+//   _mulle_objc_class_setup( p);
+//}
+
