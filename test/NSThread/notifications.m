@@ -13,7 +13,7 @@
 @implementation NSThread( Print)
 
 
-- (void) _probablyGoingSingleThreaded
+- (void) _isProbablyGoingSingleThreaded
 {
    printf( "%s\n", __PRETTY_FUNCTION__);
    fflush( stdout);

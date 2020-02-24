@@ -127,10 +127,20 @@ void   _MulleObjCThrowErrnoExceptionCString( mulle_objc_universeid_t universeid,
 
 
 
-static inline void   MulleObjCValidateRangeAgainstLength( NSRange range,
-                                                          NSUInteger length)
+static inline NSRange   MulleObjCValidateRangeAgainstLength( NSRange range,
+                                                             NSUInteger length)
 {
    NSUInteger  end;
+
+   //
+   // specialty, if length == -1, it means "full" range
+   // this speeds up these cases, where you want to specify full range
+   // but need to call -length first to create the range, and then
+   // later call -length again to validate the range...
+   //
+   if( range.length == -1)
+      range = NSMakeRange( 0, length);
+
    //
    // assume NSUInteger is 8 bit, then we need to check for also for a
    // negative length/location value making things difficult { 3, 255 }
@@ -138,5 +148,7 @@ static inline void   MulleObjCValidateRangeAgainstLength( NSRange range,
    end = mulle_range_get_end( range);
    if( end > length || end < range.location)
       MulleObjCThrowInvalidRangeException( range);
+
+   return( range);
 }
 
