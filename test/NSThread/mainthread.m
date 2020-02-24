@@ -10,16 +10,15 @@
 main()
 {
    NSThread                                    *thread;
-   struct _mulle_objc_universefoundationinfo   *config;
+   struct _mulle_objc_universefoundationinfo   *info;
    struct _mulle_objc_universe                 *universe;
+   intptr_t                                    n_threads;
 
-   universe = mulle_objc_global_get_defaultuniverse();
-   config   = _mulle_objc_universe_get_universefoundationinfo( universe);
-   if( _mulle_atomic_pointer_read( &config->thread.n_threads) != (void *) 1)
-   {
-      printf( "not running in universe %p\n", universe);
+   universe  = mulle_objc_global_get_defaultuniverse();
+   info      = _mulle_objc_universe_get_universefoundationinfo( universe);
+   n_threads = (intptr_t) _mulle_atomic_pointer_read( &info->thread.n_threads);
+   if( n_threads != 0)
       return( 1);
-   }
 
    thread = [NSThread currentThread];  // it should be available already
    if( ! thread)
@@ -34,9 +33,9 @@ main()
    // thread must not be a rootobject
    // thread must be a rootthreadobject
    //
-   if( mulle_set_get( config->object.roots, thread))
+   if( mulle_set_get( info->object.roots, thread))
       printf( "is mistakingly root object\n");
-   if( ! mulle_set_get( config->object.threads, thread))
+   if( ! mulle_set_get( info->object.threads, thread))
       printf( "is mistakingly not a root thread object\n");
 
    fprintf( stderr, "2\n");
@@ -44,11 +43,12 @@ main()
    fprintf( stderr, "3\n");
 
    // DANGEROUS!
-   if( _mulle_atomic_pointer_read( &config->thread.n_threads) != (void *) 0)
+   if( _mulle_atomic_pointer_read( &info->thread.n_threads) != (void *) 0)
    {
       printf( "still running\n");
       return( 1);
    }
+
    fprintf(  stderr, "4\n");
    return( 0);
 }

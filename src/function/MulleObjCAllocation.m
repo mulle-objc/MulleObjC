@@ -201,7 +201,7 @@ void   _MulleObjCObjectFree( id obj)
    infra     = _mulle_objc_class_as_infraclass( cls);
    allocator = _mulle_objc_infraclass_get_allocator( infra);
 
-   __mulle_objc_object_will_free( (struct _mulle_objc_object *) obj);
+   __mulle_objc_instance_will_free( (struct _mulle_objc_object *) obj);
 
    header    = _mulle_objc_object_get_objectheader( obj);
 #if DEBUG

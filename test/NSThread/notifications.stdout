@@ -4,5 +4,5 @@ START: main
 -[NSThread(Print) _threadWillExit]
 +[NSThread(Print) sleep1:]
 -[NSThread(Print) _threadWillExit]
--[NSThread(Print) _probablyGoingSingleThreaded]
+-[NSThread(Print) _isProbablyGoingSingleThreaded]
 STOP: main

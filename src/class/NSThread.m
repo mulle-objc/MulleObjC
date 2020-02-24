@@ -59,15 +59,13 @@
 @implementation NSThread
 
 
-+ (struct _mulle_objc_dependency *) dependencies
+MULLE_OBJC_DEPENDS_ON_CLASS( NSAutoreleasePool);
+
+static struct $
 {
-   static struct _mulle_objc_dependency   dependencies[] =
-   {
-      { @selector( NSAutoreleasePool), 0 },
-      { 0, 0 }
-   };
-   return( dependencies);
-}
+   mulle_thread_mutex_t    _lock;
+   BOOL                    _isMultiThreaded;
+} Self;
 
 
 // this is usually the very first ObjC method call, so assert a little
@@ -78,10 +76,93 @@
    assert( self);
    assert( _cmd == @selector( load));
 
+   mulle_thread_mutex_init( &Self._lock);
+
    universe = _mulle_objc_infraclass_get_universe( self);
    assert( universe);
 
    _MulleThreadCreateMainThreadObjectInUniverse( universe);
+}
+
+
++ (void) unload
+{
+   mulle_thread_mutex_done( &Self._lock);
+}
+
+/*
+ */
+- (instancetype) initWithTarget:(id) target
+                       selector:(SEL) sel
+                         object:(id) argument
+{
+   NSUInteger   options;
+
+   options = 0;
+   if( self == target)
+      options = (MulleThreadDontRetainTarget|MulleThreadDontReleaseTarget);
+   if( self == argument)
+      options |= (MulleThreadDontRetainArgument|MulleThreadDontReleaseArgument);
+
+   return( [self mulleInitWithTarget:target
+                            selector:sel
+                            argument:argument
+                             options:options]);
+}
+
+
+- (instancetype) mulleInitWithTarget:(id) target
+                            selector:(SEL) sel
+                            argument:(id) argument
+                             options:(NSUInteger) options
+{
+   if( ! target || ! sel)
+      __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
+                                                  "target and selector must not be nil");
+
+   if( ! (options & MulleThreadDontRetainTarget))
+      [target retain];
+   if( ! (options & MulleThreadDontRetainArgument))
+      [argument retain];
+
+   self->_releaseTarget   = ! (options & MulleThreadDontReleaseTarget);
+   self->_releaseArgument = ! (options & MulleThreadDontReleaseArgument);
+
+   self->_target          = target;
+   self->_selector        = sel;
+   self->_argument        = argument;
+
+   return( self);
+}
+
+
+- (void) finalize
+{
+   [(id) self->_runLoop mullePerformFinalize];
+   [(id) self->_runLoop autorelease];
+   self->_runLoop = nil;
+
+   [self->_userInfo autorelease];
+   self->_userInfo = nil;
+
+   if( self->_releaseTarget)
+      [self->_target autorelease];
+   self->_target = nil;
+
+   if( self->_releaseArgument)
+      [self->_argument autorelease];
+   self->_argument = nil;
+
+   [super finalize];
+}
+
+
+- (void) dealloc
+{
+   assert( ! self->_runLoop);
+   assert( ! self->_userInfo);
+
+   _MulleObjCObjectFree( self);
 }
 
 
@@ -111,7 +192,6 @@ static void   _mulle_objc_thread_become_universethread( struct _mulle_objc_unive
 {
    mulle_thread_t                             thread;
    struct _mulle_objc_universefoundationinfo  *info;
-   intptr_t                                   rc;
 
    //
    // the universe may have done this already for us if we are the
@@ -120,7 +200,7 @@ static void   _mulle_objc_thread_become_universethread( struct _mulle_objc_unive
    thread = mulle_thread_self();
    assert( thread != _mulle_objc_universe_get_thread( universe));
 
-   rc = _mulle_objc_universe_retain( universe);
+   _mulle_objc_universe_retain( universe);
 
    // during the main thread bang, this is already done
    mulle_objc_thread_setup_threadinfo( universe);
@@ -128,6 +208,7 @@ static void   _mulle_objc_thread_become_universethread( struct _mulle_objc_unive
 
    // for some ridiculous compatibility with Apple
    info = _mulle_objc_universe_get_universefoundationinfo( universe);
+   _mulle_atomic_pointer_increment( &info->thread.n_threads);
    info->thread.was_multi_threaded = YES;
 }
 
@@ -136,7 +217,8 @@ static void
    _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *universe,
                                                BOOL unset)
 {
-   mulle_thread_t   thread;
+   mulle_thread_t                              thread;
+   struct _mulle_objc_universefoundationinfo   *info;
 
    //
    // the universe will do this, if we are the
@@ -148,6 +230,8 @@ static void
    if( unset)
       mulle_objc_thread_unset_threadinfo( universe);      // can't call Objective-C anymore
 
+   info = _mulle_objc_universe_get_universefoundationinfo( universe);
+   _mulle_atomic_pointer_decrement( &info->thread.n_threads);
    _mulle_objc_universe_release( universe);
 }
 
@@ -155,17 +239,12 @@ static void
 // this is used by mulle_objc_thread_get_threadfoundationinfo to create
 // a new NSThread on demand if needed
 static void   _MulleThreadRegisterInUniverse( NSThread *threadObject,
-                                              struct _mulle_objc_universe *universe,
-                                              BOOL preset)
+                                              struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_universefoundationinfo   *info;
 
    _mulle_objc_universe_add_threadobject( universe, threadObject); // does not retain
    _mulle_objc_thread_set_threadobject( universe, threadObject);   // this owns it!
-
-   info = _mulle_objc_universe_get_universefoundationinfo( universe);
-   if( _mulle_atomic_pointer_increment( &info->thread.n_threads) == (void *) (intptr_t) (preset ? 2 : 1))
-      [threadObject _isGoingMultiThreaded];
 }
 
 
@@ -173,20 +252,11 @@ static void   _MulleThreadDeregisterInUniverse( NSThread *threadObject,
                                                 struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_universefoundationinfo   *info;
-   intptr_t                                    n_threads_prev;
 
    assert( _NSThreadGetThread( threadObject) == mulle_thread_self());
 
-   if( _NSThreadGetThread( threadObject) != _mulle_objc_universe_get_thread( universe))
-      [threadObject _threadWillExit];
-
    _mulle_objc_universe_remove_threadobject( universe, threadObject); // does not retain
    _mulle_objc_thread_set_threadobject( universe, NULL);   // this owns it!
-
-   info           = _mulle_objc_universe_get_universefoundationinfo( universe);
-   n_threads_prev = (intptr_t) _mulle_atomic_pointer_decrement( &info->thread.n_threads);
-   if( n_threads_prev == 2)
-      [threadObject _probablyGoingSingleThreaded];
 }
 
 
@@ -219,7 +289,7 @@ static NSThread   *__MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc
    assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
    mulle_objc_thread_new_poolconfiguration( universe);
 
-   _MulleThreadRegisterInUniverse( threadObject, universe, NO);
+   _MulleThreadRegisterInUniverse( threadObject, universe);
 
    return( threadObject);
 }
@@ -316,7 +386,6 @@ void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_univer
 }
 
 
-
 //
 // this is a special function only to be called during universe teardown
 //
@@ -351,137 +420,191 @@ NSThread   *_MulleThreadGetMainThreadObjectInUniverse( struct _mulle_objc_univer
 }
 
 
-
-/*
- */
-- (instancetype) initWithTarget:(id) target
-                       selector:(SEL) sel
-                         object:(id) argument
+void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
+                                          void *foundationspace)
 {
-   NSUInteger   options;
+   NSThread                      *threadObject;
+   struct _mulle_objc_universe   *universe;
+   mulle_thread_tss_t            threadkey;
 
-   options = 0;
-   if( self == target)
-      options = (MulleThreadDontRetainTarget|MulleThreadDontReleaseTarget);
-   if( self == argument)
-      options |= (MulleThreadDontRetainArgument|MulleThreadDontReleaseArgument);
+   threadObject = _mulle_objc_threadinfo_get_threadobject( info);
+   if( ! threadObject)
+      return;
 
-   return( [self mulleInitWithTarget:target
-                            selector:sel
-                            argument:argument
-                             options:options]);
+   //
+   // mulle_thread_tss_set is legal! according to:
+   // https://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_setspecific.html
+   // and
+   // https://en.cppreference.com/w/c/thread/tss_set
+   // we "reenable" our config, to be reachable so that NSThread currentThread
+   // et al. works
+   //
+   universe  = _mulle_objc_threadinfo_get_universe( info);
+   threadkey = _mulle_objc_universe_get_threadkey( universe);
+   mulle_thread_tss_set( threadkey, info);
+
+   _MulleThreadDeregisterInUniverse( threadObject, universe);
+   [threadObject release];
+
+   mulle_objc_thread_done_poolconfiguration( universe);
+
+   _mulle_objc_thread_resignas_universethread( universe, NO);
+
+   mulle_thread_tss_set( threadkey, NULL);
 }
 
 
-- (instancetype) mulleInitWithTarget:(id) target
-                            selector:(SEL) sel
-                            argument:(id) argument
-                             options:(NSUInteger) options
+static void   bouncyBounce( void *arg)
 {
-   if( ! target || ! sel)
-      __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
-                                                  "target and selector must not be nil");
-
-   if( ! (options & MulleThreadDontRetainTarget))
-      [target retain];
-   if( ! (options & MulleThreadDontRetainArgument))
-      [argument retain];
-
-   self->_releaseTarget   = ! (options & MulleThreadDontReleaseTarget);
-   self->_releaseArgument = ! (options & MulleThreadDontReleaseArgument);
-
-   self->_target           = target;
-   self->_selector         = sel;
-   self->_argument         = argument;
-
-   return( self);
-}
-
-
-- (void) finalize
-{
-   [(id) self->_runLoop mullePerformFinalize];
-   [(id) self->_runLoop autorelease];
-   self->_runLoop = nil;
-
-   [self->_userInfo autorelease];
-   self->_userInfo = nil;
-
-   if( self->_releaseTarget)
-      [self->_target autorelease];
-   self->_target = nil;
-
-   if( self->_releaseArgument)
-      [self->_argument autorelease];
-   self->_argument = nil;
-
-   [super finalize];
-}
-
-
-- (void) dealloc
-{
-   assert( ! self->_runLoop);
-   assert( ! self->_userInfo);
-
-   _MulleObjCObjectFree( self);
-}
-
-
-+ (NSThread *) mainThread
-{
-   NSThread                                    *threadObject;
+   NSThread                                    *threadObject = arg;
    struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_universefoundationinfo   *info;
 
-   universe     = _mulle_objc_infraclass_get_universe( self);
-   info         = _mulle_objc_universe_get_universefoundationinfo( universe);
-   threadObject = _mulle_objc_universefoundationinfo_get_mainthreadobject( info);
-   return( threadObject);
+   // not sure that this is already set, depending if thread or caller
+   // resumes first
+   _NSThreadSetThread( threadObject, mulle_thread_self());
+
+   universe = _mulle_objc_object_get_universe( threadObject);
+   // we are in the "naked" thread, but we already have a threadObject
+   // so register this thread to be able to to ObjC calls
+   _mulle_objc_thread_become_universethread( universe);
+
+   //
+   // create pool configuration, ahead of register so it can
+   // send a notification
+   //
+   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
+   mulle_objc_thread_new_poolconfiguration( universe);
+
+   // make threadObject known to universe and thread
+   _MulleThreadRegisterInUniverse( threadObject, universe);
+
+   // the caller will have retained it on out behalf already once,
+   // so reduce this again, and also the thread count now
+   //
+   // for a short moment, the number of threads will be one too high
+   // but its important so you don get races if you are polling
+   // +mulleIsMultiThreaded
+   //
+   _mulle_objc_universe_release( universe);
+
+   [threadObject main];
+
+   [NSThread exit];
 }
 
 
-+ (NSThread *) currentThread
+- (void) mulleStartUndetached
 {
-   struct _mulle_objc_universe   *universe;
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *info;
+   mulle_thread_t                              thread;
+   intptr_t                                    n_threads;
 
-   universe = _mulle_objc_infraclass_get_universe( self);
-   return( _mulle_objc_thread_get_threadobject( universe));
+   universe = _mulle_objc_object_get_universe( self);
+   if( _NSThreadGetThread( self))
+      __mulle_objc_universe_raise_internalinconsistency( universe, "thread already running");
+
+   //
+   // main thread is not counted anymore
+   //
+   info      = _mulle_objc_universe_get_universefoundationinfo( universe);
+   n_threads = (intptr_t) _mulle_atomic_pointer_read( &info->thread.n_threads);
+   if( n_threads == 0)
+      [self __isGoingMultiThreaded];
+
+   //
+   // retain self and universe for bouncyBounce
+   //
+   [self retain];
+   _mulle_objc_universe_retain( universe);
+
+   if( mulle_thread_create( bouncyBounce, self, &thread))
+      __mulle_objc_universe_raise_errno( universe, "thread creation");
+
+   // we can not be sure thread has done this already, but we need to
+   // be up-to-date
+   _NSThreadSetThread( self, thread);
+
+   if( universe->debug.trace.thread)
+      mulle_objc_universe_trace( universe, "%p started thread %p", mulle_thread_self(), thread);
 }
 
 
-+ (BOOL) mulleMainThreadWaitsAtExit
-{
-   struct _mulle_objc_universe   *universe;
 
-   universe = _mulle_objc_infraclass_get_universe( self);
-   return( universe->config.wait_threads_on_exit);
+/*
+ * this is called when a threadinfo is put up
+ * on behalf of foundation we install our destructor Fhere
+ * we could do a lot more though.... maybe later
+ *
+ */
+void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
+{
+   config->foundation_destructor = &_mulle_objc_threadinfo_destructor;
 }
 
 
-+ (void) mulleSetMainThreadWaitsAtExit:(BOOL) flag
+//
+// not 100% compatible to Apple, where this flag is "sticky"
+//
++ (BOOL) isMultiThreaded
 {
-   struct _mulle_objc_universe   *universe;
+   BOOL   flag;
 
-   universe = _mulle_objc_infraclass_get_universe( self);
-   universe->config.wait_threads_on_exit = flag;
+   mulle_thread_mutex_lock( &Self._lock);
+   {
+      flag = Self._isMultiThreaded;
+   }
+   mulle_thread_mutex_unlock( &Self._lock);
+   return( flag);
 }
 
 
-- (void) _probablyGoingSingleThreaded
+- (void) _isProbablyGoingSingleThreaded
 {
+}
+
+- (void) __isProbablyGoingSingleThreaded
+{
+   //
    // but still multi-threaded ATM (!)
    // another thread could be starting up right now from the main thread
    // also some thread destructors might be running
+   //
+   mulle_thread_mutex_lock( &Self._lock);
+   {
+      if( Self._isMultiThreaded)
+      {
+         Self._isMultiThreaded = NO;
+         [self _isProbablyGoingSingleThreaded];
+      }
+   }
+   mulle_thread_mutex_unlock( &Self._lock);
 }
+
 
 
 - (void) _isGoingMultiThreaded
 {
+}
+
+
+- (void) __isGoingMultiThreaded
+{
    //
    // when a notification fires here, it's for "technical" purposes still
-   // single threaded.
+   // single threaded. We serialize here, so that other threads don't
+   // overtake us.
    //
+   mulle_thread_mutex_lock( &Self._lock);
+   {
+      if( ! Self._isMultiThreaded)
+      {
+         Self._isMultiThreaded = YES;
+         [self _isGoingMultiThreaded];
+      }
+   }
+   mulle_thread_mutex_unlock( &Self._lock);
 }
 
 
@@ -536,49 +659,44 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 }
 
 
-void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
-                                          void *foundationspace)
+
++ (NSThread *) mainThread
 {
-   NSThread                      *threadObject;
-   struct _mulle_objc_universe   *universe;
-   mulle_thread_tss_t            threadkey;
+   NSThread                                    *threadObject;
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *info;
 
-   threadObject = _mulle_objc_threadinfo_get_threadobject( info);
-   if( ! threadObject)
-      return;
-
-   //
-   // mulle_thread_tss_set is legal! according to:
-   // https://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_setspecific.html
-   // and
-   // https://en.cppreference.com/w/c/thread/tss_set
-   // we "reenable" our config, to be reachable so that NSThread currentThread
-   // et al. works
-   //
-   universe  = _mulle_objc_threadinfo_get_universe( info);
-   threadkey = _mulle_objc_universe_get_threadkey( universe);
-   mulle_thread_tss_set( threadkey, info);
-
-   _MulleThreadDeregisterInUniverse( threadObject, universe);
-   [threadObject release];
-
-   mulle_objc_thread_done_poolconfiguration( universe);
-
-   _mulle_objc_thread_resignas_universethread( universe, NO);
-
-   mulle_thread_tss_set( threadkey, NULL);
+   universe     = _mulle_objc_infraclass_get_universe( self);
+   info         = _mulle_objc_universe_get_universefoundationinfo( universe);
+   threadObject = _mulle_objc_universefoundationinfo_get_mainthreadobject( info);
+   return( threadObject);
 }
 
 
-/*
- * this is called when a threadinfo is put up
- * on behalf of foundation we install our destructor Fhere
- * we could do a lot more though.... maybe later
- *
- */
-void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
++ (NSThread *) currentThread
 {
-   config->foundation_destructor = &_mulle_objc_threadinfo_destructor;
+   struct _mulle_objc_universe   *universe;
+
+   universe = _mulle_objc_infraclass_get_universe( self);
+   return( _mulle_objc_thread_get_threadobject( universe));
+}
+
+
++ (BOOL) mulleMainThreadWaitsAtExit
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = _mulle_objc_infraclass_get_universe( self);
+   return( universe->config.wait_threads_on_exit);
+}
+
+
++ (void) mulleSetMainThreadWaitsAtExit:(BOOL) flag
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = _mulle_objc_infraclass_get_universe( self);
+   universe->config.wait_threads_on_exit = flag;
 }
 
 
@@ -616,76 +734,6 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
 }
 
 
-static void   bouncyBounce( void *arg)
-{
-   NSThread                                    *threadObject = arg;
-   struct _mulle_objc_universe                 *universe;
-   struct _mulle_objc_universefoundationinfo   *info;
-
-   // not sure that this is already set, depending if thread or caller
-   // resumes first
-   _NSThreadSetThread( threadObject, mulle_thread_self());
-
-   universe = _mulle_objc_object_get_universe( threadObject);
-   // we are in the "naked" thread, but we already have a threadObject
-   // so register this thread to be able to to ObjC calls
-   _mulle_objc_thread_become_universethread( universe);
-
-   //
-   // create pool configuration, ahead of register so it can
-   // send a notification
-   //
-   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
-   mulle_objc_thread_new_poolconfiguration( universe);
-
-   // make threadObject known to universe and thread
-   _MulleThreadRegisterInUniverse( threadObject, universe, YES);
-
-   // the caller will have retained it on out behalf already once,
-   // so reduce this again, and also the thread count now
-   //
-   // for a short moment, the number of threads will be one too high
-   // but its important so you don get races if you are polling
-   // +mulleIsMultiThreaded
-   //
-   _mulle_objc_universe_release( universe);
-   info  = _mulle_objc_universe_get_universefoundationinfo( universe);
-   _mulle_atomic_pointer_decrement( &info->thread.n_threads);
-
-   [threadObject main];
-}
-
-
-- (void) mulleStartUndetached
-{
-   struct _mulle_objc_universe                 *universe;
-   struct _mulle_objc_universefoundationinfo   *info;
-   mulle_thread_t                              thread;
-
-   universe = _mulle_objc_object_get_universe( self);
-   if( _NSThreadGetThread( self))
-      __mulle_objc_universe_raise_internalinconsistency( universe, "thread already running");
-
-   // retain self and universe for bouncyBounce
-   // we also pre-increment the threads counter, so we are "multi-threaded"
-   // already
-
-   [self retain];
-   _mulle_objc_universe_retain( universe);
-
-   info  = _mulle_objc_universe_get_universefoundationinfo( universe);
-   _mulle_atomic_pointer_increment( &info->thread.n_threads);
-
-   if( mulle_thread_create( bouncyBounce, self, &thread))
-      __mulle_objc_universe_raise_errno( universe, "thread creation");
-
-   // not sure thread has done this already, but we need to be up-to-date
-   _NSThreadSetThread( self, thread);
-
-   if( universe->debug.trace.thread)
-      mulle_objc_universe_trace( universe, "%p started thread %p", mulle_thread_self(), thread);
-}
-
 
 - (void) start
 {
@@ -717,36 +765,41 @@ static void   bouncyBounce( void *arg)
 
 + (void) exit
 {
-   NSThread   *thread;
+   NSThread                                    *thread;
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *info;
+   intptr_t                                    n_threads;
 
    thread = [NSThread currentThread];
    assert( [NSThread mainThread] != thread);
 
    [thread _threadWillExit];
 
+   universe  = _mulle_objc_object_get_universe( thread);
+   info      = _mulle_objc_universe_get_universefoundationinfo( universe);
+   n_threads = (intptr_t) _mulle_atomic_pointer_read( &info->thread.n_threads);
+//   fprintf( stderr, "%s %p %ld\n", __PRETTY_FUNCTION__, (void *) mulle_thread_self(), n_threads);
+   if( n_threads == 1)
+      [thread __isProbablyGoingSingleThreaded];
+
    mulle_thread_exit( 0);
 }
 
 
-+ (BOOL) isMultiThreaded
-{
-   struct _mulle_objc_universefoundationinfo   *info;
-   struct _mulle_objc_universe                 *universe;
-
-   universe = _mulle_objc_infraclass_get_universe( self);
-   info     = _mulle_objc_universe_get_universefoundationinfo( universe);
-   return( info->thread.was_multi_threaded);
-}
-
-
+//
+// could also check isMultiThreaded, but that doesn't count +new created
+// NSThreads in C-spawned threads. This does count them
+//
 + (BOOL) mulleIsMultiThreaded
 {
    struct _mulle_objc_universefoundationinfo   *info;
    struct _mulle_objc_universe                 *universe;
+   intptr_t                                    n_threads;
 
-   universe = _mulle_objc_infraclass_get_universe( self);
-   info     = _mulle_objc_universe_get_universefoundationinfo( universe);
-   return( _mulle_atomic_pointer_read( &info->thread.n_threads) >= (void *) 2);
+   universe  = _mulle_objc_infraclass_get_universe( self);
+   info      = _mulle_objc_universe_get_universefoundationinfo( universe);
+   n_threads = (intptr_t) _mulle_atomic_pointer_read( &info->thread.n_threads);
+   return( n_threads >= 1);
 }
 
 

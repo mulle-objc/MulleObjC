@@ -53,6 +53,20 @@ typedef NSRange              *NSRangePointer;
 #define NSNotFound           mulle_not_found_e
 
 
+//
+// can be used in many methods to specify { 0, [self length] }
+//
+static inline NSRange   MulleMakeFullRange( void)
+{
+   NSRange    range;
+
+   range.location = 0;
+   range.length   = (NSUInteger) -1;
+
+   return( range);
+}
+
+
 static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
 {
    NSRange    range;
