@@ -120,7 +120,7 @@
 
 - (void) dealloc
 {
-   _MulleObjCObjectFree( self);
+   _MulleObjCInstanceFree( self);
 }
 
 
@@ -175,7 +175,7 @@
 
 - (void) finalize
 {
-   _MulleObjCObjectClearProperties( self);
+   _MulleObjCInstanceClearProperties( self);
 }
 
 
@@ -195,7 +195,7 @@
          					"deallocing object %p still in autoreleasepool", self);
    }
 #endif
-   _MulleObjCObjectFree( self);
+   _MulleObjCInstanceFree( self);
 }
 
 
@@ -346,7 +346,7 @@ retry:
       placeholder = _MulleObjCClassNewInstantiatePlaceholder( self, classid);
       if( ! _mulle_objc_infraclass_set_placeholder( self, placeholder))
       {
-         _MulleObjCObjectFree( (id) placeholder);
+         _MulleObjCInstanceFree( (id) placeholder);
          goto retry;
       }
    }

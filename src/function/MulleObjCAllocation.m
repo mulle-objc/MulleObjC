@@ -50,13 +50,15 @@
 #include <stdarg.h>
 
 
-int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
-                                     struct _mulle_objc_infraclass *cls,
-                                     void *self);
+// the parameters are shuffled this way, because its a walk callback
 
-int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
-                                     struct _mulle_objc_infraclass *cls,
-                                     void *self)
+int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
+                                       struct _mulle_objc_infraclass *cls,
+                                       void *self);
+
+int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
+                                       struct _mulle_objc_infraclass *cls,
+                                       void *self)
 {
    uint32_t                   bits;
    ptrdiff_t                  offset;
@@ -105,20 +107,20 @@ int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *property,
 void   NSDeallocateObject( id self)
 {
    if( self)
-      _MulleObjCObjectFree( self);
+      _MulleObjCInstanceFree( self);
 }
 
 
 # pragma mark - improve dealloc speed for classes that don't have properties that need to be released
 
 
-int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
-                                                   mulle_objc_walkpropertiescallback f,
-                                                   void *userinfo);
+int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
+                                              mulle_objc_walkpropertiescallback f,
+                                              void *userinfo);
 
-int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
-                                                   mulle_objc_walkpropertiescallback f,
-                                                   void *userinfo)
+int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
+                                              mulle_objc_walkpropertiescallback f,
+                                              void *userinfo)
 {
    struct _mulle_objc_propertylist                         *list;
    struct mulle_concurrent_pointerarrayreverseenumerator   rover;
@@ -145,21 +147,14 @@ int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass
    // in MulleObjC the superclass is always searched
    superclass = _mulle_objc_infraclass_get_superclass( infra);
    if( superclass && superclass != infra)
-      return( _MulleObjCInfraclassWalkClearableProperties( superclass, f, userinfo));
+      return( _MulleObjCClassWalkClearableProperties( superclass, f, userinfo));
 
    return( 0);
 }
 
 
-void   _MulleObjCObjectClearProperties( id obj)
+void   _MulleObjCInstanceClearProperties( id obj)
 {
-   extern int   _MulleObjCObjectClearProperty( struct _mulle_objc_property *,
-                                               struct _mulle_objc_infraclass *cls,
-                                               void *);
-   extern int   _MulleObjCInfraclassWalkClearableProperties( struct _mulle_objc_infraclass *,
-                                                             mulle_objc_walkpropertiescallback,
-                                                             void *);
-
    struct _mulle_objc_class        *cls;
    struct _mulle_objc_infraclass   *infra;
 
@@ -167,14 +162,14 @@ void   _MulleObjCObjectClearProperties( id obj)
    cls  = _mulle_objc_object_get_isa( obj);
    // if it's a meta class it's an error during debug
    infra = _mulle_objc_class_as_infraclass( cls);
-   _MulleObjCInfraclassWalkClearableProperties( infra,
-                                                 _MulleObjCObjectClearProperty,
-                                                 obj);
+   _MulleObjCClassWalkClearableProperties( infra,
+                                           _MulleObjCInstanceClearProperty,
+                                           obj);
 }
 
 
 // this does not zero properties
-void   _MulleObjCObjectFree( id obj)
+void   _MulleObjCInstanceFree( id obj)
 {
    struct _mulle_objc_objectheader             *header;
    struct _mulle_objc_universefoundationinfo   *config;
@@ -285,7 +280,7 @@ void   MulleObjCObjectSetDuplicatedCString( id self, char **ivar, char *s)
    if( s == *ivar)
       return;
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
    if( s)
       s = mulle_allocator_strdup( allocator, s);
 
@@ -294,7 +289,7 @@ void   MulleObjCObjectSetDuplicatedCString( id self, char **ivar, char *s)
 }
 
 
-void   *MulleObjCAutoreleasedCalloc( NSUInteger n,
+void   *MulleObjCCallocAutoreleased( NSUInteger n,
                                      NSUInteger size)
 {
    size_t   total;
