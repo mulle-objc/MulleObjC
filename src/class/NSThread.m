@@ -162,7 +162,7 @@ static struct $
    assert( ! self->_runLoop);
    assert( ! self->_userInfo);
 
-   _MulleObjCObjectFree( self);
+   _MulleObjCInstanceFree( self);
 }
 
 

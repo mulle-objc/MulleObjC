@@ -70,6 +70,8 @@
 //
 - (instancetype) init;
 - (void) dealloc;  /* ---> #2# */
+
+// will autorelease properties, except readonly ones!
 - (void) finalize;
 
 - (NSUInteger) hash;
@@ -171,6 +173,21 @@
 @class NSMethodSignature;
 @class NSInvocation;
 
+
+@interface NSObject ( RuntimeInit)
+
+//
+// Preferably do not use ObjC or objc runtime calls in these
+// (then everything is easy). If you do though, you MUST specify
+// MULLE_OBJC_DEPENDS_ON_LIBRARY (preferably) or 
+// MULLE_OBJC_DEPENDS_ON_CLASS. MULLE_OBJC_DEPENDS_ON_LIBRARY is the safer
+// choice, due to class cluster initialization. Be sure that what you call
+// is where you expect it to be.
+//
++ (void) initialize;
++ (void) load;
+
+@end
 
 // class methods available, because NSObject is root
 @interface NSObject ( WrapAround)

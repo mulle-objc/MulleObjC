@@ -110,7 +110,7 @@
       case _C_CHARPTR :
          [self getArgument:&s
                   atIndex:i];
-         mulle_allocator_free( MulleObjCObjectGetAllocator( self), s);
+         mulle_allocator_free( MulleObjCInstanceGetAllocator( self), s);
          break;
       }
    }
@@ -258,7 +258,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       case _C_CHARPTR :
          [self getArgument:&s
                   atIndex:i];
-         dup  = mulle_allocator_strdup( MulleObjCObjectGetAllocator( self), s);
+         dup  = mulle_allocator_strdup( MulleObjCInstanceGetAllocator( self), s);
          [self setArgument:&dup
                   atIndex:i];
          break;

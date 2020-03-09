@@ -37,7 +37,7 @@
 
 
 __attribute__((const))
-static inline struct mulle_allocator   *MulleObjCObjectGetAllocator( id obj)
+static inline struct mulle_allocator   *MulleObjCInstanceGetAllocator( id obj)
 {
    struct _mulle_objc_class        *cls;
    struct _mulle_objc_infraclass   *infra;
@@ -71,7 +71,7 @@ static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 #pragma mark -
 #pragma mark allocate memory to return char * autoreleased
 
-void   *MulleObjCAutoreleasedCalloc( NSUInteger n,
+void   *MulleObjCCallocAutoreleased( NSUInteger n,
                                      NSUInteger size);
 
 #pragma mark -
@@ -79,32 +79,32 @@ void   *MulleObjCAutoreleasedCalloc( NSUInteger n,
 
 static inline void  *MulleObjCObjectAllocateNonZeroedMemory( id self, NSUInteger size)
 {
-   return( _mulle_allocator_malloc( MulleObjCObjectGetAllocator( self), size));
+   return( _mulle_allocator_malloc( MulleObjCInstanceGetAllocator( self), size));
 }
 
 
 static inline void  *MulleObjCObjectReallocateNonZeroedMemory( id self, void *p, NSUInteger size)
 {
-   return( _mulle_allocator_realloc( MulleObjCObjectGetAllocator( self), p, size));
+   return( _mulle_allocator_realloc( MulleObjCInstanceGetAllocator( self), p, size));
 }
 
 
 static inline void  *MulleObjCObjectAllocateMemory( id self, NSUInteger size)
 {
-   return( _mulle_allocator_calloc( MulleObjCObjectGetAllocator( self), 1, size));
+   return( _mulle_allocator_calloc( MulleObjCInstanceGetAllocator( self), 1, size));
 }
 
 
 static inline void  *MulleObjCObjectDuplicateCString( id self, char *s)
 {
-   return( _mulle_allocator_strdup( MulleObjCObjectGetAllocator( self), s));
+   return( _mulle_allocator_strdup( MulleObjCInstanceGetAllocator( self), s));
 }
 
 
 static inline void  MulleObjCObjectDeallocateMemory( id self, void *p)
 {
    if( p)
-      _mulle_allocator_free( MulleObjCObjectGetAllocator( self), p);
+      _mulle_allocator_free( MulleObjCInstanceGetAllocator( self), p);
 }
 
 
@@ -142,11 +142,11 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
 }
 
 
-void   _MulleObjCObjectClearProperties( id obj);
+void   _MulleObjCInstanceClearProperties( id obj);
 
 
 // this does not zero properties
-void   _MulleObjCObjectFree( id obj);
+void   _MulleObjCInstanceFree( id obj);
 
 
 static inline id   NSAllocateObject( Class infra, NSUInteger extra, NSZone *zone)

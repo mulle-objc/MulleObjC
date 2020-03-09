@@ -74,7 +74,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
       return( nil);
    }
 
-   _types = mulle_allocator_strdup( MulleObjCObjectGetAllocator( self), types);
+   _types = mulle_allocator_strdup( MulleObjCInstanceGetAllocator( self), types);
    _bits  = 0;
 
 #if 0
@@ -91,7 +91,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 {
    struct mulle_allocator   *allocator;
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
 
    if( ! hasExtraMemory( self))
    {
@@ -248,7 +248,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 
    if( ! hasExtraMemory( self))
    {
-      allocator          = MulleObjCObjectGetAllocator( self);
+      allocator          = MulleObjCInstanceGetAllocator( self);
       self->_infos       = mulle_allocator_calloc( allocator, self->_count, sizeof( MulleObjCMethodSignatureTypeinfo));
       self->_prettyTypes = mulle_allocator_strdup( allocator, self->_types);
    }
