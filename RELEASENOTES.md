@@ -1,3 +1,36 @@
+## 0.17.0
+
+* change prefix from `MulleObjCObject` to `MulleObjCInstance`, where the object can only be an instance and not a class
+* change prefix from `MulleObjCObject` to `MulleObjCClass`, where the object can only be a class and not an instance
+* force serialization for **NSThread** notifications (via ``_isProbablyGoingSingleThreaded`` and ``_isGoingMultiThreaded`)`
+* You can now use `MulleMakeFullRange` or { 0, -1 } to specify { 0, [self length] }
+* `MulleObjCValidateRangeAgainstLength` now returns a range (it can change, if range.length was -1)
+* fix some new bugs introduced by the NSThread rewrite
+* NSPushAutoreleasePool takes a parameter (which is ignored) added `_MulleAutoreleasePoolPush` that accepts a proper universeid for future use by the compiler
+* redid NSInvocation so that the MetaABI block is aligned to at least alignof( double long)
+* redid NSThread so that it is now possible to "escalate" a C `mulle_thread_t` to an ObjC thread
+* renamed MulleObjCGetClassExtra to MulleObjCClassGetExtraBytes ( but don't use it ;))
+* renamed MulleObjCGetInstanceExtra to MulleObjCInstanceGetExtraBytes
+* added `MulleSELMapKeyCallBacks` and `MulleSELMapValueCallBacks`
+* moved `NSMutableCopying` into MulleObjC
+* add some optional methods to NSCoding protocol
+* C-based vectorizable exceptions are now part of MulleObjC (like ``_MulleObjCThrowInvalidArgumentException`)`
+* `MulleObjCHash` has moved into MulleObjC
+* renamed `MulleObjCCallIMP` to `MulleObjCIMPCall` for consistency
+* renamed `MulleObjCPerformSelector` to `MulleObjCObjectPerformSelector` for consistency
+* added `MulleObjCAutoreleasedCalloc` function
+* added `MulleObjCObjectSetDuplicatedCString` function
+* fixed/documented calling `[super forward:]`, which needs to be done in C!
+* allow finer control of argument handling by **NSThread** to support threadpools and the like
+* added `object` (not! `mulleObject`) method to **NSObject** as the default convenience constructor, replacing alloc/init/autorelease
+* fixes for **NSMethodSignature** and **NSInvocation**
+* prefix/rename some non-standard methods and functions with mulle
+* The main NSThread can now effectively wait for other NSThreads at exit
+* added a missing file MulleObjCProtocol
+* add asserts that singletons aren't nil when alloced
+* moved some NSRange tests to mulle-container
+
+
 ## 0.16.0
 
 * experimentally added MulleObjCValue and MulleObjCImmutable protocols

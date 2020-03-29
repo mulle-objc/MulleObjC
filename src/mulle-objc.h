@@ -31,10 +31,10 @@
 #include "MulleObjCUniverse.h"
 
 
-#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (16 << 8) | 0)
+#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (17 << 8) | 0)
 # error "mulle-objc-runtime is too old"
 #endif
-#if MULLE_CONTAINER_VERSION < ((1 << 20) | (2 << 8) | 0)
+#if MULLE_CONTAINER_VERSION < ((1 << 20) | (8 << 8) | 0)
 # error "mulle-container is too old"
 #endif
 
