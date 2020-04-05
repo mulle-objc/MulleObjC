@@ -6,7 +6,6 @@ if( MULLE_TRACE_INCLUDE)
 endif()
 
 set( SOURCES
-src/MulleObjC-standalone.m
 src/class/NSAutoreleasePool.m
 src/class/NSInvocation.m
 src/class/NSLock.m
@@ -38,4 +37,8 @@ src/struct/NSRange.c
 
 set( STAGE2_SOURCES
 src/class/MulleObjCLoader.m
+)
+
+set( STANDALONE_SOURCES
+src/MulleObjC-standalone.m
 )
