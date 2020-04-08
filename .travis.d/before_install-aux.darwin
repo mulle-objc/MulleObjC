@@ -70,13 +70,14 @@ before_install_objc_main()
    r_get_codeon_tapname
    tapname="${RVAL}"
 
+   brew tap "${tapuser}/${tapname}" || return 1
    brew update
 
-   if [ -f ".travis.d/PACKAGES.darwin" ]
+   if [ -f ".travis.d/PACKAGES-aux.darwin" ]
    then
-      PACKAGES="`egrep -v '^#' ".travis.d/PACKAGES.darwin" `"
+      PACKAGES="`egrep -v '^#' ".travis.d/PACKAGES-aux.darwin" `"
    else
-      PACKAGES="`egrep -v '^#' ".travis.d/PACKAGES" `"
+      PACKAGES="`egrep -v '^#' ".travis.d/PACKAGES-aux" `"
    fi
 
    (
@@ -84,20 +85,12 @@ before_install_objc_main()
       for package in ${PACKAGES}
       do
          case "${package}" in
-            /*)
-               brew install "${package:1}"
-            ;;
-
-            */*/*)
-               brew install "${package}"
-            ;;
-
-            */*)
-               brew install "${tapuser}/${package}"
+            =*)
+               brew install "${tapuser}/${tapname}/${package:1}"
             ;;
 
             *)
-               brew install "${tapuser}/${tapname}/${package}"
+               brew install "${package}"
             ;;
          esac
       done
