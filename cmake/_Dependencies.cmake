@@ -69,7 +69,7 @@ if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
          endif()
       endforeach()
       #
-      # Search for "objc-loader.inc" in include directory.
+      # Search for "MulleObjCLoader+<name>.h" in include directory.
       # Disable with: `mulle-sourcetree mark mulle-objc-runtime no-cmakeloader`
       #
       if( NOT NO_INHERIT_OBJC_LOADERS)

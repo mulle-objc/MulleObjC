@@ -106,7 +106,7 @@ if( CREATE_OBJC_LOADER_INC)
 
    #
    # tricky: this file can only be installed during link phase.
-   #         It's installation is somewhat gratuitous now.
+   #         Used by optimization.
    #
    if( LINK_PHASE)
       install( FILES "${OBJC_LOADER_INC}" DESTINATION "include/${LIBRARY_NAME}/private")
