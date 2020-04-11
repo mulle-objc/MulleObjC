@@ -55,16 +55,22 @@ which supports the metaABI required for the mulle-objc runtime.
 [mulle-objc-list](//github.com/mulle-objc/mulle-objc-list) | [![Build Status](https://travis-ci.org/mulle-objc/mulle-objc-list.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-objc-list) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-list.svg) [![Build Status](https://travis-ci.org/mulle-objc/mulle-objc-list.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-objc-list)
 [mulle-objc-runtime](//github.com/mulle-objc/mulle-objc-runtime) | [![Build Status](https://travis-ci.org/mulle-objc/mulle-objc-runtime.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-objc-runtime) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-runtime.svg) [![Build Status](https://travis-ci.org/mulle-objc/mulle-objc-runtime.svg?branch=release)](https://travis-ci.org/mulle-objc/mulle-objc-runtime)
 
+
+## Add
+
+This is project is a [mulle-sde](https://mulle-sde.github.io/) project.
+Add it with:
+
+```
+mulle-sde dependency add --objc --github mulle-objc MulleObjC
+```
+
+Executables will need to link with [MulleObjC-startup](//github.com/mulle-objc/MulleObjC-startup) as well.
+
 ## Install
 
 See [mulle-objc-developer](//github.com/mulle-objc/mulle-objc-developer) for
 installation instructions.
-
-> Otherwise read:
->
-> * [How to Build](dox/BUILD.md)
->
-
 
 ## Acknowledgements
 
