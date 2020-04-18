@@ -238,28 +238,28 @@ SEL   MulleObjCCreateSelector( char *name)
 
    universe = MulleObjCGetUniverse();
    desc     = _mulle_objc_universe_lookup_descriptor( universe, methodid);
-   if( ! desc)
+   if( desc)
+      return( (SEL) (uintptr_t) methodid);
+
+   desc = mulle_objc_universe_calloc( universe, 1, sizeof( struct _mulle_objc_descriptor));
+
+   desc->methodid  = methodid;
+   desc->bits      = _mulle_objc_method_guessed_signature;
+   desc->name      = mulle_objc_universe_strdup( universe, name);
+
+   n = count_params( name);
+   if( n < 16)
+      desc->signature = fake_signatures[ n];  // could do better I guess
+   else
    {
-      desc = mulle_objc_universe_calloc( universe, 1, sizeof( struct _mulle_objc_descriptor));
+      n += 3;  // add "@@:"
 
-      desc->methodid  = methodid;
-      desc->bits      = _mulle_objc_method_guessed_signature;
-      desc->name      = mulle_objc_universe_strdup( universe, name);
-
-      n = count_params( name);
-      if( n < 16)
-         desc->signature = fake_signatures[ n];  // could do better I guess
-      else
-      {
-         n += 3;  // add "@@:"
-
-         desc->signature = mulle_objc_universe_calloc( universe, 1, n + 1);
-         memset( desc->signature, '@', n);
-         desc->signature[ 2] = ':';
-      }
-
-      mulle_objc_universe_register_descriptor_nofail( universe, desc);
+      desc->signature = mulle_objc_universe_calloc( universe, 1, n + 1);
+      memset( desc->signature, '@', n);
+      desc->signature[ 2] = ':';
    }
+
+   mulle_objc_universe_register_descriptor_nofail( universe, desc);
    return( (SEL) (uintptr_t) methodid);
 }
 
@@ -272,7 +272,6 @@ void    MulleObjCObjectSetClass( id obj, Class cls)
    if( ! cls)
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
                                                    "class can't be NULL");
-
    if( _mulle_objc_infraclass_is_taggedpointerclass( cls))
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
                                                    "class \"%s\" is a tagged pointer class", _mulle_objc_infraclass_get_name( cls));
@@ -285,8 +284,8 @@ void    MulleObjCObjectSetClass( id obj, Class cls)
 
 
 IMP   MulleObjCObjectSearchSuperIMP( id obj,
-                               SEL sel,
-                               mulle_objc_classid_t classid)
+                                     SEL sel,
+                                     mulle_objc_classid_t classid)
 {
    struct _mulle_objc_searcharguments   search;
    struct _mulle_objc_class             *cls;
@@ -313,9 +312,9 @@ IMP   MulleObjCObjectSearchSuperIMP( id obj,
 
 
 IMP   MulleObjCObjectSearchOverriddenIMP( id obj,
-                                    SEL sel,
-                                    mulle_objc_classid_t classid,
-                                    mulle_objc_categoryid_t categoryid)
+                                          SEL sel,
+                                          mulle_objc_classid_t classid,
+                                          mulle_objc_categoryid_t categoryid)
 {
    struct _mulle_objc_searcharguments   search;
    struct _mulle_objc_class             *cls;
@@ -345,9 +344,9 @@ IMP   MulleObjCObjectSearchOverriddenIMP( id obj,
 // call MulleObjCLookupSpecificIMP( self, _cmd, @selector( Foo), @selector( A))
 //
 IMP   MulleObjCObjectSearchSpecificIMP( id obj,
-                                  SEL sel,
-                                  mulle_objc_classid_t classid,
-                                  mulle_objc_categoryid_t categoryid)
+                                        SEL sel,
+                                        mulle_objc_classid_t classid,
+                                        mulle_objc_categoryid_t categoryid)
 {
    struct _mulle_objc_searcharguments    search;
    struct _mulle_objc_class              *cls;

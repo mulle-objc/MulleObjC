@@ -179,7 +179,7 @@
 //
 // Preferably do not use ObjC or objc runtime calls in these
 // (then everything is easy). If you do though, you MUST specify
-// MULLE_OBJC_DEPENDS_ON_LIBRARY (preferably) or 
+// MULLE_OBJC_DEPENDS_ON_LIBRARY (preferably) or
 // MULLE_OBJC_DEPENDS_ON_CLASS. MULLE_OBJC_DEPENDS_ON_LIBRARY is the safer
 // choice, due to class cluster initialization. Be sure that what you call
 // is where you expect it to be.
@@ -248,15 +248,15 @@
 // These just memcpy. Objects embeddded into structs will not be retained (yet)
 // I could do this in the future though.
 //
-int   _MulleObjCSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
-int   _MulleObjCGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
+int   _MulleObjCObjectSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
+int   _MulleObjCObjectGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
 
 //
 // These functions do proper retain/assign/copy and autorelease previous
 // contents.
 //
-id    MulleObjCGetObjectIvar( id self, mulle_objc_ivarid_t ivarid);
-void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value);
+id    MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid);
+void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value);
 
 
 #pragma clang diagnostic pop

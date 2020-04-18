@@ -1,3 +1,7 @@
+### 0.17.1
+
+* new mulle-sde project structure
+
 ## 0.17.0
 
 * change prefix from `MulleObjCObject` to `MulleObjCInstance`, where the object can only be an instance and not a class

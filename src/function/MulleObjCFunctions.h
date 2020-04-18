@@ -40,6 +40,294 @@
 char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
 
 
+#pragma mark - accessor shortcuts
+
+// BOOL
+static inline void   MulleObjCObjectSetBOOL( id obj, SEL sel, BOOL value)
+{
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) value);
+}
+
+
+static inline BOOL   MulleObjCObjectGetBOOL( id obj, SEL sel)
+{
+   return( (BOOL) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+}
+
+
+// char
+static inline void   MulleObjCObjectSetChar( id obj, SEL sel, char value)
+{
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (intptr_t) value);
+}
+
+
+static inline char   MulleObjCObjectGetChar( id obj, SEL sel)
+{
+   return( (char) (intptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+}
+
+static inline void   MulleObjCObjectSetUnsignedChar( id obj, SEL sel, unsigned char value)
+{
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (uintptr_t) value);
+}
+
+
+static inline unsigned char   MulleObjCObjectGetUnsignedChar( id obj, SEL sel)
+{
+   return( (unsigned char) (uintptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+}
+
+
+// short
+static inline void   MulleObjCObjectSetShort( id obj, SEL sel, short value)
+{
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (intptr_t) value);
+}
+
+
+static inline short   MulleObjCObjectGetShort( id obj, SEL sel)
+{
+   return( (short) (intptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+}
+
+
+static inline void   MulleObjCObjectSetUnsignedShort( id obj, SEL sel, unsigned short value)
+{
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (uintptr_t) value);
+}
+
+
+static inline unsigned short   MulleObjCObjectGetUnsignedShort( id obj, SEL sel)
+{
+   return( (unsigned short) (uintptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+}
+
+
+// int
+static inline void   MulleObjCObjectSetInt( id obj, SEL sel, int value)
+{
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (intptr_t) value);
+}
+
+
+static inline int   MulleObjCObjectGetInt( id obj, SEL sel)
+{
+   return( (int) (intptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+}
+
+
+static inline void   MulleObjCObjectSetUnsignedInt( id obj, SEL sel, unsigned int value)
+{
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (uintptr_t) value);
+}
+
+
+static inline unsigned int   MulleObjCObjectGetUnsignedInt( id obj, SEL sel)
+{
+   return( (unsigned int) (uintptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+}
+
+
+// long
+static inline void   MulleObjCObjectSetLong( id obj, SEL sel, long value)
+{
+   mulle_objc_metaabi_param_block_voidptr_return( struct { long a;})  param;
+
+   if( sizeof( long) <= sizeof( intptr_t))
+      mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (intptr_t) value);
+   else
+   {
+      param.p.a = value;
+      mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) &param);
+   }
+}
+
+
+static inline long   MulleObjCObjectGetLong( id obj, SEL sel)
+{
+   mulle_objc_metaabi_param_block_voidptr_parameter( struct { long a; })  param;
+
+   if( sizeof( long) <= sizeof( intptr_t))
+      return( (long) (intptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) &param);
+   return( param.r.a);
+}
+
+
+static inline void   MulleObjCObjectSetUnsignedLong( id obj, SEL sel, unsigned long value)
+{
+   mulle_objc_metaabi_param_block_voidptr_return( struct { unsigned long a;})  param;
+
+   if( sizeof( unsigned long) <= sizeof( uintptr_t))
+      mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (uintptr_t) value);
+   else
+   {
+      param.p.a = value;
+      mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) &param);
+   }
+}
+
+
+static inline unsigned long   MulleObjCObjectGetUnsignedLong( id obj, SEL sel)
+{
+   mulle_objc_metaabi_param_block_voidptr_parameter( struct { unsigned long a; })  param;
+
+   if( sizeof( unsigned long) <= sizeof( uintptr_t))
+      return( (unsigned long) (uintptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) &param);
+   return( param.r.a);
+}
+
+
+// long long
+static inline void   MulleObjCObjectSetLongLong( id obj, SEL sel, long long value)
+{
+   mulle_objc_metaabi_param_block_voidptr_return( struct { long long a;})  param;
+
+   if( sizeof( long long) <= sizeof( intptr_t))
+      mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (intptr_t) value);
+   else
+   {
+      param.p.a = value;
+      mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) &param);
+   }
+}
+
+
+static inline long long   MulleObjCObjectGetLongLong( id obj, SEL sel)
+{
+   mulle_objc_metaabi_param_block_voidptr_parameter( struct { long long a; })  param;
+
+   if( sizeof( long long) <= sizeof( intptr_t))
+      return( (long long) (intptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) &param);
+   return( param.r.a);
+}
+
+
+static inline void   MulleObjCObjectSetUnsignedLongLong( id obj, SEL sel, unsigned long long value)
+{
+   mulle_objc_metaabi_param_block_voidptr_return( struct { unsigned long long a;})  param;
+
+   if( sizeof( unsigned long long) <= sizeof( uintptr_t))
+      mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) (uintptr_t) value);
+   else
+   {
+      param.p.a = value;
+      mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) &param);
+   }
+}
+
+
+static inline unsigned long long   MulleObjCObjectGetUnsignedLongLong( id obj, SEL sel)
+{
+   mulle_objc_metaabi_param_block_voidptr_parameter( struct { unsigned long long a; })  param;
+
+   if( sizeof( unsigned long long) <= sizeof( intptr_t))
+      return( (unsigned long long) (uintptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) &param);
+   return( param.r.a);
+}
+
+
+
+// NSInteger (known to be intptr_t)
+static inline void   MulleObjCObjectSetNSInteger( id obj, SEL sel, NSInteger value)
+{
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) value);
+}
+
+
+static inline NSInteger   MulleObjCObjectGetNSInteger( id obj, SEL sel)
+{
+   return( (NSInteger) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+}
+
+
+// float (adhere to C promotion rules)
+static inline void   MulleObjCObjectSetFloat( id obj, SEL sel, float value)
+{
+   mulle_objc_metaabi_param_block_voidptr_return( struct { float value; })  param;
+
+   param.p.value = value;
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
+}
+
+
+static inline float   MulleObjCObjectGetFloat( id obj, SEL sel)
+{
+   mulle_objc_metaabi_param_block_voidptr_parameter( struct { float value; })  param;
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
+   return( (float) param.r.value);
+}
+
+
+// double
+static inline void   MulleObjCObjectSetDouble( id obj, SEL sel, double value)
+{
+   mulle_objc_metaabi_param_block_voidptr_return( struct { double value; })  param;
+
+   param.p.value = value;
+
+  mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
+}
+
+
+static inline double   MulleObjCObjectGetDouble( id obj, SEL sel)
+{
+   mulle_objc_metaabi_param_block_voidptr_parameter( struct { double value; })  param;
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
+   return( param.r.value);
+}
+
+// long double
+static inline void   MulleObjCObjectSetLongDouble( id obj, SEL sel, long double value)
+{
+   mulle_objc_metaabi_param_block_voidptr_return( struct { long double value; })  param;
+
+   param.p.value = value;
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
+}
+
+
+static inline double   MulleObjCObjectGetLongDouble( id obj, SEL sel)
+{
+   mulle_objc_metaabi_param_block_voidptr_parameter( struct { long double value; })  param;
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
+   return( param.r.value);
+}
+
+
+// NSRange
+static inline void   MulleObjCObjectSetRange( id obj, SEL sel, NSRange value)
+{
+   mulle_objc_metaabi_param_block_voidptr_return( struct { NSRange value; })  param;
+
+   param.p.value = value;
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
+}
+
+
+static inline NSRange   MulleObjCObjectGetRange( id obj, SEL sel)
+{
+   mulle_objc_metaabi_param_block_voidptr_parameter( struct { NSRange value; })  param;
+
+   mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
+   return( param.r.value);
+}
+
+
+
 #pragma mark - imp calling helpers
 
 
