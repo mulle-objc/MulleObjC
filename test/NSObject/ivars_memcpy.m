@@ -10,9 +10,9 @@
    BOOL        _b;
    short       _s;
    int         _i;
-   long        _l;   
-   long long   _q;   
-   id          _obj;   
+   long        _l;
+   long long   _q;
+   id          _obj;
    char        *_string;
    void        *_pointer;
    NSRange     _range;
@@ -55,28 +55,28 @@ static char  *s1848 = "1848";
 
 - (void) copyFrom:(Foo *) other
 {
-   _MulleObjCGetIvar( other, @selector( _b),       &_b, sizeof( _b));
-   _MulleObjCGetIvar( other, @selector( _s),       &_s, sizeof( _s));
-   _MulleObjCGetIvar( other, @selector( _i),       &_i, sizeof( _i));
-   _MulleObjCGetIvar( other, @selector( _l),       &_l, sizeof( _l));
-   _MulleObjCGetIvar( other, @selector( _q),       &_q, sizeof( _q));
-   _MulleObjCGetIvar( other, @selector( _obj),     &_obj, sizeof( _obj));
-   _MulleObjCGetIvar( other, @selector( _pointer), &_pointer, sizeof( _pointer));
-   _MulleObjCGetIvar( other, @selector( _range),   &_range, sizeof( _range));
-   _MulleObjCGetIvar( other, @selector( _string),  &_string, sizeof( _string));
+   _MulleObjCObjectGetIvar( other, @selector( _b),       &_b, sizeof( _b));
+   _MulleObjCObjectGetIvar( other, @selector( _s),       &_s, sizeof( _s));
+   _MulleObjCObjectGetIvar( other, @selector( _i),       &_i, sizeof( _i));
+   _MulleObjCObjectGetIvar( other, @selector( _l),       &_l, sizeof( _l));
+   _MulleObjCObjectGetIvar( other, @selector( _q),       &_q, sizeof( _q));
+   _MulleObjCObjectGetIvar( other, @selector( _obj),     &_obj, sizeof( _obj));
+   _MulleObjCObjectGetIvar( other, @selector( _pointer), &_pointer, sizeof( _pointer));
+   _MulleObjCObjectGetIvar( other, @selector( _range),   &_range, sizeof( _range));
+   _MulleObjCObjectGetIvar( other, @selector( _string),  &_string, sizeof( _string));
 }
 
 - (void) copyTo:(Foo *) other
 {
-   _MulleObjCSetIvar( other, @selector( _b),       &_b, sizeof( _b));
-   _MulleObjCSetIvar( other, @selector( _s),       &_s, sizeof( _s));
-   _MulleObjCSetIvar( other, @selector( _i),       &_i, sizeof( _i));
-   _MulleObjCSetIvar( other, @selector( _l),       &_l, sizeof( _l));
-   _MulleObjCSetIvar( other, @selector( _q),       &_q, sizeof( _q));
-   _MulleObjCSetIvar( other, @selector( _obj),     &_obj, sizeof( _obj));
-   _MulleObjCSetIvar( other, @selector( _pointer), &_pointer, sizeof( _pointer));
-   _MulleObjCSetIvar( other, @selector( _string),  &_string, sizeof( _string));
-   _MulleObjCSetIvar( other, @selector( _range),   &_range, sizeof( _range));
+   _MulleObjCObjectSetIvar( other, @selector( _b),       &_b, sizeof( _b));
+   _MulleObjCObjectSetIvar( other, @selector( _s),       &_s, sizeof( _s));
+   _MulleObjCObjectSetIvar( other, @selector( _i),       &_i, sizeof( _i));
+   _MulleObjCObjectSetIvar( other, @selector( _l),       &_l, sizeof( _l));
+   _MulleObjCObjectSetIvar( other, @selector( _q),       &_q, sizeof( _q));
+   _MulleObjCObjectSetIvar( other, @selector( _obj),     &_obj, sizeof( _obj));
+   _MulleObjCObjectSetIvar( other, @selector( _pointer), &_pointer, sizeof( _pointer));
+   _MulleObjCObjectSetIvar( other, @selector( _string),  &_string, sizeof( _string));
+   _MulleObjCObjectSetIvar( other, @selector( _range),   &_range, sizeof( _range));
 }
 
 

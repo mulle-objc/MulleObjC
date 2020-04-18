@@ -29,7 +29,7 @@ if( CREATE_OBJC_LOADER_INC)
    endif()
 
    if( NOT OBJC_LOADER_INC)
-      set( OBJC_LOADER_INC "${CMAKE_SOURCE_DIR}/src/objc-loader.inc")
+      set( OBJC_LOADER_INC "${CMAKE_SOURCE_DIR}/src/reflect/objc-loader.inc")
    endif()
 
    set_source_files_properties( "${OBJC_LOADER_INC}"

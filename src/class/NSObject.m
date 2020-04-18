@@ -1084,7 +1084,7 @@ static int   get_ivar_offset( struct _mulle_objc_infraclass *infra,
 }
 
 
-int   _MulleObjCSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)
+int   _MulleObjCObjectSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)
 {
    int                        offset;
    struct _mulle_objc_class   *cls;
@@ -1113,7 +1113,7 @@ int   _MulleObjCSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t 
 
 
 
-int   _MulleObjCGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)
+int   _MulleObjCObjectGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)
 {
    int                        offset;
    struct _mulle_objc_class   *cls;
@@ -1152,21 +1152,21 @@ static void  throw_unknown_ivarid( struct _mulle_objc_class *cls,
 }
 
 
-id  MulleObjCGetObjectIvar( id self, mulle_objc_ivarid_t ivarid)
+id  MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid)
 {
    id   obj;
 
    if( ! self)
       return( nil);
 
-   if( _MulleObjCGetIvar( self, ivarid, &obj, sizeof( obj)))
+   if( _MulleObjCObjectGetIvar( self, ivarid, &obj, sizeof( obj)))
       throw_unknown_ivarid( _mulle_objc_object_get_isa( self), ivarid);
 
    return( obj);
 }
 
 
-void  MulleObjCSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
+void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
 {
    id                         old;
    struct _mulle_objc_class   *cls;

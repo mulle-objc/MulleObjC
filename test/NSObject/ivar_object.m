@@ -7,7 +7,7 @@
 
 @interface Foo : NSObject
 {
-   id   _obj;    // __attribute__(( retain, copy, assign)) later 
+   id   _obj;    // __attribute__(( retain, copy, assign)) later
 }
 @end
 
@@ -16,12 +16,12 @@
 
 - (void) setObj:(id) obj
 {
-   MulleObjCSetObjectIvar( self, @selector( _obj), obj);
+   MulleObjCObjectSetObjectIvar( self, @selector( _obj), obj);
 }
 
 - (id) obj
 {
-   return( MulleObjCGetObjectIvar( self, @selector( _obj)));
+   return( MulleObjCObjectGetObjectIvar( self, @selector( _obj)));
 }
 
 - (void) dealloc
