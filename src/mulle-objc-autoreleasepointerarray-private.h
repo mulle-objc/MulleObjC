@@ -47,17 +47,20 @@
 //  sizeof( struct _mulle_autoreleasepointerarray)
 // == 8192
 //
-#define MULLE_OBJC_TWOPAGES_LESS_AUTORELEASE_POOL   (4096 * 2 - 4 * sizeof( intptr_t))
+#define MULLE_OBJC_TWOPAGES_LESS_AUTORELEASE_POOL    \
+   (4096 * 2 - 4 * sizeof( intptr_t))
 
-#define MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS    ((MULLE_OBJC_TWOPAGES_LESS_AUTORELEASE_POOL - 2 * sizeof( intptr_t)) / sizeof( id))
+#define MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS    \
+   ((MULLE_OBJC_TWOPAGES_LESS_AUTORELEASE_POOL - 2 * sizeof( intptr_t)) / sizeof( id))
 
 
 
 struct _mulle_autoreleasepointerarray
 {
    struct _mulle_autoreleasepointerarray   *previous;
-   NSUInteger                              used;
-   id                                      objects[ MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS];
+
+   NSUInteger   used;
+   id           objects[ MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS];
 };
 
 
@@ -69,7 +72,9 @@ static inline struct _mulle_autoreleasepointerarray *
    array = mulle_malloc( sizeof( struct _mulle_autoreleasepointerarray));
 
 #if AUTORELEASEPOOL_DEBUG
-   fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p allocated (previous = %p)\n", array, previous);
+   fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p allocated (previous = %p)\n",
+                     array,
+                     previous);
 #endif
 
    array->used     = 0;
@@ -124,7 +129,9 @@ static inline void
       if( p != staticStorage)
       {
 #if AUTORELEASEPOOL_DEBUG
-         fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p deallocated (previous = %p)\n", p, q);
+         fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p deallocated (previous = %p)\n",
+                          p,
+                          q);
 #endif
          mulle_free( p);
       }
@@ -153,7 +160,7 @@ static inline void
          fprintf( stderr, "[pool] %p %p (RC: %ld)\n",
                               *objects,
                               verb,
-                              mulle_objc_object_get_retaincount( *objects));
+                              (long) mulle_objc_object_get_retaincount( *objects));
          objects++;
       }
    }

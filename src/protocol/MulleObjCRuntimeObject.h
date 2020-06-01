@@ -46,6 +46,20 @@ typedef struct _mulle_objc_dependency     mulle_objc_dependency_t;
 /* gobble up semicolon with known external definition */    \
 extern void   NSDeallocateObject( id obj)
 
+#define MULLE_OBJC_DEPENDS_ON_CATEGORY( classname, categoryname) \
+                                                                 \
++ (mulle_objc_dependency_t *) dependencies                       \
+{                                                                \
+   static mulle_objc_dependency_t   dependencies[] =             \
+   {                                                             \
+      MULLE_OBJC_CATEGORY_DEPENDENCY( classname, categoryname),  \
+      MULLE_OBJC_NO_DEPENDENCY                                   \
+   };                                                            \
+   return( dependencies);                                        \
+}                                                                \
+/* gobble up semicolon with known external definition */         \
+extern void   NSDeallocateObject( id obj)
+
 
 #define MULLE_OBJC_DEPENDS_ON_LIBRARY( libname)             \
                                                             \

@@ -233,7 +233,7 @@ struct _mulle_objc_universefoundationinfo  *
    if( universe->debug.trace.universe)
       mulle_objc_universe_trace( universe, "foundation uses %s allocator: %p", kind, allocator);
 
-   foundation.allocator  = *allocator;
+   foundation.allocator  = allocator;
 
    _mulle_objc_universe_set_foundation( universe, &foundation);
 
