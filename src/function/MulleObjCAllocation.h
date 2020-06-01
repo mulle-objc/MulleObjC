@@ -199,4 +199,10 @@ NSUInteger   MulleObjCCopyObjectArray( id *dst,
 
 
 // will not duplicate if *ivar == s
+// Interface is kinda bad, because copy/pasting this to -dealloc makes me
+// write:
+//   MulleObjCObjectDeallocateMemory( self, &_fontName);
+// with the errnoeus & before the _ivar
+//
+
 void   MulleObjCObjectSetDuplicatedCString( id self, char **ivar, char *s);

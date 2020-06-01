@@ -386,7 +386,7 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
    if( config->trace & 0x1)
       fprintf( stderr, "[pool] object %p (RC: %ld) added to storage %p of pool %p\n",
                            p,
-                           mulle_objc_object_get_retaincount( p),
+                           (long) mulle_objc_object_get_retaincount( p),
                            ((NSAutoreleasePool *) config->tail)->_storage,
                            config->tail);
 }
