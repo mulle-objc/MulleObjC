@@ -71,6 +71,7 @@
 
 @implementation NSCopying
 
+// the class routine, harmless
 + (id) copyWithZone:(NSZone *) zone
 {
    return( [self copy]);
@@ -91,8 +92,8 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
    id      clone;
    Class   infraCls;
 
-   infraCls   = [object class];
-   clone = NSAllocateObject( infraCls, extraBytes, NULL);
+   infraCls = [object class];
+   clone    = NSAllocateObject( infraCls, extraBytes, NULL);
    memcpy( clone, object, extraBytes + _mulle_objc_infraclass_get_instancesize( infraCls));
    return( clone);
 }
@@ -100,7 +101,8 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
 
 // I have to do this for backward compatibility
 // for classes, that don't implement copy, but
-// just copyWithZone:
+// just copyWithZone:. If they don't though this will create an infinite
+// recursion :()
 
 
 - (id) copy

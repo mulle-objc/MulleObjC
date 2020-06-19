@@ -115,7 +115,7 @@ void   MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n)
 
 void   MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel, id argument, id argument2)
 {
-   mulle_objc_metaabi_param_block_void_return( struct { id a; id b;})  _param;
+   mulle_metaabi_struct_void_return( struct { id a; id b;})  _param;
 
    _param.p.a = argument;
    _param.p.b = argument2;
