@@ -94,12 +94,14 @@ static inline void   *
 }
 
 
+MULLE_C_CONST_RETURN
 static inline NSInteger  MulleObjCTaggedPointerGetIntegerValue( void *pointer)
 {
    return( mulle_objc_taggedpointer_get_signed_value( pointer));
 }
 
 
+MULLE_C_CONST_RETURN
 static inline NSUInteger
    MulleObjCTaggedPointerGetUnsignedIntegerValue( void *pointer)
 {
@@ -107,6 +109,7 @@ static inline NSUInteger
 }
 
 
+MULLE_C_CONST_RETURN
 static inline NSUInteger  MulleObjCTaggedPointerGetIndex( void *pointer)
 {
    return( mulle_objc_taggedpointer_get_index( pointer));

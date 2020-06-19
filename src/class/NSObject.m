@@ -785,7 +785,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
             withObject:(id) obj1
             withObject:(id) obj2
 {
-   mulle_objc_metaabi_param_block( struct
+   mulle_metaabi_struct( struct
                                    {
                                       id   obj1;
                                       id   obj2;

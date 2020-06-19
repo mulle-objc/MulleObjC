@@ -72,7 +72,7 @@
    }
 
    frame_size  = [signature frameLength];
-   size        = mulle_objc_size_metaabi_param_block( frame_size);
+   size        = mulle_metaabi_sizeof_struct( frame_size);
    size       += [signature methodReturnLength];
    size       += alignof( long double);  // for alignment
 
@@ -408,7 +408,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
       assert( frame);
 
       frame_size  = [_methodSignature frameLength];
-      size        = mulle_objc_size_metaabi_param_block( frame_size);
+      size        = mulle_metaabi_sizeof_struct( frame_size);
       size        -= sizeof( id) + sizeof( SEL); // _cmd is a pointer
 
       // blow up to metaABI size
