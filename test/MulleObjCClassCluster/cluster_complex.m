@@ -50,7 +50,7 @@ main()
 
    foo_placeholder = [Foo alloc]; // this alloc makes the placeholder
 
-   if( foo_placeholder != (id) _mulle_objc_infraclass_get_placeholder( [Foo class]))
+   if( foo_placeholder != (id) _mulle_objc_infraclass_get_classcluster( [Foo class]))
    {
       printf( "failed\n");
       return( 1);
@@ -70,7 +70,7 @@ main()
    */
    bar_placeholder = [Bar alloc]; // this alloc makes the placeholder
 
-   if( bar_placeholder != (id) _mulle_objc_infraclass_get_placeholder( [Bar class]) ||
+   if( bar_placeholder != (id) _mulle_objc_infraclass_get_classcluster( [Bar class]) ||
        bar_placeholder == foo_placeholder)
    {
       printf( "failed\n");

@@ -72,7 +72,7 @@ int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
 
    if( bits & _mulle_objc_property_setterclear)
    {
-      mulle_objc_object_inlinecall_variablemethodid( self, property->setter, NULL);
+      mulle_objc_object_call_variablemethodid_inline( self, property->setter, NULL);
       return( 0);
    }
 

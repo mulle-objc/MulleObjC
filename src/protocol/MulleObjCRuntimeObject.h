@@ -20,13 +20,16 @@
 // make this somewhat "official" by removing the underscore prefix
 typedef struct _mulle_objc_dependency     mulle_objc_dependency_t;
 
+#define MULLE_OBJC_MAKE_CLASSID( classname)       @selector( classname)
+#define MULLE_OBJC_MAKE_CATEGORYID( categoryname) @selector( categoryname)
+
 
 #define MULLE_OBJC_CLASS_DEPENDENCY( classname) \
-      { @selector( classname), MULLE_OBJC_NO_CATEGORYID }
+      { MULLE_OBJC_MAKE_CLASSID( classname), MULLE_OBJC_NO_CATEGORYID }
 #define MULLE_OBJC_CATEGORY_DEPENDENCY( classname, categoryname) \
-      { @selector( classname), @selector( categoryname) }
+      { MULLE_OBJC_MAKE_CLASSID( classname), MULLE_OBJC_MAKE_CATEGORYID( categoryname) }
 #define MULLE_OBJC_LIBRARY_DEPENDENCY( libname) \
-      { @selector( MulleObjCLoader), @selector( libname) }
+      { MULLE_OBJC_MAKE_CLASSID( MulleObjCLoader), MULLE_OBJC_MAKE_CATEGORYID( libname) }
 
 #define MULLE_OBJC_NO_DEPENDENCY  \
       { MULLE_OBJC_NO_CLASSID, MULLE_OBJC_NO_CATEGORYID }
@@ -158,3 +161,15 @@ _Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
 
 @end
 
+
+
+static inline id   MulleObjCObjectRetain( id obj)
+{
+   return( mulle_objc_object_retain_inline( obj));
+}
+
+
+static inline void   MulleObjCObjectRelease( id obj)
+{
+   return( mulle_objc_object_release_inline( obj));
+}

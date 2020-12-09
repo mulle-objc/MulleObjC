@@ -148,7 +148,7 @@
  */
 
 + (NSUInteger) _getOwnedObjects:(id *) objects
-                         length:(NSUInteger) length;
+                       maxCount:(NSUInteger) maxCount;
 
 /*
    Returns all objects, retained by this instance.
@@ -161,10 +161,10 @@
    Returns needed length if objects and length is NULL.
  */
 - (NSUInteger) _getOwnedObjects:(id *) objects
-                         length:(NSUInteger) length;
+                       maxCount:(NSUInteger) maxCount;
 
 - (BOOL) __isSingletonObject;
-- (BOOL) __isClassClusterPlaceholderObject;
+- (BOOL) __isClassClusterObject;
 
 @end
 
@@ -209,7 +209,7 @@
 //
 // IMPORTANT!! Do not call [super forward:] as the forwarded selector
 // is contained in _cmd and would be clobbered by a regular method call
-// instead use _mulle_objc_object_inlinesuperlookup_implementation_nofail and
+// instead use _mulle_objc_object_superlookup_implementation_inline_nofail and
 // them send _cmd and args as received.
 //
 // Use the tool mulle-objc-uniqueid with '<yourclassname>;forward:' to create
@@ -225,7 +225,7 @@
 // {
 // #define MYID  0x????????
 //    IMP   imp;
-//    imp = _mulle_objc_object_inlinesuperlookup_implementation_nofail( self, MYID);
+//    imp = _mulle_objc_object_superlookup_implementation_inline_nofail( self, MYID);
 //    return( (*imp)( self, _cmd, args));
 // }
 

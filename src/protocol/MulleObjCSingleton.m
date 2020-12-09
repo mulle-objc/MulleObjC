@@ -44,7 +44,7 @@
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCAllocation.h"
 #import "NSRange.h"
-#import "version.h"
+#import "MulleObjCVersion.h"
 
 #import "mulle-objc-universefoundationinfo-private.h"
 
@@ -59,7 +59,6 @@ static struct
 {
    int                               _useEphemeralSingleton;
    struct mulle_concurrent_hashmap   _ephemeralSingletonInstances;
-
 } Self =
 {
    -1
@@ -92,7 +91,6 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
    }
 #endif
 }
-
 
 
 + (void) initialize

@@ -86,10 +86,10 @@ static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_unive
    {
       object_map_callback.keycallback   = mulle_container_keycallback_nonowned_pointer;
       object_map_callback.valuecallback = mulle_container_valuecallback_intptr;
-      mulle_map_init( &config->_object_map,
-                      1024,
-                      &object_map_callback,
-                      &mulle_stdlib_allocator);  // keep debug stuff out
+      _mulle_map_init( &config->_object_map,
+                       1024,
+                       &object_map_callback,
+                       &mulle_stdlib_allocator);  // keep debug stuff out
       config->object_map = &config->_object_map;
    }
 
@@ -139,7 +139,7 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
 
    if( config->object_map == &config->_object_map)
    {
-      mulle_map_done( &config->_object_map);
+      _mulle_map_done( &config->_object_map);
       config->object_map = NULL;
    }
 }
@@ -166,7 +166,7 @@ void  NSAutoreleasePoolLoader( struct _mulle_objc_universe *universe)
    config = &local->poolconfig;
 
    if( config->object_map)
-      mulle_map_done( config->object_map);
+      _mulle_map_done( config->object_map);
 
    _mulle_objc_thread_set_poolconfiguration( universe, config);
 }
@@ -709,7 +709,7 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 
 
 // untested!
-- (void) releaseAllObjects
+- (void) mulleReleaseAllObjects
 {
 
    struct _mulle_objc_poolconfiguration   *config;
@@ -730,7 +730,7 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 
 - (void) release
 {
-   _mulle_objc_object_inlinerelease( self);
+   _mulle_objc_object_release_inline( self);
 }
 
 

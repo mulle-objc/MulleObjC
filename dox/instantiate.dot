@@ -1,0 +1,22 @@
+digraph {
+   node [shape=box ];
+
+
+   "+[NSObject instantiate]"  [ style="note" label=<
+<TABLE BORDER="0">
+<TR><TD>+[NSObject __instantiatePlaceholderClassid](..)</TD></TR>
+<TR><TD>_MulleObjCClassNewInstantiatePlaceholder</TD></TR>
+</TABLE>
+> ]
+
+   "+[NSObject instantiate]" -> "-[_MulleObjCInstantiatePlaceholder forward:]"
+
+   "-[_MulleObjCInstantiatePlaceholder forward:]" [ style="note" label=<
+<TABLE BORDER="0">
+<TR><TD>+[_class alloc](..)</TD></TR>
+<TR><TD>[obj autorelease]</TD></TR>
+</TABLE>
+> ]
+
+   "-[_MulleObjCInstantiatePlaceholder forward:]"  -> "obj"
+}

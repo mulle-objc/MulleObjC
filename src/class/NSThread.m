@@ -744,7 +744,7 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 
 - (void) main
 {
-   mulle_objc_object_inlinecall_variablemethodid( self->_target,
+   mulle_objc_object_call_variablemethodid_inline( self->_target,
                                                   (mulle_objc_methodid_t) self->_selector,
                                                   self->_argument);
 }

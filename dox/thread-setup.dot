@@ -1,0 +1,13 @@
+digraph G {
+   "universe" [ shape="doubleoctagon" ]
+
+   "universe" -> "NSThread"  [label=" threads"]
+
+   "universe" -> "mulle_thread_t" [ style="invis" ]
+
+   "mulle_thread_t"      [ shape="none" ]
+   "Threadlocal Storage" [ shape="box" ]
+   "mulle_thread_t" -> "Threadlocal Storage" -> "NSAutoreleasePool"    [ label=" poolconfiguration" ]
+                       "Threadlocal Storage" -> "NSThread"             [ label=" -currentThread" ]
+                       "Threadlocal Storage" -> "NSMutableDictionary"  [ label=" -threadDictionary" ]
+}

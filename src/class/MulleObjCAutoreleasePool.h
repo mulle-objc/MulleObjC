@@ -43,7 +43,6 @@
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
-
 static inline void   _MulleObjCAutoreleaseObject( id obj)
 {
    struct _mulle_objc_poolconfiguration   *config;

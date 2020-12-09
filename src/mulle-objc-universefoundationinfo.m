@@ -344,7 +344,7 @@ void   _mulle_objc_universefoundationinfo_release_rootobjects( struct _mulle_obj
     * autoreleasepool here
     */
    rover = mulle_set_enumerate( info->object.roots);
-   while( obj = mulle_setenumerator_next_nil( &rover))
+   while( mulle_setenumerator_next( &rover, &obj))
       mulle_objc_object_release( obj);
    mulle_setenumerator_done( &rover);
 }

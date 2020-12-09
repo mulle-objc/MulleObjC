@@ -1,0 +1,77 @@
+digraph mulle_classhierarchy
+{
+"0x4b7e0a0" [ label=<<TABLE>
+<TR><TD BGCOLOR="blue" COLSPAN="2"><FONT COLOR="white">A</FONT></TD></TR>
+</TABLE>>, shape="box" ];
+"0x4b7e0a0" -> "0x4b7e280" [ label=" superclass" dir="back" ]
+"0x4b7e280" [ label=<<TABLE>
+<TR><TD BGCOLOR="goldenrod" COLSPAN="2"><FONT COLOR="white">A</FONT></TD></TR>
+</TABLE>>, shape="component" ];
+"0x4b7e280" -> "0x408130"  [ label="methodlist #0" ];
+"0x408130" [ label=<<TABLE>
+<TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
+<TR><TD COLSPAN="2">foo</TD></TR>
+<TR><TD COLSPAN="2">foobar</TD></TR>
+<TR><TD COLSPAN="2">overridden</TD></TR>
+<TR><TD COLSPAN="2">super</TD></TR>
+</TABLE>>, shape="none" ];
+"0x4b7e280" -> "0x4b7f710" [ label=" superclass" dir="back" ]
+"0x4b7e8b0" [ label=<<TABLE>
+<TR><TD BGCOLOR="goldenrod" COLSPAN="2"><FONT COLOR="white">P</FONT></TD></TR>
+</TABLE>>, shape="component" ];
+"0x4b7e8b0" -> "0x4081e0"  [ label="methodlist #0" ];
+"0x4081e0" [ label=<<TABLE>
+<TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
+<TR><TD COLSPAN="2">foo</TD></TR>
+<TR><TD COLSPAN="2">overridden</TD></TR>
+<TR><TD COLSPAN="2">super</TD></TR>
+</TABLE>>, shape="none" ];
+"0x4b7e8b0" -> "0x4b7f710" [ label=" protocolclass #0" dir="back" ]
+"0x4b7ef30" [ label=<<TABLE>
+<TR><TD BGCOLOR="goldenrod" COLSPAN="2"><FONT COLOR="white">Q</FONT></TD></TR>
+</TABLE>>, shape="component" ];
+"0x4b7ef30" -> "0x408268"  [ label="methodlist #0" ];
+"0x408268" [ label=<<TABLE>
+<TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
+<TR><TD COLSPAN="2">foo</TD></TR>
+<TR><TD COLSPAN="2">overridden</TD></TR>
+<TR><TD COLSPAN="2">super</TD></TR>
+</TABLE>>, shape="none" ];
+"0x4b7ef30" -> "0x4b7f710" [ label=" protocolclass #1" dir="back" ]
+"0x4b7f710" [ label=<<TABLE>
+<TR><TD BGCOLOR="goldenrod" COLSPAN="2"><FONT COLOR="white">B</FONT></TD></TR>
+</TABLE>>, shape="component" ];
+"0x4b7f710" -> "0x4082f0"  [ label="methodlist #0" ];
+"0x4082f0" [ label=<<TABLE>
+<TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
+<TR><TD COLSPAN="2">chain</TD></TR>
+<TR><TD COLSPAN="2">chained</TD></TR>
+<TR><TD COLSPAN="2">clobbered</TD></TR>
+<TR><TD COLSPAN="2">foo</TD></TR>
+<TR><TD COLSPAN="2">overridden</TD></TR>
+<TR><TD COLSPAN="2">super</TD></TR>
+</TABLE>>, shape="none" ];
+"0x4b7f710" -> "0x408608"  [ label="methodlist #1" ];
+"0x408608" [ label=<<TABLE>
+<TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
+<TR><TD>category</TD><TD>X</TD></TR>
+<TR><TD COLSPAN="2">chained</TD></TR>
+<TR><TD COLSPAN="2">clobbered</TD></TR>
+<TR><TD COLSPAN="2">foo</TD></TR>
+<TR><TD COLSPAN="2">foobar</TD></TR>
+<TR><TD COLSPAN="2">overridden</TD></TR>
+<TR><TD COLSPAN="2">super</TD></TR>
+</TABLE>>, shape="none" ];
+"0x4b7f710" -> "0x408708"  [ label="methodlist #2" ];
+"0x408708" [ label=<<TABLE>
+<TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
+<TR><TD>category</TD><TD>Y</TD></TR>
+<TR><TD COLSPAN="2">chained</TD></TR>
+<TR><TD COLSPAN="2">clobbered</TD></TR>
+<TR><TD COLSPAN="2">dependencies</TD></TR>
+<TR><TD COLSPAN="2">foo</TD></TR>
+<TR><TD COLSPAN="2">foobar</TD></TR>
+<TR><TD COLSPAN="2">overridden</TD></TR>
+<TR><TD COLSPAN="2">super</TD></TR>
+</TABLE>>, shape="none" ];
+}

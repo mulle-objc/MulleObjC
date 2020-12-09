@@ -13,6 +13,4 @@ mulle-objc/objc-demo;extra
 mulle-sde/vscode-clang;extra
 mulle-sde/vscode;extra
 mulle-objc/vscode-clang;extra
-mulle-c/travis;extra
-mulle-sde/travis;extra
-mulle-objc/travis;extra
+mulle-objc/github-actions;extra

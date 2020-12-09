@@ -52,6 +52,19 @@
 //
 @implementation NSMethodSignature
 
+#pragma mark - convenience constructors
+
++ (NSMethodSignature *) signatureWithObjCTypes:(char *) types
+{
+   id   obj;
+
+   obj = [[[NSMethodSignature alloc] initWithObjCTypes:types] autorelease];
+   return( obj);
+}
+
+#pragma mark - constructors
+
+
 //  (#X#)
 static inline void   *getExtraMemory( NSMethodSignature *self)
 {
@@ -87,34 +100,6 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 }
 
 
-- (void) dealloc
-{
-   struct mulle_allocator   *allocator;
-
-   allocator = MulleObjCInstanceGetAllocator( self);
-
-   if( ! hasExtraMemory( self))
-   {
-      mulle_allocator_free( allocator, _types);
-      mulle_allocator_free( allocator, _prettyTypes);
-      mulle_allocator_free( allocator, _infos);
-   }
-   NSDeallocateObject( self);
-}
-
-
-#pragma mark -
-#pragma mark convenience constructors
-
-+ (NSMethodSignature *) signatureWithObjCTypes:(char *) types
-{
-   id   obj;
-
-   obj = [[[NSMethodSignature alloc] initWithObjCTypes:types] autorelease];
-   return( obj);
-}
-
-
 + (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
                                  descriptorBits:(NSUInteger) bits
 
@@ -131,9 +116,12 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
    if( count < 3)
       return( nil);
 
+   // keep types as they are
    size   = strlen( types) + 1;
-   extra  = size * 2;
-   extra += count * sizeof( MulleObjCMethodSignatureTypeinfo);
+   // keep duplicate for parsing ??
+   extra  = size;
+   // allocate space for infos
+   extra += count * sizeof( MulleObjCMethodSignatureTypeInfo);
 
    assert( extra < 0x10000);
    assert( count < 0x10000);
@@ -142,9 +130,8 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
    obj->_count       = (uint16_t) count;
    obj->_extra       = (uint16_t) extra;
    obj->_bits        = (uint32_t) bits;
-   obj->_infos       = getExtraMemory( obj);
-   obj->_types       = (char *) &obj->_infos[ count];
-   obj->_prettyTypes = &((char *) obj->_types)[ size];
+   obj->_infos       = NULL;  // them lazy
+   obj->_types       = ((char *) getExtraMemory( obj)) + extra - size;
 
    memcpy( obj->_types, types, size);
 
@@ -152,8 +139,22 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 }
 
 
-#pragma mark -
-#pragma mark NSObject
+
+- (void) dealloc
+{
+   struct mulle_allocator   *allocator;
+
+   if( ! hasExtraMemory( self))
+   {
+      allocator = MulleObjCInstanceGetAllocator( self);
+      mulle_allocator_free( allocator, _types);
+      mulle_allocator_free( allocator, _infos);
+   }
+   NSDeallocateObject( self);
+}
+
+
+#pragma mark - mark NSObject
 
 //
 // http://www.cse.yorku.ca/~oz/hash.html djb2
@@ -186,8 +187,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 }
 
 
-#pragma mark -
-#pragma mark petty accessors
+#pragma mark - petty accessors
 
 - (BOOL) isOneway
 {
@@ -224,16 +224,15 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 }
 
 
-#pragma mark -
-#pragma mark more accessors
+#pragma mark - more accessors
 
 //
 // do _infos lazily, as they use a bit of memory
 //
-static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
+static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
 {
-   MulleObjCMethodSignatureTypeinfo        *p;
-   MulleObjCMethodSignatureTypeinfo        *sentinel;
+   MulleObjCMethodSignatureTypeInfo        *p;
+   MulleObjCMethodSignatureTypeInfo        *sentinel;
    struct mulle_allocator                  *allocator;
    struct mulle_objc_signatureenumerator   rover;
    struct mulle_objc_typeinfo              info;
@@ -243,37 +242,36 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
    assert( self->_types);
 
    // already run ?
-   if( self->_prettyTypes && self->_prettyTypes[ 0])
+   if( self->_infos)
       return( self->_infos);
 
    if( ! hasExtraMemory( self))
    {
-      allocator          = MulleObjCInstanceGetAllocator( self);
-      self->_infos       = mulle_allocator_calloc( allocator, self->_count, sizeof( MulleObjCMethodSignatureTypeinfo));
-      self->_prettyTypes = mulle_allocator_strdup( allocator, self->_types);
+      allocator    = MulleObjCInstanceGetAllocator( self);
+      self->_infos = mulle_allocator_calloc( allocator,
+                                             self->_count,
+                                             sizeof( MulleObjCMethodSignatureTypeInfo));
    }
    else
-      strcpy( self->_prettyTypes, self->_types);
+      self->_infos = getExtraMemory( self);
 
    p        = &self->_infos[ 1];
    sentinel = &p[ self->_count];
-   types    = self->_prettyTypes;
 
+   types = self->_types;
    rover = mulle_objc_signature_enumerate( types);
    while( _mulle_objc_signatureenumerator_next( &rover, p))
    {
       assert( p < sentinel);
-      assert( (p == &self->_infos[ 0] || p[ -1].type != p->pure_type_end) && "need fix for incompatible runtime");
-
-      *p->pure_type_end = 0;  // cut off to make pretty
+      assert( (p == &self->_infos[ 0] || p[ -1].type != p->pure_type_end) && \
+              "need fix for incompatible runtime");
       ++p;
    }
 
    p = &self->_infos[ 0];
    _mulle_objc_signatureenumerator_rval( &rover, p);
-   *p->pure_type_end = 0;  // cut off to make pretty
-
    mulle_objc_signatureenumerator_done( &rover);
+
    return( self->_infos);
 }
 
@@ -301,7 +299,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 
 
 // internal usage!
-- (MulleObjCMethodSignatureTypeinfo *) _runtimeTypeInfoAtIndex:(NSUInteger) i
+- (MulleObjCMethodSignatureTypeInfo *) mulleSignatureTypeInfoAtIndex:(NSUInteger) i
 {
    if( i >= _count)
       __mulle_objc_universe_raise_invalidindex( _mulle_objc_object_get_universe( self), i);
@@ -339,7 +337,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 // this method does not round up for MetaABI
 - (NSUInteger) frameLength
 {
-   MulleObjCMethodSignatureTypeinfo   *info;
+   MulleObjCMethodSignatureTypeInfo   *info;
    NSUInteger                         i;
    NSUInteger                         length;
 
@@ -353,7 +351,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 // this method does not round up for MetaABI
 - (NSUInteger) methodReturnLength
 {
-   MulleObjCMethodSignatureTypeinfo  *info;
+   MulleObjCMethodSignatureTypeInfo  *info;
 
    info = &get_infos( self)[ 0];
    return( info->natural_size);
@@ -363,7 +361,7 @@ static MulleObjCMethodSignatureTypeinfo  *get_infos( NSMethodSignature *self)
 - (void) mulleDump
 {
    NSUInteger                         i;
-   MulleObjCMethodSignatureTypeinfo   *info;
+   MulleObjCMethodSignatureTypeInfo   *info;
    void   mulle_objc_typeinfo_dump_to_file( struct mulle_objc_typeinfo *info,
                                             char *indent,
                                             FILE *fp);

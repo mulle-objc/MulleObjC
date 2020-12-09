@@ -86,6 +86,8 @@
 + (BOOL) _containsObject:(id) p;
 + (NSUInteger) _countObject:(id) p;
 
+- (void) mulleReleaseAllObjects;
+
 @end
 
 
@@ -114,7 +116,7 @@ static inline NSAutoreleasePool   *_MulleAutoreleasePoolPush( mulle_objc_univers
 {
    struct _mulle_objc_universe   *universe;
 
-   universe = mulle_objc_global_inlineget_universe( universeid);
+   universe = mulle_objc_global_get_universe_inline( universeid);
    return( __MulleAutoreleasePoolPush( universe));
 }
 
@@ -131,7 +133,7 @@ static inline NSAutoreleasePool   *NSPushAutoreleasePool( unsigned int size)
 {
    struct _mulle_objc_universe   *universe;
 
-   universe = mulle_objc_global_inlineget_universe( MULLE_OBJC_DEFAULTUNIVERSEID);
+   universe = mulle_objc_global_get_universe_inline( MULLE_OBJC_DEFAULTUNIVERSEID);
    return( __MulleAutoreleasePoolPush( universe));
 }
 

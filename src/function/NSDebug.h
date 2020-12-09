@@ -67,6 +67,16 @@ void   MulleObjCDotdumpUniverseFrameToTmp( void);
 void   MulleObjCDotdumpUniverseToTmp( void);
 void   MulleObjCDotdumpUniverse( void);
 
+// dump all relevant classes and instance methods, starting from classname
+void   MulleObjCDotdumpMetaHierarchyToDirectory( char *classname, char *directory);
+void   MulleObjCDotdumpInfraHierarchyToTmp( char *classname);
+void   MulleObjCDotdumpInfraHierarchy( char *classname);
+
+// dump all relevant classes and class methods, starting from classname
+void   MulleObjCDotdumpMetaHierarchyToDirectory( char *classname, char *directory);
+void   MulleObjCDotdumpMetaHierarchyToTmp( char *classname);
+void   MulleObjCDotdumpMetaHierarchy( char *classname);
+
 // interfaces with mulle-stacktrace value enhancer
 char   *MulleObjCStacktraceSymbolize( void *addresse,
                                       size_t max,

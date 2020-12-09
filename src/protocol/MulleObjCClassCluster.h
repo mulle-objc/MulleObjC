@@ -54,7 +54,7 @@
 _PROTOCOLCLASS_INTERFACE0( MulleObjCClassCluster)
 
 + (void) initialize;  // #1#
-+ (mulle_objc_classid_t) __instantiatePlaceholderClassid;
++ (Class) __classClusterClass;
 
 PROTOCOLCLASS_END()
 
@@ -63,7 +63,7 @@ PROTOCOLCLASS_END()
 // if your class overrides +initialize and implements MulleObjCClassCluster
 // then you must call [super initialize] or this
 //
-void   MulleObjCClassClusterMarkClassAsClassCluster( Class self);
+void   MulleObjCClassMarkAsClassCluster( Class self);
 
 // protocol class
 

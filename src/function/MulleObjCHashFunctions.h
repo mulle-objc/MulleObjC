@@ -39,17 +39,17 @@
 
 
 
-// limit hash to last 48 bytes
+// limit hash to last 64 bytes
 
 static inline NSRange   MulleObjCGetHashBytesRange( NSUInteger length)
 {
    NSUInteger   offset;
 
    offset = 0;
-   if( length > 48)
+   if( length > 64)
    {
-      offset = length - 48;
-      length = 48;
+      offset = length - 64;
+      length = 64;
    }
    return( NSMakeRange( offset, length));
 }
@@ -59,7 +59,7 @@ static inline NSUInteger   MulleObjCBytesHash( void *buf, NSUInteger length)
 {
    if( ! buf)
       return( -1);
-   return( _mulle_objc_fnv1a( buf, length));
+   return( _mulle_data_hash( mulle_data_make( buf, length)));
 }
 
 
@@ -67,7 +67,7 @@ static inline NSUInteger   MulleObjCBytesHashRange( void *buf, NSRange range)
 {
    if( ! buf)
       return( -1);
-   return( _mulle_objc_fnv1a( &((char *)buf)[ range.location], range.length));
+   return( _mulle_data_hash( mulle_data_make( &((char *)buf)[ range.location], range.length)));
 }
 
 

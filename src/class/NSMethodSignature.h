@@ -46,7 +46,7 @@ typedef enum
 } MulleObjCMetaABIType;
 
 
-typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
+typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeInfo;
 
 
 @interface NSMethodSignature : NSObject < MulleObjCImmutable>
@@ -55,8 +55,7 @@ typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
    uint16_t                            _count;
    uint16_t                            _extra;
    char                                *_types;
-   char                                *_prettyTypes;
-   MulleObjCMethodSignatureTypeinfo    *_infos;
+   MulleObjCMethodSignatureTypeInfo    *_infos;
    // careful when adding stuff below !! (#X#)
 }
 
@@ -67,7 +66,7 @@ typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
 // forwarding mechanism
 //
 + (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
-                           descriptorBits:(NSUInteger) bits;
+                                 descriptorBits:(NSUInteger) bits;
 
 - (BOOL) isOneway;
 - (BOOL) isVariadic;
@@ -76,13 +75,18 @@ typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeinfo;
 
 - (NSUInteger) methodReturnLength;
 - (char *) methodReturnType;
+// this uses the argument index, so 0 is self
 - (char *) getArgumentTypeAtIndex:(NSUInteger) index;
 
 - (NSUInteger) numberOfArguments;
 
 // mulle additions
 
+// trhere is no difference!
 - (MulleObjCMetaABIType) _methodMetaABIReturnType;
 - (MulleObjCMetaABIType) _methodMetaABIParameterType;
+
+// This uses the internal index: use 0 to get rval, 1 for self etc.
+- (MulleObjCMethodSignatureTypeInfo *) mulleSignatureTypeInfoAtIndex:(NSUInteger) i;
 
 @end

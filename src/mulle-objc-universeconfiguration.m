@@ -58,7 +58,7 @@
 #import <mulle-objc-list/mulle-objc-list.h>
 #import <mulle-objc-runtime/mulle-objc-csvdump.h>
 
-#import "version.h"
+#import "MulleObjCVersion.h"
 
 // clang speciality
 #ifdef __has_include
