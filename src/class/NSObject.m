@@ -78,14 +78,21 @@
 @public
    Class   _cls;
 }
+
++ (Class) class;
+
 @end
 
 
-#pragma mark -
-#pragma mark ### _MulleObjCInstantiatePlaceholder ###
-#pragma mark -
+#pragma mark - ### _MulleObjCInstantiatePlaceholder ###
 
 @implementation _MulleObjCInstantiatePlaceholder
+
++ (Class) class
+{
+   return( self);
+}
+
 
 - (void *) forward:(void *) _param
 {
@@ -112,15 +119,77 @@
 #endif
 
    obj = [_cls alloc];
-   obj = mulle_objc_object_inlinecall_variablemethodid( obj, (mulle_objc_methodid_t) _cmd, _param);
+   obj = mulle_objc_object_call_variablemethodid_inline( obj, (mulle_objc_methodid_t) _cmd, _param);
    [obj autorelease];
    return( obj);
 }
 
 
+
+
+static id   _MulleObjCInstantiatePlaceholderNew( Class infraCls)
+{
+   mulle_objc_implementation_t   imp;
+   mulle_objc_methodid_t         sel;
+   struct _mulle_objc_universe   *universe;
+   struct _mulle_objc_class      *cls;
+   struct mulle_allocator        *allocator;
+   struct _mulle_objc_object     *placeholder;
+
+   //
+   // so that the placeholder doesn't show up in leak tests
+   // we place it into the universe allocator
+   // if the __initClassCluster does allocations he should do the same
+   // but that's gonna be a bit more tricky
+   //
+   universe    = _mulle_objc_infraclass_get_universe( infraCls);
+   allocator   = _mulle_objc_universe_get_allocator( universe);
+   placeholder = __mulle_objc_infraclass_alloc_instance_extra( infraCls, 0, allocator);
+
+   cls         = _mulle_objc_infraclass_as_class( infraCls);
+   sel         = @selector( __initInstantiate);
+   imp         = _mulle_objc_class_lookup_implementation_noforward( cls, sel);
+   if( imp)
+      (*imp)( placeholder, sel, NULL);
+
+   return( (id) placeholder);
+}
+
+
+//
+// infraClass is the placeholder class, of which we create an instance
+// the infraClass with classid is placed into the placeholder
+//
+static id
+   _MulleObjCInstantiatePlaceholderNewForClass( Class placeholderInfracls,
+                                                Class infraCls)
+{
+   _MulleObjCInstantiatePlaceholder    *placeholder;
+
+   assert( placeholderInfracls);
+
+   placeholder       = _MulleObjCInstantiatePlaceholderNew( placeholderInfracls);
+   placeholder->_cls = infraCls;
+   return( placeholder);
+}
+
+
+/*
+ * because we don't allocate the placeholder using the infraClass
+ * allocator, we must release it with a custom function, that
+ * gets the proper allocator from the universe. Then the placeholder
+ * won't appear as leaks in tests...
+ */
 - (void) dealloc
 {
-   _MulleObjCInstanceFree( self);
+   struct _mulle_objc_universe     *universe;
+   struct _mulle_objc_class        *cls;
+   struct mulle_allocator          *allocator;
+
+   cls       = _mulle_objc_object_get_isa( self);
+   universe  = _mulle_objc_class_get_universe( cls);
+   allocator = _mulle_objc_universe_get_allocator( universe);
+   __mulle_objc_instance_free( (void *) self, allocator);
 }
 
 
@@ -131,7 +200,6 @@
 
 - (void) release
 {
-   _mulle_objc_object_inlinerelease( self);
 }
 
 @end
@@ -242,7 +310,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 {
    checkAutoreleaseRelease( self);
 
-   _mulle_objc_object_inlinerelease( self);
+   _mulle_objc_object_release_inline( self);
 }
 
 
@@ -283,7 +351,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-- (BOOL) __isClassClusterPlaceholderObject
+- (BOOL) __isClassClusterObject
 {
    return( NO);
 }
@@ -292,63 +360,41 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 #pragma mark -
 #pragma mark aam support
 
-//
-// infraClass is the placeholder class, of which we create an instance
-// the infraClass with classid is placed into the placeholder
-//
-static struct _mulle_objc_object   *
-   _MulleObjCClassNewInstantiatePlaceholder( Class infraCls,
-                                             mulle_objc_classid_t classid)
+
++ (Class) __instantiateClass
 {
-   _MulleObjCInstantiatePlaceholder   *placeholder;
-   mulle_objc_implementation_t        imp;
-   SEL                                initSel;
-   struct _mulle_objc_class           *pcls;
-   struct _mulle_objc_infraclass      *placeholderInfracls;
-   struct _mulle_objc_universe        *universe;
-
-   assert( classid);
-
-   universe            = _mulle_objc_infraclass_get_universe( infraCls);
-   placeholderInfracls = mulle_objc_universe_lookup_infraclass_nofail( universe, classid);
-   _mulle_objc_class_setup( _mulle_objc_infraclass_as_class( placeholderInfracls));
-
-   placeholder         = _MulleObjCClassAllocateObject( placeholderInfracls, 0);
-   placeholder->_cls   = infraCls;
-   _mulle_objc_object_constantify_noatomic( placeholder);
-
-   initSel = @selector( __initPlaceholder);
-   pcls    = _mulle_objc_infraclass_as_class( placeholderInfracls);
-   imp     = _mulle_objc_class_lookup_implementation_noforward( pcls, (mulle_objc_methodid_t) initSel);
-   if( imp)
-      (*imp)( placeholder, (mulle_objc_methodid_t) initSel, NULL);
-
-   return( (struct _mulle_objc_object *) placeholder);
+   return( [_MulleObjCInstantiatePlaceholder class]);
 }
 
 
-+ (mulle_objc_classid_t) __instantiatePlaceholderClassid
-{
-   return( @selector( _MulleObjCInstantiatePlaceholder));
-}
-
-
+//
+// This creates a _MulleObjCInstantiatePlaceholder object that will
+// use forward: to wrap the following init... call with an
+// autorelease.
+//
+// E.g.  [NSObject instantiate] creates a _MulleObjCInstantiatePlaceholder
+// on the first run that contains [NSObject class] as its ivar. This will then
+// be used to message init. The _MulleObjCInstantiatePlaceholder forward:
+// method will then allocate an object from via the ivar class. Call init
+// (which is the forward:ed selector) and then autorelease.
+//
 + (instancetype) instantiate
 {
-   struct _mulle_objc_object   *placeholder;
-   mulle_objc_classid_t        classid;
+   _MulleObjCInstantiatePlaceholder   *placeholder;
+   Class                              placeholderClass;
 
 retry:
-   placeholder = _mulle_objc_infraclass_get_placeholder( self);
+   placeholder = (id) _mulle_objc_infraclass_get_instantiate( self);
    if( ! placeholder)
    {
-      classid     = [self __instantiatePlaceholderClassid];
-      placeholder = _MulleObjCClassNewInstantiatePlaceholder( self, classid);
-      if( ! _mulle_objc_infraclass_set_placeholder( self, placeholder))
+      placeholderClass  = [self __instantiateClass];
+      placeholder       = _MulleObjCInstantiatePlaceholderNewForClass( placeholderClass, self);
+      if( ! _mulle_objc_infraclass_set_instantiate( self, (void *) placeholder))
       {
-         _MulleObjCInstanceFree( (id) placeholder);
+         [placeholder dealloc];
          goto retry;
       }
+      _mulle_objc_object_constantify_noatomic( placeholder);
    }
    return( (id) placeholder);
 }
@@ -379,14 +425,14 @@ retry:
 
 
 + (NSUInteger) _getRootObjects:(id *) buf
-                        length:(NSUInteger) length
+                      maxCount:(NSUInteger) maxCount
 {
    struct _mulle_objc_universefoundationinfo   *config;
-   struct _mulle_objc_universe            *universe;
-   NSUInteger                             count;
-   struct mulle_setenumerator             rover;
-   id                                     obj;
-   id                                     *sentinel;
+   struct _mulle_objc_universe                 *universe;
+   NSUInteger                                  count;
+   struct mulle_setenumerator                  rover;
+   id                                          obj;
+   id                                          *sentinel;
 
    universe = _mulle_objc_infraclass_get_universe( self);
 
@@ -395,12 +441,12 @@ retry:
       _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
 
       count    = mulle_set_get_count( config->object.roots);
-      sentinel = &buf[ count < length ? count : length];
+      sentinel = &buf[ count < maxCount ? count : maxCount];
 
       rover = mulle_set_enumerate( config->object.roots);
       while( buf < sentinel)
       {
-         obj = mulle_setenumerator_next_nil( &rover);
+         mulle_setenumerator_next( &rover, (void **) &obj);
          assert( obj);
          *buf++ = obj;
       }
@@ -427,7 +473,7 @@ retry:
       _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
 
       rover = mulle_set_enumerate( config->object.roots);
-      while( obj = mulle_setenumerator_next_nil( &rover))
+      while( mulle_setenumerator_next( &rover, (void **) &obj))
       {
          if( obj == self)
             break;
@@ -766,14 +812,14 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (id) performSelector:(SEL) sel
 {
-   return( mulle_objc_object_inlinecall_variablemethodid( self, (mulle_objc_methodid_t) sel, (void *) 0));
+   return( mulle_objc_object_call_variablemethodid_inline( self, (mulle_objc_methodid_t) sel, (void *) 0));
 }
 
 
 - (id) performSelector:(SEL) sel
             withObject:(id) obj
 {
-   return( mulle_objc_object_inlinecall_variablemethodid( self, (mulle_objc_methodid_t) sel, (void *) obj));
+   return( mulle_objc_object_call_variablemethodid_inline( self, (mulle_objc_methodid_t) sel, (void *) obj));
 }
 
 
@@ -795,7 +841,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    param.p.obj1 = obj1;
    param.p.obj2 = obj2;
 
-   return( mulle_objc_object_inlinecall_variablemethodid( self, (mulle_objc_methodid_t) sel, &param));
+   return( mulle_objc_object_call_variablemethodid_inline( self, (mulle_objc_methodid_t) sel, &param));
 }
 
 
@@ -895,24 +941,24 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 
 
 + (NSUInteger) _getOwnedObjects:(id *) objects
-                         length:(NSUInteger) length
+                         maxCount:(NSUInteger) maxCount
 {
    return( 0);
 }
 
 
 - (NSUInteger) _getOwnedObjects:(id *) objects
-                         length:(NSUInteger) length
+                       maxCount:(NSUInteger) maxCount
 {
    struct _mulle_objc_class   *cls;
    struct collect_info        info;
 
-   assert( (! objects && ! length) || objects);
+   assert( (! objects && ! maxCount) || objects);
 
    info.self     = self;
    info.n        = 0;
    info.objects  = objects;
-   info.sentinel = &objects[ length];
+   info.sentinel = &objects[ maxCount];
 
    cls = _mulle_objc_object_get_isa( self);
    if( _mulle_objc_class_is_metaclass( cls))
@@ -923,7 +969,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    _mulle_objc_infraclass_walk_ivars( _mulle_objc_class_as_infraclass( cls),
                                       _mulle_objc_class_get_inheritance( cls),
                                       (int (*)()) collect,
-                                       &info);
+                                      &info);
    return( info.n);
 }
 
@@ -1001,7 +1047,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 
    target = [self forwardingTargetForSelector:_cmd];
    if( target)
-      return( mulle_objc_object_inlinecall_variablemethodid( target,
+      return( mulle_objc_object_call_variablemethodid_inline( target,
                                                              (mulle_objc_methodid_t) _cmd,
                                                              param));
    /*

@@ -1,0 +1,35 @@
+digraph { # Click on the lightbulb!
+    node [shape=box];
+
+   "_mulle_objc_universe" [ shape="none",label=<<TABLE BORDER="0">
+                                       <TR><TD BGCOLOR="red"><FONT COLOR="white">_mulle_objc_universe</FONT></TD></TR>
+                                       <TR><TD BGCOLOR="blue"><FONT COLOR="white">_mulle_objc_universefoundationinfo</FONT></TD></TR>
+                                       <TR><TD PORT="second" BGCOLOR="darkgreen"><FONT COLOR="white">object.threads</FONT></TD></TR>
+                                       <TR><TD BGCOLOR="gray"><FONT COLOR="white">threadkey</FONT></TD></TR>
+                                     </TABLE>> ]
+   "_mulle_objc_universe":"second" -> "NSThread"
+
+   mulle_thread_t  -> "_mulle_objc_threadinfo" [ style="dotted", label=" tss (threadkey)"];
+   mulle_thread_t [shape="diamond"];
+
+   "_mulle_objc_threadinfo" [ shape="none", label=<<TABLE BORDER="0">
+                                       <TR><TD BGCOLOR="red"><FONT COLOR="white">_mulle_objc_threadinfo</FONT></TD></TR>
+                                       <TR><TD BGCOLOR="blue"><FONT COLOR="white">_mulle_objc_threadfoundationinfo</FONT></TD></TR>
+                                       <TR><TD PORT="third" BGCOLOR="darkgreen"><FONT COLOR="white">_mulle_objc_poolconfiguration</FONT></TD></TR>
+                                       <TR><TD PORT="fourth" BGCOLOR="black"><FONT COLOR="white">NSThread</FONT></TD></TR>
+                                     </TABLE>> ]
+
+   NSThread [shape="note", fontcolor="white", color="white", fillcolor="black", style="filled"];
+
+   NSThread  -> "mulle_thread_t"  [ label=" _thread" ];
+
+   "_mulle_objc_threadinfo":"third" -> "_mulle_objc_poolconfiguration" [ arrowhead="none" ];
+   "_mulle_objc_threadinfo":"fourth" -> "NSThread" [ arrowhead="none" ];
+
+   "_mulle_objc_poolconfiguration" [ fontcolor="white", fillcolor="darkgreen", style="filled" ]
+
+   "_mulle_objc_poolconfiguration" -> "NSAutoreleasePool (1)"  [ label=" tail"];
+   "NSAutoreleasePool (1)" [shape="note"];
+   "NSAutoreleasePool (2)" [shape="note"];
+   "NSAutoreleasePool (1)" -> "NSAutoreleasePool (2)" [ label=" _parent"];
+}

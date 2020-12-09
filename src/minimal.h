@@ -58,6 +58,6 @@
 #include "NSByteOrder.h"
 #include "NSRange.h"
 #include "NSZone.h"
-#include "version.h"
+#include "MulleObjCVersion.h"
 
 #endif /* mulle_objc_root_h */

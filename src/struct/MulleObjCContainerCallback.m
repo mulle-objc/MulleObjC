@@ -49,38 +49,6 @@
 #pragma mark -
 #pragma mark Int
 
-static char   *
-	mulle_container_callback_int_describe( struct mulle_container_valuecallback *callback,
-	   												void *p,
-			  										   struct mulle_allocator **p_allocator)
-{
-	auto char   buf[ 20 + 1];
-   char        *s;
-
-   assert( sizeof( int) <= 8);
-
-	sprintf( buf, "%d", (int) (uintptr_t) p);
-   s = mulle_allocator_strdup( *p_allocator, buf);
-   MulleObjCAutoreleaseAllocation( s, *p_allocator);
-   return( s);
-}
-
-
-static char   *
-	mulle_container_callback_intptr_describe( struct mulle_container_valuecallback *callback,
-														   void *p,
-		   											   struct mulle_allocator **p_allocator)
-{
-	auto char   buf[ 40 + 1];
-   char        *s;
-
-   assert( sizeof( long long) <= 16);
-
-	sprintf( buf, "%lld", (long long) (uintptr_t) p);
-   s = mulle_allocator_strdup( *p_allocator, buf);
-   MulleObjCAutoreleaseAllocation( s, *p_allocator);
-   return( s);
-}
 
 
 struct mulle_container_keycallback      NSIntMapKeyCallBacks =
@@ -90,7 +58,7 @@ struct mulle_container_keycallback      NSIntMapKeyCallBacks =
    mulle_container_keycallback_self,
    mulle_container_keycallback_nop,
    (mulle_container_keycallback_describe_t *) mulle_container_callback_int_describe,
-   mulle_container_not_an_int_key,
+   NSNotAnIntMapKey,
    NULL
 };
 
@@ -101,7 +69,7 @@ struct mulle_container_keycallback      NSIntegerMapKeyCallBacks =
    mulle_container_keycallback_self,
    mulle_container_keycallback_nop,
    (mulle_container_keycallback_describe_t *)  mulle_container_callback_intptr_describe,
-   mulle_container_not_an_intptr_key,
+   NSNotAnIntegerMapKey,
    NULL
 };
 
@@ -119,7 +87,7 @@ struct mulle_container_keycallback      MulleSELMapKeyCallBacks =
    mulle_container_keycallback_self,
    mulle_container_keycallback_nop,
    (mulle_container_keycallback_describe_t *)  mulle_container_callback_intptr_describe,
-   mulle_container_not_an_intptr_key,
+   NSNotAnIntegerMapKey,
    NULL
 };
 
@@ -147,23 +115,6 @@ struct mulle_container_valuecallback    NSIntegerMapValueCallBacks =
 #pragma mark -
 #pragma mark Pointer
 
-static char   *
-	mulle_container_callback_pointer_describe( struct mulle_container_valuecallback *callback,
-															 void *p,
-															 struct mulle_allocator **p_allocator)
-{
-	auto char   buf[ 40 + 2 + 1];
-   char        *s;
-
-   assert( sizeof( void *) <= 16);
-
-	sprintf( buf, "%p", p);
-   s = mulle_allocator_strdup( *p_allocator, buf);
-   MulleObjCAutoreleaseAllocation( s, *p_allocator);
-   return( s);
-}
-
-
 struct mulle_container_keycallback   NSNonOwnedPointerMapKeyCallBacks =
 {
    mulle_container_keycallback_pointer_hash,
@@ -183,7 +134,7 @@ struct mulle_container_keycallback   NSNonOwnedPointerOrNullMapKeyCallBacks =
    mulle_container_keycallback_self,
    mulle_container_keycallback_nop,
    (mulle_container_keycallback_describe_t *) mulle_container_callback_pointer_describe,
-   mulle_container_not_a_pointer_key,
+   NSNotAPointerMapKey,
    NULL
 };
 
@@ -193,7 +144,7 @@ struct mulle_container_keycallback   NSOwnedPointerMapKeyCallBacks =
    mulle_container_keycallback_pointer_hash,
    mulle_container_keycallback_pointer_is_equal,
    mulle_container_keycallback_self,
-   mulle_container_keycallback_pointer_free,
+   _mulle_container_keycallback_pointer_free,
    (mulle_container_keycallback_describe_t *) mulle_container_callback_pointer_describe,
    NULL,
    NULL

@@ -2,6 +2,8 @@
 ### picked up in preference over the one in cmake/share. And it will not get
 ### clobbered with the next upgrade.
 
+cmake_minimum_required( VERSION 3.13)
+
 if( NOT __EXECUTABLE_OBJC_CMAKE__)
    set( __EXECUTABLE_OBJC_CMAKE__ ON)
 

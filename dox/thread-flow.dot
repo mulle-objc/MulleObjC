@@ -1,0 +1,60 @@
+digraph {
+    node [shape=box];
+
+
+   "mulle_objc_global_register_universe" -> "file_universe"
+
+   "file_universe" [ style="note" label=<
+<TABLE BORDER="0">
+<TR><TD>_mulle_objc_universe_bang(...)</TD></TR>
+<TR><TD>mulle_objc_thread_setup_threadinfo(...)</TD></TR>
+<TR><TD>_mulle_objc_thread_register_universe_gc(...)</TD></TR>
+</TABLE>
+> ]
+
+   "+[NSThread load]" -> "file_load"
+
+   "file_load" [ style="note" label=<
+<TABLE BORDER="0">
+<TR><TD>_MulleThreadCreateMainThreadObjectInUniverse(..)</TD></TR>#
+<TR><TD>__MulleThreadCreateThreadObjectInUniverse(..)</TD></TR>
+<TR><TD>_MulleThreadRegisterInUniverse(..)</TD></TR>
+<TR><TD>mulle_objc_thread_new_poolconfiguration(..)</TD></TR>
+<TR><TD>_mulle_objc_universefoundationinfo_set_mainthreadobject(..)</TD></TR>
+</TABLE>
+> ]
+
+   "+[NSThread detachNewThreadWithSelector:target:withObject]" -> "file_detach"
+
+   "file_detach" [ style="note" label=<
+<TABLE BORDER="0">
+<TR><TD>_MulleThreadCreateThreadObjectInUniverse(..)</TD></TR>
+<TR><TD>_mulle_objc_thread_become_universethread(..)</TD></TR>
+<TR><TD>_MulleThreadRegisterInUniverse]</TD></TR>
+<TR><TD>mulle_objc_thread_new_poolconfiguration(..)</TD></TR>
+</TABLE>
+> ]
+
+   "tss_destructor" -> "file_tss"
+
+   "file_tss" [ style="note" label=<
+<TABLE BORDER="0">
+<TR><TD>_MulleThreadDeregisterInUniverse(..)</TD></TR>
+<TR><TD>-[NSThread release]</TD></TR>
+<TR><TD>__mulle_objc_thread_resignas_universethread(..)</TD></TR>
+</TABLE>
+> ]
+
+   "mulle_objc_teardown_universe" -> "file_teardown"
+
+   "file_teardown" [ style="note" label=<
+<TABLE BORDER="0">
+<TR><TD>_MulleThreadDeregisterInUniverse(..)</TD></TR>
+<TR><TD>-[NSThread release]</TD></TR>
+<TR><TD>_mulle_objc_thread_resignas_universethread(..)</TD></TR>
+<TR><TD>_mulle_objc_universefoundationinfo_set_mainthreadobject(..)</TD></TR>
+</TABLE>
+> ]
+
+
+}

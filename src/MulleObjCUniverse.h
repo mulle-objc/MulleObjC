@@ -17,7 +17,7 @@
 MULLE_C_CONST_NONNULL_RETURN
 static inline struct _mulle_objc_universe  *MulleObjCGetUniverse( void)
 {
-   return( mulle_objc_global_inlineget_universe( __MULLE_OBJC_UNIVERSEID__));
+   return( mulle_objc_global_get_universe_inline( __MULLE_OBJC_UNIVERSEID__));
 }
 
 
@@ -25,7 +25,7 @@ MULLE_C_CONST_NONNULL_RETURN
 static inline struct _mulle_objc_universe  *MulleObjCObjectGetUniverse( id self)
 {
    if( ! self)
-      return( mulle_objc_global_inlineget_universe( __MULLE_OBJC_UNIVERSEID__));
+      return( mulle_objc_global_get_universe_inline( __MULLE_OBJC_UNIVERSEID__));
 
    return( _mulle_objc_object_get_universe( self));
 }

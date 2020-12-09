@@ -41,7 +41,7 @@
 #import "NSRange.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
-#import "version.h"
+#import "MulleObjCVersion.h"
 #include <stdio.h>
 
 

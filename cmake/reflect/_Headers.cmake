@@ -40,6 +40,7 @@ set( PUBLIC_HEADERS
 src/MulleObjCCompiler.h
 src/MulleObjCIntegralType.h
 src/MulleObjCUniverse.h
+src/MulleObjCVersion.h
 src/MulleObjC.h
 src/class/MulleObjCAutoreleasePool.h
 src/class/MulleObjCLoader.h
@@ -84,6 +85,5 @@ src/protocol/NSObjectProtocol.h
 src/struct/MulleObjCContainerCallback.h
 src/struct/NSRange.h
 src/struct/NSZone.h
-src/version.h
 )
 

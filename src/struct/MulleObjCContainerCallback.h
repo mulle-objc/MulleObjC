@@ -89,9 +89,9 @@ extern struct mulle_container_valuecallback   NSOwnedPointerMapValueCallBacks;
 extern struct mulle_container_keycallback     NSNonOwnedPointerOrNullMapKeyCallBacks;
 
 
-#define NSNotAnIntMapKey         mulle_container_not_an_int_key
-#define NSNotAnIntegerMapKey     mulle_container_not_an_intptr_key
-#define NSNotAPointerMapKey      mulle_container_not_a_pointer_key
+#define NSNotAnIntMapKey         mulle_not_an_int
+#define NSNotAnIntegerMapKey     mulle_not_an_intptr
+#define NSNotAPointerMapKey      mulle_not_a_pointer
 
 
 //extern NSHashTableCallBacks   MulleObjCNonRetainedObjectHashCallBacks;

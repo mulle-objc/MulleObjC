@@ -33,6 +33,8 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#define _GNU_SOURCE
+
 #import "NSDebug.h"
 
 #import "import-private.h"
@@ -67,8 +69,54 @@ BOOL   MulleObjCIsDebugEnabled( void)
 {
    struct _mulle_objc_universe   *universe;
 
-   universe = mulle_objc_global_inlineget_universe( __MULLE_OBJC_UNIVERSEID__);
+   universe = mulle_objc_global_get_universe_inline( __MULLE_OBJC_UNIVERSEID__);
    return( _mulle_objc_universe_is_debugenabled( universe));
+}
+
+
+static char   *__MullePrintForDebugger( id a, char *buf)
+{
+   struct _mulle_objc_class      *cls;
+   struct _mulle_objc_universe   *universe;
+   void                          *s;
+
+   if( ! a)
+      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*nil*"));
+
+   cls = _mulle_objc_object_get_isa( a);
+   if( ! cls)
+      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*not an object (anymore ?)*"));
+
+   // typical "released" isa values
+   if( cls == (void *) (intptr_t) 0xDEADDEADDEADDEAD || // our scribble
+       cls == (void *) (intptr_t) 0xAAAAAAAAAAAAAAAA)   // malloc scribble
+   {
+      sprintf( buf, "<%p dealloced,(%p)>", a, cls);
+      return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
+   }
+
+   cls = _mulle_objc_object_get_isa( a);
+   if( ! cls)
+      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*not an object (anymore ?)*"));
+
+   return( NULL);
+}
+
+// this is useful, if you have a breakpoint in description
+//
+char   *_MullePrintForDebugger( id a)
+{
+   char                          buf[ 256];
+   struct _mulle_objc_class      *cls;
+   void                          *s;
+
+   s = __MullePrintForDebugger( a, buf);
+   if( s)
+      return( s);
+
+   cls = _mulle_objc_object_get_isa( a);
+   sprintf( buf, "<%.200s %p>", _mulle_objc_class_get_name( cls), a);
+   return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
 }
 
 
@@ -82,24 +130,13 @@ char   *_NSPrintForDebugger( id a)
    struct _mulle_objc_universe   *universe;
    void                          *s;
 
-   if( ! a)
-      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*nil*"));
+   s = __MullePrintForDebugger( a, buf);
+   if( s)
+      return( s);
 
-   cls = _mulle_objc_object_get_isa( a);
-   if( ! cls)
-      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*not an object (anymore ?)*"));
-
+   cls      = _mulle_objc_object_get_isa( a);
    universe = _mulle_objc_class_get_universe( cls);
-
-   // typical "released" isa values
-   if( cls == (void *) (intptr_t) 0xDEADDEADDEADDEAD || // our scribble
-       cls == (void *) (intptr_t) 0xAAAAAAAAAAAAAAAA)   // malloc scribble
-   {
-      sprintf( buf, "<%p dealloced,(%p)>", a, cls);
-      return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
-   }
-
-   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( cDebugDescription));
+   imp      = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( cDebugDescription));
    if( imp)
    {
       s = (*imp)( a, @selector( cDebugDescription), NULL);
@@ -128,13 +165,13 @@ char   *_NSPrintForDebugger( id a)
       s = (*imp)( a, @selector( description), NULL);
       if( s)
       {
-         aux = _mulle_objc_universe_characters( universe, s);
+         aux      = _mulle_objc_universe_characters( universe, s);
          if( aux && strlen( aux))
             spacer=" ";
       }
    }
 
-   sprintf( buf, "<%p %.100s%s%.100s>", a, _mulle_objc_class_get_name( cls), spacer, aux ? aux : "");
+   sprintf( buf, "<%.100s %p%s%.100s>", _mulle_objc_class_get_name( cls), a, spacer, aux ? aux : "");
    return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
 }
 
@@ -355,7 +392,7 @@ void   MulleObjCHTMLDumpUniverse( void)
 }
 
 
-static struct _mulle_objc_class  *class_from_string( char *classname)
+static struct _mulle_objc_infraclass  *infraclass_from_string( char *classname)
 {
    struct _mulle_objc_universe     *universe;
    struct _mulle_objc_class        *cls;
@@ -377,19 +414,25 @@ static struct _mulle_objc_class  *class_from_string( char *classname)
       return( NULL);
    }
 
-   cls = _mulle_objc_infraclass_as_class( infra);
-   return( cls);
+   return( infra);
 }
 
 
 
 void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory)
 {
-   struct _mulle_objc_class   *cls;
+   struct _mulle_objc_infraclass   *infra;
+   struct _mulle_objc_class        *cls;
 
-   cls = class_from_string( classname);
-   if( cls)
-      mulle_objc_class_htmldump_to_directory( cls, directory);
+   infra = infraclass_from_string( classname);
+   if( ! infra)
+   {
+      perror( "class not found:");
+      return;
+   }
+
+   cls = _mulle_objc_infraclass_as_class( infra);
+   mulle_objc_class_htmldump_to_directory( cls, directory);
 }
 
 
@@ -426,11 +469,18 @@ void   MulleObjCDotdumpUniverseToTmp()
 
 void   MulleObjCDotdumpClassToDirectory( char *classname, char *directory)
 {
-   struct _mulle_objc_class  *cls;
+   struct _mulle_objc_infraclass   *infra;
+   struct _mulle_objc_class        *cls;
 
-   cls = class_from_string( classname);
-   if( cls)
-       mulle_objc_class_dotdump_to_directory( cls, directory);
+   infra = infraclass_from_string( classname);
+   if( ! infra)
+   {
+      perror( "class not found:");
+      return;
+   }
+
+   cls = _mulle_objc_infraclass_as_class( infra);
+   mulle_objc_class_dotdump_to_directory( cls, directory);
 }
 
 
@@ -466,6 +516,78 @@ void   MulleObjCDotdumpUniverse( void)
 
    universe = MulleObjCGetUniverse();
    mulle_objc_universe_dotdump_to_directory( universe, ".");
+}
+
+
+
+void   MulleObjCDotdumpInfraHierarchyToDirectory( char *classname, char *directory)
+{
+   struct _mulle_objc_infraclass   *infra;
+   struct _mulle_objc_class        *cls;
+   char                            *filename;
+
+   infra = infraclass_from_string( classname);
+   if( ! infra)
+   {
+      perror( "class not found:");
+      return;
+   }
+
+   cls = _mulle_objc_infraclass_as_class( infra);
+
+   asprintf( &filename, "%s/%s-infra.dot", directory, classname);
+   mulle_objc_classhierarchy_dotdump_to_file( cls, filename);
+   free( filename);
+}
+
+
+void   MulleObjCDotdumpInfraHierarchyToTmp( char *classname)
+{
+   char   *tmp;
+
+   tmp = _mulle_objc_get_tmpdir();
+   MulleObjCDotdumpInfraHierarchyToDirectory( classname, tmp);
+}
+
+
+void   MulleObjCDotdumpInfraHierarchy( char *classname)
+{
+   MulleObjCDotdumpInfraHierarchyToDirectory( classname, ".");
+}
+
+
+void   MulleObjCDotdumpMetaHierarchyToDirectory( char *classname, char *directory)
+{
+   struct _mulle_objc_infraclass   *infra;
+   struct _mulle_objc_class        *cls;
+   char                            *filename;
+
+   infra = infraclass_from_string( classname);
+   if( ! infra)
+   {
+      perror( "class not found:");
+      return;
+   }
+
+   cls = _mulle_objc_metaclass_as_class( _mulle_objc_infraclass_get_metaclass( infra));
+   asprintf( &filename, "%s/%s-meta.dot", directory, classname);
+   mulle_objc_classhierarchy_dotdump_to_file( cls, filename);
+   free( filename);
+}
+
+
+void   MulleObjCDotdumpMetaHierarchyToTmp( char *classname)
+{
+   char   *tmp;
+
+   tmp = _mulle_objc_get_tmpdir();
+   MulleObjCDotdumpMetaHierarchyToDirectory( classname, tmp);
+}
+
+
+void   MulleObjCDotdumpMetaHierarchy( char *classname)
+{
+   MulleObjCDotdumpMetaHierarchyToDirectory( classname, ".");
 }
 
 

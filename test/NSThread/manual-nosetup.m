@@ -9,6 +9,7 @@
 
 
 // this doesn't work, because the thread is not yet registered
+// wont't work in release, as the assert will not trigger
 
 static void  function( void *universe)
 {

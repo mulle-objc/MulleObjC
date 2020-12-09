@@ -45,7 +45,7 @@
 #import "MulleObjCAllocation.h"
 #import "NSObjectProtocol.h"
 #import "NSRange.h"
-#import "version.h"
+#import "MulleObjCVersion.h"
 
 #import "mulle-objc-universefoundationinfo-private.h"
 
@@ -56,14 +56,14 @@
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 #pragma clang diagnostic ignored "-Wprotocol"
 
-PROTOCOLCLASS_IMPLEMENTATION( MulleObjCClassCluster)
 
+PROTOCOLCLASS_IMPLEMENTATION( MulleObjCClassCluster)
 
 //
 // MULLE_OBJC_IS_CLASSCLUSTER gets inherited by the class, that implements the
 // protocol but JUST that class
 //
-void   MulleObjCClassClusterMarkClassAsClassCluster( Class self)
+void   MulleObjCClassMarkAsClassCluster( Class self)
 {
    struct _mulle_objc_classpair   *pair;
 
@@ -78,29 +78,30 @@ void   MulleObjCClassClusterMarkClassAsClassCluster( Class self)
 {
    // mark subclasses but not MulleObjCClassCluster itself
    if( _mulle_objc_infraclass_get_classid( self) != @selector( MulleObjCClassCluster))
-      MulleObjCClassClusterMarkClassAsClassCluster( self);
+      MulleObjCClassMarkAsClassCluster( self);
 }
 
 
 /*
  * because we don't allocate the placeholder using the infraClass
  * allocator, we must release it with a custom function, that
- * gets the proper allocator from the universe
+ * gets the proper allocator from the universe. Then the placeholder
+ * won't appear as leaks in tests...
  */
-- (void) __deallocPlaceholder
+- (void) __deallocClassCluster
 {
    struct _mulle_objc_universe     *universe;
-   struct _mulle_objc_infraclass   *infra;
+   struct _mulle_objc_class        *cls;
    struct mulle_allocator          *allocator;
 
-   infra     = _mulle_objc_class_as_infraclass( _mulle_objc_object_get_isa( self));
-   universe  = _mulle_objc_infraclass_get_universe( infra);
+   cls       = _mulle_objc_object_get_isa( self);
+   universe  = _mulle_objc_class_get_universe( cls);
    allocator = _mulle_objc_universe_get_allocator( universe);
    __mulle_objc_instance_free( (void *) self, allocator);
 }
 
 
-+ (Class) __placeholderClass
++ (Class) __classClusterClass
 {
    return( self);
 }
@@ -118,14 +119,14 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
    //
    // so that the placeholder doesn't show up in leak tests
    // we place it into the universe allocator
-   // if the __initPlaceholder does allocations he should do the same
+   // if the __initClassCluster does allocations he should do the same
    // but that's gonna be a bit more tricky
    //
    universe    = _mulle_objc_infraclass_get_universe( infraCls);
    allocator   = _mulle_objc_universe_get_allocator( universe);
    placeholder = __mulle_objc_infraclass_alloc_instance_extra( infraCls, 0, allocator);
    cls         = _mulle_objc_infraclass_as_class( infraCls);
-   sel         = @selector( __initPlaceholder);
+   sel         = @selector( __initClassCluster);
    imp         = _mulle_objc_class_lookup_implementation_noforward( cls, sel);
    if( imp)
       (*imp)( placeholder, sel, NULL);
@@ -172,9 +173,9 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 
 + (instancetype) alloc
 {
-   struct _mulle_objc_object    *placeholder;
-   struct _mulle_objc_universe  *universe;
-   Class                        placeholderClass;
+   struct _mulle_objc_object     *placeholder;
+   struct _mulle_objc_universe   *universe;
+   Class                         placeholderClass;
 
    //
    // only the class marked as MulleObjCClassCluster gets the
@@ -193,13 +194,13 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 
    for(;;)
    {
-      placeholder = (struct _mulle_objc_object *) _mulle_objc_infraclass_get_placeholder( self);
+      placeholder = (struct _mulle_objc_object *) _mulle_objc_infraclass_get_classcluster( self);
       if( placeholder)
          return( (MulleObjCClassCluster *) placeholder);
 
-      placeholderClass = [self __placeholderClass];
+      placeholderClass = [self __classClusterClass];
       placeholder      = (struct _mulle_objc_object *) MulleObjCNewClassClusterPlaceholder( placeholderClass);
-      if( _mulle_objc_infraclass_set_placeholder( self, placeholder))
+      if( _mulle_objc_infraclass_set_classcluster( self, placeholder))
       {
          _mulle_objc_object_constantify_noatomic( placeholder);
          universe = _mulle_objc_infraclass_get_universe( self);
@@ -227,7 +228,7 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 }
 
 
-- (BOOL) __isClassClusterPlaceholderObject
+- (BOOL) __isClassClusterObject
 {
    return( _mulle_objc_object_is_constant( self));
 }

@@ -51,7 +51,7 @@ static inline void   MulleObjCObjectSetBOOL( id obj, SEL sel, BOOL value)
 
 static inline BOOL   MulleObjCObjectGetBOOL( id obj, SEL sel)
 {
-   return( (BOOL) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+   return( (BOOL) (intptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
 }
 
 
@@ -330,15 +330,29 @@ static inline NSRange   MulleObjCObjectGetRange( id obj, SEL sel)
 
 #pragma mark - imp calling helpers
 
+/*
+ * Usually "imp" direct invocations are hidden, but if you use MulleObjC
+ * functions and define DEBUG or MULLE_OBJC_TRACE_IMP they will also
+ * appear in the usual universe method trace
+ */
+#if defined( DEBUG) || defined( MULLE_OBJC_TRACE_IMP)
+void   MulleObjCIMPTraceCall( IMP imp, id obj, SEL sel, void *param);
+#else
+#define MulleObjCIMPTraceCall( imp, obj, sel, param)
+#endif
+
+
 
 static inline id   MulleObjCIMPCall0( IMP imp, id obj, SEL sel)
 {
+   MulleObjCIMPTraceCall( imp, obj, sel, obj);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, obj));
 }
 
 
 static inline id   MulleObjCIMPCall( IMP imp, id obj, SEL sel, id argument)
 {
+   MulleObjCIMPTraceCall( imp, obj, sel, argument);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, argument));
 }
 
@@ -350,6 +364,7 @@ static inline id   MulleObjCIMPCall2( IMP imp, id obj, SEL sel, id a, id b)
    param.p.a = a;
    param.p.b = b;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -361,6 +376,7 @@ static inline id   MulleObjCIMPCall3( IMP imp, id obj, SEL sel, id a, id b, id c
    param.p.b = b;
    param.p.c = c;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -373,6 +389,7 @@ static inline id   MulleObjCIMPCall4( IMP imp, id obj, SEL sel, id a, id b, id c
    param.p.c = c;
    param.p.d = d;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -386,6 +403,7 @@ static inline id   MulleObjCIMPCall5( IMP imp, id obj, SEL sel, id a, id b, id c
    param.p.d = d;
    param.p.e = e;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -400,6 +418,7 @@ static inline id
 
    param.p.a = argument;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -411,6 +430,7 @@ static inline id
 
    param.p.a = argument;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -422,6 +442,7 @@ static inline id
 
    param.p.a = argument;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -436,6 +457,7 @@ static inline id
 
    param.p.a = argument;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -450,6 +472,7 @@ static inline id
 
    param.p.a = argument;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -464,6 +487,7 @@ static inline id
 
    param.p.a = argument;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -481,6 +505,7 @@ static inline id
 
    param.p.a = argument;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
@@ -490,6 +515,7 @@ static inline float   MulleObjCIMPCall0ReturningFloat( IMP imp, id obj, SEL sel)
 {
    mulle_metaabi_struct_void_parameter( struct { float a;})  param;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
 }
@@ -500,6 +526,7 @@ static inline double
 {
    mulle_metaabi_struct_void_parameter( struct { double a;})  param;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
 }
@@ -510,6 +537,7 @@ static inline long double
 {
    mulle_metaabi_struct_void_parameter( struct { long double a;})  param;
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
 }
@@ -522,6 +550,7 @@ static inline long   MulleObjCIMPCall0ReturningLong( IMP imp, id obj, SEL sel)
    if( sizeof( long) <= sizeof( void *))
       return( (long) MulleObjCIMPCall0( imp, obj, sel));
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
 }
@@ -535,6 +564,7 @@ static inline unsigned long
    if( sizeof( unsigned long) <= sizeof( void *))
       return( (unsigned long) MulleObjCIMPCall0( imp, obj, sel));
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
 }
@@ -548,6 +578,7 @@ static inline long long
    if( sizeof( long long) <= sizeof( void *))
       return( (long long ) MulleObjCIMPCall0( imp, obj, sel));
 
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
 }
@@ -561,6 +592,8 @@ static inline unsigned long long
    if( sizeof( unsigned long long) <= sizeof( void *))
       return( (unsigned long long ) MulleObjCIMPCall0( imp, obj, sel));
 
+
+   MulleObjCIMPTraceCall( imp, obj, sel, &param);
    (*imp)( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.a);
 }
@@ -585,17 +618,91 @@ IMP   MulleObjCObjectSearchOverriddenIMP( id obj,
                                           SEL sel,
                                           mulle_objc_classid_t classid,
                                           mulle_objc_categoryid_t categoryid);
+IMP   MulleObjCObjectSearchClobberedIMP( id obj,
+                                         SEL sel,
+                                         mulle_objc_classid_t classid,
+                                         mulle_objc_categoryid_t categoryid);
+//
+// If called from -bar in Foo(A) this will find the IMP -bar of Foo.
+// Unless it doesn't exist.
+// Or unless there is an intervening category Foo(B), which its own -bar,
+// then you get the IMP for -bar of Foo(B)
+//
+#define MulleObjCClobberedIMP \
+   MulleObjCObjectSearchClobberedIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
 
+//
+// With this you can trace chain back through all overridden implementations.
 //
 #define MulleObjCOverriddenIMP \
    MulleObjCObjectSearchOverriddenIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
 
-#define MulleObjCSpecificIMP \
-   MulleObjCObjectSearchSpecificIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
-
 // avoid this, it's very slow
 #define MulleObjCSuperIMP \
-    MulleObjCSuperOverriddenIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__)
+    MulleObjCObjectSearchSuperIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__)
+
+#define MulleObjCClassCategoryIMP( class, category) \
+    MulleObjCObjectSearchSpecificIMP( (self), (_cmd), MULLE_OBJC_MAKE_CLASSID( class), MULLE_OBJC_MAKE_CATEGORYID( category))
+
+#define MulleObjCClassIMP( class) \
+    MulleObjCObjectSearchSpecificIMP( (self), (_cmd), MULLE_OBJC_MAKE_CLASSID( class), MULLE_OBJC_NO_CATEGORYID)
+
+
+// always returns number of IMPs found, the first 'n',
+unsigned int   _mulle_objc_class_search_clobber_chain( struct _mulle_objc_class *cls,
+                                                       SEL sel,
+                                                       IMP *array,
+                                                       unsigned int n);
+
+
+static inline unsigned int   _MulleObjCClassSearchInstanceClobberChain( Class self,
+                                                                        SEL sel,
+                                                                        IMP *array,
+                                                                        unsigned int n)
+{
+   return( _mulle_objc_class_search_clobber_chain( _mulle_objc_infraclass_as_class( self),
+                                                   sel,
+                                                   array,
+                                                   n));
+}
+
+static inline unsigned int   _MulleObjCClassSearchClobberChain( Class self,
+                                                                SEL sel,
+                                                                IMP *array,
+                                                                unsigned int n)
+{
+   struct _mulle_objc_metaclass   *meta;
+
+   meta = _mulle_objc_infraclass_get_metaclass( self);
+   return( _mulle_objc_class_search_clobber_chain( _mulle_objc_metaclass_as_class( meta),
+                                                   sel,
+                                                   array,
+                                                   n));
+}
+
+
+static inline unsigned int
+   MulleObjCObjectSearchClobberChain( Class self,
+                                      SEL sel,
+                                      IMP *array,
+                                      unsigned int n)
+{
+   if( ! self)
+      return( 0);
+   return( _MulleObjCClassSearchClobberChain( self, sel, array, n));
+}
+
+
+static inline unsigned int
+   MulleObjCObjectSearchInstanceClobberChain( Class self,
+                                              SEL sel,
+                                              IMP *array,
+                                              unsigned int n)
+{
+   if( ! self)
+      return( 0);
+   return( _MulleObjCClassSearchInstanceClobberChain( self, sel, array, n));
+}
 
 
 
@@ -610,6 +717,16 @@ static inline id   MulleObjCObjectPerformSelector0( id obj, SEL sel)
 static inline id   MulleObjCObjectPerformSelector( id obj, SEL sel, id argument)
 {
    return( (id) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, argument));
+}
+
+
+static inline id   MulleObjCObjectPerformSelectorDoubleArgument( id obj, SEL sel, double a)
+{
+   mulle_metaabi_struct_voidptr_return( struct { double a; })  param;
+
+   param.p.a = a;
+
+   return( mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
 
@@ -705,6 +822,7 @@ Class   NSClassFromObject( id object);
 char    *MulleObjCClassGetName( Class cls);
 char    *MulleObjCSelectorGetName( SEL sel);
 char    *MulleObjCProtocolGetName( PROTOCOL sel);
+Class   MulleObjCLookupClassByClassID( SEL classid);
 Class   MulleObjCLookupClassByName( char *name);
 SEL     MulleObjCCreateSelector( char *name);
 

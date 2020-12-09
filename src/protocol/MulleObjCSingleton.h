@@ -55,7 +55,7 @@ PROTOCOLCLASS_END()
 id     MulleObjCSingletonCreate( Class self);
 
 
-static inline BOOL   MulleObjCIsSingletonInstance( id obj)
+static inline BOOL   MulleObjCInstanceIsSingleton( id obj)
 {
    Class  infraCls;
 

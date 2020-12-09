@@ -14,7 +14,11 @@
 
 /* no headers */
 
-#include "_MulleObjC-include.h"
+#ifdef __has_include
+# if __has_include( "_MulleObjC-include.h")
+#  include "_MulleObjC-include.h"
+# endif
+#endif
 
 
 #endif

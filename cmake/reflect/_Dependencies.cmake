@@ -8,7 +8,7 @@ endif()
 
 #
 # Generated from sourcetree: mulle-objc-runtime;no-header,no-import,no-singlephase;
-# Disable with: `mulle-sourcetree mark mulle-objc-runtime no-link`
+# Disable with: `mulle-sourcetree mark mulle-objc-runtime no-header`
 #
 if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
    find_library( MULLE_OBJC_RUNTIME_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-runtime NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -93,7 +93,7 @@ endif()
 
 #
 # Generated from sourcetree: mulle-container;no-all-load,no-import,no-singlephase;
-# Disable with: `mulle-sourcetree mark mulle-container no-link`
+# Disable with: `mulle-sourcetree mark mulle-container no-header`
 #
 if( NOT MULLE_CONTAINER_LIBRARY)
    find_library( MULLE_CONTAINER_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-container${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-container NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
