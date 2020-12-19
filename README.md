@@ -2,9 +2,9 @@
 
 #### 💎 A collection of Objective-C root classes for mulle-objc
 
-MulleObjC supplies the most basic runtime components to build a foundation
-on top of it. MulleObjC fundamentally depends on standard C libraries only
-(f.e. no `<unistd.h>`)
+MulleObjC supplies the most basic runtime components like NSObject or NSThread
+to build a foundation on top of it. MulleObjC depends on standard C libraries 
+only (for instance not on `<unistd.h>`)
 
 
 | Release Version

@@ -59,7 +59,7 @@ static inline NSUInteger   MulleObjCBytesHash( void *buf, NSUInteger length)
 {
    if( ! buf)
       return( -1);
-   return( _mulle_data_hash( mulle_data_make( buf, length)));
+   return( mulle_data_hash( mulle_data_make( buf, length)));
 }
 
 
@@ -67,7 +67,7 @@ static inline NSUInteger   MulleObjCBytesHashRange( void *buf, NSRange range)
 {
    if( ! buf)
       return( -1);
-   return( _mulle_data_hash( mulle_data_make( &((char *)buf)[ range.location], range.length)));
+   return( mulle_data_hash( mulle_data_make( &((char *)buf)[ range.location], range.length)));
 }
 
 
