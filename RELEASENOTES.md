@@ -1,3 +1,10 @@
+## 0.18.0
+
+* `object` replaces `instantiate` as a fast methodid
+* the foundation allocator is now a pointer and no longer a struct, which makes replacement easier
+* added ``MULLE_OBJC_DEPENDS_ON_CATEGORY`` macro
+
+
 ### 0.17.2
 
 * remove duplicate objc-loader.inc
