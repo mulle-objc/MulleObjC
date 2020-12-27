@@ -69,7 +69,7 @@ extern struct mulle_container_valuecallback   *MulleObjCContainerValueRetainCall
 extern struct mulle_container_valuecallback   *MulleObjCContainerValueCopyCallback;
 
 
-#define NSObjectMapKeyCallBacks                *MulleObjCContainerKeyRetainCallback
+#define NSObjectMapKeyCallBacks                *MulleObjCContainerKeyCopyCallback
 #define NSObjectMapValueCallBacks              *MulleObjCContainerValueRetainCallback
 #define NSNonRetainedObjectMapKeyCallBacks     _MulleObjCContainerKeyAssignCallback
 #define NSNonRetainedObjectMapValueCallBacks   _MulleObjCContainerValueAssignCallback

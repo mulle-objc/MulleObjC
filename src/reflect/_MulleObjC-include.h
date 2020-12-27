@@ -16,14 +16,9 @@
 //    remove:             `mulle-sourcetree mark mulle-container no-header`
 //    rename:             `mulle-sde dependency|library set mulle-container include whatever.h`
 //    toggle #import:     `mulle-sourcetree mark mulle-container [no-]import`
-//    toggle localheader: `mulle-sourcetree mark mulle-container [no-]localheader`
 //    toggle public:      `mulle-sourcetree mark mulle-container [no-]public`
 //    toggle optional:    `mulle-sourcetree mark mulle-container [no-]require`
 //    remove for os:      `mulle-sourcetree mark mulle-container no-os-<osname>`
-# if defined( __has_include) && __has_include("mulle-container.h")
-#   include "mulle-container.h"   // mulle-container
-# else
-#   include <mulle-container/mulle-container.h>   // mulle-container
-# endif
+# include <mulle-container/mulle-container.h>   // mulle-container
 
 #endif
