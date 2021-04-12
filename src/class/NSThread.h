@@ -71,6 +71,8 @@ enum
 + (NSThread *) mainThread;
 + (NSThread *) currentThread;
 
++ (BOOL) mulleIsMainThread;
+
 + (void) detachNewThreadSelector:(SEL) sel
                         toTarget:(id) target
                       withObject:(id) argument;

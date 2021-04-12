@@ -53,7 +53,8 @@ struct _mulle_objc_universefoundationinfo_object
 
    unsigned char       debugenabled;
    unsigned char       zombieenabled;
-   unsigned char       deallocatezombies;
+   unsigned char       deallocatezombie;
+   unsigned char       shredzombie;
 };
 
 
@@ -139,7 +140,7 @@ static inline int
    int                                         flag;
 
    config = _mulle_objc_universe_get_foundationdata( universe);
-   flag   = config->object.deallocatezombies;
+   flag   = config->object.deallocatezombie;
 
    return( flag);
 }

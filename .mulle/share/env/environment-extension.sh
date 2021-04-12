@@ -23,7 +23,7 @@ export MULLE_MATCH_IGNORE_PATH=""
 
 
 #
-#
+# If you are really basing on MulleObjC you need this startup lib
 #
 export PREFERRED_STARTUP_LIBRARY="MulleObjC-startup"
 

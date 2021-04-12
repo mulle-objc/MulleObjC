@@ -1,2 +1,3 @@
 _*-include-private.h
 _*-import-private.h
+_*-export-private.h

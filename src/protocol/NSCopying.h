@@ -49,7 +49,7 @@
 // not really an instancetype (e.g. NSMutableSet returns NSSet)
 // Should return an instance that is immutable if possible
 //
-@optional
+@optional  // only optional if derived from NSObject
 - (id) copy;
 
 @end

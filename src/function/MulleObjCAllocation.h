@@ -36,7 +36,7 @@
 #include "mulle-objc.h"
 
 
-__attribute__((const))
+MULLE_C_CONST_RETURN
 static inline struct mulle_allocator   *MulleObjCInstanceGetAllocator( id obj)
 {
    struct _mulle_objc_class        *cls;
@@ -54,7 +54,7 @@ static inline struct mulle_allocator   *MulleObjCInstanceGetAllocator( id obj)
 }
 
 
-__attribute__((const))
+MULLE_C_CONST_RETURN
 static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 {
    struct mulle_allocator   *allocator;
@@ -68,44 +68,76 @@ static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 
 
 
-#pragma mark -
-#pragma mark allocate memory to return char * autoreleased
+#pragma mark - allocate memory to return char * autoreleased
 
 void   *MulleObjCCallocAutoreleased( NSUInteger n,
                                      NSUInteger size);
 
-#pragma mark -
-#pragma mark allocate memory for objects
+#pragma mark - allocate memory for objects
 
-static inline void  *MulleObjCObjectAllocateNonZeroedMemory( id self, NSUInteger size)
+static inline void  *MulleObjCInstanceAllocateNonZeroedMemory( id self, NSUInteger size)
 {
    return( _mulle_allocator_malloc( MulleObjCInstanceGetAllocator( self), size));
 }
 
 
-static inline void  *MulleObjCObjectReallocateNonZeroedMemory( id self, void *p, NSUInteger size)
+static inline void  *MulleObjCInstanceReallocateNonZeroedMemory( id self, void *p, NSUInteger size)
 {
    return( _mulle_allocator_realloc( MulleObjCInstanceGetAllocator( self), p, size));
 }
 
 
-static inline void  *MulleObjCObjectAllocateMemory( id self, NSUInteger size)
+static inline void  *MulleObjCInstanceAllocateMemory( id self, NSUInteger size)
 {
    return( _mulle_allocator_calloc( MulleObjCInstanceGetAllocator( self), 1, size));
 }
 
 
-static inline void  *MulleObjCObjectDuplicateCString( id self, char *s)
+static inline void  *MulleObjCInstanceDuplicateCString( id self, char *s)
 {
    return( _mulle_allocator_strdup( MulleObjCInstanceGetAllocator( self), s));
 }
 
 
-static inline void  MulleObjCObjectDeallocateMemory( id self, void *p)
+static inline void  MulleObjCInstanceDeallocateMemory( id self, void *p)
 {
    if( p)
       _mulle_allocator_free( MulleObjCInstanceGetAllocator( self), p);
 }
+
+
+#pragma mark - allocate memory for class methods
+
+static inline void  *MulleObjCClassAllocateNonZeroedMemory( Class cls, NSUInteger size)
+{
+   return( _mulle_allocator_malloc( MulleObjCClassGetAllocator( cls), size));
+}
+
+
+static inline void  *MulleObjCClassReallocateNonZeroedMemory( Class cls, void *p, NSUInteger size)
+{
+   return( _mulle_allocator_realloc( MulleObjCClassGetAllocator( cls), p, size));
+}
+
+
+static inline void  *MulleObjCClassAllocateMemory( Class cls, NSUInteger size)
+{
+   return( _mulle_allocator_calloc( MulleObjCClassGetAllocator( cls), 1, size));
+}
+
+
+static inline void  *MulleObjCClassDuplicateCString( Class cls, char *s)
+{
+   return( _mulle_allocator_strdup( MulleObjCClassGetAllocator( cls), s));
+}
+
+
+static inline void  MulleObjCClassDeallocateMemory( Class cls, void *p)
+{
+   if( p)
+      _mulle_allocator_free( MulleObjCClassGetAllocator( cls), p);
+}
+
 
 
 #pragma mark -
@@ -127,6 +159,7 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
 {
    struct _mulle_objc_objectheader   *header;
    struct mulle_allocator            *allocator;
+   struct _mulle_objc_class          *cls;
    NSUInteger                        size;
 
    allocator = _mulle_objc_infraclass_get_allocator( infraCls);
@@ -134,10 +167,12 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
 
    size   = _mulle_objc_infraclass_get_allocationsize( infraCls) + extra;
    header = _mulle_allocator_malloc( allocator, size);
-
-   _mulle_atomic_pointer_nonatomic_write( &header->_retaincount_1, 0);
-   _mulle_objc_objectheader_set_isa( header,
-                                     _mulle_objc_infraclass_as_class( infraCls));
+   cls    = _mulle_objc_infraclass_as_class( infraCls);
+   // this clears retaincount and extra meta memory
+   _mulle_objc_objectheader_init( header,
+                                  cls,
+                                  _mulle_objc_class_get_metaextrasize( cls),
+                                  _mulle_objc_memory_is_not_zeroed);
    return( (id) _mulle_objc_objectheader_get_object( header));
 }
 
@@ -149,13 +184,53 @@ void   _MulleObjCInstanceClearProperties( id obj);
 void   _MulleObjCInstanceFree( id obj);
 
 
+// legacy naming scheme, should be AllocateInstance really
 static inline id   NSAllocateObject( Class infra, NSUInteger extra, NSZone *zone)
 {
    return( _MulleObjCClassAllocateObject( infra, extra));
 }
 
 
+// legacy naming scheme, should be DeallocateInstance really
 void   NSDeallocateObject( id obj);
+
+
+
+//
+// The returned value is the size you need to provde to create an instance
+// The start address is not the address of the object though! The object
+// lives at an offset. See function below.
+//
+static inline NSUInteger  MulleObjCClassGetInstanceSize( Class infra)
+{
+   if( ! infra)
+      return( 0);
+   return( _mulle_objc_infraclass_get_allocationsize( infra));
+}
+
+
+static inline id   MulleObjCClassConstructInstance( Class infra,
+                                                    void *bytes,
+                                                    size_t length,
+                                                    BOOL isZeroed)
+{
+   void                             *obj;
+   struct _mulle_objc_objectheader  *header;
+   struct _mulle_objc_class         *cls;
+
+   if( ! infra)
+      return( nil);
+
+   assert( length >= _mulle_objc_infraclass_get_allocationsize( infra));
+
+   cls = _mulle_objc_infraclass_as_class( infra);
+   header = _mulle_objc_alloc_get_objectheader( bytes, cls->headerextrasize);
+   _mulle_objc_objectheader_init( header, cls, cls->headerextrasize, isZeroed);
+   obj    = _mulle_objc_objectheader_get_object( header);
+   if( ! isZeroed)
+      memset( obj, 0, length - cls->headerextrasize - sizeof( struct _mulle_objc_objectheader));
+   return( obj);
+}
 
 
 // implement the convenience stuff
@@ -182,20 +257,75 @@ static inline NSUInteger   NSExtraRefCount( id obj)
 
 static inline BOOL    NSShouldRetainWithZone( id p, NSZone *zone)
 {
-   return( YES);
+   return( NO);
 }
 
 
-//
+// TODO: these should die
 // convenience function for implementing _getOwnedObjects:length:
 //
-NSUInteger   MulleObjCCopyObjects( id *dst,
-                                   NSUInteger dstCount,
-                                   NSUInteger srcCount, ...);
-NSUInteger   MulleObjCCopyObjectArray( id *dst,
-                                       NSUInteger dstCount,
-                                       id *src,
-                                       NSUInteger srcCount);
+static inline NSUInteger   MulleObjCCopyObjects( id *objects,
+                                                 NSUInteger length,
+                                                 NSUInteger count, ...)
+{
+   va_list      args;
+   id           *sentinel;
+   id           obj;
+   NSUInteger   n;
+
+   assert( objects || ! length);
+
+   sentinel = &objects[ length];
+   n        = 0;
+
+   va_start( args, count);
+   while( count)
+   {
+      obj = va_arg( args, id);
+      if( obj)
+      {
+         ++n;
+         if( objects < sentinel)
+            *objects++ = obj;
+      }
+      --count;
+   }
+   va_end( args);
+
+   return( n);
+}
+
+
+static inline NSUInteger   MulleObjCCopyObjectArray( id *objects,
+                                                     NSUInteger length,
+                                                     id *array,
+                                                     NSUInteger count)
+{
+   va_list      args;
+   id           *sentinel;
+   id           obj;
+   NSUInteger   n;
+
+   assert( objects || ! length);
+
+   sentinel = &objects[ length];
+   n        = 0;
+
+   while( count)
+   {
+      obj = *array++;
+      if( obj)
+      {
+         ++n;
+         if( objects < sentinel)
+            *objects++ = obj;
+      }
+      --count;
+   }
+
+   return( n);
+}
+
 
 
 // will not duplicate if *ivar == s

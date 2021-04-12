@@ -22,8 +22,6 @@
 // if the "real" foundation has defined this, don't use the builtin stuff
 
 
-// this is the only place where mulle_objc_runtime should be exposed
-
 #include "_MulleObjC-include.h"
 
 /* You can add some more include statements here */

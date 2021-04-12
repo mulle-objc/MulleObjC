@@ -33,7 +33,9 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#import "NSObject.h"
 
+struct NSZone;
 
 //
 // this an ill-conceived legacy protocol. It breaks the possibilty of
@@ -41,8 +43,18 @@
 //
 @protocol NSMutableCopying
 
+@optional  // only optional if derived from NSObject
 - (id) mutableCopy
    __attribute__((deprecated( "mutableCopy does not work as expected, if the receiver is nil",
                               "Use a NSMutable<Class> constructor instead")));
+
+@end
+
+@class NSMutableCopying; // needed for the compiler to understand this is
+
+
+@interface NSObject( NSMutableCopyCompatibility)
+
+- (id) mutableCopyWithZone:(NSZone *) null;
 
 @end

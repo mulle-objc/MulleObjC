@@ -2,8 +2,8 @@
 ### picked up in preference over the one in cmake/share. And it will not get
 ### clobbered with the next upgrade.
 
-if( NOT __COMPILER_DETECTION_AUX_CMAKE__)
-   set( __COMPILER_DETECTION_AUX_CMAKE__ ON)
+if( NOT __COMPILER_DETECTION_AUX_C_CMAKE__)
+   set( __COMPILER_DETECTION_AUX_C_CMAKE__ ON)
 
    if( MULLE_TRACE_INCLUDE)
       message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )

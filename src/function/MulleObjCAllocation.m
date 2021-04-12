@@ -186,8 +186,8 @@ void   _MulleObjCInstanceFree( id obj)
 
    if( config->object.zombieenabled)
    {
-      MulleObjCZombifyObject( obj);
-      if( ! config->object.deallocatezombies)
+      MulleObjCZombifyObject( obj, config->object.shredzombie);
+      if( ! config->object.deallocatezombie)
          return;
    }
 
@@ -207,69 +207,6 @@ void   _MulleObjCInstanceFree( id obj)
    _mulle_atomic_pointer_nonatomic_write( &header->_retaincount_1, 0x0); // sic
 #endif
    _mulle_allocator_free( allocator, header);
-}
-
-
-NSUInteger   MulleObjCCopyObjects( id *objects,
-                                   NSUInteger length,
-                                   NSUInteger count, ...)
-{
-   va_list      args;
-   id           *sentinel;
-   id           obj;
-   NSUInteger   n;
-
-   assert( objects || ! length);
-
-   sentinel = &objects[ length];
-   n        = 0;
-
-   va_start( args, count);
-   while( count)
-   {
-      obj = va_arg( args, id);
-      if( obj)
-      {
-         ++n;
-         if( objects < sentinel)
-            *objects++ = obj;
-      }
-      --count;
-   }
-   va_end( args);
-
-   return( n);
-}
-
-
-NSUInteger   MulleObjCCopyObjectArray( id *objects,
-                                       NSUInteger length,
-                                       id *array,
-                                       NSUInteger count)
-{
-   va_list      args;
-   id           *sentinel;
-   id           obj;
-   NSUInteger   n;
-
-   assert( objects || ! length);
-
-   sentinel = &objects[ length];
-   n        = 0;
-
-   while( count)
-   {
-      obj = *array++;
-      if( obj)
-      {
-         ++n;
-         if( objects < sentinel)
-            *objects++ = obj;
-      }
-      --count;
-   }
-
-   return( n);
 }
 
 

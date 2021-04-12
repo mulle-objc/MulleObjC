@@ -25,7 +25,6 @@
 #include "mulle-objc-threadfoundationinfo.h"
 #include "MulleObjCAllocation.h"
 #include "MulleObjCAutoreleasePool.h"
-#include "MulleObjCContainerCallback.h"
 #include "MulleObjCExceptionHandler.h"
 #include "MulleObjCFunctions.h"
 #include "MulleObjCUniverse.h"

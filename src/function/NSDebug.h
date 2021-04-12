@@ -87,14 +87,14 @@ char   *MulleObjCStacktraceSymbolize( void *addresse,
 void   MulleObjCCSVDumpMethodsToTmp( void);
 
 
-void   _MulleObjCZombifyObject( id obj);
+void   _MulleObjCZombifyObject( id obj, int shred);
 
-static inline void   MulleObjCZombifyObject( id obj)
+static inline void   MulleObjCZombifyObject( id obj, int shred)
 {
    if( ! obj)
       return;
 
-   _MulleObjCZombifyObject( obj);
+   _MulleObjCZombifyObject( obj, shred);
 }
 
 

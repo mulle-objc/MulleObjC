@@ -71,8 +71,7 @@
 
 @implementation NSCopying
 
-// the class routine, harmless
-+ (id) copyWithZone:(NSZone *) zone
+- (id) copyWithZone:(NSZone *) zone
 {
    return( [self copy]);
 }

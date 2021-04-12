@@ -238,31 +238,38 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was "
 }
 
 
-static void   zombifyLargeObject( id obj)
+static void   zombifyLargeObject( id obj, int shred)
 {
-   _MulleObjCLargeZombie        *zombie;
-   Class                        cls;
-   struct _mulle_objc_universe  *universe;
+   _MulleObjCLargeZombie           *zombie;
+   struct _mulle_objc_class        *cls;
+   struct _mulle_objc_infraclass   *zombieCls;
+   struct _mulle_objc_universe     *universe;
 
-   universe = _mulle_objc_object_get_universe( obj);
-   cls      = mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( _MulleObjCLargeZombie));
-   assert( cls);
+   universe  = _mulle_objc_object_get_universe( obj);
+   zombieCls = mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( _MulleObjCLargeZombie));
+   assert( zombieCls);
 
+   cls    = _mulle_objc_object_get_isa( obj);
    zombie = obj;
-   zombie->_originalClass = (Class) _mulle_objc_object_get_isa( obj);
+   zombie->_originalClass = (Class) cls;
 
-   _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
+   _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( zombieCls));
+   if( shred)
+      memset( &zombie->_originalClass + 1, 
+              0xad, 
+              _mulle_objc_class_get_instancesize( cls) - sizeof( Class));   
 }
 
 @end
 
 
-static void   zombifyObject( id obj)
+static void   zombifyObject( id obj, int shred)
 {
-   mulle_objc_classid_t            classid;
+   mulle_objc_classid_t            zombieClassid;
    char                            buf[ 256];
    struct _mulle_objc_classpair    *pair;
-   struct _mulle_objc_infraclass   *cls;
+   struct _mulle_objc_class        *cls;
+   struct _mulle_objc_infraclass   *zombieCls;
    struct _mulle_objc_metaclass    *meta;
    struct _mulle_objc_infraclass   *infra;
    struct _mulle_objc_infraclass   *super_class;
@@ -271,25 +278,25 @@ static void   zombifyObject( id obj)
    if( ! obj)
       return;
 
-   cls   = (struct _mulle_objc_infraclass *) _mulle_objc_object_get_isa( obj);
-   if( _mulle_objc_class_is_metaclass( (void *) cls))
+   cls = mulle_objc_object_get_isa( obj);
+   if( _mulle_objc_class_is_metaclass( cls))
    {
       fprintf( stderr, "not zombifying class object %p\n", obj);
       abort();
    }
 
-   universe = _mulle_objc_infraclass_get_universe( cls);
+   universe = _mulle_objc_class_get_universe( cls);
 
-   sprintf( buf, "_MulleObjCZombieOf%.200s", _mulle_objc_infraclass_get_name( cls));
+   sprintf( buf, "_MulleObjCZombieOf%.200s", _mulle_objc_class_get_name( cls));
 
-   classid = mulle_objc_classid_from_string( buf);
-   cls     = _mulle_objc_universe_lookup_infraclass( universe, classid);
+   zombieClassid = mulle_objc_classid_from_string( buf);
+   zombieCls     = _mulle_objc_universe_lookup_infraclass( universe, zombieClassid);
 
-   if( ! cls)
+   if( ! zombieCls)
    {
       super_class = _mulle_objc_universe_lookup_infraclass( universe, @selector( _MulleObjCZombie));
 
-      pair  = mulle_objc_universe_new_classpair( universe, classid, buf, sizeof( id), 0, super_class);
+      pair  = mulle_objc_universe_new_classpair( universe, zombieClassid, buf, sizeof( id), 0, super_class);
       if( ! pair)
          mulle_objc_universe_fail_errno( universe);  // unfailing vectors through there
 
@@ -302,11 +309,13 @@ static void   zombifyObject( id obj)
       mulle_objc_universe_add_infraclass_nofail( universe, infra);
    }
 
-   _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
+   _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( zombieCls));
+   if( shred)
+      memset( obj, 0xad, _mulle_objc_class_get_instancesize( cls));
 }
 
 
-void   _MulleObjCZombifyObject( id obj)
+void   _MulleObjCZombifyObject( id obj, int shred)
 {
    struct _mulle_objc_class      *cls;
    struct _mulle_objc_universe   *universe;
@@ -325,12 +334,9 @@ void   _MulleObjCZombifyObject( id obj)
 
    size = _mulle_objc_class_get_instancesize( cls);
    if( size >= sizeof( Class)) // sizeof( _MulleObjCLargeZombie)
-   {
-      zombifyLargeObject( obj);
-      return;
-   }
-
-   zombifyObject( obj);
+      zombifyLargeObject( obj, shred);
+   else
+      zombifyObject( obj, shred);
 }
 
 
