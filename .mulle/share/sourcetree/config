@@ -1,0 +1,1 @@
+MulleObjC;${MULLE_OBJC_NODETYPE:-tar};no-singlephase;EE955C7C-CB8E-4703-B6FD-C13938DB0470;${MULLE_OBJC_URL:-https://github.com/mulle-objc/MulleObjC/archive/${MULLE_TAG}.tar.gz};${MULLE_OBJC_BRANCH};${MULLE_OBJC_TAG:-latest};;

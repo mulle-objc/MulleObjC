@@ -119,12 +119,12 @@
 #endif
 
    obj = [_cls alloc];
-   obj = mulle_objc_object_call_variablemethodid_inline( obj, (mulle_objc_methodid_t) _cmd, _param);
+   obj = mulle_objc_object_call_variablemethodid_inline( obj, 
+                                                         (mulle_objc_methodid_t) _cmd, 
+                                                         _param);
    [obj autorelease];
    return( obj);
 }
-
-
 
 
 static id   _MulleObjCInstantiatePlaceholderNew( Class infraCls)
@@ -182,14 +182,14 @@ static id
  */
 - (void) dealloc
 {
-   struct _mulle_objc_universe     *universe;
-   struct _mulle_objc_class        *cls;
-   struct mulle_allocator          *allocator;
+   struct _mulle_objc_universe   *universe;
+   struct _mulle_objc_class      *cls;
+   struct mulle_allocator        *allocator;
 
    cls       = _mulle_objc_object_get_isa( self);
    universe  = _mulle_objc_class_get_universe( cls);
    allocator = _mulle_objc_universe_get_allocator( universe);
-   __mulle_objc_instance_free( (void *) self, allocator);
+   _mulle_objc_instance_free_allocator( (void *) self, allocator);
 }
 
 
@@ -267,8 +267,7 @@ static id
 }
 
 
-#pragma mark -
-#pragma mark lifetime management
+#pragma mark - lifetime management
 
 
 //
@@ -342,8 +341,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 
 
 
-#pragma mark -
-#pragma mark singleton/classcluster support
+#pragma mark - singleton/classcluster support
 
 - (BOOL) __isSingletonObject
 {
@@ -357,8 +355,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-#pragma mark -
-#pragma mark aam support
+#pragma mark - aam support
 
 
 + (Class) __instantiateClass
@@ -565,7 +562,6 @@ retry:
             __mulle_objc_universe_raise_errno( universe, "failed to remove key");
       }
    }
-   return;
 }
 
 
@@ -910,10 +906,10 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 struct collect_info
 {
-   id            self;
-   NSUInteger    n;
-   id            *objects;
-   id            *sentinel;
+   id           self;
+   NSUInteger   n;
+   id           *objects;
+   id           *sentinel;
 };
 
 
@@ -1278,12 +1274,12 @@ void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id valu
    mulle_objc_lldb_lookup_descriptor_by_name( 0);
 }
 
+
 + (void) __reference_gdb_functions__
 {
    mulle_objc_gdb_lookup_class( 0);
    mulle_objc_gdb_lookup_selector( 0);
    mulle_objc_gdb_lookup_implementation( 0, 0, 0, 0);
 }
-
 
 @end

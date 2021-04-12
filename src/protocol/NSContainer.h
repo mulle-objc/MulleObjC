@@ -83,7 +83,7 @@
 //- (instancetype) initWithObjects:(id <NSObject> *) objects
 //                           count:(NSUInteger) count;
 - (NSUInteger) count;
-- (BOOL) member:(id <NSObject>) object;
+- (id) member:(id <NSObject>) object;
 
 @end
 

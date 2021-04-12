@@ -303,6 +303,8 @@ Class   MulleObjCLookupClassByClassID( SEL classid)
 
 void    MulleObjCObjectSetClass( id obj, Class cls)
 {
+   struct _mulle_objc_class   *new_cls;
+
    if( ! obj)
       return;
 
@@ -311,9 +313,44 @@ void    MulleObjCObjectSetClass( id obj, Class cls)
                                                    "class can't be NULL");
    if( _mulle_objc_infraclass_is_taggedpointerclass( cls))
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
-                                                   "class \"%s\" is a tagged pointer class", _mulle_objc_infraclass_get_name( cls));
+                                                   "class \"%s\" is a tagged pointer class",
+                                                   _mulle_objc_infraclass_get_name( cls));
 
-   _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( cls));
+   new_cls = _mulle_objc_infraclass_as_class( cls);
+
+   //
+   // not sure if we shouldn't also check allocation size, but we don't track
+   // extra, so its hard to prove that it makes no sense. With the meta size
+   // it's probably OK. Since we would fail on dealloc...
+   //
+#if DEBUG
+   {
+      struct _mulle_objc_class  *old_cls;
+
+      old_cls = _mulle_objc_object_get_isa( obj);
+      if( old_cls)
+      {
+         if( _mulle_objc_class_get_metaextrasize( old_cls) ||
+             _mulle_objc_class_get_metaextrasize( new_cls))
+         {
+            if( _mulle_objc_class_get_metaextrasize( old_cls) != _mulle_objc_class_get_metaextrasize( new_cls))
+               __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
+                                                            "Differing meta information of class \"%s\" and class \"%s\"",
+                                                            _mulle_objc_class_get_name( old_cls),
+                                                            _mulle_objc_class_get_name( new_cls));
+            // if new_cls inherits old_cls or vice versa its OK I guess
+            if( ! _mulle_objc_class_has_direct_relation_to_class( new_cls, old_cls))
+               __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
+                                                            "class \"%s\" and class \"%s\" hold meta information \
+but the classes have no direct relation",
+                                                            _mulle_objc_class_get_name( old_cls),
+                                                            _mulle_objc_class_get_name( new_cls));
+         }
+      }
+   }
+#endif
+
+   _mulle_objc_object_set_isa( obj, new_cls);
 }
 
 
@@ -327,7 +364,7 @@ IMP   MulleObjCObjectSearchSuperIMP( id obj,
    struct _mulle_objc_searcharguments   search;
    struct _mulle_objc_class             *cls;
    struct _mulle_objc_method            *method;
-   mulle_objc_implementation_t    imp;
+   mulle_objc_implementation_t          imp;
 
    if( ! obj)
       return( (IMP) 0);
@@ -337,7 +374,7 @@ IMP   MulleObjCObjectSearchSuperIMP( id obj,
    cls    = _mulle_objc_object_get_isa( obj);
    method = mulle_objc_class_search_method( cls,
                                            &search,
-                                           _mulle_objc_class_get_inheritance( cls) ,
+                                           _mulle_objc_class_get_inheritance( cls),
                                            NULL);
    imp = 0;
    if( method)
@@ -393,10 +430,10 @@ IMP   MulleObjCObjectSearchClobberedIMP( id obj,
    _mulle_objc_searcharguments_overriddeninit( &search, sel, classid, categoryid);
 
    cls         = _mulle_objc_object_get_isa( obj);
-   inheritance =  _mulle_objc_class_get_inheritance( cls)
-                   | MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS
-                   | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
-                   | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
+   inheritance = _mulle_objc_class_get_inheritance( cls)
+                 | MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS
+                 | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
+                 | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
 
    method = mulle_objc_class_search_method( cls, &search, inheritance, NULL);
    imp = 0;
@@ -416,11 +453,11 @@ IMP   MulleObjCObjectSearchSpecificIMP( id obj,
                                         mulle_objc_classid_t classid,
                                         mulle_objc_categoryid_t categoryid)
 {
-   struct _mulle_objc_searcharguments    search;
-   struct _mulle_objc_class              *cls;
-   struct _mulle_objc_method             *method;
-   mulle_objc_implementation_t           imp;
-   unsigned int                          inheritance;
+   struct _mulle_objc_searcharguments   search;
+   struct _mulle_objc_class             *cls;
+   struct _mulle_objc_method            *method;
+   mulle_objc_implementation_t          imp;
+   unsigned int                         inheritance;
 
    if( ! obj)
       return( (IMP) 0);
@@ -470,9 +507,9 @@ unsigned int   _mulle_objc_class_search_clobber_chain( struct _mulle_objc_class 
 
    _mulle_objc_searcharguments_defaultinit( &args, sel);
    inheritance = _mulle_objc_class_get_inheritance( cls)
-                   | MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS
-                   | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
-                   | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
+                 | MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS
+                 | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
+                 | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
 
    for(;;)
    {

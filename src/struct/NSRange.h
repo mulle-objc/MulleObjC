@@ -35,7 +35,7 @@
 //
 
 // This header should be includeable by C and must not require inclusion
-// or link the runtime
+// or link the runtime, its in uppercase for legacy reasons
 
 #ifndef ns_range__h__
 #define ns_range__h__

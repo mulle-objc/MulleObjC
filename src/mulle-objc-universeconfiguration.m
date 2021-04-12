@@ -46,7 +46,6 @@
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
-#import "MulleObjCContainerCallback.h"
 #import "NSRange.h"
 #import "NSDebug.h"
 #import "NSThread.h"
@@ -233,8 +232,8 @@ struct _mulle_objc_universefoundationinfo  *
    if( universe->debug.trace.universe)
       mulle_objc_universe_trace( universe, "foundation uses %s allocator: %p", kind, allocator);
 
-   foundation.allocator  = allocator;
-
+   foundation.allocator       = allocator;
+   foundation.headerextrasize = config->foundation.headerextrasize;
    _mulle_objc_universe_set_foundation( universe, &foundation);
 
    return( roots);

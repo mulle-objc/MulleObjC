@@ -97,7 +97,7 @@ void   MulleObjCClassMarkAsClassCluster( Class self)
    cls       = _mulle_objc_object_get_isa( self);
    universe  = _mulle_objc_class_get_universe( cls);
    allocator = _mulle_objc_universe_get_allocator( universe);
-   __mulle_objc_instance_free( (void *) self, allocator);
+   _mulle_objc_instance_free_allocator( (void *) self, allocator);
 }
 
 

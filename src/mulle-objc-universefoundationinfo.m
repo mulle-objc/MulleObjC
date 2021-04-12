@@ -109,8 +109,9 @@ void
          mulle_objc_environment_get_yes_no( "NSDebugEnabled");
    info->object.zombieenabled     = mulle_objc_environment_get_yes_no( "MULLE_OBJC_ZOMBIE_ENABLED") ||
          mulle_objc_environment_get_yes_no( "NSZombieEnabled");
-   info->object.deallocatezombies = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEALLOCATE_ZOMBIE") ||
+   info->object.deallocatezombie  = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEALLOCATE_ZOMBIE") ||
          mulle_objc_environment_get_yes_no( "NSDeallocateZombies");
+   info->object.shredzombie       = ! mulle_objc_environment_get_yes_no( "MULLE_OBJC_PRESERVE_ZOMBIE");
 }
 
 

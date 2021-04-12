@@ -14,5 +14,6 @@ mulle-sourcetree-to-c
 mulle-clang
 mulle-lldb;optional
 mulle-match-to-cmake;optional
+mulle-match-to-c;optional
 mulle-sourcetree-to-cmake;optional
 cmake

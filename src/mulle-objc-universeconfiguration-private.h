@@ -74,6 +74,9 @@ struct _mulle_objc_universeconfiguration_foundation
 
    // the exception table to install
    struct _mulle_objc_exceptionhandlertable     exceptiontable;
+
+   // Extend the header area ahead of an instance
+   size_t                                       headerextrasize;
 };
 
 

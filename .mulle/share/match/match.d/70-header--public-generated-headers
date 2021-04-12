@@ -1,2 +1,4 @@
 _*-include.h
 _*-import.h
+_*-export.h
+_*-provide.h

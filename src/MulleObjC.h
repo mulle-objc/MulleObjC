@@ -36,13 +36,11 @@
 
 // because standalone versions must define FASTIDs
 
-#ifdef MULLE_OBJC_RUNTIME_VERSION
-# error "do not include the mulle-objc-runtime before MulleObjC.h"
-#endif
+//#ifdef MULLE_OBJC_RUNTIME_VERSION
+//# error "do not include the mulle-objc-runtime before MulleObjC.h"
+//#endif
 
 #import "import.h"
-
-#import "mulle-objc.h"
 
 // objects
 #import "MulleObjCLoader.h"
@@ -73,10 +71,9 @@
 #import "NSObject+NSCodingSupport.h"
 
 // structs
-#import "MulleObjCContainerCallback.h"
+// none.. all C
 
 // functions
 #import "MulleObjCAllocation.h"
 #import "MulleObjCFunctions.h"
 #import "MulleObjCUniverse.h"
-

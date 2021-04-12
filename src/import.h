@@ -6,6 +6,14 @@
    .m and .aam use import-private.h.
 */
 
+/* we do this check here instead of MulleObjC.h, because then it's
+   possibly to say #import "NSObject.h" in other projects if they
+   use -Idependence/include/MulleObjC
+ */
+#ifdef MULLE_OBJC_RUNTIME_VERSION
+# error "do not include the mulle-objc-runtime before MulleObjC.h"
+#endif
+
 /*
    Get C includes first
  */

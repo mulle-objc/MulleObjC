@@ -356,6 +356,11 @@ static inline id   MulleObjCIMPCall( IMP imp, id obj, SEL sel, id argument)
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, argument));
 }
 
+static inline id   MulleObjCIMPCall1( IMP imp, id obj, SEL sel, id argument)
+{
+   return( MulleObjCIMPCall( imp, obj, sel, argument));
+}
+
 
 static inline id   MulleObjCIMPCall2( IMP imp, id obj, SEL sel, id a, id b)
 {
@@ -367,6 +372,7 @@ static inline id   MulleObjCIMPCall2( IMP imp, id obj, SEL sel, id a, id b)
    MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
+
 
 static inline id   MulleObjCIMPCall3( IMP imp, id obj, SEL sel, id a, id b, id c)
 {
@@ -380,6 +386,7 @@ static inline id   MulleObjCIMPCall3( IMP imp, id obj, SEL sel, id a, id b, id c
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
 
+
 static inline id   MulleObjCIMPCall4( IMP imp, id obj, SEL sel, id a, id b, id c, id d)
 {
    mulle_metaabi_struct_voidptr_return( struct { id a; id b; id c; id d;})  param;
@@ -392,6 +399,7 @@ static inline id   MulleObjCIMPCall4( IMP imp, id obj, SEL sel, id a, id b, id c
    MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
+
 
 static inline id   MulleObjCIMPCall5( IMP imp, id obj, SEL sel, id a, id b, id c, id d, id e)
 {
@@ -508,6 +516,7 @@ static inline id
    MulleObjCIMPTraceCall( imp, obj, sel, &param);
    return( (id) (*imp)( obj, (mulle_objc_methodid_t) sel, &param));
 }
+
 
 #pragma mark - KVC support (read)
 
@@ -666,6 +675,7 @@ static inline unsigned int   _MulleObjCClassSearchInstanceClobberChain( Class se
                                                    n));
 }
 
+
 static inline unsigned int   _MulleObjCClassSearchClobberChain( Class self,
                                                                 SEL sel,
                                                                 IMP *array,
@@ -714,9 +724,16 @@ static inline id   MulleObjCObjectPerformSelector0( id obj, SEL sel)
 }
 
 
-static inline id   MulleObjCObjectPerformSelector( id obj, SEL sel, id argument)
+
+static inline id   MulleObjCObjectPerformSelector1( id obj, SEL sel, id argument)
 {
    return( (id) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, argument));
+}
+
+
+static inline id   MulleObjCObjectPerformSelector( id obj, SEL sel, id argument)
+{
+   return( MulleObjCObjectPerformSelector1( obj, sel, argument));
 }
 
 

@@ -39,6 +39,10 @@
 #import "MulleObjCIntegralType.h"
 
 
+//
+// The object that is enumerated needs to be retained by the enumerator for
+// the duration of the enumeration, which can be forever.
+//
 @protocol NSEnumeration
 
 - (id) nextObject;
@@ -48,16 +52,21 @@
 
 typedef struct
 {
-   unsigned long   state;
-   id              *itemsPtr;
-   unsigned long   *mutationsPtr;
-   unsigned long   extra[5];
+   NSUInteger   state;
+   id           *itemsPtr;
+   NSUInteger   *mutationsPtr;
+   NSUInteger   extra[5];
 } NSFastEnumerationState;
 
 
+//
+// One principal advantage of NSFastEnumeration over NSEnumeration is,
+// that it is specified for `for` `in` loops. That means that the object
+// that gets enumerated need not be retained.
+//
 @protocol NSFastEnumeration
 
-- (NSUInteger) count;  // exerimentally added, this waY
+- (NSUInteger) count;  // exerimentally added, this way
                        // NSFastEnumeration is basically NSContainer (if it existed)
 - (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *) state
                                    objects:(id *) objects

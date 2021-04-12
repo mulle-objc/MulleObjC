@@ -673,6 +673,22 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 }
 
 
++ (BOOL) mulleIsMainThread
+{
+   NSThread                                    *threadObject1;
+   NSThread                                    *threadObject2;
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *info;
+
+   universe      = _mulle_objc_infraclass_get_universe( self);
+   info          = _mulle_objc_universe_get_universefoundationinfo( universe);
+   threadObject1 = _mulle_objc_universefoundationinfo_get_mainthreadobject( info);
+   threadObject2 = _mulle_objc_thread_get_threadobject( universe);
+
+   return( threadObject2 && threadObject1 == threadObject2);
+}
+
+
 + (NSThread *) currentThread
 {
    struct _mulle_objc_universe   *universe;
@@ -694,9 +710,17 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 + (void) mulleSetMainThreadWaitsAtExit:(BOOL) flag
 {
    struct _mulle_objc_universe   *universe;
+   void
+      __mulle_objc_universe_atexit_ifneeded( struct _mulle_objc_universe *universe);
 
    universe = _mulle_objc_infraclass_get_universe( self);
+   // you can't flip/flop this, because we currently don't remove the
+   // atexit handler.
+   assert( ! universe->config.wait_threads_on_exit);
+
    universe->config.wait_threads_on_exit = flag;
+   if( flag)
+      __mulle_objc_universe_atexit_ifneeded( universe);
 }
 
 

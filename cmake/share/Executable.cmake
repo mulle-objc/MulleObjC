@@ -88,19 +88,43 @@ If these are regular C libraries, be sure, that they are marked as
 ")
       endif()
 
+      if( ALL_LOAD_DEPENDENCY_FRAMEWORKS)
+         message( FATAL_ERROR "ALL_LOAD_DEPENDENCY_FRAMEWORKS \
+\"${ALL_LOAD_DEPENDENCY_FRAMEWORKS}\" are not linked to ${EXECUTABLE_NAME}.")
+      endif()
+
       if( STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES)
          message( FATAL_ERROR "STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES \
 \"${STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES}\" are not linked to ${EXECUTABLE_NAME}.
 STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES is an Objective-C feature, but this
 project is seemingly not setup for Objective-C.")
+      endif()
+
+      if( STARTUP_ALL_LOAD_DEPENDENCY_FRAMEWORKS)
+         message( FATAL_ERROR "STARTUP_ALL_LOAD_DEPENDENCY_FRAMEWORKS \
+\"${STARTUP_ALL_LOAD_DEPENDENCY_FRAMEWORKS}\" are not linked to ${EXECUTABLE_NAME}.
+STARTUP_ALL_LOAD_DEPENDENCY_FRAMEWORKS is an Objective-C feature, but this
+project is seemingly not setup for Objective-C.")
 
       endif()
 
+      # MEMO: many of these definitions don't exist like
+      #       FORCE_STARTUP_ALL_LOAD_DEPENDENCY_FRAMEWORKS we just keep them
+      #       for orthogonality
+      #
       set( EXECUTABLE_LIBRARY_LIST
+         ${FORCE_ALL_LOAD_DEPENDENCY_LIBRARIES}
+         ${FORCE_ALL_LOAD_DEPENDENCY_FRAMEWORKS}
          ${DEPENDENCY_LIBRARIES}
+         ${DEPENDENCY_FRAMEWORKS}
          ${OPTIONAL_DEPENDENCY_LIBRARIES}
+         ${OPTIONAL_DEPENDENCY_FRAMWORKS}
+         ${FORCE_STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES}
+         ${FORCE_STARTUP_ALL_LOAD_DEPENDENCY_FRAMEWORKS}
          ${STARTUP_DEPENDENCY_LIBRARIES}
+         ${STARTUP_DEPENDENCY_FRAMEWORKS}
          ${OS_SPECIFIC_LIBRARIES}
+         ${OS_SPECIFIC_FRAMEWORKS}
       )
    endif()
 
