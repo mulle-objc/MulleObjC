@@ -454,7 +454,7 @@ void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
 }
 
 
-static void   bouncyBounce( void *arg)
+static mulle_thread_rval_t   bouncyBounce( void *arg)
 {
    NSThread                                    *threadObject = arg;
    struct _mulle_objc_universe                 *universe;
@@ -491,6 +491,8 @@ static void   bouncyBounce( void *arg)
    [threadObject main];
 
    [NSThread exit];
+
+   mulle_thread_return();
 }
 
 

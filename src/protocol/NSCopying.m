@@ -47,44 +47,6 @@
 #pragma clang diagnostic ignored "-Wprotocol"
 
 
-@interface NSObject (NSCopyCompatibility)
-
-- (id) copyWithZone:(NSZone *) null;
-
-@end
-
-
-//
-// what is this ? TODO: move this away to compatibility
-//
-// by default NSObject does not implement copyWithZone:
-// I want to keep it this way.
-// But I also don't want to prolong the life of copyWithZone:
-// so as as soon as a class implements NSCopying it gets
-// a base copyWithZone: that calls copy
-// therefore only copy needs to be coded. If copyWithZone: is
-// coded this overrides the protocol
-//
-@interface NSCopying < NSCopying>
-@end
-
-
-@implementation NSCopying
-
-- (id) copyWithZone:(NSZone *) zone
-{
-   return( [self copy]);
-}
-
-@end
-
-
-//
-// the default implementation is different though,
-// i think this is compatible, but have to check
-//
-@implementation NSObject ( NSCopying)
-
 
 id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
 {
@@ -98,27 +60,40 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
 }
 
 
-// I have to do this for backward compatibility
-// for classes, that don't implement copy, but
-// just copyWithZone:. If they don't though this will create an infinite
-// recursion :()
+@interface NSCopying < NSCopying>
+@end
+
+
+
+@implementation NSCopying
+
+- (id) copy
+{
+   return( NSCopyObject( self, 0, NULL));
+}
+
+@end
+
+
+@implementation NSObject ( NSCopying)
+
+
+- (id) copyWithZone:(NSZone *) zone
+{
+   fprintf( stderr, "-[NSObject copyWithZone:] doesn't work anymore.\n"
+"\n"
+"Either rename your -copyWithZone: implementations to -copy or add a\n"
+"-copy method to each class that implements -copyWithZone:\n"
+"\n"
+"Endless recursion awaits those, who don't heed this advice.\n");
+   abort();
+}
 
 
 - (id) copy
 {
-   return( [self copyWithZone:NULL]);
+   return( NSCopyObject( self, 0, NULL));
 }
 
-
-+ (id) copy
-{
-   return( self);
-}
-
-
-+ (id) copyWithZone:(NSZone *) zone
-{
-   return( self);
-}
 
 @end

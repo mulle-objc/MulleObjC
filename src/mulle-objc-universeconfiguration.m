@@ -328,22 +328,16 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 
    mulle_objc_list_install_hook( universe);
 
-   objcTestAllocatorEnabled = mulle_objc_environment_get_yes_no( "MULLE_OBJC_TESTALLOCATOR_ENABLED");
-   if( objcTestAllocatorEnabled || mulle_objc_environment_get_yes_no( "MULLE_TESTALLOCATOR"))
-   {
-      void   (*mulle_testallocator_set_stacktracesymbolizer)( void (*)( void));
-
 #if HAVE_DLSYM
-      mulle_testallocator_set_stacktracesymbolizer = dlsym( RTLD_DEFAULT, "mulle_testallocator_set_stacktracesymbolizer");
-      if( mulle_testallocator_set_stacktracesymbolizer)
-         mulle_testallocator_set_stacktracesymbolizer( (void (*)(void)) MulleObjCStacktraceSymbolize);
-#endif
-   }
+   if( mulle_objc_environment_get_yes_no_default( "MULLE_OBJC_SYMBOLIZE_TESTALLOCATOR", YES))
+   {
+      void   (*p_mulle_testallocator_set_stacktracesymbolizer)( void (*)( void));
 
-   // TODO: this isn't currently used at all, since tests use
-   // MULLE_TESTALLOCATOR
-   if( objcTestAllocatorEnabled)
-      universe->callbacks.did_crunch = reset_testallocator;
+      p_mulle_testallocator_set_stacktracesymbolizer = dlsym( RTLD_DEFAULT, "mulle_testallocator_set_stacktracesymbolizer");
+      if( p_mulle_testallocator_set_stacktracesymbolizer)
+         (*p_mulle_testallocator_set_stacktracesymbolizer)( (void (*)(void)) MulleObjCStacktraceSymbolize);
+   }
+#endif
 }
 
 

@@ -238,3 +238,4 @@ void   *MulleObjCCallocAutoreleased( NSUInteger n,
                               total,
                               NULL) autorelease]);
 }
+

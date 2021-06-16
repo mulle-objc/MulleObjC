@@ -66,28 +66,4 @@ set( PROJECT_INSTALLABLE_HEADERS
    ${PRIVATE_HEADERS}
 )
 
-
-#
-# Remove files from INSTALL_RESOURCES that are inside RESOURCE_DIRS
-# Useful for frameworks or where folder hierarchies need to be
-# installed As is 
-#
-set( INSTALL_RESOURCE_DIR_FILES)
-
-if( RESOURCE_DIRS AND RESOURCES)
-   set( TMP_RESOURCES ${RESOURCES})
-   foreach( TMP_NAME ${RESOURCES})
-      foreach( TMP_DIR_NAME ${RESOURCE_DIRS})
-         string( FIND "${TMP_NAME}" "${TMP_DIR_NAME}" TMP_POSITION)
-         if( TMP_POSITION EQUAL 0)
-            list( REMOVE_ITEM TMP_RESOURCES "${TMP_NAME}")
-            list( APPEND RESOURCE_DIR_FILES "${TMP_NAME}")
-         endif()
-      endforeach()
-   endforeach()
-   set( INSTALL_RESOURCES ${TMP_RESOURCES})
-else()
-   set( INSTALL_RESOURCES ${RESOURCES})
-endif()
-
 endif()

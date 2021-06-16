@@ -17,7 +17,8 @@ is not known on Mac OS X.
 
 The prefix `ns_` is not used by Apple. Putting `mulle_objc_` there might be
 confusing with respect to the runtime, so `ns_` it is for now for functions defined
-in MulleObjC.
+in MulleObjC.  (this is phased out. Move non-object functions to a separate
+C library, name object functions MulleObjC)
 
 
 ## What's up with the mixed file naming schemes here, CamelCase or what ?
@@ -27,7 +28,7 @@ Foundation using MulleObjC MUST NOT define themselves(#ifdef them out).
 Anything in lowercase like `ns_` contains C code. They should be include-able with
 pure C.
 
-Any C function prefixed with '_' is not checking it's arguments and is free to
+Any C function prefixed with '`_`' is not checking it's arguments and is free to
 crash. Everything else should check it's arguments and return an error or raise
 and must not crash (within reason).
 
@@ -35,7 +36,7 @@ and must not crash (within reason).
 ## What about the methods ?
 
 Prefixing all methods with "mulle" would be tedious and produce ungainly code.
-Instead methods, that are not defined in OS X are prefixed with a '_'.
+Instead methods, that are not defined in OS X are prefixed with a '`_`'.
 
 And possibly adorned with
 

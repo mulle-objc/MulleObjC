@@ -37,9 +37,10 @@
 
 struct NSZone;
 
+
 //
-// this an ill-conceived legacy protocol. It breaks the possibilty of
-// returning nil, for an empty container. (-copy is fine though)
+// This an ill-conceived legacy protocol. It breaks the possibilty of
+// returning nil for empty containers. (-copy is fine though).
 //
 @protocol NSMutableCopying
 
@@ -50,11 +51,3 @@ struct NSZone;
 
 @end
 
-@class NSMutableCopying; // needed for the compiler to understand this is
-
-
-@interface NSObject( NSMutableCopyCompatibility)
-
-- (id) mutableCopyWithZone:(NSZone *) null;
-
-@end

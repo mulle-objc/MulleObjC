@@ -55,6 +55,7 @@
 
 // std-c and dependencies
 
+//#define EPHEMERAL_SYMBOLIZER
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
@@ -255,9 +256,9 @@ static void   zombifyLargeObject( id obj, int shred)
 
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( zombieCls));
    if( shred)
-      memset( &zombie->_originalClass + 1, 
-              0xad, 
-              _mulle_objc_class_get_instancesize( cls) - sizeof( Class));   
+      memset( &zombie->_originalClass + 1,
+              0xad,
+              _mulle_objc_class_get_instancesize( cls) - sizeof( Class));
 }
 
 @end
@@ -365,9 +366,7 @@ static char   *_mulle_objc_get_tmpdir( void)
 }
 
 
-
 #pragma mark - dreaded conveniences
-
 
 void   MulleObjCHTMLDumpUniverseToDirectory( char *directory)
 {
@@ -398,7 +397,7 @@ void   MulleObjCHTMLDumpUniverse( void)
 }
 
 
-static struct _mulle_objc_infraclass  *infraclass_from_string( char *classname)
+static struct _mulle_objc_infraclass   *infraclass_from_string( char *classname)
 {
    struct _mulle_objc_universe     *universe;
    struct _mulle_objc_class        *cls;
@@ -422,7 +421,6 @@ static struct _mulle_objc_infraclass  *infraclass_from_string( char *classname)
 
    return( infra);
 }
-
 
 
 void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory)
@@ -457,10 +455,7 @@ void   MulleObjCHTMLDumpClassToTmp( char *classname)
 }
 
 
-
-
 #pragma mark - conveniences
-
 
 void   MulleObjCDotdumpUniverseToTmp()
 {
@@ -511,7 +506,7 @@ void   MulleObjCDotdumpUniverseFrameToTmp( void)
    char                          *tmp;
 
    universe = MulleObjCGetUniverse();
-   tmp       = _mulle_objc_get_tmpdir();
+   tmp      = _mulle_objc_get_tmpdir();
    mulle_objc_universe_dotdump_frame_to_directory( universe, tmp);
 }
 
@@ -597,50 +592,6 @@ void   MulleObjCDotdumpMetaHierarchy( char *classname)
 }
 
 
-/*
- * Stacktrace enhancer for testallocator
- * get a string to parse in 's', that is OS dependent AFAIK
- * get a buffer with len to snprintf into
- * get a non-null userinfo to store something into
- * s=NULL signals setup (*userinfo will be set to NULL) or teardown
- *
- * return s or buf, but nothing else
- */
-char   *MulleObjCStacktraceSymbolize( void *address,
-                                      size_t max,
-                                      char *buf,
-                                      size_t len,
-                                      void **userinfo)
-{
-   struct mulle_objc_symbolizer   *symbolizer;
-   struct _mulle_objc_universe    *universe;
-
-   assert( userinfo);
-
-   symbolizer = *userinfo;
-   if( address == NULL)
-   {
-      if( symbolizer)
-      {
-         mulle_objc_symbolizer_destroy( symbolizer);
-         *userinfo = NULL; // just in case...
-         return( NULL);
-      }
-
-      universe   = mulle_objc_global_get_universe( __MULLE_OBJC_UNIVERSEID__);
-      symbolizer = _mulle_objc_symbolizer_create( universe);
-      *userinfo  = symbolizer;
-      return( NULL);
-   }
-
-
-   if( mulle_objc_symbolizer_snprint( symbolizer, address, max, buf, len) > 0)
-      return( buf);
-
-   return( NULL);
-}
-
-
 void  MulleObjCCSVDumpMethodsToTmp( void)
 {
    char                          *buf;
@@ -672,3 +623,64 @@ void  MulleObjCCSVDumpMethodsToTmp( void)
    }
    mulle_free( buf);
 }
+
+
+/*
+ * Stacktrace enhancer for testallocator
+ * get a string to parse in 's', that is OS dependent AFAIK
+ * get a buffer with len to snprintf into
+ * get a non-null userinfo to store something into
+ * s=NULL signals setup (*userinfo will be set to NULL) or teardown
+ *
+ * return s or buf, but nothing else
+ */
+char   *MulleObjCStacktraceSymbolize( void *address,
+                                      size_t max,
+                                      char *buf,
+                                      size_t len,
+                                      void **userinfo)
+{
+   struct mulle_objc_symbolizer                *symbolizer;
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *info;
+
+   assert( userinfo);
+
+   symbolizer = *userinfo;
+   if( address == NULL)
+   {
+      if( symbolizer)
+      {
+#ifdef EPHEMERAL_SYMBOLIZER
+         mulle_objc_symbolizer_destroy( symbolizer);
+#endif
+         *userinfo = NULL; // just in case...
+         return( NULL);
+      }
+
+      universe = mulle_objc_global_get_universe( __MULLE_OBJC_UNIVERSEID__);
+      if( _mulle_objc_universe_is_deinitializing( universe))
+      {
+         *userinfo = NULL; // just in case...
+         return( NULL);
+      }
+
+#ifdef EPHEMERAL_SYMBOLIZER
+      symbolizer = _mulle_objc_symbolizer_create( universe);
+#else
+      info       = _mulle_objc_universe_get_universefoundationinfo( universe);
+      symbolizer = &info->debug.symbolizer;
+      if( symbolizer->universe == NULL)
+         _mulle_objc_symbolizer_init( symbolizer, universe);
+#endif
+      *userinfo  = symbolizer;
+
+      return( NULL);
+   }
+
+   if( mulle_objc_symbolizer_snprint( symbolizer, address, max, buf, len) > 0)
+      return( buf);
+
+   return( NULL);
+}
+

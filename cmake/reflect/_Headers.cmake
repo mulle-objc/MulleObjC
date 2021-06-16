@@ -8,6 +8,9 @@ if( MULLE_TRACE_INCLUDE)
    MESSAGE( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
 endif()
 
+#
+# contents are derived from the file locations
+
 set( INCLUDE_DIRS
 src
 src/class
@@ -17,16 +20,25 @@ src/reflect
 src/struct
 )
 
+#
+# contents selected with patternfile ??-header--private-generated-headers
+#
 set( PRIVATE_GENERATED_HEADERS
 src/reflect/_MulleObjC-import-private.h
 src/reflect/_MulleObjC-include-private.h
 )
 
+#
+# contents selected with patternfile ??-header--private-generic-headers
+#
 set( PRIVATE_GENERIC_HEADERS
 src/import-private.h
 src/include-private.h
 )
 
+#
+# contents selected with patternfile ??-header--private-headers
+#
 set( PRIVATE_HEADERS
 src/class/NSMethodSignature-Private.h
 src/function/MulleObjCExceptionHandler-Private.h
@@ -37,6 +49,9 @@ src/mulle-objc-universeconfiguration-private.h
 src/mulle-objc-universefoundationinfo-private.h
 )
 
+#
+# contents selected with patternfile ??-header--public-generated-headers
+#
 set( PUBLIC_GENERATED_HEADERS
 src/reflect/_MulleObjC-export.h
 src/reflect/_MulleObjC-import.h
@@ -44,11 +59,17 @@ src/reflect/_MulleObjC-include.h
 src/reflect/_MulleObjC-provide.h
 )
 
+#
+# contents selected with patternfile ??-header--public-generic-headers
+#
 set( PUBLIC_GENERIC_HEADERS
 src/import.h
 src/include.h
 )
 
+#
+# contents selected with patternfile ??-header--public-headers
+#
 set( PUBLIC_HEADERS
 src/MulleObjCCompiler.h
 src/MulleObjCIntegralType.h
@@ -59,12 +80,10 @@ src/class/MulleObjCAutoreleasePool.h
 src/class/MulleObjCLoader.h
 src/class/NSAutoreleasePool.h
 src/class/NSInvocation.h
-src/class/NSLock.h
 src/class/NSMethodSignature.h
 src/class/NSObject+NSCodingSupport.h
 src/class/NSObject.h
 src/class/NSProxy.h
-src/class/NSRecursiveLock.h
 src/class/NSThread.h
 src/function/MulleObjCAllocation.h
 src/function/MulleObjCExceptionHandler.h
@@ -90,7 +109,6 @@ src/protocol/NSCoding.h
 src/protocol/NSContainer.h
 src/protocol/NSCopying.h
 src/protocol/NSEnumeration.h
-src/protocol/NSLocking.h
 src/protocol/NSMutableCopying.h
 src/protocol/NSObjectProtocol.h
 src/struct/NSRange.h

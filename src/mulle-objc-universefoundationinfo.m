@@ -304,6 +304,9 @@ void
    if( universe->debug.trace.universe)
        mulle_objc_universe_trace( universe, "release thread storage");
 
+   // remove symbolizer if we have created one
+   if( info->debug.symbolizer.universe)
+      mulle_objc_symbolizer_done( &info->debug.symbolizer);
    // threads should be gone by now
    assert( mulle_set_get_count( info->object.threads) == 0);
    mulle_set_destroy( info->object.threads);

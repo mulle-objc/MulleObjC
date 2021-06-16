@@ -120,6 +120,12 @@ static inline enum _MulleBool   MulleObjCRangeIsValid( NSRange range)
 }
 
 
+static inline NSRange   MulleObjCMakeInvalidRange( void)
+{
+   return( mulle_range_make_invalid());
+}
+
+
 
 static inline enum _MulleBool   MulleObjCRangeContainsRange( NSRange big, NSRange small)
 {

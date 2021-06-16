@@ -85,6 +85,10 @@ struct _mulle_objc_universefoundationinfo_autoreleasepool
    Class                pool_class;
 };
 
+struct _mulle_objc_universefoundationinfo_debug
+{
+   struct mulle_objc_symbolizer   symbolizer;
+};
 
 //
 // this becomes part of the universe structure..
@@ -99,6 +103,7 @@ struct _mulle_objc_universefoundationinfo
    struct _mulle_objc_universefoundationinfo_exception         exception;
    struct _mulle_objc_universefoundationinfo_string            string;
    struct _mulle_objc_universefoundationinfo_thread            thread;
+   struct _mulle_objc_universefoundationinfo_debug             debug;
    struct _mulle_objc_universefoundationinfo_autoreleasepool   pool;
    struct _mulle_objc_universe                                 *universe;
 

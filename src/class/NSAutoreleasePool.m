@@ -74,6 +74,12 @@ static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_unive
    config->poolClass = mulle_objc_universe_lookup_infraclass_nofail( universe,
                                                                      @selector( NSAutoreleasePool));
 
+   //
+   // If autorelease pools are using the "default" allocator, they show up in
+   // memorytraces a lot, which is usually boring
+   //
+   _mulle_objc_infraclass_set_allocator( config->poolClass, &mulle_stdlib_allocator);
+
    config->autoreleaseObject  = _autoreleaseObject;
    config->autoreleaseObjects = _autoreleaseObjects;
    config->push               = pushAutoreleasePool;
@@ -146,30 +152,33 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
 
 
 //
-// it is clear now, due to dependencies
-// that NSThread +load runs after NSAutoreleasePool
-// ...
-// so maybe this piece of load code should be done
-// in NSThread now ?
+// Apparently not used anymore
 //
-void  NSAutoreleasePoolLoader( struct _mulle_objc_universe *universe)
-{
-   struct _mulle_objc_poolconfiguration      *config;
-   struct _mulle_objc_threadinfo             *threadconfig;
-   struct _mulle_objc_threadfoundationinfo   *local;
-
-   threadconfig = _mulle_objc_thread_get_threadinfo( universe);
-   if( ! threadconfig)
-      return;
-
-   local  = _mulle_objc_threadinfo_get_foundationspace( threadconfig);
-   config = &local->poolconfig;
-
-   if( config->object_map)
-      _mulle_map_done( config->object_map);
-
-   _mulle_objc_thread_set_poolconfiguration( universe, config);
-}
+// //
+// // it is clear now, due to dependencies
+// // that NSThread +load runs after NSAutoreleasePool
+// // ...
+// // so maybe this piece of load code should be done
+// // in NSThread now ?
+// //
+// void  NSAutoreleasePoolLoader( struct _mulle_objc_universe *universe)
+// {
+//    struct _mulle_objc_poolconfiguration      *config;
+//    struct _mulle_objc_threadinfo             *threadconfig;
+//    struct _mulle_objc_threadfoundationinfo   *local;
+//
+//    threadconfig = _mulle_objc_thread_get_threadinfo( universe);
+//    if( ! threadconfig)
+//       return;
+//
+//    local  = _mulle_objc_threadinfo_get_foundationspace( threadconfig);
+//    config = &local->poolconfig;
+//
+//    if( config->object_map)
+//       _mulle_map_done( config->object_map);
+//
+//    _mulle_objc_thread_set_poolconfiguration( universe, config);
+// }
 
 
 static inline struct _mulle_autoreleasepointerarray   *
@@ -411,7 +420,6 @@ static inline void   autoreleaseObject( id p, struct _mulle_objc_universe *unive
 {
    autoreleaseObject( p, _mulle_objc_infraclass_get_universe( self));
 }
-
 
 
 static void   _autoreleaseObjects( struct _mulle_objc_poolconfiguration *config,

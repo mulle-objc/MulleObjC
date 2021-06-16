@@ -35,6 +35,8 @@
 //
 #include "mulle-objc.h"
 
+#include <stdarg.h>
+
 
 MULLE_C_CONST_RETURN
 static inline struct mulle_allocator   *MulleObjCInstanceGetAllocator( id obj)
@@ -334,5 +336,7 @@ static inline NSUInteger   MulleObjCCopyObjectArray( id *objects,
 //   MulleObjCObjectDeallocateMemory( self, &_fontName);
 // with the errnoeus & before the _ivar
 //
-
 void   MulleObjCObjectSetDuplicatedCString( id self, char **ivar, char *s);
+
+
+

@@ -5,7 +5,7 @@
  *
  *      mulle-sde environment set MULLE_MATCH_TO_C_OBJC_HEADERS_FILE DISABLE
  *
- *   To not generate any header files:
+ *   To not let mulle-match-to-c generate any header files:
  *
  *      mulle-sde environment set MULLE_MATCH_TO_C_RUN DISABLE
  */
@@ -17,12 +17,10 @@
 #import "MulleObjCLoader.h"
 #import "NSAutoreleasePool.h"
 #import "NSInvocation.h"
-#import "NSLock.h"
 #import "NSMethodSignature.h"
 #import "NSObject+NSCodingSupport.h"
 #import "NSObject.h"
 #import "NSProxy.h"
-#import "NSRecursiveLock.h"
 #import "NSThread.h"
 #import "MulleObjCAllocation.h"
 #import "MulleObjCExceptionHandler.h"
@@ -41,7 +39,6 @@
 #import "NSContainer.h"
 #import "NSCopying.h"
 #import "NSEnumeration.h"
-#import "NSLocking.h"
 #import "NSMutableCopying.h"
 #import "NSObjectProtocol.h"
 #import "NSRange.h"

@@ -42,18 +42,21 @@
 
 
 //
-// the old copyWithZone: still works, but it's gone from the protocol
+// the old copyWithZone: is gone. If you have copyWithZone: methods
+// code, a method -copy that calls your -copyWithZone:
 //
 @protocol NSCopying
 
-// not really an instancetype (e.g. NSMutableSet returns NSSet)
-// Should return an instance that is immutable if possible
 //
-@optional  // only optional if derived from NSObject
+// Does not retun an instancetype (e.g. NSMutableSet returns NSSet).
+// Should return an instance that is immutable.
+// If it isn't immutable, you should be using -mutableCopy (which is
+// deprecated), or simply use constructors to copy.
+//
+@optional  // only optional, if derived from NSObject
 - (id) copy;
 
 @end
-
 
 
 @class NSCopying; // needed for the compiler to understand this is

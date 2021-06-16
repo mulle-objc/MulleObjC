@@ -843,6 +843,28 @@ Class   MulleObjCLookupClassByClassID( SEL classid);
 Class   MulleObjCLookupClassByName( char *name);
 SEL     MulleObjCCreateSelector( char *name);
 
+// newer better names
+static inline char    *MulleObjCClassGetNameCString( Class cls)
+{
+   return( MulleObjCClassGetName( cls));
+}
+
+static inline char    *MulleObjCSelectorGetNameCString( SEL sel)
+{
+   return( MulleObjCSelectorGetName( sel));
+}
+
+static inline char    *MulleObjCProtocolGetNameCString( PROTOCOL proto)
+{
+   return( MulleObjCProtocolGetName( proto));
+}
+
+
+static inline Class   MulleObjCLookupClassByNameCString( char *name)
+{
+   return( MulleObjCLookupClassByName( name));
+}
+
 
 static inline void   *MulleObjCClassGetExtraBytes( Class cls)
 {
@@ -855,7 +877,9 @@ static inline void   *MulleObjCInstanceGetExtraBytes( id obj)
    return( obj ? _mulle_objc_object_get_extra( obj) : NULL);
 }
 
-NSUInteger   MulleObjCClassGetLoadAddress( Class cls);
+
+// find the address of the structure that defined this class
+void  *MulleObjCClassGetLoadAddress( Class cls);
 
 
 //
@@ -871,4 +895,30 @@ NSUInteger   MulleObjCClassGetLoadAddress( Class cls);
 //   p = _mulle_objc_infraclass_as_class( cls);
 //   _mulle_objc_class_setup( p);
 //}
+
+static inline struct _mulle_objc_property  *MulleObjCClassSearchProperty( Class cls,
+                                                                          SEL propertyid)
+{
+   if( ! cls)
+      return( NULL);
+
+   assert( _mulle_objc_class_is_infraclass( (void *) cls));
+   return( _mulle_objc_infraclass_search_property( (struct _mulle_objc_infraclass *) cls,
+                                                   (mulle_objc_propertyid_t) propertyid));
+}
+
+
+static inline struct _mulle_objc_property  *MulleObjCInstanceSearchProperty( id obj,
+                                                                             SEL propertyid)
+{
+   struct _mulle_objc_infraclass   *infra;
+
+   if( ! obj)
+      return( NULL);
+
+   infra = (struct _mulle_objc_infraclass *) _mulle_objc_object_get_isa( obj);
+   assert( _mulle_objc_class_is_infraclass( (void *) infra));
+   return( _mulle_objc_infraclass_search_property( infra,
+                                                   (mulle_objc_propertyid_t) propertyid));
+}
 

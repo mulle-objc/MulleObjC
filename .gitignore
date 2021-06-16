@@ -17,6 +17,7 @@ tmp/
 tmp.*
 *.old
 *.bak
+.gdb_history
 
 call-benchmark/
 protocol-benchmark/
@@ -42,6 +43,7 @@ test/**/core-*
 .mulle/etc/env/style
 environment-user-*.sh
 environment-host-*.sh
+!environment-host-*prerelease*.sh
 
 
 # dynamically .mulle-sourcetree-fix is boring
