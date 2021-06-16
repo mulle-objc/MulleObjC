@@ -53,14 +53,17 @@ struct _mulle_objc_poolconfiguration
 
    id                              tail;        // NSAutoreleasepool
    struct _mulle_objc_infraclass   *poolClass;
-   struct mulle_map                *object_map;
-   struct mulle_map                _object_map;
+
 
    void   *(*push)( struct _mulle_objc_poolconfiguration *);
    void   (*pop)( struct _mulle_objc_poolconfiguration *, id pool);
 
    int    releasing;
    int    trace;
+
+   // used for debugging when MULLE_OBJC_AUTORELEASEPOOL_MAP is YES
+   struct mulle_map                *object_map;
+   struct mulle_map                _object_map;
 };
 
 

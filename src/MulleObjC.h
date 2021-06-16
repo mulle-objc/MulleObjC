@@ -48,8 +48,6 @@
 #import "NSInvocation.h"
 #import "NSMethodSignature.h"
 #import "NSObject.h"
-#import "NSLock.h"
-#import "NSRecursiveLock.h"
 #import "NSProxy.h"
 #import "NSThread.h"
 
@@ -62,7 +60,6 @@
 #import "NSCoding.h"
 #import "NSContainer.h"
 #import "NSEnumeration.h"
-#import "NSLocking.h"
 #import "NSMutableCopying.h"
 #import "NSObjectProtocol.h"
 #import "MulleObjCProtocol.h"

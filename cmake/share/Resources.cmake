@@ -26,3 +26,4 @@ include( _Resources OPTIONAL)
 #
 # You can put more source and resource file definitions here.
 #
+set( INSTALL_RESOURCES ${RESOURCES})

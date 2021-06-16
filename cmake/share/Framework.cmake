@@ -42,14 +42,24 @@ add_library( "${FRAMEWORK_NAME}" SHARED
 
 include( FrameworkAux OPTIONAL)
 
+# frameworks are Apple only, so we don't really need to force load
+# if we set -ObjC or ?
 if( NOT FRAMEWORK_LIBRARY_LIST)
-  set( FRAMEWORK_LIBRARY_LIST
-    ${DEPENDENCY_LIBRARIES}
-    ${DEPENDENCY_FRAMEWORKS}
-    ${OPTIONAL_DEPENDENCY_LIBRARIES}
-    ${OPTIONAL_DEPENDENCY_FRAMEWORKS}
-    ${OS_SPECIFIC_LIBRARIES}
-    ${OS_SPECIFIC_FRAMEWORKS}
+   set( FRAMEWORK_LIBRARY_LIST
+   ${ALL_LOAD_DEPENDENCY_LIBRARIES}
+   ${ALL_LOAD_DEPENDENCY_FRAMEWORKS}
+   ${DEPENDENCY_LIBRARIES}
+   ${DEPENDENCY_FRAMEWORKS}
+
+   ${ALL_LOAD_OPTIONAL_DEPENDENCY_LIBRARIES}
+   ${ALL_LOAD_OPTIONAL_DEPENDENCY_FRAMEWORKS}
+   ${OPTIONAL_DEPENDENCY_LIBRARIES}
+   ${OPTIONAL_DEPENDENCY_FRAMEWORKS}
+
+   ${ALL_LOAD_OS_SPECIFIC_LIBRARIES}
+   ${ALL_LOAD_OS_SPECIFIC_FRAMEWORKS}
+   ${OS_SPECIFIC_LIBRARIES}
+   ${OS_SPECIFIC_FRAMEWORKS}
   )
 endif()
 
@@ -61,17 +71,28 @@ target_link_libraries( "${FRAMEWORK_NAME}"
    ${SHARED_LIBRARY_LIST} # use SHARED_LIBRARY_LIST because of PostSharedLibrary
 )
 
+
 set_target_properties( "${FRAMEWORK_NAME}" PROPERTIES
   FRAMEWORK TRUE
   # FRAMEWORK_VERSION A
-  # MACOSX_FRAMEWORK_IDENTIFIER <|PUBLISHER_REVERSE_DOMAIN|>.${LIBRARY_NAME}
-  MACOSX_FRAMEWORK_INFO_PLIST ${PROJECT_SOURCE_DIR}/cmake/share/MacOSXFrameworkInfo.plist.in
-  # headers must be part of LIBRARY_NAME target else it don't work
+  # headers must be part of ${FRAMEWORK_NAME} target else it don't work
   PUBLIC_HEADER "${INSTALL_PUBLIC_HEADERS}"
   PRIVATE_HEADER "${INSTALL_PRIVATE_HEADERS}"
   RESOURCE "${INSTALL_RESOURCES}"
   # XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
 )
+
+#
+# -ObjC to force link all static libraries with Objective-C code in them
+# and dynamic_lookup to keep those symbols "open" to later linking from
+# executable. Especially with multiple Frameworks you don't want the static
+# libraries duplicated in all of them, so you mark them "no-link".
+#
+target_link_options( "${FRAMEWORK_NAME}" PRIVATE
+-ObjC
+-undefined dynamic_lookup
+)
+
 
 message( STATUS "INSTALL_PUBLIC_HEADERS=${INSTALL_PUBLIC_HEADERS}")
 message( STATUS "INSTALL_PRIVATE_HEADERS=${INSTALL_PRIVATE_HEADERS}")

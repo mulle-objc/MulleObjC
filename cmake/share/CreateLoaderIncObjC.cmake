@@ -72,7 +72,9 @@ if( CREATE_OBJC_LOADER_INC)
       )
    else()
       if( TARGET "_1_${LIBRARY_NAME}")
-         message( FATAL_ERROR "_1_${LIBRARY_NAME} is defined, but _2_${LIBRARY_NAME} is missing. Is MulleObjCLoader+${LIBRARY_NAME} not part of STAGE2_SOURCES ?")
+         message( FATAL_ERROR "_1_${LIBRARY_NAME} is defined, but _2_${LIBRARY_NAME} is missing.
+   Maybe MulleObjCLoader+${LIBRARY_NAME}.h not part of STAGE2_SOURCES ?
+   Tip: Check if \"$ENV{PROJECT_SOURCE_DIR}/MulleObjCLoader+${LIBRARY_NAME}.m\" (sic) exists")
       endif()
       set( OBJC_LOADER_LIBRARY "$<TARGET_FILE:${LIBRARY_NAME}>")
    endif()

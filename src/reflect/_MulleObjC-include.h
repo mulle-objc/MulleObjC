@@ -5,7 +5,7 @@
  *
  *      mulle-sde environment set MULLE_SOURCETREE_TO_C_INCLUDE_FILE DISABLE
  *
- *   To not generate any header files:
+ *   To not let mulle-sourcetree-to-c generate any header files:
  *
  *      mulle-sde environment set MULLE_SOURCETREE_TO_C_RUN DISABLE
  *
@@ -22,7 +22,8 @@
 //    toggle #include:    `mulle-sourcetree mark mulle-container [no-]import`
 //    toggle public:      `mulle-sourcetree mark mulle-container [no-]public`
 //    toggle optional:    `mulle-sourcetree mark mulle-container [no-]require`
-//    remove for platform:`mulle-sourcetree mark mulle-container no-platform-<name>`
+//    remove for platform:`mulle-sourcetree mark mulle-container no-platform-<uname>`
+//        (use mulle-sourcetree-to-c --unames for known values)
 #include <mulle-container/mulle-container.h>   // mulle-container
 
 #endif

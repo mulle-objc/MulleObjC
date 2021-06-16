@@ -21,12 +21,6 @@ if( NOT __ENVIRONMENT__CMAKE__)
       string( TOLOWER "${PROJECT_IDENTIFIER}" PROJECT_DOWNCASE_IDENTIFIER)
    endif()
 
-   #
-   #
-   #
-   #
-   #
-   #
    if( NOT MULLE_VIRTUAL_ROOT)
       set( MULLE_VIRTUAL_ROOT "$ENV{MULLE_VIRTUAL_ROOT}")
       if( NOT MULLE_VIRTUAL_ROOT)
@@ -213,7 +207,7 @@ if( NOT __ENVIRONMENT__CMAKE__)
       message( STATUS "CMAKE_FRAMEWORK_PATH=\"${CMAKE_FRAMEWORK_PATH}\"" )
       foreach( TMP_FRAMEWORK_PATH ${TMP_CMAKE_FRAMEWORK_PATH})
          add_definitions( -F "${TMP_FRAMEWORK_PATH}")
-      endforeach()   
+      endforeach()
       unset( TMP_FRAMEWORK_PATH)
    endif()
 

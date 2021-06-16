@@ -8,15 +8,16 @@ if( MULLE_TRACE_INCLUDE)
    MESSAGE( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
 endif()
 
+#
+# contents selected with patternfile ??-source--sources
+#
 set( SOURCES
 src/class/NSAutoreleasePool.m
 src/class/NSInvocation.m
-src/class/NSLock.m
 src/class/NSMethodSignature.m
 src/class/NSObject+NSCodingSupport.m
 src/class/NSObject.m
 src/class/NSProxy.m
-src/class/NSRecursiveLock.m
 src/class/NSThread.m
 src/function/MulleObjCAllocation.m
 src/function/MulleObjCExceptionHandler.m
@@ -34,14 +35,19 @@ src/protocol/MulleObjCSingleton.m
 src/protocol/MulleObjCTaggedPointer.m
 src/protocol/NSCoding.m
 src/protocol/NSCopying.m
-src/protocol/NSMutableCopying.m
 src/struct/NSRange.c
 )
 
+#
+# contents selected with patternfile ??-source--stage2-sources
+#
 set( STAGE2_SOURCES
 src/class/MulleObjCLoader.m
 )
 
+#
+# contents selected with patternfile ??-source--standalone-sources
+#
 set( STANDALONE_SOURCES
 src/MulleObjC-standalone.m
 )

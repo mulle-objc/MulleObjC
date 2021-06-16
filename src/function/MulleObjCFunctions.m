@@ -152,6 +152,7 @@ void   MulleObjCIMPTraceCall( IMP imp, id obj, SEL sel, void *param)
 
 # pragma mark - String Functions
 
+// should be CString somering
 char  *MulleObjCClassGetName( Class cls)
 {
    if( ! cls)
@@ -318,37 +319,40 @@ void    MulleObjCObjectSetClass( id obj, Class cls)
 
    new_cls = _mulle_objc_infraclass_as_class( cls);
 
+   // MEMO: we can't actually do this, as the incoming memory may not be 
+   //       initialized yet, so the old class may be invalid or something else
+   //       entirely
    //
    // not sure if we shouldn't also check allocation size, but we don't track
    // extra, so its hard to prove that it makes no sense. With the meta size
    // it's probably OK. Since we would fail on dealloc...
    //
-#if DEBUG
-   {
-      struct _mulle_objc_class  *old_cls;
-
-      old_cls = _mulle_objc_object_get_isa( obj);
-      if( old_cls)
-      {
-         if( _mulle_objc_class_get_metaextrasize( old_cls) ||
-             _mulle_objc_class_get_metaextrasize( new_cls))
-         {
-            if( _mulle_objc_class_get_metaextrasize( old_cls) != _mulle_objc_class_get_metaextrasize( new_cls))
-               __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
-                                                            "Differing meta information of class \"%s\" and class \"%s\"",
-                                                            _mulle_objc_class_get_name( old_cls),
-                                                            _mulle_objc_class_get_name( new_cls));
-            // if new_cls inherits old_cls or vice versa its OK I guess
-            if( ! _mulle_objc_class_has_direct_relation_to_class( new_cls, old_cls))
-               __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
-                                                            "class \"%s\" and class \"%s\" hold meta information \
-but the classes have no direct relation",
-                                                            _mulle_objc_class_get_name( old_cls),
-                                                            _mulle_objc_class_get_name( new_cls));
-         }
-      }
-   }
-#endif
+   // #if DEBUG
+   //    {
+   //       struct _mulle_objc_class  *old_cls;
+   // 
+   //       old_cls = _mulle_objc_object_get_isa( obj);
+   //       if( old_cls)
+   //       {
+   //          if( _mulle_objc_class_get_metaextrasize( old_cls) ||
+   //              _mulle_objc_class_get_metaextrasize( new_cls))
+   //          {
+   //             if( _mulle_objc_class_get_metaextrasize( old_cls) != _mulle_objc_class_get_metaextrasize( new_cls))
+   //                __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
+   //                                                             "Differing meta information of class \"%s\" and class \"%s\"",
+   //                                                             _mulle_objc_class_get_name( old_cls),
+   //                                                             _mulle_objc_class_get_name( new_cls));
+   //             // if new_cls inherits old_cls or vice versa its OK I guess
+   //             if( ! _mulle_objc_class_has_direct_relation_to_class( new_cls, old_cls))
+   //                __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( obj),
+   //                                                             "class \"%s\" and class \"%s\" hold meta information \
+   // but the classes have no direct relation",
+   //                                                             _mulle_objc_class_get_name( old_cls),
+   //                                                             _mulle_objc_class_get_name( new_cls));
+   //          }
+   //       }
+   //    }
+   // #endif
 
    _mulle_objc_object_set_isa( obj, new_cls);
 }
@@ -475,18 +479,6 @@ IMP   MulleObjCObjectSearchSpecificIMP( id obj,
 }
 
 
-NSUInteger   MulleObjCClassGetLoadAddress( Class cls)
-{
-   struct _mulle_objc_classpair   *pair;
-
-   if( ! cls)
-      return( 0);
-
-   pair = _mulle_objc_infraclass_get_classpair( cls);
-   return( (NSUInteger) _mulle_objc_classpair_get_loadclass( pair));
-}
-
-
 unsigned int   _mulle_objc_class_search_clobber_chain( struct _mulle_objc_class *cls,
                                                        SEL sel,
                                                        IMP *array,
@@ -526,5 +518,17 @@ unsigned int   _mulle_objc_class_search_clobber_chain( struct _mulle_objc_class 
                                                   mulle_objc_searchresult_get_classid( &result),
                                                   mulle_objc_searchresult_get_categoryid( &result));
    }
+}
+
+
+void   *MulleObjCClassGetLoadAddress( Class cls)
+{
+   struct _mulle_objc_classpair   *pair;
+
+   if( ! cls)
+      return( 0);
+
+   pair = _mulle_objc_infraclass_get_classpair( cls);
+   return( (void *) _mulle_objc_classpair_get_loadclass( pair));
 }
 
