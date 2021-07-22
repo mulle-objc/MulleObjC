@@ -309,7 +309,7 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
-   // just little hacks
+   // will be overwritten by foundation to convert to NSString
    rootconfig->string.charsfromobject = (char *(*)()) return_self;
    rootconfig->string.objectfromchars = (void *(*)()) return_self;
 

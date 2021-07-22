@@ -43,7 +43,7 @@ test/**/core-*
 .mulle/etc/env/style
 environment-user-*.sh
 environment-host-*.sh
-!environment-host-*prerelease*.sh
+!environment-host-ci-*.sh
 
 
 # dynamically .mulle-sourcetree-fix is boring
