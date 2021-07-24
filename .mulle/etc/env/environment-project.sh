@@ -1,7 +1,7 @@
 #
 #
 #
-export PROJECT_NAME="MulleObjC"
+export PROJECT_NAME="MulleObjC-startup"
 
 
 #
