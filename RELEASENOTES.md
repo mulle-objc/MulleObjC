@@ -1,7 +1,17 @@
 ## 0.19.0
 
-* Various small improvements
-
+* moved lock code to **MulleObjCLockFoundation**
+* added `MulleObjCClassSearchProperty` and `MulleObjCInstanceSearchProperty`
+* added `MulleObjCClassGetNameCString` and related name lookups
+* added `NSCopyObject`
+* **ditched** copyWithZone: compatibility attempts
+* NSAutoreleasePool uses the stdlib allocator, to quiet the amount of allocation trace output
+* added `+mulleIsMainThread` to `NSThread`
+* removed unused and forgotten `MulleObjCCopyObjects` and `MulleObjCCopyObjectArray` functions
+* Zombies are now shredded by default
+* `MulleObjCObjectSetClass` in DEBUG mode checks that the instance is large enough
+* `NSMutableCopying` is now also a protocolclass to supply `mutableCopyWithZone:` to legacy code
+* `MulleObjCContainerCallbacks` are no longer part of MulleObjC but moved to **MulleObjCContainerFoundation**
 
 ## 0.18.0
 
