@@ -3,7 +3,6 @@
 * moved lock code to **MulleObjCLockFoundation**
 * added `MulleObjCClassSearchProperty` and `MulleObjCInstanceSearchProperty`
 * added `MulleObjCClassGetNameCString` and related name lookups
-* added `NSCopyObject`
 * **ditched** copyWithZone: compatibility attempts
 * NSAutoreleasePool uses the stdlib allocator, to quiet the amount of allocation trace output
 * added `+mulleIsMainThread` to `NSThread`
