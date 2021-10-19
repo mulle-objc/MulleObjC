@@ -106,10 +106,15 @@ if( CREATE_OBJC_LOADER_INC)
    )
 
    if( TARGET "_2_${LIBRARY_NAME}")
-      add_dependencies( "_2_${LIBRARY_NAME}" __objc_loader_inc__)
+      add_dependencies( "_2_${LIBRARY_NAME}" "__objc_loader_inc__")
    else()
-      add_dependencies( "${LIBRARY_NAME}" __objc_loader_inc__)
+      add_dependencies( "${LIBRARY_NAME}" "__objc_loader_inc__")
    endif()
+
+   # seemingly needed
+   foreach( TMP_STAGE2_SOURCE in STAGE2_SOURCES)
+      set_property( SOURCE ${TMP_STAGE2_SOURCE} APPEND PROPERTY OBJECT_DEPENDS ${OBJC_LOADER_INC})
+   endforeach()
 
    #
    # tricky: this file can only be installed during link phase.

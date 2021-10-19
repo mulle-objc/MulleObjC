@@ -9,15 +9,16 @@
 
 
 // this doesn't work, because the thread is not yet registered
-// wont't work in release, as the assert will not trigger
+// wont't work in release, as the assert will not be triggered
 
-static void  function( void *universe)
+static mulle_thread_rval_t  function( void *universe)
 {
 //   thread = _MulleThreadCreateThreadObjectInUniverse( universe);
    [[NSObject new] autorelease];
 
    // we just run into the end of the thread, which should be OK
 //   _MulleThreadRemoveFromUniverse( thread, universe);
+   mulle_thread_return();
 }
 
 
@@ -26,10 +27,14 @@ int   main( void)
    mulle_thread_t                thread;
    struct _mulle_objc_universe   *universe;
 
+#if DEBUG
    universe = mulle_objc_global_get_defaultuniverse();
 
    mulle_thread_create( function, universe, &thread);
    mulle_thread_join( thread);
+#else
+   abort();
+#endif
 
    return( 0);
 }
