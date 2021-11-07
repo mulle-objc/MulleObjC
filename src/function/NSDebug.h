@@ -51,6 +51,44 @@ BOOL   MulleObjCIsDebugEnabled( void);
 #define NSDebugEnabled  MulleObjCIsDebugEnabled()
 
 
+
+void   _MulleObjCZombifyObject( id obj, int shred);
+
+static inline void   MulleObjCZombifyObject( id obj, int shred)
+{
+   if( ! obj)
+      return;
+
+   _MulleObjCZombifyObject( obj, shred);
+}
+
+
+//
+// now coming up: some unused old junk
+//                that sticks around for compatibility
+enum
+{
+   NSObjectAutoreleasedEvent = 3,
+   NSObjectExtraRefDecrementedEvent = 5,
+   NSObjectExtraRefIncrementedEvent = 4,
+   NSObjectInternalRefDecrementedEvent =7,
+   NSObjectInternalRefIncrementedEvent = 8
+};
+
+extern BOOL   NSKeepAllocationStatistics;
+
+
+// compatibility
+static inline void   NSRecordAllocationEvent( int eventType, id object)
+{
+}
+
+
+
+//
+// these methods are only available if MulleObjC is built with Debug
+// OR with the cmake -DMULLE_OBJC_DEBUG_SUPPORT=ON
+//
 void   MulleObjCHTMLDumpUniverseToDirectory( char *directory);
 void   MulleObjCHTMLDumpUniverseToTmp( void);
 void   MulleObjCHTMLDumpUniverse( void);
@@ -85,34 +123,3 @@ char   *MulleObjCStacktraceSymbolize( void *addresse,
                                       void **userinfo);
 
 void   MulleObjCCSVDumpMethodsToTmp( void);
-
-
-void   _MulleObjCZombifyObject( id obj, int shred);
-
-static inline void   MulleObjCZombifyObject( id obj, int shred)
-{
-   if( ! obj)
-      return;
-
-   _MulleObjCZombifyObject( obj, shred);
-}
-
-
-//
-// now coming up: some unused old junk
-//                that sticks around for compatibility
-enum
-{
-   NSObjectAutoreleasedEvent = 3,
-   NSObjectExtraRefDecrementedEvent = 5,
-   NSObjectExtraRefIncrementedEvent = 4,
-   NSObjectInternalRefDecrementedEvent =7,
-   NSObjectInternalRefIncrementedEvent = 8
-};
-
-extern BOOL   NSKeepAllocationStatistics;
-
-
-static inline void   NSRecordAllocationEvent( int eventType, id object)
-{
-}

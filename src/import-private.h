@@ -24,5 +24,7 @@
 #import "_MulleObjC-import-private.h"
 
 /* You can add some more include statements here */
-
+#ifdef MULLE_OBJC_DEBUG_SUPPORT
+# include <mulle-objc-debug/mulle-objc-debug.h>
+#endif
 #endif

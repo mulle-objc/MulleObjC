@@ -9,6 +9,7 @@
  *
  *      mulle-sde environment set MULLE_MATCH_TO_C_RUN DISABLE
  */
+#include "mulle-sprintf-object.h"
 #include "minimal.h"
 #include "mulle-objc-classbit.h"
 #include "mulle-objc-fastclassid.h"

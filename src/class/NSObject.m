@@ -189,7 +189,7 @@ static id
    cls       = _mulle_objc_object_get_isa( self);
    universe  = _mulle_objc_class_get_universe( cls);
    allocator = _mulle_objc_universe_get_allocator( universe);
-   _mulle_objc_instance_free_allocator( (void *) self, allocator);
+   __mulle_objc_instance_free( (void *) self, allocator);
 }
 
 
@@ -294,7 +294,7 @@ static void   checkAutoreleaseRelease( NSObject *self)
       if( autoreleaseCount >= retainCount)
       {
          __mulle_objc_universe_raise_internalinconsistency( universe,
-               "object %p would be autoreleased to often", self);
+               "object %p would be autoreleased too often", self);
    	}
    }
 }
@@ -755,21 +755,16 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-- (char *) cStringDescription
+- (char *) UTF8String
 {
-   char        *result;
-   char        *s;
-   auto char   buf[ 64];
-   size_t      len;
-   Class       cls;
+   char                       *result;
+   char                       *s;
+   struct _mulle_objc_class   *cls;
 
-   cls = _mulle_objc_class_as_infraclass( _mulle_objc_object_get_isa( self));
-   s   = _mulle_objc_infraclass_get_name( cls);
-   sprintf( buf, "%p",  self);
+   cls = _mulle_objc_object_get_isa( self);
+   s   = _mulle_objc_class_get_name( cls);
 
-   len    = strlen( s) + strlen( buf) + 4; //"< >\0"
-   result = mulle_malloc( len);
-   sprintf( result, "<%s %s>", s, buf);
+   mulle_asprintf( &result, "<%s %p>", s, self);
    MulleObjCAutoreleaseAllocation( result, NULL);
 
    return( result);
@@ -828,11 +823,11 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
             withObject:(id) obj2
 {
    mulle_metaabi_struct( struct
-                                   {
-                                      id   obj1;
-                                      id   obj2;
-                                   },
-                                   id)   param;
+                         {
+                             id   obj1;
+                             id   obj2;
+                         },
+                         id) param;
 
    param.p.obj1 = obj1;
    param.p.obj2 = obj2;
@@ -1254,32 +1249,6 @@ void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id valu
    }
 
    *p = value;
-}
-
-
-#include <mulle-objc-runtime/mulle-objc-lldb.h>
-#include <mulle-objc-runtime/mulle-objc-gdb.h>
-
-//
-// this should never be called
-// it ensures, that the functions are present at debug time
-//
-+ (void) __reference_lldb_functions__
-{
-   mulle_objc_lldb_get_dangerous_classstorage_pointer();
-   mulle_objc_lldb_lookup_implementation( 0, 0, NULL);
-   mulle_objc_lldb_lookup_isa( 0, 0);
-   $__lldb_objc_object_check( 0, 0);
-   mulle_objc_lldb_check_object( 0, 0);
-   mulle_objc_lldb_lookup_descriptor_by_name( 0);
-}
-
-
-+ (void) __reference_gdb_functions__
-{
-   mulle_objc_gdb_lookup_class( 0);
-   mulle_objc_gdb_lookup_selector( 0);
-   mulle_objc_gdb_lookup_implementation( 0, 0, 0, 0);
 }
 
 @end

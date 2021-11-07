@@ -97,7 +97,7 @@ void   MulleObjCClassMarkAsClassCluster( Class self)
    cls       = _mulle_objc_object_get_isa( self);
    universe  = _mulle_objc_class_get_universe( cls);
    allocator = _mulle_objc_universe_get_allocator( universe);
-   _mulle_objc_instance_free_allocator( (void *) self, allocator);
+   __mulle_objc_instance_free( (void *) self, allocator);
 }
 
 
@@ -164,8 +164,7 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
          _mulle_objc_infraclass_get_classid( self),
          name);
 
-      if( universe->debug.warn.crash)
-         abort();
+      mulle_objc_universe_maybe_hang_or_abort( universe);
    }
 }
 #endif
@@ -204,10 +203,10 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
       {
          _mulle_objc_object_constantify_noatomic( placeholder);
          universe = _mulle_objc_infraclass_get_universe( self);
-         if( universe->debug.trace.method_cache)
+         if( universe->debug.trace.class_add)
             mulle_objc_universe_trace( universe, "Class \"%s\" (%08x) gets a placeholder %p",
-                                                   _mulle_objc_infraclass_get_classid( self),
                                                    _mulle_objc_infraclass_get_name( self),
+                                                   _mulle_objc_infraclass_get_classid( self),
                                                    placeholder);
          return( (MulleObjCClassCluster *) placeholder);
       }

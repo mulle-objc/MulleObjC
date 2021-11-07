@@ -40,7 +40,7 @@
 
 #import "import-private.h"
 
-#import <assert.h>
+#include <assert.h>
 
 #import "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
@@ -53,14 +53,14 @@
 #import "mulle-objc-universeconfiguration-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
 
-// TODO: move this to include_private.h
-#import <mulle-objc-list/mulle-objc-list.h>
-#import <mulle-objc-runtime/mulle-objc-csvdump.h>
-
-#import "MulleObjCVersion.h"
-
-// clang speciality
 #ifdef __has_include
+# if __has_include( <mulle-objc-list/mulle-objc-list.h>)
+#  include <mulle-objc-list/mulle-objc-list.h>
+# endif
+# if __has_include( <mulle-objc-debug/mulle-objc-debug.h>)
+#  include <mulle-objc-debug/mulle-objc-debug.h>
+#  define HAVE_DUMP  1
+# endif
 # if __has_include( <dlfcn.h>)
 #  include <dlfcn.h>
 #  define HAVE_DLSYM  1
@@ -68,10 +68,12 @@
 #endif
 
 
+#import "MulleObjCVersion.h"
+
+
 # pragma clang diagnostic ignored "-Wparentheses"
 
-# pragma mark -
-# pragma mark Configuration of the North Shore
+# pragma mark - Configuration of the North Shore
 
 void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
 {
@@ -83,6 +85,7 @@ void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
    if( trace)
       mulle_objc_universe_trace( universe, "teardown of the universe in progress");
 
+#if HAVE_DUMP
    if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE"))
    {
       mulle_objc_universe_trace( universe, "writing coverage files...");
@@ -102,6 +105,7 @@ void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
          filename = "class-coverage.csv";
       mulle_objc_universe_csvdump_classcoverage_to_filename( universe, filename);
    }
+#endif
 }
 
 
@@ -181,6 +185,12 @@ struct _mulle_objc_universefoundationinfo  *
    struct _mulle_objc_foundation               foundation;
    struct _mulle_objc_universefoundationinfo   *roots;
    char                                        *kind;
+
+   //
+   // this is needed for mulle_printf '%td' conversions.
+   //
+   assert( sizeof( NSInteger) == sizeof( NSUInteger));
+   assert( sizeof( ptrdiff_t) == sizeof( NSInteger));
 
    _mulle_objc_universe_defaultbang( universe,  config->universe.allocator, NULL);
 
@@ -286,7 +296,7 @@ struct _mulle_objc_method   NSObject_msgForward_method =
    {
       MULLE_OBJC_FORWARD_METHODID,  // forward:
       "forward:",
-      "@@:@",
+      "^v@:^v",
       0
    },
    {
@@ -326,7 +336,9 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
    //
    universe->debug.print.stuck_class_coverage = coverage;
 
+#ifdef MULLE_OBJC_LIST_HOOK
    mulle_objc_list_install_hook( universe);
+#endif
 
 #if HAVE_DLSYM
    if( mulle_objc_environment_get_yes_no_default( "MULLE_OBJC_SYMBOLIZE_TESTALLOCATOR", YES))

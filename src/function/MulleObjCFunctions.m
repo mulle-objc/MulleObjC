@@ -153,7 +153,7 @@ void   MulleObjCIMPTraceCall( IMP imp, id obj, SEL sel, void *param)
 # pragma mark - String Functions
 
 // should be CString somering
-char  *MulleObjCClassGetName( Class cls)
+char  *MulleObjCClassGetNameUTF8String( Class cls)
 {
    if( ! cls)
       return( NULL);
@@ -162,7 +162,7 @@ char  *MulleObjCClassGetName( Class cls)
 }
 
 
-char   *MulleObjCSelectorGetName( SEL sel)
+char   *MulleObjCSelectorGetNameUTF8String( SEL sel)
 {
    struct _mulle_objc_descriptor   *desc;
    struct _mulle_objc_universe     *universe;
@@ -185,7 +185,7 @@ char   *MulleObjCSelectorGetName( SEL sel)
 }
 
 
-char   *MulleObjCProtocolGetName( PROTOCOL proto)
+char   *MulleObjCProtocolGetNameUTF8String( PROTOCOL proto)
 {
    struct _mulle_objc_protocol     *protocol;
    struct _mulle_objc_universe     *universe;
@@ -198,7 +198,7 @@ char   *MulleObjCProtocolGetName( PROTOCOL proto)
 }
 
 
-Class   MulleObjCLookupClassByName( char *name)
+Class   MulleObjCLookupClassByNameUTF8String( char *name)
 {
    Class                         cls;
    mulle_objc_classid_t          classid;
@@ -248,7 +248,7 @@ static unsigned int   count_params( char *name)
 }
 
 
-SEL   MulleObjCCreateSelector( char *name)
+SEL   MulleObjCCreateSelectorUTF8String( char *name)
 {
    mulle_objc_methodid_t          methodid;
    struct _mulle_objc_descriptor  *desc;

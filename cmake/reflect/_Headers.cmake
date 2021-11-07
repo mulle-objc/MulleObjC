@@ -25,8 +25,6 @@ src/struct
 set( PRIVATE_GENERATED_HEADERS
 src/reflect/_MulleObjC-import-private.h
 src/reflect/_MulleObjC-include-private.h
-src/reflect/_MulleObjC-startup-import-private.h
-src/reflect/_MulleObjC-startup-include-private.h
 )
 
 #
@@ -58,10 +56,6 @@ src/reflect/_MulleObjC-export.h
 src/reflect/_MulleObjC-import.h
 src/reflect/_MulleObjC-include.h
 src/reflect/_MulleObjC-provide.h
-src/reflect/_MulleObjC-startup-export.h
-src/reflect/_MulleObjC-startup-import.h
-src/reflect/_MulleObjC-startup-include.h
-src/reflect/_MulleObjC-startup-provide.h
 )
 
 #

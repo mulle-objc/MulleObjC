@@ -47,9 +47,6 @@
 #import "MulleObjCExceptionHandler-Private.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
-#include <mulle-objc-runtime/mulle-objc-dotdump.h>
-#include <mulle-objc-runtime/mulle-objc-htmldump.h>
-#include <mulle-objc-runtime/mulle-objc-symbolizer.h>
 
 #include <string.h>
 
@@ -103,6 +100,7 @@ static char   *__MullePrintForDebugger( id a, char *buf)
    return( NULL);
 }
 
+
 // this is useful, if you have a breakpoint in description
 //
 char   *_MullePrintForDebugger( id a)
@@ -137,12 +135,6 @@ char   *_NSPrintForDebugger( id a)
 
    cls      = _mulle_objc_object_get_isa( a);
    universe = _mulle_objc_class_get_universe( cls);
-   imp      = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( cDebugDescription));
-   if( imp)
-   {
-      s = (*imp)( a, @selector( cDebugDescription), NULL);
-      return( s);
-   }
 
    imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( debugDescription));
    if( imp)
@@ -151,10 +143,10 @@ char   *_NSPrintForDebugger( id a)
       return( _mulle_objc_universe_characters( universe, s));
    }
 
-   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( cStringDescription));
+   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( UTF8String));
    if( imp)
    {
-      s = (*imp)( a, @selector( cDebugDescription), NULL);
+      s = (*imp)( a, @selector( UTF8String), NULL);
       return( s);
    }
 
@@ -194,7 +186,7 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was "
 }
 
 
-- (void) forward:(SEL) sel :(void *) _params
+- (void) forward:(void *) _param
 {
    int                          isMeta;
    struct _mulle_objc_universe  *universe;
@@ -204,11 +196,11 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was "
    isMeta   = _mulle_objc_class_is_metaclass( _mulle_objc_object_get_isa( self));
    universe = _mulle_objc_object_get_universe( self);
    hashname = _mulle_objc_universe_search_hashstring( universe,
-   																	  (mulle_objc_methodid_t) sel);
+  																	  (mulle_objc_methodid_t) _cmd);
    fprintf( stderr, zombie_format, self,
    										  isMeta ? "meta" : "",
    										  [self _originalClassName],
-   										  (mulle_objc_methodid_t) sel,
+   										  (mulle_objc_methodid_t) _cmd,
    										  hashname ? hashname : "???");
    abort();
 }
@@ -219,6 +211,27 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was "
    // for po basically
    return( sel == @selector( forward:));
 }
+
+#ifdef MULLE_OBJC_DEBUG_SUPPORT
+//
+// this should never be called
+// it ensures, that the functions are present at debug time
+//
++ (void) __reference_lldb_functions__
+{
+   extern void   mulle_objc_reference_lldb_functions( void);
+
+   mulle_objc_reference_lldb_functions();
+}
+
+
++ (void) __reference_gdb_functions__
+{
+   extern void   mulle_objc_reference_gdb_functions( void);
+
+   mulle_objc_reference_gdb_functions();
+}
+#endif
 
 @end
 
@@ -366,6 +379,9 @@ static char   *_mulle_objc_get_tmpdir( void)
 }
 
 
+
+#ifdef MULLE_OBJC_DEBUG_SUPPORT
+
 #pragma mark - dreaded conveniences
 
 void   MulleObjCHTMLDumpUniverseToDirectory( char *directory)
@@ -455,7 +471,7 @@ void   MulleObjCHTMLDumpClassToTmp( char *classname)
 }
 
 
-#pragma mark - conveniences
+#pragma mark - more conveniences
 
 void   MulleObjCDotdumpUniverseToTmp()
 {
@@ -623,6 +639,8 @@ void  MulleObjCCSVDumpMethodsToTmp( void)
    }
    mulle_free( buf);
 }
+
+#endif
 
 
 /*

@@ -46,7 +46,7 @@
            // Tip: Never mark an ObjC method (like: f.e. -raise) with `__attribute__(( noreturn))
            // Because of self == nil, it's wrong.
 - (void) raise;
-- (char *) cStringDescription;
+- (char *) UTF8String;
 
 @end
 
@@ -104,26 +104,26 @@ void   _MulleObjCThrowErrnoException( mulle_objc_universeid_t universeid,
 /*
  * C String interface
  */
-#define MulleObjCThrowErrnoExceptionCString( ...) \
-   _MulleObjCThrowErrnoExceptionCString( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
+#define MulleObjCThrowErrnoExceptionUTF8String( ...) \
+   _MulleObjCThrowErrnoExceptionUTF8String( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
 
-#define MulleObjCThrowInternalInconsistencyExceptionCString( ...) \
-   _MulleObjCThrowInternalInconsistencyExceptionCString( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
+#define MulleObjCThrowInternalInconsistencyExceptionUTF8String( ...) \
+   _MulleObjCThrowInternalInconsistencyExceptionUTF8String( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
 
-#define MulleObjCThrowInvalidArgumentExceptionCString( ...) \
-   _MulleObjCThrowInvalidArgumentExceptionCString( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
+#define MulleObjCThrowInvalidArgumentExceptionUTF8String( ...) \
+   _MulleObjCThrowInvalidArgumentExceptionUTF8String( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
 
-
-MULLE_C_NO_RETURN
-void   _MulleObjCThrowInvalidArgumentExceptionCString( mulle_objc_universeid_t universeid,
-                                                       char *format, ...);
 
 MULLE_C_NO_RETURN
-void   _MulleObjCThrowInternalInconsistencyExceptionCString( mulle_objc_universeid_t universeid,
-                                                             char *format, ...);
+void   _MulleObjCThrowInvalidArgumentExceptionUTF8String( mulle_objc_universeid_t universeid,
+                                                          char *format, ...);
+
 MULLE_C_NO_RETURN
-void   _MulleObjCThrowErrnoExceptionCString( mulle_objc_universeid_t universeid,
-                                             char *format, ...);
+void   _MulleObjCThrowInternalInconsistencyExceptionUTF8String( mulle_objc_universeid_t universeid,
+                                                                char *format, ...);
+MULLE_C_NO_RETURN
+void   _MulleObjCThrowErrnoExceptionUTF8String( mulle_objc_universeid_t universeid,
+                                                char *format, ...);
 
 
 

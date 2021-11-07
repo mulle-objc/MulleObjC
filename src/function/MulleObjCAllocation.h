@@ -95,7 +95,7 @@ static inline void  *MulleObjCInstanceAllocateMemory( id self, NSUInteger size)
 }
 
 
-static inline void  *MulleObjCInstanceDuplicateCString( id self, char *s)
+static inline void  *MulleObjCInstanceDuplicateUTF8String( id self, char *s)
 {
    return( _mulle_allocator_strdup( MulleObjCInstanceGetAllocator( self), s));
 }
@@ -128,7 +128,7 @@ static inline void  *MulleObjCClassAllocateMemory( Class cls, NSUInteger size)
 }
 
 
-static inline void  *MulleObjCClassDuplicateCString( Class cls, char *s)
+static inline void  *MulleObjCClassDuplicateUTF8String( Class cls, char *s)
 {
    return( _mulle_allocator_strdup( MulleObjCClassGetAllocator( cls), s));
 }
@@ -159,23 +159,7 @@ __attribute__((returns_nonnull))
 static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
                                                             NSUInteger extra)
 {
-   struct _mulle_objc_objectheader   *header;
-   struct mulle_allocator            *allocator;
-   struct _mulle_objc_class          *cls;
-   NSUInteger                        size;
-
-   allocator = _mulle_objc_infraclass_get_allocator( infraCls);
-   assert( allocator->realloc && "foundation has not installed an allocator");
-
-   size   = _mulle_objc_infraclass_get_allocationsize( infraCls) + extra;
-   header = _mulle_allocator_malloc( allocator, size);
-   cls    = _mulle_objc_infraclass_as_class( infraCls);
-   // this clears retaincount and extra meta memory
-   _mulle_objc_objectheader_init( header,
-                                  cls,
-                                  _mulle_objc_class_get_metaextrasize( cls),
-                                  _mulle_objc_memory_is_not_zeroed);
-   return( (id) _mulle_objc_objectheader_get_object( header));
+   return( (id) _mulle_objc_infraclass_alloc_instance_extra_nonzeroed( infraCls, extra));
 }
 
 
@@ -336,7 +320,10 @@ static inline NSUInteger   MulleObjCCopyObjectArray( id *objects,
 //   MulleObjCObjectDeallocateMemory( self, &_fontName);
 // with the errnoeus & before the _ivar
 //
-void   MulleObjCObjectSetDuplicatedCString( id self, char **ivar, char *s);
+void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s);
 
+
+char   *MulleObjC_vasprintf( char *format, va_list args);
+char   *MulleObjC_asprintf( char *format, ...);
 
 

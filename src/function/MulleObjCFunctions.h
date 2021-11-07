@@ -836,34 +836,13 @@ static inline void   MulleObjCObjectConstantify( id obj)
 
 Class   NSClassFromObject( id object);
 
-char    *MulleObjCClassGetName( Class cls);
-char    *MulleObjCSelectorGetName( SEL sel);
-char    *MulleObjCProtocolGetName( PROTOCOL sel);
+char    *MulleObjCClassGetNameUTF8String( Class cls);
+char    *MulleObjCSelectorGetNameUTF8String( SEL sel);
+char    *MulleObjCProtocolGetNameUTF8String( PROTOCOL sel);
+Class   MulleObjCLookupClassByNameUTF8String( char *name);
 Class   MulleObjCLookupClassByClassID( SEL classid);
-Class   MulleObjCLookupClassByName( char *name);
-SEL     MulleObjCCreateSelector( char *name);
+SEL     MulleObjCCreateSelectorUTF8String( char *name);
 
-// newer better names
-static inline char    *MulleObjCClassGetNameCString( Class cls)
-{
-   return( MulleObjCClassGetName( cls));
-}
-
-static inline char    *MulleObjCSelectorGetNameCString( SEL sel)
-{
-   return( MulleObjCSelectorGetName( sel));
-}
-
-static inline char    *MulleObjCProtocolGetNameCString( PROTOCOL proto)
-{
-   return( MulleObjCProtocolGetName( proto));
-}
-
-
-static inline Class   MulleObjCLookupClassByNameCString( char *name)
-{
-   return( MulleObjCLookupClassByName( name));
-}
 
 
 static inline void   *MulleObjCClassGetExtraBytes( Class cls)
