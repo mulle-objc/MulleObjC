@@ -49,12 +49,6 @@
 #endif
 
 
-@interface NSObject( UTF8String)
-
-- (char *) UTF8String;
-
-@end
-
 
 static int  _sprintf_object_conversion( struct mulle_buffer *buffer,
                                         struct mulle_sprintf_formatconversioninfo *info,

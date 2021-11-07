@@ -716,6 +716,12 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 }
 
 
++ (Class) class
+{
+   return( self);
+}
+
+
 // untested!
 - (void) mulleReleaseAllObjects
 {

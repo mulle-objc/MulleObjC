@@ -138,9 +138,13 @@ static struct $
 
 - (void) finalize
 {
-   [(id) self->_runLoop mullePerformFinalize];
-   [(id) self->_runLoop autorelease];
-   self->_runLoop = nil;
+   id   runLoop;
+
+   runLoop = [self mulleRunLoop];
+   _mulle_atomic_pointer_nonatomic_write( &self->_runLoop, nil);
+
+   [runLoop mullePerformFinalize];
+   [runLoop autorelease];
 
    [self->_userInfo autorelease];
    self->_userInfo = nil;
@@ -159,7 +163,7 @@ static struct $
 
 - (void) dealloc
 {
-   assert( ! self->_runLoop);
+   assert( ! [self mulleRunLoop]);
    assert( ! self->_userInfo);
 
    _MulleObjCInstanceFree( self);
@@ -286,7 +290,8 @@ static NSThread   *__MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc
    // create pool configuration, ahead of register so it can
    // send a notification
    //
-   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
+   [NSAutoreleasePool class];
+//   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
    mulle_objc_thread_new_poolconfiguration( universe);
 
    _MulleThreadRegisterInUniverse( threadObject, universe);
@@ -473,7 +478,9 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    // create pool configuration, ahead of register so it can
    // send a notification
    //
-   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
+   [NSAutoreleasePool class];
+
+//   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
    mulle_objc_thread_new_poolconfiguration( universe);
 
    // make threadObject known to universe and thread

@@ -232,10 +232,10 @@ id   MulleObjCSingletonCreate( Class self)
          _mulle_objc_object_constantify_noatomic( singleton); // like autorelease
 
          universe = _mulle_objc_infraclass_get_universe( self);
-         if( universe->debug.trace.method_cache)
+         if( universe->debug.trace.class_add)
             mulle_objc_universe_trace( universe, "Class \"%s\" (%08x) gets a singleton %p",
-                                                   _mulle_objc_infraclass_get_classid( self),
                                                    _mulle_objc_infraclass_get_name( self),
+                                                   _mulle_objc_infraclass_get_classid( self),
                                                    singleton);
          return( singleton);
       }

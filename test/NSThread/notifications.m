@@ -24,7 +24,7 @@
    return( self);
 }
 
-- (char *) cStringDescription
+- (char *) UTF8String
 {
    return( _name);
 }
@@ -51,21 +51,21 @@
 
 - (void) _isProbablyGoingSingleThreaded
 {
-   printf( "%s %s\n", __PRETTY_FUNCTION__, [[[NSThread currentThread] userInfo] cStringDescription]);
+   mulle_printf( "%s %@\n", __PRETTY_FUNCTION__, [[NSThread currentThread] userInfo]);
    fflush( stdout);
 }
 
 
 - (void) _isGoingMultiThreaded
 {
-   printf( "%s %s\n", __PRETTY_FUNCTION__, [[[NSThread currentThread] userInfo] cStringDescription]);
+   mulle_printf( "%s %@\n", __PRETTY_FUNCTION__, [[NSThread currentThread] userInfo]);
    fflush( stdout);
 }
 
 
 - (void) _threadWillExit
 {
-   printf( "%s %s\n", __PRETTY_FUNCTION__, [[[NSThread currentThread] userInfo] cStringDescription]);
+   mulle_printf( "%s %@\n", __PRETTY_FUNCTION__, [[NSThread currentThread] userInfo]);
    fflush( stdout);
 }
 
@@ -75,7 +75,7 @@
    [[NSThread currentThread] setUserInfo:[[[StupidString alloc] initWithCString:"nothing"] autorelease]];
 
    sleep( 1);
-   printf( "%s %s\n", __PRETTY_FUNCTION__, [[[NSThread currentThread] userInfo] cStringDescription]);
+   mulle_printf( "%s %@\n", __PRETTY_FUNCTION__, [[NSThread currentThread] userInfo]);
    fflush( stdout);
 }
 
@@ -85,7 +85,7 @@
    [[NSThread currentThread] setUserInfo:[[[StupidString alloc] initWithCString:"sleep"] autorelease]];
 
    sleep( 2);
-   printf( "%s %s\n", __PRETTY_FUNCTION__, [[[NSThread currentThread] userInfo] cStringDescription]);
+   mulle_printf( "%s %@\n", __PRETTY_FUNCTION__, [[NSThread currentThread] userInfo]);
    fflush( stdout);
 }
 

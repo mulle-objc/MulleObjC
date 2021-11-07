@@ -68,7 +68,7 @@
 }
 
 
-- (char *) cStringDescription
+- (char *) UTF8String
 {
    return( _mulle_objc_class_get_name( _mulle_objc_object_get_isa( self)));
 }
@@ -161,7 +161,7 @@ void   _MulleObjCThrowErrnoException( mulle_objc_universeid_t universeid,
  * C String interface
  */
 MULLE_C_NO_RETURN
-void   _MulleObjCThrowInvalidArgumentExceptionCString( mulle_objc_universeid_t universeid,
+void   _MulleObjCThrowInvalidArgumentExceptionUTF8String( mulle_objc_universeid_t universeid,
                                                        char *format, ...)
 {
    struct _mulle_objc_universe                 *universe;
@@ -181,7 +181,7 @@ void   _MulleObjCThrowInvalidArgumentExceptionCString( mulle_objc_universeid_t u
 
 
 MULLE_C_NO_RETURN
-void   _MulleObjCThrowInternalInconsistencyExceptionCString( mulle_objc_universeid_t universeid,
+void   _MulleObjCThrowInternalInconsistencyExceptionUTF8String( mulle_objc_universeid_t universeid,
                                                              char *format, ...)
 {
    struct _mulle_objc_universe                 *universe;
@@ -200,7 +200,7 @@ void   _MulleObjCThrowInternalInconsistencyExceptionCString( mulle_objc_universe
 
 
 MULLE_C_NO_RETURN
-void   _MulleObjCThrowErrnoExceptionCString( mulle_objc_universeid_t universeid,
+void   _MulleObjCThrowErrnoExceptionUTF8String( mulle_objc_universeid_t universeid,
                                              char *format, ...)
 {
    struct _mulle_objc_universe                 *universe;

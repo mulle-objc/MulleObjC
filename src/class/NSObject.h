@@ -50,6 +50,35 @@
 // +initialize: mulle-objc-runtime guarantees that +initialize is executed
 //              only once per meta-class object.
 //
+//
+//
+//              MulleObjC NSObject layout
+//
+//     -16   .---------------------.
+//           | retainCount         |
+//      -8   '---------------------'
+//           | isa                 |
+//      0    '---------------------'
+//           |                     |
+//           |                     |
+//           |                     |
+//           |                     |
+//           |                     |
+//           |                     |
+//           '---------------------'
+//
+// other runtimes use a different layout and store the retainCount elsewhere
+//
+//                Apple NSObject layout
+//      0    .---------------------.
+//           | isa                 |
+//      8    '---------------------'
+//           |                     |
+//           |                     |
+//           |                     |
+//           '---------------------'
+//
+
 @interface NSObject < NSObject>
 
 
@@ -235,12 +264,16 @@
 @end
 
 
-// likely to be overwritten by Foundation
-@interface NSObject ( cStringDescription)
+@interface NSObject( UTF8String)
 
-- (char *) cStringDescription;  // returns autoreleased c string
+//
+// why is this not mulle_utf8_t ? In mulle-objc char * in Objective-C is
+// defined to be UTF8.
+//
+- (char *) UTF8String;  // used to be cStringDescription
 
 @end
+
 
 //
 // These just memcpy. Objects embeddded into structs will not be retained (yet)

@@ -59,6 +59,7 @@
 
 + (id) alloc;
 + (id) new;
++ (Class) class;
 - (id) init;
 - (void) release;
 

@@ -37,6 +37,11 @@ only (for instance not on `<unistd.h>`)
 * MulleObjCSingleton - enables classes to produce singletons
 * MulleObjCTaggedPointer - enables classes to use tagged pointers
 
+### Functions
+
+* `mulle_printf` and variants
+
+
 It does all the interfacing with the **mulle-objc** runtime. Any
 library code above MulleObjC ideally, should not be using the mulle-objc runtime
 directly. Creating a foundation on top of **mulle-objc**  without using

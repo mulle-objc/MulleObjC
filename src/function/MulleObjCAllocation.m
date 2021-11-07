@@ -104,13 +104,6 @@ int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
 }
 
 
-void   NSDeallocateObject( id self)
-{
-   if( self)
-      _MulleObjCInstanceFree( self);
-}
-
-
 # pragma mark - improve dealloc speed for classes that don't have properties that need to be released
 
 
@@ -173,7 +166,6 @@ void   _MulleObjCInstanceFree( id obj)
 {
    struct _mulle_objc_objectheader             *header;
    struct _mulle_objc_universefoundationinfo   *config;
-   struct mulle_allocator                      *allocator;
    struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_infraclass               *infra;
    struct _mulle_objc_class                    *cls;
@@ -193,24 +185,22 @@ void   _MulleObjCInstanceFree( id obj)
 
    // if it's a meta class it's an error during debug
    assert( _mulle_objc_class_is_infraclass( cls));
-   infra     = _mulle_objc_class_as_infraclass( cls);
-   allocator = _mulle_objc_infraclass_get_allocator( infra);
 
-   __mulle_objc_instance_will_free( (struct _mulle_objc_object *) obj);
-
-   header    = _mulle_objc_object_get_objectheader( obj);
-#if DEBUG
-   // malloc scribble will kill it though
-   memset( obj, 0xad, _mulle_objc_class_get_instancesize( header->_isa));
-
-   header->_isa = (void *) (intptr_t) 0xDEADDEADDEADDEAD;
-   _mulle_atomic_pointer_nonatomic_write( &header->_retaincount_1, 0x0); // sic
-#endif
-   _mulle_allocator_free( allocator, header);
+   infra = _mulle_objc_class_as_infraclass( cls);
+   _mulle_objc_infraclass_free_instance( infra, obj);
 }
 
 
-void   MulleObjCObjectSetDuplicatedCString( id self, char **ivar, char *s)
+
+void   NSDeallocateObject( id self)
+{
+   if( self)
+      _MulleObjCInstanceFree( self);
+}
+
+
+
+void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s)
 {
    struct mulle_allocator  *allocator;
 
@@ -237,5 +227,40 @@ void   *MulleObjCCallocAutoreleased( NSUInteger n,
    return( [NSAllocateObject( [NSObject class],
                               total,
                               NULL) autorelease]);
+}
+
+
+char   *MulleObjC_vasprintf( char *format, va_list args)
+{
+   char                  *s;
+   struct mulle_buffer   buffer;
+
+   if( ! format)
+   {
+      errno = EINVAL;
+      return( NULL);
+   }
+
+   mulle_buffer_init( &buffer, NULL);
+   mulle_buffer_vsprintf( &buffer, format, args);
+   mulle_buffer_make_string( &buffer);
+   s = mulle_buffer_extract_string( &buffer);
+
+   MulleObjCAutoreleaseAllocation( s, mulle_buffer_get_allocator( &buffer));
+   mulle_buffer_done( &buffer);
+
+   return( s);
+}
+
+
+char   *MulleObjC_asprintf( char *format, ...)
+{
+   va_list   args;
+   char      *s;
+
+   va_start( args, format);
+   s = MulleObjC_vasprintf( format, args);
+   va_end( args);
+   return( s);
 }
 

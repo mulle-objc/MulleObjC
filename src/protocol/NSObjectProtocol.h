@@ -69,5 +69,10 @@ _PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 - (NSUInteger) hash;
 - (BOOL) isEqual:(id) obj;
 
+// like -description, but returns char *. Later on there will be a category
+// on NSObject that implements this as [[self description] UTF8String]
+// Having this on NSObject is a mulle extension!
+- (char *) UTF8String;
+
 PROTOCOLCLASS_END()
 

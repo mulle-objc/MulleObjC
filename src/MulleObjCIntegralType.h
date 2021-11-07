@@ -18,6 +18,17 @@
 
 #ifndef NSINTEGER_DEFINED
 
+// It's assumed that:
+//
+//    sizeof( ptrdiff_t) == sizeof( uintptr_t)
+//    sizeof( uintptr_t) == sizeof( intptr_t)
+//
+// This is important for the mulle_printf '%td' formatting of NSInteger and
+// then '%tu' formatting of NSUInteger, where actually sizeof( ptrdiff_t)
+// is being used.
+//
+// asserted in _mulle_objc_universeconfiguration_configure_universe
+//
 typedef uintptr_t   NSUInteger;
 typedef intptr_t    NSInteger;
 
@@ -39,6 +50,11 @@ typedef enum
 } NSComparisonResult;
 
 
+static inline char   *_NSComparisonResultCStringDescription( NSComparisonResult result)
+{
+   return( result < 0 ? "<" : (result > 0 ? ">" : "="));
+}
+
 //
 // having YES, NO as an enum messes up the boxed expressions @YES @NO
 // but use @(YES) @(NO) and everything is fine
@@ -48,6 +64,13 @@ enum _MulleBool
    YES = 1,
    NO  = 0
 };
+
+
+static inline char   *_MulleBoolCStringDescription( enum _MulleBool result)
+{
+   return( result ? "YES" : "NO");
+}
+
 
 //
 // the hated BOOL. here it is an int
