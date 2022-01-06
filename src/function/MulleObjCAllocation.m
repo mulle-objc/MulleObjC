@@ -108,11 +108,11 @@ int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
 
 
 int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
-                                              mulle_objc_walkpropertiescallback f,
+                                              mulle_objc_walkpropertiescallback_t f,
                                               void *userinfo);
 
 int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
-                                              mulle_objc_walkpropertiescallback f,
+                                              mulle_objc_walkpropertiescallback_t f,
                                               void *userinfo)
 {
    struct _mulle_objc_propertylist                         *list;

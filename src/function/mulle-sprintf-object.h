@@ -35,4 +35,5 @@
 //
 #include "include.h"
 
+MULLE_OBJC_EXTERN_GLOBAL
 void  mulle_sprintf_register_object_functions( struct mulle_sprintf_conversion *tables);

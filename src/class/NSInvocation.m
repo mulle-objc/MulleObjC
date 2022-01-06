@@ -54,36 +54,148 @@
 // NSMethodSignature) that "self" + "_cmd" are both pointersize.
 // So if we "long double" align the whole thing we assume we are fine.
 //
+
+
+
+
 @implementation NSInvocation
+
+
+//
+// The invocation frame is stored in "extra" bytes behind the instance.
+// Since invocations should be speedy, we don't usually want to allocate a
+// new invocation for every call. Instead what we do is have a FIFO of
+// release NSInvocations ready for reuse.
+//
+#define NSInvocationStandardSize  (sizeof( void *) * 16)
+
+struct mulle__pointerfifo16   reuseInvocations;
+
+
+static int   pushStandardInvocation( NSInvocation *invocation)
+{
+   // if full will return != 0
+   return( _mulle__pointerfifo16_write( &reuseInvocations, invocation));
+}
+
+
+static NSInvocation   *popStandardInvocation( void)
+{
+   NSInvocation                      *invocation;
+   size_t                            size;
+   struct _mulle_objc_class          *cls;
+   struct _mulle_objc_objectheader   *header;
+
+   invocation = _mulle__pointerfifo16_read( &reuseInvocations);
+   if( ! invocation)
+      return( invocation);
+
+   // make a fresh new invocation from old, reset retainCount as well
+   cls  = _mulle_objc_object_get_isa( invocation);
+   size = _mulle_objc_class_get_instancesize( cls) + NSInvocationStandardSize;
+   memset( invocation, 0, size);
+
+   header = _mulle_objc_object_get_objectheader( invocation);
+   _mulle_atomic_pointer_nonatomic_write( &header->_retaincount_1, 0);
+
+   return( invocation);
+}
+
+
++ (void) deinitialize
+{
+   NSInvocation   *invocation;
+
+   while( invocation = _mulle__pointerfifo16_read( &reuseInvocations))
+   {
+      fprintf( stderr, "dealloc, no reuse %p\n", invocation);
+      NSDeallocateObject( invocation);
+   }
+}
 
 
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature
 {
-   size_t         size;
-   size_t         frame_size;
-   NSInvocation   *invocation;
-   void           *extraBytes;
+   NSUInteger                      size;
+   NSUInteger                      standardsize;
+   NSInvocation                    *invocation;
+   void                            *extraBytes;
+   struct _mulle_objc_infraclass   *cls;
 
    if( ! signature)
    {
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
-                                                 "signature is nil");
+                                                   "signature is nil");
       return( nil);
    }
 
-   frame_size  = [signature frameLength];
-   size        = mulle_metaabi_sizeof_struct( frame_size);
-   size       += [signature methodReturnLength];
-   size       += alignof( long double);  // for alignment
+//   frame_size  = [signature frameLength];
+//   size        = mulle_metaabi_sizeof_struct( frame_size);
+//   size       += [signature methodReturnLength];
+//   size       += alignof( long double);  // for alignment
 
-   invocation = [NSAllocateObject( self, size, NULL) autorelease];
+   // if size is smaller than what we allocate as standard size adjust up
+   // to standard size
+   size       = [signature mulleInvocationSize];
+   invocation = nil;
+   if( size <= NSInvocationStandardSize)
+   {
+      cls = (struct _mulle_objc_infraclass *) self;
+      if( _mulle_objc_infraclass_get_classid( cls) == @selector( NSInvocation))
+      {
+         size       = NSInvocationStandardSize;
+         invocation = popStandardInvocation();
+         fprintf( stderr, "popped for reuse %p\n", invocation);
+      }
+   }
+
+   if( ! invocation)
+      invocation = NSAllocateObject( self, size, NULL);
 
    extraBytes                   = MulleObjCInstanceGetExtraBytes( invocation);
    invocation->_storage         = mulle_pointer_align( extraBytes, alignof( long double));
    invocation->_sentinel        = &((char *) invocation->_storage)[ size];
    invocation->_methodSignature = [signature retain];
 
-   return( invocation);
+   return( [invocation autorelease]);
+}
+
+
+static BOOL   _isStandardInvocation( NSInvocation *invocation)
+{
+   struct _mulle_objc_infraclass   *cls;
+
+   // only push if it's not a subclass
+   cls = (struct _mulle_objc_infraclass *) _mulle_objc_object_get_isa( invocation);
+   if( _mulle_objc_infraclass_get_classid( cls) != @selector( NSInvocation))
+      return( NO);
+
+   return( invocation->_sentinel - invocation->_storage == NSInvocationStandardSize);
+}
+
+
+- (void) finalize
+{
+}
+
+
+- (void) dealloc
+{
+   if( _argumentsRetained)
+      [self _releaseArguments];
+   if( _returnValueRetained)
+      [self _releaseReturnValue];
+   [_methodSignature release];
+
+   if( _isStandardInvocation( self))
+   {
+      if( ! pushStandardInvocation( self))
+      {
+         fprintf( stderr, "push for reuse %p\n", self);
+         return;
+      }
+   }
+   NSDeallocateObject( self);
 }
 
 
@@ -117,18 +229,26 @@
 }
 
 
-- (void) finalize
+- (void) _releaseReturnValue
 {
-}
+   char   *type;
+   id     obj;
+   char   *s;
 
+   type = [_methodSignature methodReturnType];
+   switch( *type)
+   {
+   case _C_COPY_ID   :
+   case _C_RETAIN_ID :
+      [self getReturnValue:&obj];
+      [obj release];
+      break;
 
-- (void) dealloc
-{
-   if( _argumentsRetained)
-      [self _releaseArguments];
-   [_methodSignature release];
-
-   NSDeallocateObject( self);
+   case _C_CHARPTR :
+      [self getReturnValue:&s];
+      mulle_allocator_free( MulleObjCInstanceGetAllocator( self), s);
+      break;
+   }
 }
 
 
@@ -145,7 +265,10 @@ static int   is_valid_frame_range( NSInvocation *self, char *adr, size_t size)
 }
 
 
-static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteger i, void **p_adr, size_t *p_size)
+static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
+                                                    NSUInteger i,
+                                                    void **p_adr,
+                                                    size_t *p_size)
 {
    MulleObjCMethodSignatureTypeInfo   *p;
    char      *adr;
@@ -231,7 +354,8 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 
    if( [_methodSignature isVariadic])
       __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                       "NSInvocation can not retain the arguments of variadic methods");
+                                                        "NSInvocation can not \
+retain the arguments of variadic methods");
 
    _argumentsRetained = YES;
 
@@ -271,6 +395,54 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
 {
    return( _argumentsRetained);
 }
+
+
+
+- (void) mulleRetainReturnValue
+{
+   char        *type;
+   id          obj;
+   char        *s;
+   char        *dup;
+
+   if( _returnValueRetained)
+   {
+#if DEBUG
+      abort();
+#endif
+      return;
+   }
+
+   _returnValueRetained = YES;
+
+   type = [_methodSignature methodReturnType];
+   switch( *type)
+   {
+   case _C_RETAIN_ID :
+      [self getReturnValue:&obj];
+      [obj retain];
+      break;
+
+   case _C_COPY_ID :
+      [self getReturnValue:&obj];
+      obj = [(id <NSCopying>) obj copy];
+      [self setReturnValue:&obj];
+      break;
+
+   case _C_CHARPTR :
+      [self getReturnValue:&s];
+      dup  = mulle_allocator_strdup( MulleObjCInstanceGetAllocator( self), s);
+      [self setReturnValue:&dup];
+      break;
+   }
+}
+
+
+- (BOOL) mulleReturnValueRetained
+{
+   return( _returnValueRetained);
+}
+
 
 
 - (SEL) selector
@@ -316,6 +488,19 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    [self invokeWithTarget:[self target]];
 }
 
+#ifdef DEBUG
+static void   invocation_with_nil_target_warning( NSInvocation *self)
+{
+   static BOOL   once;
+
+   if( ! once)
+   {
+      fprintf( stderr, "Invocation %p with nil target does nothing\n", self);
+      once = YES;
+   }
+}
+#endif
+
 
 - (void) invokeWithTarget:(id) target
 {
@@ -325,6 +510,14 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    void                               *rval;
    MulleObjCMetaABIType               pType;
    MulleObjCMetaABIType               rType;
+
+   if( ! target)
+   {
+#ifdef DEBUG
+      invocation_with_nil_target_warning( self);
+#endif
+      return;
+   }
 
    sel = [self selector];
    if( ! sel)
@@ -384,13 +577,15 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self, NSUInteg
    void                               *param;
    size_t                             size;
    size_t                             frame_size;
+   MulleObjCMetaABIType               pType;
 
-   switch( [_methodSignature _methodMetaABIParameterType])
+   pType = [_methodSignature _methodMetaABIParameterType];
+   switch( pType)
    {
-   case MulleObjCMetaABITypeVoid           :
+   case MulleObjCMetaABITypeVoid :
       break;
 
-   case MulleObjCMetaABITypeVoidPointer    :
+   case MulleObjCMetaABITypeVoidPointer :
       // rval, self, _cmd, _param (3)
       info  = [self->_methodSignature mulleSignatureTypeInfoAtIndex:3];
       param = &((char *) self->_storage)[ info->invocation_offset];

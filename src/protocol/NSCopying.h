@@ -62,4 +62,5 @@
 @class NSCopying; // needed for the compiler to understand this is
                   // protocol class
 
+MULLE_OBJC_EXTERN_GLOBAL
 id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone);

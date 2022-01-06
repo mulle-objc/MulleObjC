@@ -279,14 +279,20 @@
 // These just memcpy. Objects embeddded into structs will not be retained (yet)
 // I could do this in the future though.
 //
+MULLE_OBJC_EXTERN_GLOBAL
 int   _MulleObjCObjectSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
+
+MULLE_OBJC_EXTERN_GLOBAL
 int   _MulleObjCObjectGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
 
 //
 // These functions do proper retain/assign/copy and autorelease previous
 // contents.
 //
+MULLE_OBJC_EXTERN_GLOBAL
 id    MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid);
+
+MULLE_OBJC_EXTERN_GLOBAL
 void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value);
 
 

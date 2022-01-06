@@ -302,8 +302,7 @@ static inline unsigned long long   NSSwapHostLongLongToLittle( unsigned long lon
 #endif
 }
 
-#pragma mark -
-#pragma mark pedantic access
+#pragma mark - pedantic access
 
 typedef struct
 {
@@ -380,8 +379,7 @@ static inline long double   NSConvertSwappedLongDoubleToHost( NSSwappedLongDoubl
    return( (union __NSSwappedLongDoubleTemp *) &value)->ld;
 }
 
-#pragma mark -
-#pragma mark operations
+#pragma mark - operations
 
 static inline NSSwappedFloat   NSSwapFloat( NSSwappedFloat value)
 {

@@ -37,12 +37,10 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 //
-// this class is used to setup NSPageAllocation and NSPathUtilities
-// you write a category on it and intitalize both within +load
+
 
 // It's a root class
-
-// the loader is the central class to manage dependencies
+// The loader is the central class to manage dependencies
 // classes based on MulleObjC. MulleObjCFoundation will have a category
 // called MulleObjCLoader( Foundation) listing it's classes and categories
 // as dependencies.

@@ -50,7 +50,7 @@ typedef enum
 } NSComparisonResult;
 
 
-static inline char   *_NSComparisonResultCStringDescription( NSComparisonResult result)
+static inline char   *_NSComparisonResultUTF8String( NSComparisonResult result)
 {
    return( result < 0 ? "<" : (result > 0 ? ">" : "="));
 }
@@ -66,7 +66,7 @@ enum _MulleBool
 };
 
 
-static inline char   *_MulleBoolCStringDescription( enum _MulleBool result)
+static inline char   *_MulleBoolUTF8String( enum _MulleBool result)
 {
    return( result ? "YES" : "NO");
 }

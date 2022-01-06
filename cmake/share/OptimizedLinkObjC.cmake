@@ -124,3 +124,9 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
    include( OptimizedLinkAuxObjC OPTIONAL)
 
 endif()
+
+
+# extension : mulle-objc/objc-cmake
+# directory : project/all
+# template  : .../OptimizedLinkObjC.cmake
+# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

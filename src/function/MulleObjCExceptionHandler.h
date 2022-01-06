@@ -48,16 +48,15 @@
 
 
 // calls the runtime to really throw, used by NSException later
-MULLE_C_NO_RETURN void
-   mulle_objc_throw( void *exception);
+MULLE_OBJC_EXTERN_GLOBAL
+MULLE_C_NO_RETURN void   mulle_objc_throw( void *exception);
 
 //
 // the function to set breakpoints to, to catch all exceptions
 //
 void  mulle_objc_break_exception( void);
 
-#pragma mark -
-#pragma mark Uncaught Exceptions
+#pragma mark - Uncaught Exceptions
 
 #ifndef MULLE_OBJC_EXCEPTION_CLASS_P
 # define MULLE_OBJC_EXCEPTION_CLASS_P  void *
@@ -65,7 +64,10 @@ void  mulle_objc_break_exception( void);
 
 typedef void   NSUncaughtExceptionHandler( MULLE_OBJC_EXCEPTION_CLASS_P exception);
 
+MULLE_OBJC_EXTERN_GLOBAL
 NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void);
+
+MULLE_OBJC_EXTERN_GLOBAL
 void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler);
 
 #endif

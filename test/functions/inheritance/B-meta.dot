@@ -1,48 +1,48 @@
 digraph mulle_classhierarchy
 {
-"0x135cea0" [ label=<<TABLE>
+"0x105b47010" [ label=<<TABLE>
 <TR><TD BGCOLOR="blue" COLSPAN="2"><FONT COLOR="white">A</FONT></TD></TR>
 </TABLE>>, shape="box" ];
-"0x135cea0" -> "0x135d070" [ label=" superclass" dir="back" ]
-"0x135d070" [ label=<<TABLE>
+"0x105b47010" -> "0x105b471e0" [ label=" superclass" dir="back" ]
+"0x105b471e0" [ label=<<TABLE>
 <TR><TD BGCOLOR="goldenrod" COLSPAN="2"><FONT COLOR="white">A</FONT></TD></TR>
 </TABLE>>, shape="component" ];
-"0x135d070" -> "0x407120"  [ label="methodlist #0" ];
-"0x407120" [ label=<<TABLE>
+"0x105b471e0" -> "0x1054ef000"  [ label="methodlist #0" ];
+"0x1054ef000" [ label=<<TABLE>
 <TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
 <TR><TD COLSPAN="2">foo</TD></TR>
 <TR><TD COLSPAN="2">foobar</TD></TR>
 <TR><TD COLSPAN="2">overridden</TD></TR>
 <TR><TD COLSPAN="2">super</TD></TR>
 </TABLE>>, shape="none" ];
-"0x135d070" -> "0x135e0e0" [ label=" superclass" dir="back" ]
-"0x135d580" [ label=<<TABLE>
+"0x105b471e0" -> "0x105b6b1e0" [ label=" superclass" dir="back" ]
+"0x105b511e0" [ label=<<TABLE>
 <TR><TD BGCOLOR="goldenrod" COLSPAN="2"><FONT COLOR="white">P</FONT></TD></TR>
 </TABLE>>, shape="component" ];
-"0x135d580" -> "0x4071d0"  [ label="methodlist #0" ];
-"0x4071d0" [ label=<<TABLE>
+"0x105b511e0" -> "0x1054ef0b0"  [ label="methodlist #0" ];
+"0x1054ef0b0" [ label=<<TABLE>
 <TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
 <TR><TD COLSPAN="2">foo</TD></TR>
 <TR><TD COLSPAN="2">overridden</TD></TR>
 <TR><TD COLSPAN="2">super</TD></TR>
 </TABLE>>, shape="none" ];
-"0x135d580" -> "0x135e0e0" [ label=" protocolclass #0" dir="back" ]
-"0x135dab0" [ label=<<TABLE>
+"0x105b511e0" -> "0x105b6b1e0" [ label=" protocolclass #0" dir="back" ]
+"0x105b5d1e0" [ label=<<TABLE>
 <TR><TD BGCOLOR="goldenrod" COLSPAN="2"><FONT COLOR="white">Q</FONT></TD></TR>
 </TABLE>>, shape="component" ];
-"0x135dab0" -> "0x407258"  [ label="methodlist #0" ];
-"0x407258" [ label=<<TABLE>
+"0x105b5d1e0" -> "0x1054ef138"  [ label="methodlist #0" ];
+"0x1054ef138" [ label=<<TABLE>
 <TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
 <TR><TD COLSPAN="2">foo</TD></TR>
 <TR><TD COLSPAN="2">overridden</TD></TR>
 <TR><TD COLSPAN="2">super</TD></TR>
 </TABLE>>, shape="none" ];
-"0x135dab0" -> "0x135e0e0" [ label=" protocolclass #1" dir="back" ]
-"0x135e0e0" [ label=<<TABLE>
+"0x105b5d1e0" -> "0x105b6b1e0" [ label=" protocolclass #1" dir="back" ]
+"0x105b6b1e0" [ label=<<TABLE>
 <TR><TD BGCOLOR="goldenrod" COLSPAN="2"><FONT COLOR="white">B</FONT></TD></TR>
 </TABLE>>, shape="component" ];
-"0x135e0e0" -> "0x4072e0"  [ label="methodlist #0" ];
-"0x4072e0" [ label=<<TABLE>
+"0x105b6b1e0" -> "0x1054ef1c0"  [ label="methodlist #0" ];
+"0x1054ef1c0" [ label=<<TABLE>
 <TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
 <TR><TD COLSPAN="2">chain</TD></TR>
 <TR><TD COLSPAN="2">chained</TD></TR>
@@ -51,8 +51,8 @@ digraph mulle_classhierarchy
 <TR><TD COLSPAN="2">overridden</TD></TR>
 <TR><TD COLSPAN="2">super</TD></TR>
 </TABLE>>, shape="none" ];
-"0x135e0e0" -> "0x4075f8"  [ label="methodlist #1" ];
-"0x4075f8" [ label=<<TABLE>
+"0x105b6b1e0" -> "0x1054eb528"  [ label="methodlist #1" ];
+"0x1054eb528" [ label=<<TABLE>
 <TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
 <TR><TD>category</TD><TD>X</TD></TR>
 <TR><TD COLSPAN="2">chained</TD></TR>
@@ -62,8 +62,8 @@ digraph mulle_classhierarchy
 <TR><TD COLSPAN="2">overridden</TD></TR>
 <TR><TD COLSPAN="2">super</TD></TR>
 </TABLE>>, shape="none" ];
-"0x135e0e0" -> "0x4076f8"  [ label="methodlist #2" ];
-"0x4076f8" [ label=<<TABLE>
+"0x105b6b1e0" -> "0x1054eb628"  [ label="methodlist #2" ];
+"0x1054eb628" [ label=<<TABLE>
 <TR><TD BGCOLOR="black" COLSPAN="2"><FONT COLOR="white">methodlist</FONT></TD></TR>
 <TR><TD>category</TD><TD>Y</TD></TR>
 <TR><TD COLSPAN="2">chained</TD></TR>

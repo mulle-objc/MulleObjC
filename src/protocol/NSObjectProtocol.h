@@ -74,5 +74,8 @@ _PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 // Having this on NSObject is a mulle extension!
 - (char *) UTF8String;
 
+// this is a mulle addition
+- (void) mullePerformFinalize;
+
 PROTOCOLCLASS_END()
 
