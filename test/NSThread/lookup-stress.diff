@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# only sort first field, keep other order intact
+
+sort -s -k 1,1 | diff "$@"

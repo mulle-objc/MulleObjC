@@ -111,6 +111,7 @@ src/protocol/NSCopying.h
 src/protocol/NSEnumeration.h
 src/protocol/NSMutableCopying.h
 src/protocol/NSObjectProtocol.h
+src/reflect/_MulleObjC-versioncheck.h
 src/struct/NSRange.h
 src/struct/NSZone.h
 )
