@@ -8,8 +8,10 @@
 // The point of this test is to get the method cache to grow. One of the
 // threads will then operate for a small time on the old cache and the other
 // on the fresh cache. If there were problems with that we would get a
-// wront method call and therefore also a wrong output sequence.
+// wrong method call and therefore also a wrong output sequence.
 // Or maybe even a crash.
+//
+// So each thread should be going 0-1023 sequentially
 
 
 #define FP   stdout

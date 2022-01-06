@@ -28,6 +28,10 @@ int main( void)
    [NSThread detachNewThreadSelector:@selector( function:)
                             toTarget:[Foo class]
                           withObject:nil];
-   sleep( 1);
+
+   // as we are running this in a test, it should be with
+   // pedantic exit, so the universe will wait for the other thread
+   // to finish...
+
    return( 0);
 }

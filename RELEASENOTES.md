@@ -1,3 +1,17 @@
+## 0.20.0
+
+* NSAutoreleasePool which is a root class gains a +class method
+* **breaking change** -cStringDescription is now -UTF8String. Also all **CString** functions are now UT8String, like `MulleObjCObjectSetDuplicatedUTF8String`
+* special debugger support from mulle-objc-runtime has been moved here
+* fix `forward:` method signature
+* **`sizeof( `ptrdiff_t)` == sizeof( `uintptr_t)`` is now the law!**, for the benefit of reusing %td for NSInteger printfs
+* use ``MulleObjC_vasprintf`` and ``MulleObjC_asprintf`` to create autoreleased character strings. Very convenient.
+* NSAutoreleasePool gains a class method
+* -UTF8String is now defined on NSObject. It's like description but for C strings. It replaces cStringDescription
+* `sizeof( `ptrdiff_t)`` is know known to be the same as `sizeof( NSInteger)`
+* mulle-objc-list is no longer a dependency. If you are developing a library, you should add that dependency back in. But mulle-objc-list is shared library based and conflicts with static musl builds (for now)
+
+
 ## 0.19.0
 
 * moved lock code to **MulleObjCLockFoundation**
