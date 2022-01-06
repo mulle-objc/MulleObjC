@@ -165,38 +165,51 @@ static inline int
 }
 
 
-void
-   _mulle_objc_universefoundationinfo_init( struct _mulle_objc_universefoundationinfo *info,
-                                            struct _mulle_objc_universe *universe,
-                                            struct mulle_allocator *allocator,
-                                            struct _mulle_objc_exceptionhandlertable *exceptiontable);
+MULLE_OBJC_EXTERN_GLOBAL
+void _mulle_objc_universefoundationinfo_init( struct _mulle_objc_universefoundationinfo *info,
+                                              struct _mulle_objc_universe *universe,
+                                              struct mulle_allocator *allocator,
+                                              struct _mulle_objc_exceptionhandlertable *exceptiontable);
 
-void
-   _mulle_objc_universefoundationinfo_willfinalize( struct _mulle_objc_universefoundationinfo *info);
-void
-   _mulle_objc_universefoundationinfo_finalize( struct _mulle_objc_universefoundationinfo *info);
+MULLE_OBJC_EXTERN_GLOBAL
+void _mulle_objc_universefoundationinfo_willfinalize( struct _mulle_objc_universefoundationinfo *info);
 
-void
-   _mulle_objc_universefoundationinfo_done( struct _mulle_objc_universefoundationinfo *info);
+MULLE_OBJC_EXTERN_GLOBAL
+void _mulle_objc_universefoundationinfo_finalize( struct _mulle_objc_universefoundationinfo *info);
+
+MULLE_OBJC_EXTERN_GLOBAL
+void _mulle_objc_universefoundationinfo_done( struct _mulle_objc_universefoundationinfo *info);
 
 //
 // There functions are all implicitly "universe" functions.
 // These functions do not retain/release.
 // Currently these functions use locking, that could change in the future
 //
+MULLE_OBJC_EXTERN_GLOBAL
 void _mulle_objc_universefoundationinfo_add_rootobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
+
+MULLE_OBJC_EXTERN_GLOBAL
 void _mulle_objc_universefoundationinfo_remove_rootobject(  struct _mulle_objc_universefoundationinfo *config, void *obj);
+
+MULLE_OBJC_EXTERN_GLOBAL
 void _mulle_objc_universefoundationinfo_release_rootobjects(  struct _mulle_objc_universefoundationinfo *config);
 
+MULLE_OBJC_EXTERN_GLOBAL
 void _mulle_objc_universefoundationinfo_add_threadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
+
+MULLE_OBJC_EXTERN_GLOBAL
 void _mulle_objc_universefoundationinfo_remove_threadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
 
-void   _mulle_objc_universefoundationinfo_set_mainthreadobject( struct _mulle_objc_universefoundationinfo *info,
-                                                                 void *obj);
-void   *_mulle_objc_universefoundationinfo_get_mainthreadobject( struct _mulle_objc_universefoundationinfo *info);
+MULLE_OBJC_EXTERN_GLOBAL
+void _mulle_objc_universefoundationinfo_set_mainthreadobject( struct _mulle_objc_universefoundationinfo *info,
+                                                              void *obj);
+MULLE_OBJC_EXTERN_GLOBAL
+void *_mulle_objc_universefoundationinfo_get_mainthreadobject( struct _mulle_objc_universefoundationinfo *info);
 
+MULLE_OBJC_EXTERN_GLOBAL
 void _mulle_objc_universe_lockedcall_universefoundationinfo( struct _mulle_objc_universe *universe,
                                                              void (*f)(struct _mulle_objc_universefoundationinfo *));
+MULLE_OBJC_EXTERN_GLOBAL
 void _mulle_objc_universe_lockedcall1_universefoundationinfo( struct _mulle_objc_universe *universe,
                                                               void (*f)(struct _mulle_objc_universefoundationinfo *, void *),
                                                               void *obj);

@@ -14,7 +14,7 @@ endif()
 #
 # Generated from sourcetree: 6C69EF4A-B5C3-449C-95EE-466B3FCCA76E;mulle-objc-debug;no-all-load,no-cmake-loader,no-cmake-searchpath,no-header,no-import,no-public,no-singlephase;
 # Disable with : `mulle-sourcetree mark mulle-objc-debug no-link`
-# Disable for this platform: `mulle-sourcetree mark mulle-objc-debug no-cmake-platform-darwin`
+# Disable for this platform: `mulle-sourcetree mark mulle-objc-debug no-cmake-platform-${MULLE_UNAME}`
 #
 if( NOT MULLE_OBJC_DEBUG_LIBRARY)
    find_library( MULLE_OBJC_DEBUG_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-debug NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -85,7 +85,7 @@ endif()
 #
 # Generated from sourcetree: 6a1a8ae7-8c93-4908-ae06-722cd7143197;mulle-objc-runtime;no-cmake-searchpath,no-header,no-import,no-singlephase;
 # Disable with : `mulle-sourcetree mark mulle-objc-runtime no-link`
-# Disable for this platform: `mulle-sourcetree mark mulle-objc-runtime no-cmake-platform-darwin`
+# Disable for this platform: `mulle-sourcetree mark mulle-objc-runtime no-cmake-platform-${MULLE_UNAME}`
 #
 if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
    find_library( MULLE_OBJC_RUNTIME_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-runtime NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -165,7 +165,7 @@ endif()
 #
 # Generated from sourcetree: e2dd59c0-8e52-4deb-a014-f44435122832;mulle-container;no-all-load,no-cmake-inherit,no-cmake-searchpath,no-import,no-singlephase;
 # Disable with : `mulle-sourcetree mark mulle-container no-link`
-# Disable for this platform: `mulle-sourcetree mark mulle-container no-cmake-platform-darwin`
+# Disable for this platform: `mulle-sourcetree mark mulle-container no-cmake-platform-${MULLE_UNAME}`
 #
 if( NOT MULLE_CONTAINER_LIBRARY)
    find_library( MULLE_CONTAINER_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-container${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-container NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -195,7 +195,7 @@ endif()
 #
 # Generated from sourcetree: 35955F81-51A7-4110-961E-9411CD19E833;mulle-fprintf;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import,no-singlephase;
 # Disable with : `mulle-sourcetree mark mulle-fprintf no-link`
-# Disable for this platform: `mulle-sourcetree mark mulle-fprintf no-cmake-platform-darwin`
+# Disable for this platform: `mulle-sourcetree mark mulle-fprintf no-cmake-platform-${MULLE_UNAME}`
 #
 if( NOT MULLE_FPRINTF_LIBRARY)
    find_library( MULLE_FPRINTF_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-fprintf${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-fprintf NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -259,5 +259,76 @@ if( NOT MULLE_FPRINTF_LIBRARY)
    else()
       # Disable with: `mulle-sourcetree mark mulle-fprintf no-require-link`
       message( FATAL_ERROR "MULLE_FPRINTF_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: 200C3FE0-4552-48A1-9CFC-1EB5E298CBAF;mulle-fifo;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import;
+# Disable with : `mulle-sourcetree mark mulle-fifo no-link`
+# Disable for this platform: `mulle-sourcetree mark mulle-fifo no-cmake-platform-${MULLE_UNAME}`
+#
+if( NOT MULLE_FIFO_LIBRARY)
+   find_library( MULLE_FIFO_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-fifo${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-fifo NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   message( STATUS "MULLE_FIFO_LIBRARY is ${MULLE_FIFO_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( MULLE_FIFO_LIBRARY)
+      #
+      # Add MULLE_FIFO_LIBRARY to DEPENDENCY_LIBRARIES list.
+      # Disable with: `mulle-sourcetree mark mulle-fifo no-cmake-add`
+      #
+      set( DEPENDENCY_LIBRARIES
+         ${DEPENDENCY_LIBRARIES}
+         ${MULLE_FIFO_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      #
+      # Inherit information from dependency.
+      # Encompasses: no-cmake-searchpath,no-cmake-dependency,no-cmake-loader
+      # Disable with: `mulle-sourcetree mark mulle-fifo no-cmake-inherit`
+      #
+      # temporarily expand CMAKE_MODULE_PATH
+      get_filename_component( _TMP_MULLE_FIFO_ROOT "${MULLE_FIFO_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_MULLE_FIFO_ROOT "${_TMP_MULLE_FIFO_ROOT}" DIRECTORY)
+      #
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mulle-sourcetree mark mulle-fifo no-cmake-dependency`
+      #
+      foreach( _TMP_MULLE_FIFO_NAME "mulle-fifo")
+         set( _TMP_MULLE_FIFO_DIR "${_TMP_MULLE_FIFO_ROOT}/include/${_TMP_MULLE_FIFO_NAME}/cmake")
+         # use explicit path to avoid "surprises"
+         if( EXISTS "${_TMP_MULLE_FIFO_DIR}/DependenciesAndLibraries.cmake")
+            unset( MULLE_FIFO_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_FIFO_DIR}")
+            # we only want top level INHERIT_OBJC_LOADERS, so disable them
+            if( NOT NO_INHERIT_OBJC_LOADERS)
+               set( NO_INHERIT_OBJC_LOADERS OFF)
+            endif()
+            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+            set( NO_INHERIT_OBJC_LOADERS ON)
+            #
+            include( "${_TMP_MULLE_FIFO_DIR}/DependenciesAndLibraries.cmake")
+            #
+            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+            #
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_FIFO_DIR}")
+            set( INHERITED_DEFINITIONS
+               ${INHERITED_DEFINITIONS}
+               ${MULLE_FIFO_DEFINITIONS}
+               CACHE INTERNAL "need to cache this"
+            )
+            break()
+         else()
+            message( STATUS "${_TMP_MULLE_FIFO_DIR}/DependenciesAndLibraries.cmake not found")
+         endif()
+      endforeach()
+   else()
+      # Disable with: `mulle-sourcetree mark mulle-fifo no-require-link`
+      message( FATAL_ERROR "MULLE_FIFO_LIBRARY was not found")
    endif()
 endif()

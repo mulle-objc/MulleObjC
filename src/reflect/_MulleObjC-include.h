@@ -38,4 +38,16 @@
 //        (use `mulle-sourcetree-to-c --unames` to list known values)
 #include <mulle-fprintf/mulle-fprintf.h>   // mulle-fprintf
 
+// You can tweak the following #include with these commands.
+// (Use 200C3FE0-4552-48A1-9CFC-1EB5E298CBAF instead of mulle-fifo if there are duplicate entries)
+//    remove:             `mulle-sde dependency mark mulle-fifo no-header`
+//    rename:             `mulle-sde dependency|library set mulle-fifo include whatever.h`
+//    reorder:            `mulle-sde dependency move mulle-fifo <up|down>`
+//    toggle #include:    `mulle-sde dependency mark mulle-fifo [no-]import`
+//    toggle public:      `mulle-sde dependency mark mulle-fifo [no-]public`
+//    toggle optional:    `mulle-sde dependency mark mulle-fifo [no-]require`
+//    remove for platform:`mulle-sde dependency mark mulle-fifo no-platform-<uname>`
+//        (use `mulle-sourcetree-to-c --unames` to list known values)
+#include <mulle-fifo/mulle-fifo.h>   // mulle-fifo
+
 #endif

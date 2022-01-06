@@ -9,3 +9,9 @@ endif()
 include( DefineLoaderIncObjC)
 
 include( PreLibraryAuxObjC OPTIONAL)
+
+
+# extension : mulle-objc/objc-cmake
+# directory : project/all
+# template  : .../PreLibraryAuxC.cmake
+# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

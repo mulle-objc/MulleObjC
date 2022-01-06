@@ -1,6 +1,8 @@
 cmake_minimum_required( VERSION 3.1)
 
 project( MulleObjC C)
+add_definitions( -DMULLE_OBJC_EXTERN_GLOBAL=extern)
+
 
 
 option( MULLE_OBJC_DEBUG_SUPPORT "Provide trace and dump support for release builds" OFF)

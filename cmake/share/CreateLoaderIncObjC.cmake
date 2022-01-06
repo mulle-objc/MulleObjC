@@ -126,3 +126,9 @@ if( CREATE_OBJC_LOADER_INC)
 endif()
 
 include( CreateLoaderIncAuxObjC OPTIONAL)
+
+
+# extension : mulle-objc/objc-cmake
+# directory : project/all
+# template  : .../CreateLoaderIncObjC.cmake
+# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

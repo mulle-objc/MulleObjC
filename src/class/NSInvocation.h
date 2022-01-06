@@ -48,7 +48,8 @@
    NSMethodSignature   *_methodSignature;
    char                *_storage;
    char                *_sentinel;
-   BOOL                _argumentsRetained;
+   char                _argumentsRetained;
+   char                _returnValueRetained;
 }
 
 @property( retain, readonly) NSMethodSignature   *methodSignature;
@@ -78,5 +79,24 @@
 // mulle additions
 
 - (void) _setMetaABIFrame:(void *) frame;
+- (void) mulleRetainReturnValue;
+- (BOOL) mulleReturnValueRetained;
 
+@end
+
+
+//
+// A root class, that does something funny. You send the class the method
+// you want to call with the arguments and you get an NSInvocation back.
+// You can then -invokeWithTarget:  on a target that supports this method.
+// This is way more convenient than building a NSInvocation by hand.
+// If you use arguments that don't match pointer, object or NSInteger then
+// you should create a category interface (no implementation) with said
+// method.
+//
+// invocation = [NSInvocation objectAtIndex:12];
+// [invocation invokeWithTarget:array];
+// [invocation getReturnValue:&obj];
+//
+@interface NSInvocationBuilder
 @end

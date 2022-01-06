@@ -43,3 +43,9 @@ if( NOT __EXECUTABLE_OBJC_CMAKE__)
    include( ExecutableAuxObjC OPTIONAL)
 
 endif()
+
+
+# extension : mulle-objc/objc-cmake
+# directory : project/all
+# template  : .../ExecutableObjC.cmake
+# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

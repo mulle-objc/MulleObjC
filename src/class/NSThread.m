@@ -540,7 +540,6 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 }
 
 
-
 /*
  * this is called when a threadinfo is put up
  * on behalf of foundation we install our destructor Fhere
@@ -780,6 +779,17 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    mulle_objc_object_call_variablemethodid_inline( self->_target,
                                                   (mulle_objc_methodid_t) self->_selector,
                                                   self->_argument);
+}
+
+- (BOOL) isCancelled
+{
+   return( _mulle_atomic_pointer_read( &_cancelled) == (void *) 1);
+}
+
+
+- (void) cancel
+{
+   _mulle_atomic_pointer_write( &_cancelled, (void *) 1);
 }
 
 

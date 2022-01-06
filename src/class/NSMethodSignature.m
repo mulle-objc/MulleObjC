@@ -348,6 +348,27 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
 }
 
 
+// used by NSInvocation
+- (NSUInteger) mulleInvocationSize
+{
+   NSUInteger                         frame_size;
+   MulleObjCMethodSignatureTypeInfo   *info;
+   NSUInteger                         i;
+   NSUInteger                         length;
+
+   i           = _count - 1;
+   info        = &get_infos( self)[ i];    // get last argument
+   frame_size  = info->invocation_offset + info->natural_size;
+   frame_size  = mulle_metaabi_sizeof_struct( frame_size);
+
+   info        = &get_infos( self)[ 0];
+   frame_size += info->natural_size;     // methodReturnLength
+   frame_size += alignof( long double);  // for alignment
+
+   return( frame_size);
+}
+
+
 // this method does not round up for MetaABI
 - (NSUInteger) methodReturnLength
 {

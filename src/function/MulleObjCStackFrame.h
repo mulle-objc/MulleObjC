@@ -42,8 +42,13 @@
 
 // this should move to OS Foundation!
 
-extern void         *NSFrameAddress( NSUInteger frame);
-extern void         *NSReturnAddress( NSUInteger frame);
-extern NSUInteger   NSCountFrames( void);
+MULLE_OBJC_EXTERN_GLOBAL
+void         *NSFrameAddress( NSUInteger frame);
+
+MULLE_OBJC_EXTERN_GLOBAL
+void         *NSReturnAddress( NSUInteger frame);
+
+MULLE_OBJC_EXTERN_GLOBAL
+NSUInteger   NSCountFrames( void);
 
 #endif

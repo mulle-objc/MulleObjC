@@ -72,6 +72,7 @@ static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 
 #pragma mark - allocate memory to return char * autoreleased
 
+MULLE_OBJC_EXTERN_GLOBAL
 void   *MulleObjCCallocAutoreleased( NSUInteger n,
                                      NSUInteger size);
 
@@ -142,8 +143,7 @@ static inline void  MulleObjCClassDeallocateMemory( Class cls, void *p)
 
 
 
-#pragma mark -
-#pragma mark object creation
+#pragma mark - object creation
 
 
 // resist the urge to add placeholder detection code here
@@ -163,10 +163,12 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
 }
 
 
+MULLE_OBJC_EXTERN_GLOBAL
 void   _MulleObjCInstanceClearProperties( id obj);
 
 
 // this does not zero properties
+MULLE_OBJC_EXTERN_GLOBAL
 void   _MulleObjCInstanceFree( id obj);
 
 
@@ -178,6 +180,7 @@ static inline id   NSAllocateObject( Class infra, NSUInteger extra, NSZone *zone
 
 
 // legacy naming scheme, should be DeallocateInstance really
+MULLE_OBJC_EXTERN_GLOBAL
 void   NSDeallocateObject( id obj);
 
 
@@ -320,10 +323,16 @@ static inline NSUInteger   MulleObjCCopyObjectArray( id *objects,
 //   MulleObjCObjectDeallocateMemory( self, &_fontName);
 // with the errnoeus & before the _ivar
 //
+MULLE_OBJC_EXTERN_GLOBAL
 void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s);
 
-
+//
+// MulleObjC_printf and friends are in OS Foundation
+//
+MULLE_OBJC_EXTERN_GLOBAL
 char   *MulleObjC_vasprintf( char *format, va_list args);
+
+MULLE_OBJC_EXTERN_GLOBAL
 char   *MulleObjC_asprintf( char *format, ...);
 
 

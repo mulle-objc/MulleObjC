@@ -44,3 +44,9 @@ if( NOT __DEFINE_LOADER_INC_OBJC_CMAKE__)
    include( DefineLoaderIncAuxObjC OPTIONAL)
 
 endif()
+
+
+# extension : mulle-objc/objc-cmake
+# directory : project/all
+# template  : .../DefineLoaderIncObjC.cmake
+# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

@@ -352,6 +352,37 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 #endif
 }
 
+MULLE_C_NO_RETURN void
+   _mulle_objc_vprintf_abort( char *format, va_list args);
+
+MULLE_C_NO_RETURN MULLE_C_NEVER_INLINE void
+   _mulle_objc_printf_abort( char *format, ...);
+
+
+MULLE_C_NO_RETURN
+static void   internal_inconsistency( id format, va_list args)
+{
+   _mulle_objc_vprintf_abort( (char *) format, args);
+}
+
+MULLE_C_NO_RETURN
+static void   invalid_argument( id format, va_list args)
+{
+   _mulle_objc_vprintf_abort( (char *) format, args);
+}
+
+MULLE_C_NO_RETURN
+static void   invalid_index( NSUInteger i)
+{
+   _mulle_objc_printf_abort( "invalid index %td", i);
+}
+
+MULLE_C_NO_RETURN
+static void   invalid_range( NSRange range)
+{
+   _mulle_objc_printf_abort( "invalid range { %td, %td }", range.location, range.length);
+}
+
 
 // a rare case of const use :)
 const struct _mulle_objc_universeconfiguration   *
@@ -372,10 +403,10 @@ const struct _mulle_objc_universeconfiguration   *
          NULL,
          { // exception vectors
             (void (*)()) perror_abort,
-            (void (*)()) abort,
-            (void (*)()) abort,
-            (void (*)()) abort,
-            (void (*)()) abort
+            internal_inconsistency,
+            invalid_argument,
+            invalid_index,
+            invalid_range
          }
       },
       {

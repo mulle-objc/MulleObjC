@@ -97,6 +97,7 @@ struct _mulle_objc_universeconfiguration
 };
 
 
+MULLE_OBJC_EXTERN_GLOBAL
 struct _mulle_objc_universefoundationinfo   *
    _mulle_objc_universeconfiguration_configure_universe( struct _mulle_objc_universeconfiguration *config,
                                                          struct _mulle_objc_universe *universe);
@@ -105,6 +106,7 @@ struct _mulle_objc_universefoundationinfo   *
 // mulle_objc_universe_setup during __register_mulle_objc_universe, whic
 // is defined in "MulleObjC-startup", the startup library.
 
+MULLE_OBJC_EXTERN_GLOBAL
 const struct _mulle_objc_universeconfiguration   *
    mulle_objc_global_get_default_universeconfiguration( void);
 
@@ -112,10 +114,14 @@ const struct _mulle_objc_universeconfiguration   *
 // use this in standalone in get_or_create_universe
 // setup will be modified by mulle_objc_universe_setup
 //
+MULLE_OBJC_EXTERN_GLOBAL
 void   mulle_objc_universe_configure( struct _mulle_objc_universe *universe,
                                       struct _mulle_objc_universeconfiguration *setup);
 
+MULLE_OBJC_EXTERN_GLOBAL
 void   mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe);
+
+MULLE_OBJC_EXTERN_GLOBAL
 void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe);
 
 #endif
