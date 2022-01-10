@@ -56,10 +56,7 @@
 //
 
 
-
-
 @implementation NSInvocation
-
 
 //
 // The invocation frame is stored in "extra" bytes behind the instance.
@@ -69,13 +66,13 @@
 //
 #define NSInvocationStandardSize  (sizeof( void *) * 16)
 
-struct mulle__pointerfifo16   reuseInvocations;
+struct mulle_pointermultififo   reuseInvocations;
 
 
 static int   pushStandardInvocation( NSInvocation *invocation)
 {
    // if full will return != 0
-   return( _mulle__pointerfifo16_write( &reuseInvocations, invocation));
+   return( _mulle_pointermultififo_write( &reuseInvocations, invocation));
 }
 
 
@@ -86,7 +83,7 @@ static NSInvocation   *popStandardInvocation( void)
    struct _mulle_objc_class          *cls;
    struct _mulle_objc_objectheader   *header;
 
-   invocation = _mulle__pointerfifo16_read( &reuseInvocations);
+   invocation = _mulle_pointermultififo_read_barrier( &reuseInvocations);
    if( ! invocation)
       return( invocation);
 
@@ -102,15 +99,22 @@ static NSInvocation   *popStandardInvocation( void)
 }
 
 
++ (void) initialize
+{
+   _mulle_pointermultififo_init( &reuseInvocations, 8, MulleObjCClassGetAllocator( self));
+}
+
+
 + (void) deinitialize
 {
    NSInvocation   *invocation;
 
-   while( invocation = _mulle__pointerfifo16_read( &reuseInvocations))
+   while( invocation = _mulle_pointermultififo_read_barrier( &reuseInvocations))
    {
       fprintf( stderr, "dealloc, no reuse %p\n", invocation);
       NSDeallocateObject( invocation);
    }
+   _mulle_pointermultififo_done( &reuseInvocations);
 }
 
 
@@ -250,7 +254,6 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
       break;
    }
 }
-
 
 
 - (NSMethodSignature *) methodSignature

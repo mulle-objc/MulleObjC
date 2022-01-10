@@ -8,8 +8,9 @@
 * use ``MulleObjC_vasprintf`` and ``MulleObjC_asprintf`` to create autoreleased character strings. Very convenient.
 * NSAutoreleasePool gains a class method
 * -UTF8String is now defined on NSObject. It's like description but for C strings. It replaces cStringDescription
-* `sizeof( `ptrdiff_t)`` is know known to be the same as `sizeof( NSInteger)`
+* `sizeof( ptrdiff_t)` is know known to be the same as `sizeof( NSInteger)`
 * mulle-objc-list is no longer a dependency. If you are developing a library, you should add that dependency back in. But mulle-objc-list is shared library based and conflicts with static musl builds (for now)
+* last minute change: use multififo instead of fifo for NSInvocation
 
 
 ## 0.19.0
