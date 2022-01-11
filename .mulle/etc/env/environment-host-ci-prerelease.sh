@@ -341,20 +341,20 @@ export MULLE_OBJC_LIST_BRANCH="prerelease"
 
 
 #
-# mulle-fifo nodetype: ${MULLE_FIFO_NODETYPE:-tar}
+# mulle-multififo nodetype: ${MULLE_MULTIFIFO_NODETYPE:-tar}
 #
-export MULLE_FIFO_NODETYPE="git"
+export MULLE_MULTIFIFO_NODETYPE="git"
 
 
 #
-# mulle-fifo url: ${MULLE_FIFO_URL:-https://github.com/mulle-concurrent/mulle-fifo/archive/${MULLE_TAG}.tar.gz}
+# mulle-multififo url: ${MULLE_MULTIFIFO_URL:-https://github.com/mulle-concurrent/mulle-multififo/archive/${MULLE_TAG}.tar.gz}
 #
-export MULLE_FIFO_URL="https://github.com/mulle-concurrent/mulle-fifo.git"
+export MULLE_MULTIFIFO_URL="https://github.com/mulle-concurrent/mulle-multififo.git"
 
 
 #
-# mulle-fifo branch: ${MULLE_FIFO_BRANCH}
+# mulle-multififo branch: ${MULLE_MULTIFIFO_BRANCH}
 #
-export MULLE_FIFO_BRANCH="prerelease"
+export MULLE_MULTIFIFO_BRANCH="prerelease"
 
 
