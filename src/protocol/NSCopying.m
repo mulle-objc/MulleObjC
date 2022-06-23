@@ -54,7 +54,7 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
    Class   infraCls;
 
    infraCls = [object class];
-   clone    = NSAllocateObject( infraCls, extraBytes, NULL);
+   clone    = _MulleObjCClassAllocateInstance( infraCls, extraBytes);
    memcpy( clone, object, extraBytes + _mulle_objc_infraclass_get_instancesize( infraCls));
    return( clone);
 }

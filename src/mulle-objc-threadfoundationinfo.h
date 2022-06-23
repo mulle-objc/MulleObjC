@@ -96,7 +96,7 @@ static inline struct _mulle_objc_poolconfiguration *
 /*
  * Universe interface
  */
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_CONST_NONNULL_RETURN
 struct _mulle_objc_threadfoundationinfo *
    mulle_objc_thread_get_threadfoundationinfo( struct _mulle_objc_universe *universe);

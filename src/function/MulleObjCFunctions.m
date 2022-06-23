@@ -152,11 +152,11 @@ void   MulleObjCIMPTraceCall( IMP imp, id obj, SEL sel, void *param)
 
 # pragma mark - String Functions
 
-// should be CString somering
+// should be CString something
 char  *MulleObjCClassGetNameUTF8String( Class cls)
 {
    if( ! cls)
-      return( NULL);
+      return( NULL); // return NULL to stay compatible with NSStringFromClass
 
    return( _mulle_objc_infraclass_get_name( cls));
 }
@@ -302,6 +302,12 @@ Class   MulleObjCLookupClassByClassID( SEL classid)
 }
 
 
+char  *MulleObjCInstanceGetClassNameUTF8String( id obj)
+{
+   return( MulleObjCClassGetNameUTF8String( [obj class]));
+}
+
+
 void    MulleObjCObjectSetClass( id obj, Class cls)
 {
    struct _mulle_objc_class   *new_cls;
@@ -373,7 +379,7 @@ IMP   MulleObjCObjectSearchSuperIMP( id obj,
    if( ! obj)
       return( (IMP) 0);
 
-   _mulle_objc_searcharguments_superinit( &search, sel, classid);
+   _mulle_objc_searcharguments_init_super( &search, sel, classid);
 
    cls    = _mulle_objc_object_get_isa( obj);
    method = mulle_objc_class_search_method( cls,
@@ -402,7 +408,7 @@ IMP   MulleObjCObjectSearchOverriddenIMP( id obj,
    if( ! obj)
       return( (IMP) 0);
 
-   _mulle_objc_searcharguments_overriddeninit( &search, sel, classid, categoryid);
+   _mulle_objc_searcharguments_init_overridden( &search, sel, classid, categoryid);
 
    cls         = _mulle_objc_object_get_isa( obj);
    inheritance =  _mulle_objc_class_get_inheritance( cls);
@@ -431,7 +437,7 @@ IMP   MulleObjCObjectSearchClobberedIMP( id obj,
    if( ! obj)
       return( (IMP) 0);
 
-   _mulle_objc_searcharguments_overriddeninit( &search, sel, classid, categoryid);
+   _mulle_objc_searcharguments_init_overridden( &search, sel, classid, categoryid);
 
    cls         = _mulle_objc_object_get_isa( obj);
    inheritance = _mulle_objc_class_get_inheritance( cls)
@@ -466,7 +472,7 @@ IMP   MulleObjCObjectSearchSpecificIMP( id obj,
    if( ! obj)
       return( (IMP) 0);
 
-   _mulle_objc_searcharguments_specificinit( &search, sel, classid, categoryid);
+   _mulle_objc_searcharguments_init_specific( &search, sel, classid, categoryid);
 
    cls         = _mulle_objc_object_get_isa( obj);
    inheritance = _mulle_objc_class_get_inheritance( cls);
@@ -497,7 +503,7 @@ unsigned int   _mulle_objc_class_search_clobber_chain( struct _mulle_objc_class 
    p        = array;
    sentinel = &p[ n];
 
-   _mulle_objc_searcharguments_defaultinit( &args, sel);
+   _mulle_objc_searcharguments_init_default( &args, sel);
    inheritance = _mulle_objc_class_get_inheritance( cls)
                  | MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS
                  | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
@@ -513,7 +519,7 @@ unsigned int   _mulle_objc_class_search_clobber_chain( struct _mulle_objc_class 
          *p = (IMP) _mulle_objc_method_get_implementation( method);
       ++p;
 
-      _mulle_objc_searcharguments_overriddeninit( &args,
+      _mulle_objc_searcharguments_init_overridden( &args,
                                                   sel,
                                                   mulle_objc_searchresult_get_classid( &result),
                                                   mulle_objc_searchresult_get_categoryid( &result));

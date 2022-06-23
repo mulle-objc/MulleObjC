@@ -14,6 +14,7 @@ set( INCLUDE_DIRS
 src
 src/class
 src/function
+src/generic
 src/protocol
 src/reflect
 src/struct
@@ -31,8 +32,8 @@ src/reflect/_MulleObjC-include-private.h
 # contents selected with patternfile ??-header--private-generic-headers
 #
 set( PRIVATE_GENERIC_HEADERS
-src/import-private.h
-src/include-private.h
+src/generic/import-private.h
+src/generic/include-private.h
 )
 
 #
@@ -62,8 +63,8 @@ src/reflect/_MulleObjC-provide.h
 # contents selected with patternfile ??-header--public-generic-headers
 #
 set( PUBLIC_GENERIC_HEADERS
-src/import.h
-src/include.h
+src/generic/import.h
+src/generic/include.h
 )
 
 #
@@ -88,6 +89,7 @@ src/function/MulleObjCAllocation.h
 src/function/MulleObjCExceptionHandler.h
 src/function/MulleObjCFunctions.h
 src/function/MulleObjCHashFunctions.h
+src/function/MulleObjCPrinting.h
 src/function/MulleObjCStackFrame.h
 src/function/NSByteOrder.h
 src/function/NSDebug.h

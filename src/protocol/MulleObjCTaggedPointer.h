@@ -49,7 +49,7 @@ PROTOCOLCLASS_END()
 
 
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 int  MulleObjCTaggedPointerRegisterClassAtIndex( Class cls,
                                                  unsigned int index);
 

@@ -1,8 +1,6 @@
-cmake_minimum_required( VERSION 3.1)
+cmake_minimum_required( VERSION 3.18) # 3.15 fails on windows
 
 project( MulleObjC C)
-add_definitions( -DMULLE_OBJC_EXTERN_GLOBAL=extern)
-
 
 
 option( MULLE_OBJC_DEBUG_SUPPORT "Provide trace and dump support for release builds" OFF)

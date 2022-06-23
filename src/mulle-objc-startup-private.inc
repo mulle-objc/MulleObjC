@@ -33,6 +33,10 @@ MULLE_C_CONST_RETURN struct _mulle_objc_universe  *
    struct _mulle_objc_universe   *universe;
    struct mulle_allocator        *allocator;
 
+   universe = __mulle_objc_global_get_universe( universeid, universename);
+   if( _mulle_objc_universe_is_initialized( universe))
+      return( universe);
+
    allocator = NULL;
    if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_TESTALLOCATOR_ENABLED"))
    {
@@ -49,10 +53,7 @@ does not support dlsym\n");
 #endif
    }
 
-   universe = __mulle_objc_global_get_universe( universeid, universename);
-   if( ! _mulle_objc_universe_is_initialized( universe))
-      _mulle_objc_universe_bang( universe, bang, allocator, NULL);
-
+   _mulle_objc_universe_bang( universe, bang, allocator, NULL);
    return( universe);
 }
 

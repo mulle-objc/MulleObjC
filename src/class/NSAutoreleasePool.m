@@ -680,7 +680,7 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
    //   [exception raise];
       if( config->trace & 0x4)
          fprintf( stderr, "[pool] %p pool deallocates\n", pool);
-      NSDeallocateObject( pool);
+      _MulleObjCInstanceFree( pool);
    }
    while( pool != aPool);
 }
@@ -800,7 +800,7 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 	if( ! pointer)
 		return( nil);
 
-	allocation = NSAllocateObject( self, 0, NULL);
+	allocation = _MulleObjCClassAllocateInstance( self, 0);
 	allocation->_pointer   = pointer;
 	allocation->_allocator = allocator;
 	return( allocation);
@@ -810,7 +810,7 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 static void   dealloc( _MulleObjCAutoreleaseAllocation *self)
 {
    mulle_allocator_free( self->_allocator, self->_pointer);
-   NSDeallocateObject( self);
+   _MulleObjCInstanceFree( self);
 }
 
 
@@ -846,12 +846,14 @@ static void   dealloc( _MulleObjCAutoreleaseAllocation *self)
 
 
 
-void   MulleObjCAutoreleaseAllocation( void *pointer, struct mulle_allocator *allocator)
+void   *MulleObjCAutoreleaseAllocation( void *pointer, struct mulle_allocator *allocator)
 {
 	_MulleObjCAutoreleaseAllocation   *allocation;
 
 	allocation = [_MulleObjCAutoreleaseAllocation newWithPointer:pointer
 																		allocator:allocator];
 	NSAutoreleaseObject( allocation);
+   // relieve register pressure
+   return( pointer);  // sic ! allocation is unknown to caller
 }
 

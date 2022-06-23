@@ -126,7 +126,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
    assert( extra < 0x10000);
    assert( count < 0x10000);
 
-   obj               = NSAllocateObject( self, extra, NULL);
+   obj               = _MulleObjCClassAllocateInstance( self, extra);
    obj->_count       = (uint16_t) count;
    obj->_extra       = (uint16_t) extra;
    obj->_bits        = (uint32_t) bits;
@@ -150,7 +150,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
       mulle_allocator_free( allocator, _types);
       mulle_allocator_free( allocator, _infos);
    }
-   NSDeallocateObject( self);
+   _MulleObjCInstanceFree( self);
 }
 
 

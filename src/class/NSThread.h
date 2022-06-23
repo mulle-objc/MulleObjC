@@ -49,6 +49,8 @@ enum
 };
 
 
+typedef void   MulleThreadFunction_t( NSThread *, void *);
+
 @interface NSThread : NSObject
 {
    mulle_atomic_pointer_t   _thread;
@@ -59,16 +61,15 @@ enum
    mulle_atomic_pointer_t   _runLoop;
    id                       _userInfo;
 
+   MulleThreadFunction_t    *_function;
+   void                     *_functionArgument;  // unmanaged
+
    char                     *_nameUTF8String;
    char                     _isDetached;
    char                     _releaseTarget;
    char                     _releaseArgument;
    mulle_atomic_pointer_t   _cancelled;
 }
-
-- (instancetype) initWithTarget:(id) target
-                       selector:(SEL) sel
-                         object:(id) argument;
 
 + (NSThread *) mainThread;
 + (NSThread *) currentThread;
@@ -79,11 +80,21 @@ enum
                         toTarget:(id) target
                       withObject:(id) argument;
 
++ (void) mulleDetachNewThreadWithFunction:(MulleThreadFunction_t *) f
+                                 argument:(void *) argument;
+
 + (void) exit;
+
+
+- (instancetype) initWithTarget:(id) target
+                       selector:(SEL) sel
+                         object:(id) argument;
+
+- (instancetype) mulleInitWithFunction:(MulleThreadFunction_t *) f
+                              argument:(void *) argument;
 
 - (void) start;
 - (void) main;
-
 
 
 + (BOOL) isMultiThreaded;   // __attribute__((availability(mulleobjc,introduced=0.2)));
@@ -128,39 +139,42 @@ enum
 - (void) cancel;
 
 
+- (char *) mulleNameUTF8String;
+- (void) mulleSetNameUTF8String:(char *) s;
+
 #pragma mark - Internal
 
 // don't call these functions yourself
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 NSThread   *_MulleThreadGetCurrentThreadObjectInUniverse( struct _mulle_objc_universe *universe);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 NSThread   *_MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc_universe *universe);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 NSThread   *_MulleThreadCreateMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 NSThread   *_MulleThreadGetMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   _MulleThreadRemoveThreadObjectFromUniverse( NSThread *threadObject,
                                                    struct _mulle_objc_universe *universe);
 //
 // this can only be called during crunch time!
 // it will autorelase the runloop and the thread dictionary
 //
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   _MulleThreadFinalizeMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
 
 // used to setup threads and run atexit stuff on a per thread basis
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
                                           void *foundationspace);
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config);
 
 
@@ -193,7 +207,7 @@ static inline id   MulleThreadGetCurrentThreadUserInfo( void)
 
 
 // the complementary to above function
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   MulleThreadSetCurrentThreadUserInfo( id info);
 
 

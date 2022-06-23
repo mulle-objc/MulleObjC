@@ -49,6 +49,10 @@
 #endif
 
 
+struct
+{
+   BOOL  colorize;
+} Self;
 
 static int  _sprintf_object_conversion( struct mulle_buffer *buffer,
                                         struct mulle_sprintf_formatconversioninfo *info,
@@ -63,7 +67,14 @@ static int  _sprintf_object_conversion( struct mulle_buffer *buffer,
    assert( arguments);
 
    v = arguments->values[ argc];
-   s = v.obj ? [(id) v.obj UTF8String] : "(nil)";
+   s = "(nil)";
+   if( v.obj)
+   {
+      if( info->memory.hash_found && Self.colorize)
+         s = [(id) v.obj colorizedUTF8String];
+      else
+         s = [(id) v.obj UTF8String];
+   }
 
    return( _mulle_sprintf_charstring_conversion( buffer, info, s));
 }
@@ -85,13 +96,51 @@ static struct mulle_sprintf_function   sprintf_object_function =
 
 void   mulle_sprintf_register_object_functions( struct mulle_sprintf_conversion *tables)
 {
-   mulle_sprintf_register_functions( tables, &sprintf_object_function, _C_ID);
+   mulle_sprintf_register_functions( tables, &sprintf_object_function, '@');
+
+   // colorizing modifier
+   mulle_sprintf_register_modifiers( tables, "#");
+}
+
+
+// taken from
+// https://github.com/mulle-nat/mulle-bashfunctions/blob/release/src/mulle-logging.sh#L308
+//
+static BOOL   colorize( void)
+{
+   char   *s;
+   FILE   *fp;
+
+   if( getenv( "NO_COLOR"))
+      return( NO);
+
+   // check environmen vars
+   s = getenv( "MULLE_NO_COLOR");
+   if( s && ! strcmp( s, "YES"))
+      return( NO);
+
+   // if TERM is dumb dont
+   s = getenv( "TERM");
+   if( s && ! strcmp( s, "dumb"))
+      return( NO);
+
+// don't want FILE I/O here
+//
+//   // run with redirection check
+//   fp = fopen( "/dev/stderr", "r");
+//   if( ! fp)
+//      return( NO);
+//   fclose( fp);
+
+   return( YES);
 }
 
 
 __attribute__((constructor))
 static void  mulle_sprintf_register_default_object_functions()
 {
+   Self.colorize = colorize();
+
    mulle_sprintf_register_object_functions( mulle_sprintf_get_defaultconversion());
 }
 

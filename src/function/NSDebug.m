@@ -552,9 +552,9 @@ void   MulleObjCDotdumpInfraHierarchyToDirectory( char *classname, char *directo
 
    cls = _mulle_objc_infraclass_as_class( infra);
 
-   asprintf( &filename, "%s/%s-infra.dot", directory, classname);
+   mulle_asprintf( &filename, "%s/%s-infra.dot", directory, classname);
    mulle_objc_classhierarchy_dotdump_to_file( cls, filename);
-   free( filename);
+   mulle_free( filename);
 }
 
 
@@ -587,9 +587,9 @@ void   MulleObjCDotdumpMetaHierarchyToDirectory( char *classname, char *director
    }
 
    cls = _mulle_objc_metaclass_as_class( _mulle_objc_infraclass_get_metaclass( infra));
-   asprintf( &filename, "%s/%s-meta.dot", directory, classname);
+   mulle_asprintf( &filename, "%s/%s-meta.dot", directory, classname);
    mulle_objc_classhierarchy_dotdump_to_file( cls, filename);
-   free( filename);
+   mulle_free( filename);
 }
 
 

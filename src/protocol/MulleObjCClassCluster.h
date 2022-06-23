@@ -63,7 +63,7 @@ PROTOCOLCLASS_END()
 // if your class overrides +initialize and implements MulleObjCClassCluster
 // then you must call [super initialize] or this
 //
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   MulleObjCClassMarkAsClassCluster( Class self);
 
 // protocol class

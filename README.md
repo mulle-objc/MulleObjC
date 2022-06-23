@@ -4,7 +4,7 @@
 
 MulleObjC supplies the most basic runtime components like NSObject or NSThread
 to build a foundation on top of it. MulleObjC depends on standard C libraries 
-only (for instance not on `<unistd.h>`)
+only and for instance not on `<unistd.h>`.
 
 
 | Release Version
@@ -12,19 +12,16 @@ only (for instance not on `<unistd.h>`)
 | ![Tag](https://img.shields.io/github/tag/mulle-objc/MulleObjC.svg) [![Build Status](https://github.com/mulle-objc/MulleObjC/workflows/CI/badge.svg?branch=release)](https://github.com/mulle-objc/MulleObjC/workflows)
 
 
-### Objects
+### Classes
 
 * NSAutoreleasePool - garbage collection
-* NSCoder - object serialization
 * NSObject - the root class of everything
-* NSLock - locking for threading
-* NSRecursiveLock - recursive locking for threading
 * NSInvocation - method call serialization
 * NSMethodSignature - method description
 * NSProxy - the other root class of everything :=)
 * NSThread - threads
 
-### Protocols
+### Protocol and Protocolclasses
 
 * NSCoding - object serialization
 * NSCopying - object copying

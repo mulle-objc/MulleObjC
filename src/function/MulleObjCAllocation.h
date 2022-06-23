@@ -72,9 +72,10 @@ static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 
 #pragma mark - allocate memory to return char * autoreleased
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   *MulleObjCCallocAutoreleased( NSUInteger n,
                                      NSUInteger size);
+
 
 #pragma mark - allocate memory for objects
 
@@ -142,14 +143,12 @@ static inline void  MulleObjCClassDeallocateMemory( Class cls, void *p)
 }
 
 
-
 #pragma mark - object creation
-
 
 // resist the urge to add placeholder detection code here
 // resist the urge to add _mulle_objc_class_setup here
 __attribute__((returns_nonnull))
-static inline id    _MulleObjCClassAllocateObject( Class infraCls, NSUInteger extra)
+static inline id    _MulleObjCClassAllocateInstance( Class infraCls, NSUInteger extra)
 {
    return( (id) _mulle_objc_infraclass_alloc_instance_extra( infraCls, extra));
 }
@@ -163,24 +162,24 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
 }
 
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   _MulleObjCInstanceClearProperties( id obj);
 
 
 // this does not zero properties
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   _MulleObjCInstanceFree( id obj);
 
 
 // legacy naming scheme, should be AllocateInstance really
 static inline id   NSAllocateObject( Class infra, NSUInteger extra, NSZone *zone)
 {
-   return( _MulleObjCClassAllocateObject( infra, extra));
+   return( infra ? _MulleObjCClassAllocateInstance( infra, extra) : nil);
 }
 
 
 // legacy naming scheme, should be DeallocateInstance really
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   NSDeallocateObject( id obj);
 
 
@@ -320,19 +319,9 @@ static inline NSUInteger   MulleObjCCopyObjectArray( id *objects,
 // will not duplicate if *ivar == s
 // Interface is kinda bad, because copy/pasting this to -dealloc makes me
 // write:
-//   MulleObjCObjectDeallocateMemory( self, &_fontName);
-// with the errnoeus & before the _ivar
+//   MulleObjCInstanceDeallocateMemory( self, **&**_fontName); !! WRONG
+// with the erroneus & before the _ivar
 //
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s);
-
-//
-// MulleObjC_printf and friends are in OS Foundation
-//
-MULLE_OBJC_EXTERN_GLOBAL
-char   *MulleObjC_vasprintf( char *format, va_list args);
-
-MULLE_OBJC_EXTERN_GLOBAL
-char   *MulleObjC_asprintf( char *format, ...);
-
 

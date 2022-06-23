@@ -38,17 +38,19 @@
 #ifndef MulleObjCStackFrame__h__
 #define MulleObjCStackFrame__h__
 
+#import "import.h"
+
 #import "MulleObjCIntegralType.h"
 
 // this should move to OS Foundation!
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void         *NSFrameAddress( NSUInteger frame);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void         *NSReturnAddress( NSUInteger frame);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 NSUInteger   NSCountFrames( void);
 
 #endif

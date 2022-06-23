@@ -41,6 +41,28 @@
 #endif
 
 
+// implement this on classes which use `observable` properties, it will
+// get triggered on setters. You often want to make a snapshot of your
+// object at this time to be able to undo the change.
+//
+// @property( observable) int   x;
+//
+// The compiler will generate a setter like this:
+// - (void) setX:(int) x
+// {
+//    [self willChange];
+//    _x = x;
+// }
+//
+
+@protocol MullePropertyObserving
+
+- (void) willChange;
+
+@end
+
+
+
 _PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 
 - (Class) superclass;

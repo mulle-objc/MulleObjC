@@ -161,7 +161,7 @@ static id   MulleObjCSingletonNew( Class self)
                Self._useEphemeralSingleton > 0 ? "ephemeral": "static");
    }
 
-   singleton = NSAllocateObject( self, 0, NULL);
+   singleton = _MulleObjCClassAllocateInstance( self, 0);
 
    // allow __initSingleton and init, but prefer __initSingleton
    cls       = _mulle_objc_infraclass_as_class( self);

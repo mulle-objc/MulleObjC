@@ -52,7 +52,7 @@ PROTOCOLCLASS_END()
 
 
 // for subclasses, who don't use sharedInstance
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 id     MulleObjCSingletonCreate( Class self);
 
 
@@ -73,5 +73,5 @@ static inline BOOL   MulleObjCInstanceIsSingleton( id obj)
 // then you must call [super initialize] or this
 //
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   MulleObjCSingletonMarkClassAsSingleton( Class self);

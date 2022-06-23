@@ -21,6 +21,7 @@ src/class/NSThread.m
 src/function/MulleObjCAllocation.m
 src/function/MulleObjCExceptionHandler.m
 src/function/MulleObjCFunctions.m
+src/function/MulleObjCPrinting.m
 src/function/MulleObjCStackFrame.m
 src/function/NSDebug.m
 src/function/mulle-sprintf-object.m

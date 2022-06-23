@@ -15,7 +15,7 @@ mulle-sourcetree-to-cmake
 mulle-sourcetree-graph
 mulle-clang
 mulle-scan-build;optional
-mulle-lldb;optional
+mulle-gdb;optional
 mulle-match-to-cmake;optional
 mulle-match-to-c;optional
 cmake
