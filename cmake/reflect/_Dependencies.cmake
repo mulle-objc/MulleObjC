@@ -17,7 +17,7 @@ endif()
 # Disable for this platform: `mulle-sourcetree mark mulle-objc-debug no-cmake-platform-${MULLE_UNAME}`
 #
 if( NOT MULLE_OBJC_DEBUG_LIBRARY)
-   find_library( MULLE_OBJC_DEBUG_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-debug NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   find_library( MULLE_OBJC_DEBUG_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-debug NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
    message( STATUS "MULLE_OBJC_DEBUG_LIBRARY is ${MULLE_OBJC_DEBUG_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read
@@ -88,7 +88,7 @@ endif()
 # Disable for this platform: `mulle-sourcetree mark mulle-objc-runtime no-cmake-platform-${MULLE_UNAME}`
 #
 if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
-   find_library( MULLE_OBJC_RUNTIME_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-runtime NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   find_library( MULLE_OBJC_RUNTIME_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-runtime NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
    message( STATUS "MULLE_OBJC_RUNTIME_LIBRARY is ${MULLE_OBJC_RUNTIME_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read
@@ -168,7 +168,7 @@ endif()
 # Disable for this platform: `mulle-sourcetree mark mulle-container no-cmake-platform-${MULLE_UNAME}`
 #
 if( NOT MULLE_CONTAINER_LIBRARY)
-   find_library( MULLE_CONTAINER_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-container${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-container NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   find_library( MULLE_CONTAINER_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-container${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-container${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-container NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
    message( STATUS "MULLE_CONTAINER_LIBRARY is ${MULLE_CONTAINER_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read
@@ -198,7 +198,7 @@ endif()
 # Disable for this platform: `mulle-sourcetree mark mulle-fprintf no-cmake-platform-${MULLE_UNAME}`
 #
 if( NOT MULLE_FPRINTF_LIBRARY)
-   find_library( MULLE_FPRINTF_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-fprintf${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-fprintf NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   find_library( MULLE_FPRINTF_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-fprintf${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-fprintf${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-fprintf NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
    message( STATUS "MULLE_FPRINTF_LIBRARY is ${MULLE_FPRINTF_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read
@@ -269,7 +269,7 @@ endif()
 # Disable for this platform: `mulle-sourcetree mark mulle-multififo no-cmake-platform-${MULLE_UNAME}`
 #
 if( NOT MULLE_MULTIFIFO_LIBRARY)
-   find_library( MULLE_MULTIFIFO_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-multififo${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-multififo NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   find_library( MULLE_MULTIFIFO_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-multififo${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-multififo${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-multififo NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
    message( STATUS "MULLE_MULTIFIFO_LIBRARY is ${MULLE_MULTIFIFO_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read

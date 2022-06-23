@@ -41,7 +41,7 @@
 #define MulleObjC_version__h__
 
 
-#define MULLE_OBJC_VERSION    ((0 << 20) | (20 << 8) | 0)
+#define MULLE_OBJC_VERSION    ((0 << 20) | (21 << 8) | 0)
 
 #endif
 

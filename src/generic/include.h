@@ -24,8 +24,14 @@
 
 #include "_MulleObjC-include.h"
 
-#ifndef MULLE_OBJC_EXTERN_GLOBAL
-# define MULLE_OBJC_EXTERN_GLOBAL MULLE_C_EXTERN_GLOBAL
+#ifdef MULLE_OBJC_BUILD
+# define MULLE_OBJC_GLOBAL    MULLE_C_GLOBAL
+#else
+# if defined( MULLE_OBJC_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE_OBJC_INCLUDE_STATIC))
+#  define MULLE_OBJC_GLOBAL   MULLE_C_EXTERN_GLOBAL
+# else
+#  define MULLE_OBJC_GLOBAL   extern
+# endif
 #endif
 
 

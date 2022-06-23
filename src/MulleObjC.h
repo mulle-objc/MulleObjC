@@ -42,7 +42,7 @@
 
 #import "import.h"
 
-// objects
+// classes
 #import "MulleObjCLoader.h"
 #import "NSAutoreleasePool.h"
 #import "NSInvocation.h"
@@ -51,7 +51,7 @@
 #import "NSProxy.h"
 #import "NSThread.h"
 
-// protocols
+// protocols and protocolclasses
 #import "MulleObjCClassCluster.h"
 #import "MulleObjCException.h"
 #import "MulleObjCSingleton.h"

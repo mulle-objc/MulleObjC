@@ -1,9 +1,9 @@
 //
-//  MulleObjCSingleton.h
+//  MulleObjCPrinting.m
 //  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2016 Codeon GmbH.
+//  Copyright (c) 2022 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2022 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -33,45 +33,68 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#import "import-private.h"
 
-#import "NSObjectProtocol.h"
+#import "MulleObjCPrinting.h"
 
-#include "mulle-objc-classbit.h"
-
-//
-// singletons are expected to be created through "sharedInstance"
-// and not through alloc, if you use alloc you get another instance
-//
-_PROTOCOLCLASS_INTERFACE0( MulleObjCSingleton)
-
-@optional  // MulleObjCSingleton implements this for you
-+ (void) initialize;  // #1#
-+ (instancetype) sharedInstance;
-
-PROTOCOLCLASS_END()
+#import "MulleObjCAllocation.h"
 
 
-// for subclasses, who don't use sharedInstance
-MULLE_OBJC_GLOBAL
-id     MulleObjCSingletonCreate( Class self);
 
 
-static inline BOOL   MulleObjCInstanceIsSingleton( id obj)
+char   *MulleObjC_mvasprintf( char *format, mulle_vararg_list args)
 {
-   Class  infraCls;
+   char                  *s;
+   struct mulle_buffer   buffer;
 
-   if( ! obj)
-      return( NO);
+   if( ! format)
+   {
+      errno = EINVAL;
+      return( NULL);
+   }
 
-   infraCls = mulle_objc_object_get_infraclass( obj);
-   return( _mulle_objc_infraclass_get_state_bit( infraCls, MULLE_OBJC_INFRA_IS_SINGLETON) ? YES : NO);
+   mulle_buffer_init( &buffer, NULL);
+   mulle_buffer_mvsprintf( &buffer, format, args);
+   mulle_buffer_make_string( &buffer);
+   s = mulle_buffer_extract_string( &buffer);
+
+   MulleObjCAutoreleaseAllocation( s, mulle_buffer_get_allocator( &buffer));
+   mulle_buffer_done( &buffer);
+
+   return( s);
 }
 
 
-// #1#
-// if your class overrides +initialize and implements MulleObjCClassCluster
-// then you must call [super initialize] or this
-//
+char   *MulleObjC_vasprintf( char *format, va_list args)
+{
+   char                  *s;
+   struct mulle_buffer   buffer;
 
-MULLE_OBJC_GLOBAL
-void   MulleObjCSingletonMarkClassAsSingleton( Class self);
+   if( ! format)
+   {
+      errno = EINVAL;
+      return( NULL);
+   }
+
+   mulle_buffer_init( &buffer, NULL);
+   mulle_buffer_vsprintf( &buffer, format, args);
+   mulle_buffer_make_string( &buffer);
+   s = mulle_buffer_extract_string( &buffer);
+
+   MulleObjCAutoreleaseAllocation( s, mulle_buffer_get_allocator( &buffer));
+   mulle_buffer_done( &buffer);
+
+   return( s);
+}
+
+
+char   *MulleObjC_asprintf( char *format, ...)
+{
+   va_list   args;
+   char      *s;
+
+   va_start( args, format);
+   s = MulleObjC_vasprintf( format, args);
+   va_end( args);
+   return( s);
+}

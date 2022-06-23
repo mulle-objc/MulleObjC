@@ -186,7 +186,7 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 #if DEBUG
       _mulle_objc_warn_classcluster( self);
 #endif
-      return( NSAllocateObject( self, 0, NULL));
+      return( _MulleObjCClassAllocateInstance( self, 0));
    }
 
    assert( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_SINGLETON));

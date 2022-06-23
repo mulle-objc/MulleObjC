@@ -48,7 +48,7 @@
 
 
 // calls the runtime to really throw, used by NSException later
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN void   mulle_objc_throw( void *exception);
 
 //
@@ -64,10 +64,10 @@ void  mulle_objc_break_exception( void);
 
 typedef void   NSUncaughtExceptionHandler( MULLE_OBJC_EXCEPTION_CLASS_P exception);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler);
 
 #endif

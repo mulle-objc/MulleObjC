@@ -49,23 +49,23 @@ struct _mulle_objc_exceptionhandlertable
    void (*invalid_range)( NSRange range)                    MULLE_C_NO_RETURN;
 };
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void  mulle_objc_throw_foundation_errno_error( id format, ...);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void  mulle_objc_throw_foundation_internal_inconsistency( id format, ...);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void  mulle_objc_throw_foundation_invalid_argument( id format, ...);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void  mulle_objc_throw_foundation_invalid_index( NSUInteger i);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void  mulle_objc_throw_foundation_invalid_range( NSRange range);
 

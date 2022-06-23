@@ -26,6 +26,7 @@
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCFunctions.h"
 #import "MulleObjCHashFunctions.h"
+#import "MulleObjCPrinting.h"
 #import "MulleObjCStackFrame.h"
 #import "NSByteOrder.h"
 #import "NSDebug.h"

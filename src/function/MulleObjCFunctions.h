@@ -37,7 +37,7 @@
 #include "minimal.h"
 
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
 
 
@@ -338,7 +338,7 @@ static inline NSRange   MulleObjCObjectGetRange( id obj, SEL sel)
  * appear in the usual universe method trace
  */
 #if defined( DEBUG) || defined( MULLE_OBJC_TRACE_IMP)
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   MulleObjCIMPTraceCall( IMP imp, id obj, SEL sel, void *param);
 #else
 #define MulleObjCIMPTraceCall( imp, obj, sel, param)
@@ -618,24 +618,24 @@ static inline unsigned long long
 // slow search routines
 // overridden will probably gain it's own keyword
 //
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 IMP   MulleObjCObjectSearchSuperIMP( id obj,
                                      SEL sel,
                                      mulle_objc_classid_t classid);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 IMP   MulleObjCObjectSearchSpecificIMP( id obj,
                                         SEL sel,
                                         mulle_objc_classid_t classid,
                                         mulle_objc_categoryid_t categoryid);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 IMP   MulleObjCObjectSearchOverriddenIMP( id obj,
                                           SEL sel,
                                           mulle_objc_classid_t classid,
                                           mulle_objc_categoryid_t categoryid);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 IMP   MulleObjCObjectSearchClobberedIMP( id obj,
                                          SEL sel,
                                          mulle_objc_classid_t classid,
@@ -667,7 +667,7 @@ IMP   MulleObjCObjectSearchClobberedIMP( id obj,
 
 
 // always returns number of IMPs found, the first 'n',
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 unsigned int   _mulle_objc_class_search_clobber_chain( struct _mulle_objc_class *cls,
                                                        SEL sel,
                                                        IMP *array,
@@ -758,6 +758,43 @@ static inline id   MulleObjCObjectPerformSelectorDoubleArgument( id obj, SEL sel
 }
 
 
+static inline id   MulleObjCObjectPerformSelectorDoubleArgument2( id obj, SEL sel, double a, double b)
+{
+   mulle_metaabi_struct_voidptr_return( struct { double a; double b; })  param;
+
+   param.p.a = a;
+   param.p.b = b;
+
+   return( mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param));
+}
+
+
+static inline id   MulleObjCObjectPerformSelectorDoubleArgument3( id obj, SEL sel, double a, double b, double c)
+{
+   mulle_metaabi_struct_voidptr_return( struct { double a; double b; double c; })  param;
+
+   param.p.a = a;
+   param.p.b = b;
+   param.p.c = c;
+
+   return( mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param));
+}
+
+
+static inline id   MulleObjCObjectPerformSelectorDoubleArgument4( id obj, SEL sel, double a, double b, double c, double d)
+{
+   mulle_metaabi_struct_voidptr_return( struct { double a; double b; double c; double d; })  param;
+
+   param.p.a = a;
+   param.p.b = b;
+   param.p.c = c;
+   param.p.d = d;
+
+   return( mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param));
+}
+
+
+
 static inline void   MulleObjCMakeObjectsPerformSelector0( id *objects, NSUInteger n, SEL sel)
 {
    mulle_objc_objects_call( (void **) objects, (unsigned int) n, (mulle_objc_methodid_t) sel, NULL);
@@ -820,13 +857,13 @@ static inline id   MulleObjCObjectPerformSelector5( id obj, SEL sel, id a, id b,
 }
 
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void    MulleObjCMakeObjectsPerformSelector2( id *objects, NSUInteger n, SEL sel, id argument, id argument2);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void    MulleObjCMakeObjectsPerformRetain( id *objects, NSUInteger n);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void    MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n);
 
 
@@ -836,7 +873,7 @@ static inline Class   MulleObjCObjectGetClass( id obj)
 }
 
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void    MulleObjCObjectSetClass( id obj, Class cls);
 
 //
@@ -850,26 +887,33 @@ static inline void   MulleObjCObjectConstantify( id obj)
       _mulle_objc_object_constantify_noatomic( obj);
 }
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 Class   NSClassFromObject( id object);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 char    *MulleObjCClassGetNameUTF8String( Class cls);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 char    *MulleObjCSelectorGetNameUTF8String( SEL sel);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 char    *MulleObjCProtocolGetNameUTF8String( PROTOCOL sel);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 Class   MulleObjCLookupClassByNameUTF8String( char *name);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 Class   MulleObjCLookupClassByClassID( SEL classid);
 
-MULLE_OBJC_EXTERN_GLOBAL
+//MEMO:
+// you don't need to lookup protocols or selector, just use @protocol()
+// and @selector
+
+MULLE_OBJC_GLOBAL
 SEL     MulleObjCCreateSelectorUTF8String( char *name);
+
+MULLE_OBJC_GLOBAL
+char  *MulleObjCInstanceGetClassNameUTF8String( id obj);
 
 
 static inline void   *MulleObjCClassGetExtraBytes( Class cls)
@@ -885,7 +929,7 @@ static inline void   *MulleObjCInstanceGetExtraBytes( id obj)
 
 
 // find the address of the structure that defined this class
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void  *MulleObjCClassGetLoadAddress( Class cls);
 
 

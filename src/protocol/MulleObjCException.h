@@ -79,27 +79,27 @@
    _MulleObjCThrowInvalidRangeException( __MULLE_OBJC_UNIVERSEID__, (range))
 
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowInvalidIndexException( mulle_objc_universeid_t universeid,
                                              NSUInteger index);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowInvalidRangeException( mulle_objc_universeid_t universeid,
                                              NSRange range);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowInvalidArgumentException( mulle_objc_universeid_t universeid,
                                                 id format, ...);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowInternalInconsistencyException( mulle_objc_universeid_t universeid,
                                                       id format, ...);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowErrnoException( mulle_objc_universeid_t universeid,
                                       id format, ...);
@@ -118,15 +118,15 @@ void   _MulleObjCThrowErrnoException( mulle_objc_universeid_t universeid,
    _MulleObjCThrowInvalidArgumentExceptionUTF8String( __MULLE_OBJC_UNIVERSEID__, __VA_ARGS__)
 
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowInvalidArgumentExceptionUTF8String( mulle_objc_universeid_t universeid,
                                                           char *format, ...);
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowInternalInconsistencyExceptionUTF8String( mulle_objc_universeid_t universeid,
                                                                 char *format, ...);
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowErrnoExceptionUTF8String( mulle_objc_universeid_t universeid,
                                                 char *format, ...);

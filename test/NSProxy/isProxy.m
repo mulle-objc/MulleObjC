@@ -13,12 +13,12 @@
 
 + (id) new
 {
-   return( NSAllocateObject( self, 0, NULL));
+   return( _MulleObjCClassAllocateInstance( self, 0));
 }
 
 - (void) dealloc
 {
-   return( NSDeallocateObject( self));
+   return( _MulleObjCInstanceFree( self));
 }
 
 @end

@@ -112,7 +112,7 @@ static NSInvocation   *popStandardInvocation( void)
    while( invocation = _mulle_pointermultififo_read_barrier( &reuseInvocations))
    {
       fprintf( stderr, "dealloc, no reuse %p\n", invocation);
-      NSDeallocateObject( invocation);
+      _MulleObjCInstanceFree( invocation);
    }
    _mulle_pointermultififo_done( &reuseInvocations);
 }
@@ -199,7 +199,7 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
          return;
       }
    }
-   NSDeallocateObject( self);
+   _MulleObjCInstanceFree( self);
 }
 
 
@@ -403,10 +403,10 @@ retain the arguments of variadic methods");
 
 - (void) mulleRetainReturnValue
 {
-   char        *type;
-   id          obj;
-   char        *s;
-   char        *dup;
+   char   *type;
+   id     obj;
+   char   *s;
+   char   *dup;
 
    if( _returnValueRetained)
    {

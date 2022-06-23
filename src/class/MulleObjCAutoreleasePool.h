@@ -80,17 +80,18 @@ static inline void
 
 
 // for NSThread
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   mulle_objc_thread_reset_poolconfiguration( struct _mulle_objc_universe *universe);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *universe);
 
-MULLE_OBJC_EXTERN_GLOBAL
-void   MulleObjCAutoreleaseAllocation( void *pointer,
-												   struct mulle_allocator *allocator);
+// returns pointer as a convenience
+MULLE_OBJC_GLOBAL
+void   *MulleObjCAutoreleaseAllocation( void *pointer,
+												    struct mulle_allocator *allocator);
 
 #endif

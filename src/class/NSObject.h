@@ -272,6 +272,25 @@
 //
 - (char *) UTF8String;  // used to be cStringDescription
 
+// you can use mulle_fprintf( "%#@") to trigger this colorization method
+- (char *) colorizedUTF8String;  // used to be cStringDescription
+
+// color code to be placed in front of UTF8String (NULL for no colorization)
+// default NULL
+//
+// ## Color picker
+//
+// for code in {0..255}
+// do
+//    printf "%b\n" "\\033[38;5;${code}m"'\\033[38;5;'"${code}"m"\\033[0m"
+// done
+//
+- (char *) colorizerPrefixUTF8String;
+
+// color code to be placed in the back of UTF8String (can't be NULL)
+// default "\033[0m" should reset the color back to normal
+- (char *) colorizerSuffixUTF8String;
+
 @end
 
 
@@ -279,20 +298,20 @@
 // These just memcpy. Objects embeddded into structs will not be retained (yet)
 // I could do this in the future though.
 //
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 int   _MulleObjCObjectSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 int   _MulleObjCObjectGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
 
 //
 // These functions do proper retain/assign/copy and autorelease previous
 // contents.
 //
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 id    MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid);
 
-MULLE_OBJC_EXTERN_GLOBAL
+MULLE_OBJC_GLOBAL
 void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value);
 
 

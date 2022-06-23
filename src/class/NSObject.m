@@ -72,6 +72,7 @@
 
 @end
 
+
 // intentonally a root object (!)
 @interface _MulleObjCInstantiatePlaceholder
 {
@@ -205,31 +206,29 @@ static id
 @end
 
 
-#pragma mark -
-#pragma mark ### NSObject ###
-#pragma mark -
+#pragma mark - ### NSObject ###
 
 @implementation NSObject
 
 + (instancetype) alloc
 {
-   return( NSAllocateObject( self, 0, NULL));
+   return( _MulleObjCClassAllocateInstance( self, 0));
 }
 
 
 + (instancetype) allocWithZone:(NSZone *) zone
 {
-   return( NSAllocateObject( self, 0, zone));
+   return( _MulleObjCClassAllocateInstance( self, 0));
 }
 
 
 + (instancetype) new
 {
-   return( [NSAllocateObject( self, 0, NULL) init]);
+   return( [_MulleObjCClassAllocateInstance( self, 0) init]);
 }
 
 
-- (NSZone *) zone;  // always NULL
+- (NSZone *) zone  // always NULL
 {
    return( (NSZone *) 0);
 }
@@ -340,7 +339,6 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-
 #pragma mark - singleton/classcluster support
 
 - (BOOL) __isSingletonObject
@@ -356,7 +354,6 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 
 
 #pragma mark - aam support
-
 
 + (Class) __instantiateClass
 {
@@ -529,8 +526,8 @@ retry:
 
 
 #if HAVE_CLASS_VALUE
-# pragma mark -
-# pragma mark class "variable" support
+
+# pragma mark - class "variable" support
 
 /* The classvalues are all taken down when the runtime
    collapses. (before classes are deallocated !)
@@ -629,8 +626,7 @@ retry:
 #endif
 
 
-# pragma mark -
-# pragma mark regular methods
+# pragma mark - regular methods
 
 - (instancetype) init
 {
@@ -680,8 +676,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-#pragma mark -
-#pragma mark object introspection
+#pragma mark - object introspection
 
 - (BOOL) isProxy
 {
@@ -689,8 +684,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-#pragma mark -
-#pragma mark class introspection
+#pragma mark - class introspection
 
 - (Class) superclass
 {
@@ -771,8 +765,40 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-#pragma mark -
-#pragma mark protocol introspection
+- (char *) colorizerPrefixUTF8String
+{
+   return( NULL);
+}
+
+
+- (char *) colorizerSuffixUTF8String
+{
+   return( "\033[0m");
+}
+
+
+- (char *) colorizedUTF8String
+{
+   char   *colorizedHeader;
+   char   *colorizedFooter;
+   char   *s;
+   char   *result;
+
+   s               = [self UTF8String];
+   colorizedHeader = [self colorizerPrefixUTF8String];
+
+   if( ! colorizedHeader)
+      return( s);
+
+   colorizedFooter = [self colorizerSuffixUTF8String];
+   mulle_asprintf( &result, "%s%s%s", colorizedHeader, s, colorizedFooter);
+   MulleObjCAutoreleaseAllocation( result, NULL);
+
+   return( result);
+}
+
+
+#pragma mark - protocol introspection
 
 - (BOOL) mulleContainsProtocol:(PROTOCOL) protocol
 {
@@ -798,8 +824,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-#pragma mark -
-#pragma mark method introspection
+#pragma mark - method introspection
 
 - (id) performSelector:(SEL) sel
 {
@@ -896,8 +921,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-#pragma mark -
-#pragma mark walk object graph support
+#pragma mark - walk object graph support
 
 struct collect_info
 {
@@ -965,8 +989,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 }
 
 
-#pragma mark -
-#pragma mark forwarding
+#pragma mark - forwarding
 
 - (id) forwardingTargetForSelector:(SEL) sel
 {
@@ -1149,7 +1172,6 @@ int   _MulleObjCObjectSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, s
 }
 
 
-
 int   _MulleObjCObjectGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)
 {
    int                        offset;
@@ -1178,8 +1200,8 @@ int   _MulleObjCObjectGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, s
 }
 
 
-static void  throw_unknown_ivarid( struct _mulle_objc_class *cls,
-                                   mulle_objc_ivarid_t ivarid)
+static void   throw_unknown_ivarid( struct _mulle_objc_class *cls,
+                                    mulle_objc_ivarid_t ivarid)
 {
    __mulle_objc_universe_raise_invalidargument( _mulle_objc_class_get_universe( cls),
                                               "Class %08x \"%s\" has no ivar with id %08x found",
@@ -1189,7 +1211,7 @@ static void  throw_unknown_ivarid( struct _mulle_objc_class *cls,
 }
 
 
-id  MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid)
+id   MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid)
 {
    id   obj;
 
@@ -1203,7 +1225,7 @@ id  MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid)
 }
 
 
-void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
+void   MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
 {
    id                         old;
    struct _mulle_objc_class   *cls;
@@ -1227,7 +1249,8 @@ void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id valu
 
    offset = _mulle_objc_ivar_get_offset( ivar);
    if( offset == -1)
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self), "hashed access not yet implemented");
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                         "hashed access not yet implemented");
 
    p         = (id *) &((char *) self)[ offset];
    signature = _mulle_objc_ivar_get_signature( ivar);

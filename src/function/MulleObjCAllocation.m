@@ -224,43 +224,5 @@ void   *MulleObjCCallocAutoreleased( NSUInteger n,
    total = n * size;
    assert( ! total || (total >= size && total >= n));
 
-   return( [NSAllocateObject( [NSObject class],
-                              total,
-                              NULL) autorelease]);
+   return( [_MulleObjCClassAllocateInstance( [NSObject class], total) autorelease]);
 }
-
-
-char   *MulleObjC_vasprintf( char *format, va_list args)
-{
-   char                  *s;
-   struct mulle_buffer   buffer;
-
-   if( ! format)
-   {
-      errno = EINVAL;
-      return( NULL);
-   }
-
-   mulle_buffer_init( &buffer, NULL);
-   mulle_buffer_vsprintf( &buffer, format, args);
-   mulle_buffer_make_string( &buffer);
-   s = mulle_buffer_extract_string( &buffer);
-
-   MulleObjCAutoreleaseAllocation( s, mulle_buffer_get_allocator( &buffer));
-   mulle_buffer_done( &buffer);
-
-   return( s);
-}
-
-
-char   *MulleObjC_asprintf( char *format, ...)
-{
-   va_list   args;
-   char      *s;
-
-   va_start( args, format);
-   s = MulleObjC_vasprintf( format, args);
-   va_end( args);
-   return( s);
-}
-

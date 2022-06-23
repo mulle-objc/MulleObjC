@@ -136,6 +136,21 @@ static struct $
 }
 
 
+- (instancetype) mulleInitWithFunction:(MulleThreadFunction_t) f
+                              argument:(void *) argument
+{
+   if( ! f)
+      __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
+                                                   "function must not be nil");
+
+   self->_function         = f;
+   self->_functionArgument = argument;
+
+   return( self);
+}
+
+
+
 - (void) finalize
 {
    id   runLoop;
@@ -165,6 +180,8 @@ static struct $
 {
    assert( ! [self mulleRunLoop]);
    assert( ! self->_userInfo);
+
+   MulleObjCInstanceDeallocateMemory( self, _nameUTF8String);
 
    _MulleObjCInstanceFree( self);
 }
@@ -667,6 +684,57 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 }
 
 
+- (char *) mulleNameUTF8String
+{
+   return( _nameUTF8String ? _nameUTF8String : "unnamed");
+}
+
+
+- (void) mulleSetNameUTF8String:(char *) s
+{
+   MulleObjCObjectSetDuplicatedUTF8String( self, &_nameUTF8String, s);
+}
+
+
+- (char *) UTF8String
+{
+   Class   cls;
+
+   if( _nameUTF8String)
+      return( _nameUTF8String);
+
+   cls = [self class];
+   if( [cls mainThread] == self)
+      return( "NSMainThread");
+   return( MulleObjCClassGetNameUTF8String( cls));
+}
+
+
+- (char *) colorizerPrefixUTF8String
+{
+   Class       cls;
+   char        *result;
+   uintptr_t   hash;
+   int         color;
+
+   cls = [self class];
+   if( [cls mainThread] == self)
+      return( "\033[38;5;2m");
+
+   // use a random color for this thread, thats not blackish or whitish
+   // based on pointer address, it would be better to
+
+   if( _nameUTF8String)
+      hash = _mulle_string_hash( _nameUTF8String);
+   else
+      hash  = mulle_pointer_hash( self);
+
+   color  = (hash % (230 - 22)) + 22;
+   mulle_asprintf( &result, "\033[38;5;%dm", color);;
+
+   return( MulleObjCAutoreleaseAllocation( result, NULL));
+}
+
 
 + (NSThread *) mainThread
 {
@@ -766,7 +834,6 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 }
 
 
-
 - (void) start
 {
    [self mulleStartUndetached];
@@ -776,10 +843,14 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 
 - (void) main
 {
-   mulle_objc_object_call_variablemethodid_inline( self->_target,
-                                                  (mulle_objc_methodid_t) self->_selector,
-                                                  self->_argument);
+   if( _function)
+      (*_function)( self, _functionArgument);
+   else
+      mulle_objc_object_call_variablemethodid_inline( self->_target,
+                                                      (mulle_objc_methodid_t) self->_selector,
+                                                      self->_argument);
 }
+
 
 - (BOOL) isCancelled
 {
@@ -802,6 +873,17 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    threadObject = [[[NSThread alloc] initWithTarget:target
                                            selector:sel
                                             object:argument] autorelease];
+   [threadObject start];
+}
+
+
++ (void) mulleDetachNewThreadWithFunction:(MulleThreadFunction_t *) f
+                                 argument:(void *) argument;
+{
+   NSThread   *threadObject;
+
+   threadObject = [[[NSThread alloc] mulleInitWithFunction:f
+                                                  argument:argument] autorelease];
    [threadObject start];
 }
 

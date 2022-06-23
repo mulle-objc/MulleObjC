@@ -19,6 +19,21 @@ if( CREATE_OBJC_LOADER_INC)
       set( LIBRARY_NAME "${PROJECT_NAME}")
    endif()
 
+   if( NOT LIBRARY_IDENTIFIER)
+      string( MAKE_C_IDENTIFIER "${LIBRARY_NAME}" LIBRARY_IDENTIFIER)
+   endif()
+
+   include( StringCase)
+
+   if( NOT LIBRARY_UPCASE_IDENTIFIER)
+      snakeCaseString( "${LIBRARY_IDENTIFIER}" LIBRARY_UPCASE_IDENTIFIER)
+      string( TOUPPER "${LIBRARY_UPCASE_IDENTIFIER}" LIBRARY_UPCASE_IDENTIFIER)
+   endif()
+   if( NOT LIBRARY_DOWNCASE_IDENTIFIER)
+      snakeCaseString( "${LIBRARY_IDENTIFIER}" LIBRARY_DOWNCASE_IDENTIFIER)
+      string( TOLOWER "${LIBRARY_DOWNCASE_IDENTIFIER}" LIBRARY_DOWNCASE_IDENTIFIER)
+   endif()
+
    #
    # Create src/objc-loader.inc for Objective-C projects. This contains a
    # list of all the classes and categories, contained in a library.
@@ -66,6 +81,13 @@ if( CREATE_OBJC_LOADER_INC)
       )
       set( OBJC_LOADER_LIBRARY "$<TARGET_FILE:_3_${LIBRARY_NAME}>")
 
+      set_target_properties( "_3_${LIBRARY_NAME}"
+         PROPERTIES
+            CXX_STANDARD 11
+#            DEFINE_SYMBOL "${LIBRARY_UPCASE_IDENTIFIER}_SHARED_BUILD"
+      )
+      target_compile_definitions( "_3_${LIBRARY_NAME}" PRIVATE "${LIBRARY_UPCASE_IDENTIFIER}_BUILD")
+
       set( STAGE2_HEADERS
          ${STAGE2_HEADERS}
          ${OBJC_LOADER_INC}
@@ -79,10 +101,21 @@ if( CREATE_OBJC_LOADER_INC)
       set( OBJC_LOADER_LIBRARY "$<TARGET_FILE:${LIBRARY_NAME}>")
    endif()
 
+   #
+   # on windows we lose the PATH due to the cmake windows bounce
+   # therefore push this in via .bat
+   #
+   if( MSVC)
+      set( TMP_MULLE_BIN_DIR "~/.mulle/${LIBRARY_NAME}.var/env/bin")
+   else()
+      set( TMP_MULLE_BIN_DIR "")
+   endif()
+
    add_custom_command(
       OUTPUT ${OBJC_LOADER_INC}
       COMMAND ${MULLE_OBJC_LOADER_TOOL}
                  $ENV{MULLE_OBJC_LOADER_TOOL_FLAGS}
+                 -p "${TMP_MULLE_BIN_DIR}"
                  -c "${CMAKE_BUILD_TYPE}"
                  -o "${OBJC_LOADER_INC}"
                  ${OBJC_LOADER_LIBRARY}

@@ -1,3 +1,13 @@
+## 0.21.0
+
+* change GLOBALs for Windows
+* colorized terminal output support with colorizedUTF8String
+* NSThread can now call a C-function instead of a target/selector pair
+* you can give NSThreads a name, which is useful for debugging
+* `_MulleObjCClassAllocateObject` has been renamed to `_MulleObjCClassAllocateInstance` for consistency with the object=class|instance model of thought
+* new MulleObjCInstanceGetClassNameUTF8String function
+
+
 ## 0.20.0
 
 * NSAutoreleasePool which is a root class gains a +class method

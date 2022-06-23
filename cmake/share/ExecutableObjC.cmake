@@ -25,6 +25,13 @@ if( NOT __EXECUTABLE_OBJC_CMAKE__)
    #
    # only for mulle-clang
    #
+   if( UNIX)
+      target_link_options( "${EXECUTABLE_NAME}"
+         PUBLIC
+            "SHELL:LINKER:--export-dynamic"
+      )
+   endif()
+
    if( APPLE AND MULLE_OBJC)
       target_link_options( "${EXECUTABLE_NAME}"
          PUBLIC

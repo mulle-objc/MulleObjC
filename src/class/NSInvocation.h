@@ -85,7 +85,7 @@
 @end
 
 
-//
+// idea:
 // A root class, that does something funny. You send the class the method
 // you want to call with the arguments and you get an NSInvocation back.
 // You can then -invokeWithTarget:  on a target that supports this method.
@@ -98,5 +98,5 @@
 // [invocation invokeWithTarget:array];
 // [invocation getReturnValue:&obj];
 //
-@interface NSInvocationBuilder
-@end
+//@interface NSInvocationBuilder
+//@end
