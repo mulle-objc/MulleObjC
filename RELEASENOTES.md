@@ -1,7 +1,7 @@
 ## 0.21.0
 
 * change GLOBALs for Windows
-* colorized terminal output support with colorizedUTF8String
+* colorized terminal output support with colorizedUTF8String (see: [src/function/blob/release/mulle-sprintf-object.m]())
 * NSThread can now call a C-function instead of a target/selector pair
 * you can give NSThreads a name, which is useful for debugging
 * `_MulleObjCClassAllocateObject` has been renamed to `_MulleObjCClassAllocateInstance` for consistency with the object=class|instance model of thought
