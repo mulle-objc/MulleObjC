@@ -41,7 +41,6 @@ typedef intptr_t    NSInteger;
 
 #endif
 
-
 typedef enum
 {
    NSOrderedAscending = -1,

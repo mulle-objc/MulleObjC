@@ -69,3 +69,4 @@ tmp.*/
 .mulle-make-build-dir
 version.old
 .idea/
+cmake-build-debug/

@@ -1,5 +1,5 @@
 //
-//  ns_objc_type.h
+//  mulle-objc-type.h
 //  MulleObjC
 //
 //  Copyright (c) 2015 Nat! - Mulle kybernetiK.
@@ -99,7 +99,92 @@ typedef id                          (*IMP)( id, SEL, void *);
 #define NS_REQUIRES_NIL_TERMINATION
 
 // https://nshipster.com/ns_enum-ns_options/
-#define NS_ENUM(_type, _name) enum _name : _type _name; enum _name : _type
-#define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
+
+#ifndef NSENUM
+
+//// precede with typedef like:  typedef NS_ENUM( NSUInteger, foo) { x = 1; }
+
+#define NS_ENUM( type, name)                    \
+type   name;                                    \
+struct name ## __item { char *s; type value; }; \
+enum name
+
+// define an enum in .h:
+//
+// NS_ENUM( int, Foo) { A, B, C }
+//
+// Then create an extern reference for the table in .h:
+//
+// extern NS_ENUM_TABLE( Foo, 3);
+//
+// In the .c/.m file create the table:
+//
+// NS_ENUM_TABLE( Foo, 3) { NS_ENUM_ITEM( A), NS_ENUM_ITEM( B), NS_ENUM_ITEM( C) };
+//
+// And that's it.
+//
+#define NS_ENUM_ITEM( name)            { #name, name  }
+#define NS_ENUM_ITEM_TYPE( name)       struct name ## __item
+#define NS_ENUM_TABLE( name, length)   NS_ENUM_ITEM_TYPE( name) name ## __table[ length]
+#define NS_ENUM_PRINT( name, item)                                                       \
+   _NS_ENUM_OPTIONS_UTF8String( name ## __table,                                         \
+                                sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
+                                sizeof( name ## __table[ 0]),                            \
+                                offsetof( NS_ENUM_ITEM_TYPE( name), value),              \
+                                sizeof( name ## __table[ 0].value),                      \
+                                item)
+#define NS_ENUM_PARSE( name, string)                                                          \
+   _NS_ENUM_OPTIONS_ParseUTF8String( name ## __table,                                         \
+                                     sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
+                                     sizeof( name ## __table[ 0]),                            \
+                                     offsetof( NS_ENUM_ITEM_TYPE( name), value),              \
+                                     sizeof( name ## __table[ 0].value),                      \
+                                     string)
+
+//
+//// precede with typedef like:  typedef NS_OPTIONS( NSUInteger, foo) { x = 1; }
+//
+#define NS_OPTIONS( type, name)                 \
+type   name;                                    \
+struct name ## __item { char *s; type value; }; \
+enum name
+
+
+//
+// Just the same but for options
+//
+#define NS_OPTIONS_ITEM( name)            { #name, name  }
+#define NS_OPTIONS_ITEM_TYPE( name)       struct name ## __item
+#define NS_OPTIONS_TABLE( name, length)   NS_OPTIONS_ITEM_TYPE( name) name ## __table[ length]
+#define NS_OPTIONS_PRINT( name, options)                                                 \
+   _NS_ENUM_OPTIONS_UTF8String( name ## __table,                                         \
+                                sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
+                                sizeof( name ## __table[ 0]),                            \
+                                offsetof( NS_OPTIONS_ITEM_TYPE( name), value),           \
+                                sizeof( name ## __table[ 0].value),                      \
+                                options)
+#define NS_OPTIONS_PARSE( name, string)                                                       \
+   _NS_ENUM_OPTIONS_ParseUTF8String( name ## __table,                                         \
+                                     sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
+                                     sizeof( name ## __table[ 0]),                            \
+                                     offsetof( NS_OPTIONS_ITEM_TYPE( name), value),           \
+                                     sizeof( name ## __table[ 0].value),                      \
+                                     string)
+
+
+unsigned long long   _NS_ENUM_OPTIONS_ParseUTF8String( void *table,
+                                                       size_t len,
+                                                       size_t line_size,
+                                                       size_t offset,
+                                                       size_t item_len,
+                                                       char *s);
+
+char   *_NS_ENUM_OPTIONS_UTF8String( void *table,
+                                     size_t len,
+                                     size_t line_size,
+                                     size_t offset,
+                                     size_t item_len,
+                                     unsigned long long bits);
+#endif
 
 #endif

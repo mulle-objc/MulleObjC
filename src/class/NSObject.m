@@ -828,7 +828,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (id) performSelector:(SEL) sel
 {
-   return( mulle_objc_object_call_variablemethodid_inline( self, (mulle_objc_methodid_t) sel, (void *) 0));
+   return( mulle_objc_object_call_variablemethodid_inline( self, (mulle_objc_methodid_t) sel, (void *) self));
 }
 
 
