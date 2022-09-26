@@ -329,7 +329,6 @@ static inline NSRange   MulleObjCObjectGetRange( id obj, SEL sel)
 }
 
 
-
 #pragma mark - imp calling helpers
 
 /*
@@ -735,7 +734,7 @@ static inline id   MulleObjCObjectPerformSelector0( id obj, SEL sel)
 }
 
 
-
+// just for completeness
 static inline id   MulleObjCObjectPerformSelector1( id obj, SEL sel, id argument)
 {
    return( (id) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, argument));
@@ -744,7 +743,7 @@ static inline id   MulleObjCObjectPerformSelector1( id obj, SEL sel, id argument
 
 static inline id   MulleObjCObjectPerformSelector( id obj, SEL sel, id argument)
 {
-   return( MulleObjCObjectPerformSelector1( obj, sel, argument));
+   return( (id) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, argument));
 }
 
 
@@ -854,6 +853,18 @@ static inline id   MulleObjCObjectPerformSelector5( id obj, SEL sel, id a, id b,
    param.p.e = e;
 
    return( mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param));
+}
+
+
+static inline BOOL   MulleObjCObjectPerformSelector0ReturningBOOL( id obj, SEL sel)
+{
+   return( (BOOL) (intptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+}
+
+
+static inline BOOL   MulleObjCObjectPerformSelectorReturningBOOL( id obj, SEL sel, id argument)
+{
+   return(  (BOOL) (intptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, argument));
 }
 
 

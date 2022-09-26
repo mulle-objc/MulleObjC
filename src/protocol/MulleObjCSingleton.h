@@ -75,3 +75,10 @@ static inline BOOL   MulleObjCInstanceIsSingleton( id obj)
 
 MULLE_OBJC_GLOBAL
 void   MulleObjCSingletonMarkClassAsSingleton( Class self);
+
+
+// if you want this, you need to call this before +initialize of
+// MulleObjCSingleton, which may be impossible. Better to use
+// environment MULLE_OBJC_EPHEMERAL_SINGLETON (from the outside)
+MULLE_OBJC_GLOBAL
+void   MulleObjCSingletonSetEphemeral( BOOL flag);

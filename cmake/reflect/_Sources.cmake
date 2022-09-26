@@ -27,6 +27,7 @@ src/function/NSDebug.m
 src/function/mulle-sprintf-object.m
 src/mulle-objc-breakpoint.c
 src/mulle-objc-threadfoundationinfo.m
+src/mulle-objc-type.c
 src/mulle-objc-universeconfiguration.m
 src/mulle-objc-universefoundationinfo.m
 src/protocol/MulleObjCClassCluster.m
