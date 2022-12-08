@@ -10,16 +10,12 @@ endif()
 # only for mulle-clang
 #
 if( APPLE AND MULLE_OBJC)
-   target_link_options( "${STANDALONE_LIBRARY_NAME}"
-      PUBLIC
-         "SHELL:LINKER:-undefined,dynamic_lookup"
-   )
+   if( LINK_PHASE)
+      target_link_options( "${STANDALONE_LIBRARY_NAME}"
+         PUBLIC
+            "SHELL:LINKER:-undefined,dynamic_lookup"
+      )
+   endif()
 endif()
 
 include( PostStandaloneAuxObjC OPTIONAL)
-
-
-# extension : mulle-objc/objc-cmake
-# directory : project/all
-# template  : .../PostStandaloneAuxC.cmake
-# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

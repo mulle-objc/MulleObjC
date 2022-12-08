@@ -76,17 +76,18 @@ if( CREATE_OBJC_LOADER_INC)
    # included by the Loader.
    #
    if( TARGET "_2_${LIBRARY_NAME}")
-      add_library( "_3_${LIBRARY_NAME}" STATIC
+      set( LIBRARY_STAGE3_TARGET "_3_${LIBRARY_NAME}")
+      add_library( ${LIBRARY_STAGE3_TARGET} STATIC
          $<TARGET_OBJECTS:_1_${LIBRARY_NAME}>
       )
-      set( OBJC_LOADER_LIBRARY "$<TARGET_FILE:_3_${LIBRARY_NAME}>")
+      set( OBJC_LOADER_LIBRARY "$<TARGET_FILE:${LIBRARY_STAGE3_TARGET}>")
 
-      set_target_properties( "_3_${LIBRARY_NAME}"
+      set_target_properties( ${LIBRARY_STAGE3_TARGET}
          PROPERTIES
             CXX_STANDARD 11
 #            DEFINE_SYMBOL "${LIBRARY_UPCASE_IDENTIFIER}_SHARED_BUILD"
       )
-      target_compile_definitions( "_3_${LIBRARY_NAME}" PRIVATE "${LIBRARY_UPCASE_IDENTIFIER}_BUILD")
+      target_compile_definitions( ${LIBRARY_STAGE3_TARGET} PRIVATE "${LIBRARY_UPCASE_IDENTIFIER}_BUILD")
 
       set( STAGE2_HEADERS
          ${STAGE2_HEADERS}
@@ -111,6 +112,8 @@ if( CREATE_OBJC_LOADER_INC)
       set( TMP_MULLE_BIN_DIR "")
    endif()
 
+   # TODO: $ENV{MULLE_OBJC_LOADER_TOOL_FLAGS} are implicitly double quote 
+   # protected by cmake it seems, which trips up settings like "-vvv -ld" 
    add_custom_command(
       OUTPUT ${OBJC_LOADER_INC}
       COMMAND ${MULLE_OBJC_LOADER_TOOL}
@@ -136,6 +139,7 @@ if( CREATE_OBJC_LOADER_INC)
 
    add_custom_target( "__objc_loader_inc__"
       DEPENDS ${OBJC_LOADER_INC}
+      COMMENT "Target to build \"${OBJC_LOADER_INC}\""
    )
 
    if( TARGET "_2_${LIBRARY_NAME}")
@@ -159,9 +163,3 @@ if( CREATE_OBJC_LOADER_INC)
 endif()
 
 include( CreateLoaderIncAuxObjC OPTIONAL)
-
-
-# extension : mulle-objc/objc-cmake
-# directory : project/all
-# template  : .../CreateLoaderIncObjC.cmake
-# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

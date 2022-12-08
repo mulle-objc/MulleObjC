@@ -109,11 +109,13 @@ src/protocol/MulleObjCSingleton.h
 src/protocol/MulleObjCTaggedPointer.h
 src/protocol/NSCoding.h
 src/protocol/NSContainer.h
+src/protocol/NSCopyingWithAllocator.h
 src/protocol/NSCopying.h
 src/protocol/NSEnumeration.h
 src/protocol/NSMutableCopying.h
 src/protocol/NSObjectProtocol.h
 src/reflect/_MulleObjC-versioncheck.h
+src/struct/MulleObjCContainerObjectCallback.h
 src/struct/NSRange.h
 src/struct/NSZone.h
 )

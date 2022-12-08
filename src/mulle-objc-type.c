@@ -58,6 +58,8 @@ char   *_NS_ENUM_OPTIONS_UTF8String( void *table,
    void                   *line;
    unsigned long long     value;
 
+   assert( "the enum table has too few entries" && (! len || *(char **) &((char *) table)[ line_size * (len - 1)]));
+
    mulle_buffer_do_string( buffer, NULL, s)
    {
       line = table;
@@ -72,9 +74,10 @@ char   *_NS_ENUM_OPTIONS_UTF8String( void *table,
          default : abort();
          }
 
-         if( bits == value || bits & value)
+         if( (bits & value) == value)
          {
             mulle_buffer_add_string_if_not_empty( buffer, "|");
+            assert( *(char **) line);
             mulle_buffer_add_string( buffer, *(char **) line);
 
             bits &= ~value;
@@ -106,6 +109,7 @@ unsigned long long   _NS_ENUM_OPTIONS_ParseUTF8String( void *table,
    void                 *line;
    unsigned long long   value;
    char                 *key;
+   size_t               key_len;
 
    value = 0;
 
@@ -120,9 +124,9 @@ unsigned long long   _NS_ENUM_OPTIONS_ParseUTF8String( void *table,
       line = table;
       for( i = 0; i < len; i++)
       {
-         key = *(char **) line;
-         len = strlen( key);
-         if( ! strncmp( key, s, len))
+         key     = *(char **) line;
+         key_len = strlen( key);
+         if( ! strncmp( key, s, key_len))
          {
             switch( item_len)
             {
@@ -139,7 +143,7 @@ unsigned long long   _NS_ENUM_OPTIONS_ParseUTF8String( void *table,
       return( 0);
 
 next:
-      s = &s[ len];
+      s = &s[ key_len];
       if( *s == '|' && s[ 1] != 0)
          ++s;
    }

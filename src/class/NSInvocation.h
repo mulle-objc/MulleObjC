@@ -54,6 +54,17 @@
 
 @property( retain, readonly) NSMethodSignature   *methodSignature;
 
+//
+// build an invocation by passing target, sel, arguments just like
+// a variable argument method call
+// e.g. [NSInvocation mulleInvocationWithTarget:arary
+//                                     selector:@selector( objectAtIndex:), (NSUInteger) i];
+//
+
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel, ...;
+
+
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature;
 
 - (void) getReturnValue:(void *) value_p;

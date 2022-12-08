@@ -109,7 +109,7 @@ void   mulle_sprintf_register_object_functions( struct mulle_sprintf_conversion 
 static BOOL   colorize( void)
 {
    char   *s;
-   FILE   *fp;
+//   FILE   *fp;
 
    if( getenv( "NO_COLOR"))
       return( NO);

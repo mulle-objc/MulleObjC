@@ -115,11 +115,10 @@ int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *inf
                                               mulle_objc_walkpropertiescallback_t f,
                                               void *userinfo)
 {
-   struct _mulle_objc_propertylist                         *list;
-   struct mulle_concurrent_pointerarrayreverseenumerator   rover;
-   struct _mulle_objc_infraclass                           *superclass;
-   unsigned int                                            n;
-   int                                                     rval;
+   struct _mulle_objc_propertylist   *list;
+   struct _mulle_objc_infraclass     *superclass;
+   unsigned int                      n;
+   int                               rval;
 
    // protocol properties are part of the class
    if( _mulle_objc_infraclass_get_state_bit( infra, MULLE_OBJC_INFRACLASS_HAS_CLEARABLE_PROPERTY))
@@ -129,10 +128,9 @@ int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *inf
       if( infra->base.inheritance & MULLE_OBJC_CLASS_DONT_INHERIT_CATEGORIES)
          n = 1;
 
-      rover = mulle_concurrent_pointerarray_reverseenumerate( &infra->propertylists, n);
-      while( list = _mulle_concurrent_pointerarrayreverseenumerator_next( &rover))
+      mulle_concurrent_pointerarray_for_reverse( &infra->propertylists, n, list)
       {
-         if( rval = _mulle_objc_propertylist_walk( list, f, infra, userinfo))
+         if( (rval = _mulle_objc_propertylist_walk( list, f, infra, userinfo)))
             return( rval);
       }
    }
@@ -164,11 +162,11 @@ void   _MulleObjCInstanceClearProperties( id obj)
 // this does not zero properties
 void   _MulleObjCInstanceFree( id obj)
 {
-   struct _mulle_objc_objectheader             *header;
    struct _mulle_objc_universefoundationinfo   *config;
    struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_infraclass               *infra;
    struct _mulle_objc_class                    *cls;
+   struct mulle_allocator                      *allocator;
 
    cls      = _mulle_objc_object_get_isa( obj);
    universe = _mulle_objc_class_get_universe( cls);
@@ -186,10 +184,10 @@ void   _MulleObjCInstanceFree( id obj)
    // if it's a meta class it's an error during debug
    assert( _mulle_objc_class_is_infraclass( cls));
 
-   infra = _mulle_objc_class_as_infraclass( cls);
-   _mulle_objc_infraclass_free_instance( infra, obj);
+   infra     = _mulle_objc_class_as_infraclass( cls);
+   allocator = MulleObjCInstanceGetAllocator( obj);
+   _mulle_objc_infraclass_allocator_free_instance( infra, obj, allocator);
 }
-
 
 
 void   NSDeallocateObject( id self)

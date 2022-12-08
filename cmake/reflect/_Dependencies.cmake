@@ -12,46 +12,78 @@ if( MULLE_TRACE_INCLUDE)
 endif()
 
 #
-# Generated from sourcetree: 6C69EF4A-B5C3-449C-95EE-466B3FCCA76E;mulle-objc-debug;no-all-load,no-cmake-loader,no-cmake-searchpath,no-header,no-import,no-public,no-singlephase;
-# Disable with : `mulle-sourcetree mark mulle-objc-debug no-link`
-# Disable for this platform: `mulle-sourcetree mark mulle-objc-debug no-cmake-platform-${MULLE_UNAME}`
+# Generated from sourcetree: e2dd59c0-8e52-4deb-a014-f44435122832;mulle-container;no-all-load,no-cmake-inherit,no-cmake-searchpath,no-import,no-singlephase;
+# Disable with : `mulle-sourcetree mark mulle-container no-link`
+# Disable for this platform: `mulle-sourcetree mark mulle-container no-cmake-platform-${MULLE_UNAME}`
+# Disable for a sdk: `mulle-sourcetree mark mulle-container no-cmake-sdk-<name>`
 #
-if( NOT MULLE_OBJC_DEBUG_LIBRARY)
-   find_library( MULLE_OBJC_DEBUG_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-debug NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
-   message( STATUS "MULLE_OBJC_DEBUG_LIBRARY is ${MULLE_OBJC_DEBUG_LIBRARY}")
+if( NOT MULLE_CONTAINER_LIBRARY)
+   find_library( MULLE_CONTAINER_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-container${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-container${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-container NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   message( STATUS "MULLE_CONTAINER_LIBRARY is ${MULLE_CONTAINER_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need.
    #
-   if( MULLE_OBJC_DEBUG_LIBRARY)
+   if( MULLE_CONTAINER_LIBRARY)
       #
-      # Add MULLE_OBJC_DEBUG_LIBRARY to DEPENDENCY_LIBRARIES list.
-      # Disable with: `mulle-sourcetree mark mulle-objc-debug no-cmake-add`
+      # Add MULLE_CONTAINER_LIBRARY to DEPENDENCY_LIBRARIES list.
+      # Disable with: `mulle-sourcetree mark mulle-container no-cmake-add`
       #
       set( DEPENDENCY_LIBRARIES
          ${DEPENDENCY_LIBRARIES}
-         ${MULLE_OBJC_DEBUG_LIBRARY}
+         ${MULLE_CONTAINER_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      # intentionally left blank
+   else()
+      # Disable with: `mulle-sourcetree mark mulle-container no-require-link`
+      message( FATAL_ERROR "MULLE_CONTAINER_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: 35955F81-51A7-4110-961E-9411CD19E833;mulle-fprintf;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import,no-singlephase;
+# Disable with : `mulle-sourcetree mark mulle-fprintf no-link`
+# Disable for this platform: `mulle-sourcetree mark mulle-fprintf no-cmake-platform-${MULLE_UNAME}`
+# Disable for a sdk: `mulle-sourcetree mark mulle-fprintf no-cmake-sdk-<name>`
+#
+if( NOT MULLE_FPRINTF_LIBRARY)
+   find_library( MULLE_FPRINTF_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-fprintf${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-fprintf${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-fprintf NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   message( STATUS "MULLE_FPRINTF_LIBRARY is ${MULLE_FPRINTF_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( MULLE_FPRINTF_LIBRARY)
+      #
+      # Add MULLE_FPRINTF_LIBRARY to DEPENDENCY_LIBRARIES list.
+      # Disable with: `mulle-sourcetree mark mulle-fprintf no-cmake-add`
+      #
+      set( DEPENDENCY_LIBRARIES
+         ${DEPENDENCY_LIBRARIES}
+         ${MULLE_FPRINTF_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
       #
       # Inherit information from dependency.
       # Encompasses: no-cmake-searchpath,no-cmake-dependency,no-cmake-loader
-      # Disable with: `mulle-sourcetree mark mulle-objc-debug no-cmake-inherit`
+      # Disable with: `mulle-sourcetree mark mulle-fprintf no-cmake-inherit`
       #
       # temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_MULLE_OBJC_DEBUG_ROOT "${MULLE_OBJC_DEBUG_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_MULLE_OBJC_DEBUG_ROOT "${_TMP_MULLE_OBJC_DEBUG_ROOT}" DIRECTORY)
+      get_filename_component( _TMP_MULLE_FPRINTF_ROOT "${MULLE_FPRINTF_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_MULLE_FPRINTF_ROOT "${_TMP_MULLE_FPRINTF_ROOT}" DIRECTORY)
       #
       #
       # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark mulle-objc-debug no-cmake-dependency`
+      # Disable with: `mulle-sourcetree mark mulle-fprintf no-cmake-dependency`
       #
-      foreach( _TMP_MULLE_OBJC_DEBUG_NAME "mulle-objc-debug")
-         set( _TMP_MULLE_OBJC_DEBUG_DIR "${_TMP_MULLE_OBJC_DEBUG_ROOT}/include/${_TMP_MULLE_OBJC_DEBUG_NAME}/cmake")
+      foreach( _TMP_MULLE_FPRINTF_NAME "mulle-fprintf")
+         set( _TMP_MULLE_FPRINTF_DIR "${_TMP_MULLE_FPRINTF_ROOT}/include/${_TMP_MULLE_FPRINTF_NAME}/cmake")
          # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_MULLE_OBJC_DEBUG_DIR}/DependenciesAndLibraries.cmake")
-            unset( MULLE_OBJC_DEBUG_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_OBJC_DEBUG_DIR}")
+         if( EXISTS "${_TMP_MULLE_FPRINTF_DIR}/DependenciesAndLibraries.cmake")
+            unset( MULLE_FPRINTF_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_FPRINTF_DIR}")
             # we only want top level INHERIT_OBJC_LOADERS, so disable them
             if( NOT NO_INHERIT_OBJC_LOADERS)
                set( NO_INHERIT_OBJC_LOADERS OFF)
@@ -59,25 +91,97 @@ if( NOT MULLE_OBJC_DEBUG_LIBRARY)
             list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
             set( NO_INHERIT_OBJC_LOADERS ON)
             #
-            include( "${_TMP_MULLE_OBJC_DEBUG_DIR}/DependenciesAndLibraries.cmake")
+            include( "${_TMP_MULLE_FPRINTF_DIR}/DependenciesAndLibraries.cmake")
             #
             list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
             list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
             #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_OBJC_DEBUG_DIR}")
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_FPRINTF_DIR}")
             set( INHERITED_DEFINITIONS
                ${INHERITED_DEFINITIONS}
-               ${MULLE_OBJC_DEBUG_DEFINITIONS}
+               ${MULLE_FPRINTF_DEFINITIONS}
                CACHE INTERNAL "need to cache this"
             )
             break()
          else()
-            message( STATUS "${_TMP_MULLE_OBJC_DEBUG_DIR}/DependenciesAndLibraries.cmake not found")
+            message( STATUS "${_TMP_MULLE_FPRINTF_DIR}/DependenciesAndLibraries.cmake not found")
          endif()
       endforeach()
    else()
-      # Disable with: `mulle-sourcetree mark mulle-objc-debug no-require-link`
-      message( FATAL_ERROR "MULLE_OBJC_DEBUG_LIBRARY was not found")
+      # Disable with: `mulle-sourcetree mark mulle-fprintf no-require-link`
+      message( FATAL_ERROR "MULLE_FPRINTF_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: 3CF3C024-E36E-435F-8EFD-A276D01527DF;mulle-multififo;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import,no-singlephase;
+# Disable with : `mulle-sourcetree mark mulle-multififo no-link`
+# Disable for this platform: `mulle-sourcetree mark mulle-multififo no-cmake-platform-${MULLE_UNAME}`
+# Disable for a sdk: `mulle-sourcetree mark mulle-multififo no-cmake-sdk-<name>`
+#
+if( NOT MULLE_MULTIFIFO_LIBRARY)
+   find_library( MULLE_MULTIFIFO_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-multififo${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-multififo${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-multififo NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   message( STATUS "MULLE_MULTIFIFO_LIBRARY is ${MULLE_MULTIFIFO_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( MULLE_MULTIFIFO_LIBRARY)
+      #
+      # Add MULLE_MULTIFIFO_LIBRARY to DEPENDENCY_LIBRARIES list.
+      # Disable with: `mulle-sourcetree mark mulle-multififo no-cmake-add`
+      #
+      set( DEPENDENCY_LIBRARIES
+         ${DEPENDENCY_LIBRARIES}
+         ${MULLE_MULTIFIFO_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      #
+      # Inherit information from dependency.
+      # Encompasses: no-cmake-searchpath,no-cmake-dependency,no-cmake-loader
+      # Disable with: `mulle-sourcetree mark mulle-multififo no-cmake-inherit`
+      #
+      # temporarily expand CMAKE_MODULE_PATH
+      get_filename_component( _TMP_MULLE_MULTIFIFO_ROOT "${MULLE_MULTIFIFO_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_MULLE_MULTIFIFO_ROOT "${_TMP_MULLE_MULTIFIFO_ROOT}" DIRECTORY)
+      #
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mulle-sourcetree mark mulle-multififo no-cmake-dependency`
+      #
+      foreach( _TMP_MULLE_MULTIFIFO_NAME "mulle-multififo")
+         set( _TMP_MULLE_MULTIFIFO_DIR "${_TMP_MULLE_MULTIFIFO_ROOT}/include/${_TMP_MULLE_MULTIFIFO_NAME}/cmake")
+         # use explicit path to avoid "surprises"
+         if( EXISTS "${_TMP_MULLE_MULTIFIFO_DIR}/DependenciesAndLibraries.cmake")
+            unset( MULLE_MULTIFIFO_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_MULTIFIFO_DIR}")
+            # we only want top level INHERIT_OBJC_LOADERS, so disable them
+            if( NOT NO_INHERIT_OBJC_LOADERS)
+               set( NO_INHERIT_OBJC_LOADERS OFF)
+            endif()
+            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+            set( NO_INHERIT_OBJC_LOADERS ON)
+            #
+            include( "${_TMP_MULLE_MULTIFIFO_DIR}/DependenciesAndLibraries.cmake")
+            #
+            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+            #
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_MULTIFIFO_DIR}")
+            set( INHERITED_DEFINITIONS
+               ${INHERITED_DEFINITIONS}
+               ${MULLE_MULTIFIFO_DEFINITIONS}
+               CACHE INTERNAL "need to cache this"
+            )
+            break()
+         else()
+            message( STATUS "${_TMP_MULLE_MULTIFIFO_DIR}/DependenciesAndLibraries.cmake not found")
+         endif()
+      endforeach()
+   else()
+      # Disable with: `mulle-sourcetree mark mulle-multififo no-require-link`
+      message( FATAL_ERROR "MULLE_MULTIFIFO_LIBRARY was not found")
    endif()
 endif()
 
@@ -86,6 +190,7 @@ endif()
 # Generated from sourcetree: 6a1a8ae7-8c93-4908-ae06-722cd7143197;mulle-objc-runtime;no-cmake-searchpath,no-header,no-import,no-singlephase;
 # Disable with : `mulle-sourcetree mark mulle-objc-runtime no-link`
 # Disable for this platform: `mulle-sourcetree mark mulle-objc-runtime no-cmake-platform-${MULLE_UNAME}`
+# Disable for a sdk: `mulle-sourcetree mark mulle-objc-runtime no-cmake-sdk-<name>`
 #
 if( NOT MULLE_OBJC_RUNTIME_LIBRARY)
    find_library( MULLE_OBJC_RUNTIME_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-runtime NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -163,76 +268,47 @@ endif()
 
 
 #
-# Generated from sourcetree: e2dd59c0-8e52-4deb-a014-f44435122832;mulle-container;no-all-load,no-cmake-inherit,no-cmake-searchpath,no-import,no-singlephase;
-# Disable with : `mulle-sourcetree mark mulle-container no-link`
-# Disable for this platform: `mulle-sourcetree mark mulle-container no-cmake-platform-${MULLE_UNAME}`
+# Generated from sourcetree: 6C69EF4A-B5C3-449C-95EE-466B3FCCA76E;mulle-objc-debug;no-all-load,no-cmake-loader,no-cmake-searchpath,no-header,no-import,no-public,no-singlephase;
+# Disable with : `mulle-sourcetree mark mulle-objc-debug no-link`
+# Disable for this platform: `mulle-sourcetree mark mulle-objc-debug no-cmake-platform-${MULLE_UNAME}`
+# Disable for a sdk: `mulle-sourcetree mark mulle-objc-debug no-cmake-sdk-<name>`
 #
-if( NOT MULLE_CONTAINER_LIBRARY)
-   find_library( MULLE_CONTAINER_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-container${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-container${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-container NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
-   message( STATUS "MULLE_CONTAINER_LIBRARY is ${MULLE_CONTAINER_LIBRARY}")
+if( NOT MULLE_OBJC_DEBUG_LIBRARY)
+   find_library( MULLE_OBJC_DEBUG_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-debug NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   message( STATUS "MULLE_OBJC_DEBUG_LIBRARY is ${MULLE_OBJC_DEBUG_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need.
    #
-   if( MULLE_CONTAINER_LIBRARY)
+   if( MULLE_OBJC_DEBUG_LIBRARY)
       #
-      # Add MULLE_CONTAINER_LIBRARY to DEPENDENCY_LIBRARIES list.
-      # Disable with: `mulle-sourcetree mark mulle-container no-cmake-add`
-      #
-      set( DEPENDENCY_LIBRARIES
-         ${DEPENDENCY_LIBRARIES}
-         ${MULLE_CONTAINER_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      # intentionally left blank
-   else()
-      # Disable with: `mulle-sourcetree mark mulle-container no-require-link`
-      message( FATAL_ERROR "MULLE_CONTAINER_LIBRARY was not found")
-   endif()
-endif()
-
-
-#
-# Generated from sourcetree: 35955F81-51A7-4110-961E-9411CD19E833;mulle-fprintf;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import,no-singlephase;
-# Disable with : `mulle-sourcetree mark mulle-fprintf no-link`
-# Disable for this platform: `mulle-sourcetree mark mulle-fprintf no-cmake-platform-${MULLE_UNAME}`
-#
-if( NOT MULLE_FPRINTF_LIBRARY)
-   find_library( MULLE_FPRINTF_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-fprintf${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-fprintf${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-fprintf NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
-   message( STATUS "MULLE_FPRINTF_LIBRARY is ${MULLE_FPRINTF_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( MULLE_FPRINTF_LIBRARY)
-      #
-      # Add MULLE_FPRINTF_LIBRARY to DEPENDENCY_LIBRARIES list.
-      # Disable with: `mulle-sourcetree mark mulle-fprintf no-cmake-add`
+      # Add MULLE_OBJC_DEBUG_LIBRARY to DEPENDENCY_LIBRARIES list.
+      # Disable with: `mulle-sourcetree mark mulle-objc-debug no-cmake-add`
       #
       set( DEPENDENCY_LIBRARIES
          ${DEPENDENCY_LIBRARIES}
-         ${MULLE_FPRINTF_LIBRARY}
+         ${MULLE_OBJC_DEBUG_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
       #
       # Inherit information from dependency.
       # Encompasses: no-cmake-searchpath,no-cmake-dependency,no-cmake-loader
-      # Disable with: `mulle-sourcetree mark mulle-fprintf no-cmake-inherit`
+      # Disable with: `mulle-sourcetree mark mulle-objc-debug no-cmake-inherit`
       #
       # temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_MULLE_FPRINTF_ROOT "${MULLE_FPRINTF_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_MULLE_FPRINTF_ROOT "${_TMP_MULLE_FPRINTF_ROOT}" DIRECTORY)
+      get_filename_component( _TMP_MULLE_OBJC_DEBUG_ROOT "${MULLE_OBJC_DEBUG_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_MULLE_OBJC_DEBUG_ROOT "${_TMP_MULLE_OBJC_DEBUG_ROOT}" DIRECTORY)
       #
       #
       # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark mulle-fprintf no-cmake-dependency`
+      # Disable with: `mulle-sourcetree mark mulle-objc-debug no-cmake-dependency`
       #
-      foreach( _TMP_MULLE_FPRINTF_NAME "mulle-fprintf")
-         set( _TMP_MULLE_FPRINTF_DIR "${_TMP_MULLE_FPRINTF_ROOT}/include/${_TMP_MULLE_FPRINTF_NAME}/cmake")
+      foreach( _TMP_MULLE_OBJC_DEBUG_NAME "mulle-objc-debug")
+         set( _TMP_MULLE_OBJC_DEBUG_DIR "${_TMP_MULLE_OBJC_DEBUG_ROOT}/include/${_TMP_MULLE_OBJC_DEBUG_NAME}/cmake")
          # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_MULLE_FPRINTF_DIR}/DependenciesAndLibraries.cmake")
-            unset( MULLE_FPRINTF_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_FPRINTF_DIR}")
+         if( EXISTS "${_TMP_MULLE_OBJC_DEBUG_DIR}/DependenciesAndLibraries.cmake")
+            unset( MULLE_OBJC_DEBUG_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_OBJC_DEBUG_DIR}")
             # we only want top level INHERIT_OBJC_LOADERS, so disable them
             if( NOT NO_INHERIT_OBJC_LOADERS)
                set( NO_INHERIT_OBJC_LOADERS OFF)
@@ -240,95 +316,24 @@ if( NOT MULLE_FPRINTF_LIBRARY)
             list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
             set( NO_INHERIT_OBJC_LOADERS ON)
             #
-            include( "${_TMP_MULLE_FPRINTF_DIR}/DependenciesAndLibraries.cmake")
+            include( "${_TMP_MULLE_OBJC_DEBUG_DIR}/DependenciesAndLibraries.cmake")
             #
             list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
             list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
             #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_FPRINTF_DIR}")
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_OBJC_DEBUG_DIR}")
             set( INHERITED_DEFINITIONS
                ${INHERITED_DEFINITIONS}
-               ${MULLE_FPRINTF_DEFINITIONS}
+               ${MULLE_OBJC_DEBUG_DEFINITIONS}
                CACHE INTERNAL "need to cache this"
             )
             break()
          else()
-            message( STATUS "${_TMP_MULLE_FPRINTF_DIR}/DependenciesAndLibraries.cmake not found")
+            message( STATUS "${_TMP_MULLE_OBJC_DEBUG_DIR}/DependenciesAndLibraries.cmake not found")
          endif()
       endforeach()
    else()
-      # Disable with: `mulle-sourcetree mark mulle-fprintf no-require-link`
-      message( FATAL_ERROR "MULLE_FPRINTF_LIBRARY was not found")
-   endif()
-endif()
-
-
-#
-# Generated from sourcetree: 3CF3C024-E36E-435F-8EFD-A276D01527DF;mulle-multififo;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import;
-# Disable with : `mulle-sourcetree mark mulle-multififo no-link`
-# Disable for this platform: `mulle-sourcetree mark mulle-multififo no-cmake-platform-${MULLE_UNAME}`
-#
-if( NOT MULLE_MULTIFIFO_LIBRARY)
-   find_library( MULLE_MULTIFIFO_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-multififo${CMAKE_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX} ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-multififo${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-multififo NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
-   message( STATUS "MULLE_MULTIFIFO_LIBRARY is ${MULLE_MULTIFIFO_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( MULLE_MULTIFIFO_LIBRARY)
-      #
-      # Add MULLE_MULTIFIFO_LIBRARY to DEPENDENCY_LIBRARIES list.
-      # Disable with: `mulle-sourcetree mark mulle-multififo no-cmake-add`
-      #
-      set( DEPENDENCY_LIBRARIES
-         ${DEPENDENCY_LIBRARIES}
-         ${MULLE_MULTIFIFO_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit information from dependency.
-      # Encompasses: no-cmake-searchpath,no-cmake-dependency,no-cmake-loader
-      # Disable with: `mulle-sourcetree mark mulle-multififo no-cmake-inherit`
-      #
-      # temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_MULLE_MULTIFIFO_ROOT "${MULLE_MULTIFIFO_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_MULLE_MULTIFIFO_ROOT "${_TMP_MULLE_MULTIFIFO_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark mulle-multififo no-cmake-dependency`
-      #
-      foreach( _TMP_MULLE_MULTIFIFO_NAME "mulle-multififo")
-         set( _TMP_MULLE_MULTIFIFO_DIR "${_TMP_MULLE_MULTIFIFO_ROOT}/include/${_TMP_MULLE_MULTIFIFO_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_MULLE_MULTIFIFO_DIR}/DependenciesAndLibraries.cmake")
-            unset( MULLE_MULTIFIFO_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_MULTIFIFO_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
-            endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_MULLE_MULTIFIFO_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_MULTIFIFO_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${MULLE_MULTIFIFO_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_MULLE_MULTIFIFO_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-   else()
-      # Disable with: `mulle-sourcetree mark mulle-multififo no-require-link`
-      message( FATAL_ERROR "MULLE_MULTIFIFO_LIBRARY was not found")
+      # Disable with: `mulle-sourcetree mark mulle-objc-debug no-require-link`
+      message( FATAL_ERROR "MULLE_OBJC_DEBUG_LIBRARY was not found")
    endif()
 endif()

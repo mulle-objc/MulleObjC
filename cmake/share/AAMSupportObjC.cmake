@@ -36,9 +36,3 @@ if( NOT __AAM_SUPPORT_CMAKE__)
    include( AAMSupportAuxObjC OPTIONAL)
 
 endif()
-
-
-# extension : mulle-objc/objc-cmake
-# directory : project/all
-# template  : .../AAMSupportObjC.cmake
-# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

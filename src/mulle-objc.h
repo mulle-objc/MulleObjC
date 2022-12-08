@@ -27,6 +27,7 @@
 #include "MulleObjCAutoreleasePool.h"
 #include "MulleObjCExceptionHandler.h"
 #include "MulleObjCFunctions.h"
+#include "MulleObjCContainerObjectCallback.h"
 #include "MulleObjCPrinting.h"
 #include "MulleObjCUniverse.h"
 

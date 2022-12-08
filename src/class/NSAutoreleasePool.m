@@ -51,6 +51,12 @@
 // std-c and dependencies
 
 
+#ifdef DEBUG
+# define DEBUG_MAX_OBJECTS
+#endif
+
+
+
 @implementation NSAutoreleasePool
 
 static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config,
@@ -98,6 +104,14 @@ static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_unive
                        &mulle_stdlib_allocator);  // keep debug stuff out
       config->object_map = &config->_object_map;
    }
+
+#ifdef DEBUG_MAX_OBJECTS
+   s = getenv( "MULLE_OBJC_AUTORELEASEPOOL_MAX");
+   if( s && strlen( s))
+   {
+      config->maxObjects = atoi( s);
+   }
+#endif
 
    s = getenv( "MULLE_OBJC_TRACE_AUTORELEASEPOOL");
    if( s && strlen( s))
@@ -207,14 +221,17 @@ static inline int   _containsObject( NSAutoreleasePool *self, id p)
 }
 
 
-static inline void   addObject( NSAutoreleasePool *self, id p)
+static inline void   addObject( struct _mulle_objc_poolconfiguration *config, id p)
 {
    struct _mulle_autoreleasepointerarray   *array;
+   NSAutoreleasePool                       *pool;
+
+   pool = config->tail;
 
 #ifndef NDEBUG
    struct _mulle_objc_universe *universe;
 
-   assert( self != nil);
+   assert( pool != nil);
    assert( p != nil);
    universe = _mulle_objc_object_get_universe( p);
    assert( _mulle_objc_object_get_isa( p));
@@ -225,12 +242,25 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
 //   assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
 #endif
 
-   array = (struct _mulle_autoreleasepointerarray *) self->_storage;
+   array = (struct _mulle_autoreleasepointerarray *) pool->_storage;
+
+#ifdef DEBUG
+   if( config->maxObjects)
+   {
+      if( _mulle_autoreleasepointerarray_count( array) >= config->maxObjects)
+      {
+         fprintf( stderr, "[pool] %p is growing too much\n", pool);
+         abort();
+      }
+   }
+#endif
+
    if( ! _mulle_autoreleasepointerarray_can_add( array))
    {
       array          = _mulle_autoreleasepointerarray_create( array);
-      self->_storage = array;
+      pool->_storage = array;
    }
+
    _mulle_autoreleasepointerarray_add( array, p);
 }
 
@@ -239,17 +269,20 @@ static inline void   addObject( NSAutoreleasePool *self, id p)
  * ex.  objects = struct { id a; intptr_t x; }[ 120];
  *      addObjects( self, objects, 120, sizeof( id) + sizeof( intptr_t))
  */
-static inline void   addObjects( NSAutoreleasePool *self,
+static inline void   addObjects( struct _mulle_objc_poolconfiguration *config,
                                  id *objects,
                                  NSUInteger count,
                                  NSUInteger step)
 {
    NSUInteger                              amount;
    struct _mulle_autoreleasepointerarray   *array;
+   NSAutoreleasePool                       *pool;
+
+   pool = config->tail;
 
    assert( step >= sizeof( id));
 
-   if( ! self)
+   if( ! pool)
    {
       // or talk about leaking
       abort();
@@ -270,19 +303,31 @@ static inline void   addObjects( NSAutoreleasePool *self,
          p += step;
 
          assert( q != nil);
-         assert( _mulle_objc_object_get_infraclass( q) != _mulle_objc_object_get_infraclass( self));
+         assert( _mulle_objc_object_get_infraclass( q) != _mulle_objc_object_get_infraclass( pool));
          // assert( [q isProxy] || [q respondsToSelector:@selector( release)]);
       }
    }
 #endif
 
-   array  = self->_storage;
+   array  = pool->_storage;
+
+#ifdef DEBUG_MAX_OBJECTS
+   if( config->maxObjects)
+   {
+      if( _mulle_autoreleasepointerarray_count( array) + count >= config->maxObjects)
+      {
+         fprintf( stderr, "[pool] %p is growing too much\n", pool);
+         abort();
+      }
+   }
+#endif
+
    while( count)
    {
       amount = array ? _mulle_autoreleasepointerarray_space_left( array) : 0;
       if( ! amount)
       {
-         self->_storage = array = _mulle_autoreleasepointerarray_create( array);
+         pool->_storage = array = _mulle_autoreleasepointerarray_create( array);
          amount         = MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS;
       }
 
@@ -390,7 +435,7 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
       mulle_map_set( config->object_map, p, (void *) count);
    }
 
-   addObject( config->tail, p);
+   addObject( config, p);
 
    if( config->trace & 0x1)
       fprintf( stderr, "[pool] object %p (RC: %ld) added to storage %p of pool %p\n",
@@ -466,7 +511,7 @@ static void   _autoreleaseObjects( struct _mulle_objc_poolconfiguration *config,
       }
    }
 
-   addObjects( config->tail, objects, count, step);
+   addObjects( config, objects, count, step);
 
    if( config->trace & 0x1)
    {
@@ -638,10 +683,8 @@ static void   releaseAllObjectsInPool( struct _mulle_objc_poolconfiguration *con
 
 static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, id aPool)
 {
-   NSAutoreleasePool                       *pool;
-   NSAutoreleasePool                       *tail;
+   NSAutoreleasePool   *pool;
 //   NSException         *exception;
-   struct _mulle_autoreleasepointerarray   *storage;
 
    assert( config);
    assert( aPool);
@@ -725,7 +768,6 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 // untested!
 - (void) mulleReleaseAllObjects
 {
-
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;
 

@@ -30,12 +30,40 @@
 // ```
 //
 @interface MulleInvocationBuilder
+{
+   id  _target;
+}
+
++ (instancetype) invocationBuilderWithTarget:(id) target;
+
 @end
 
 
 @implementation MulleInvocationBuilder
 
-+ (void *) forward:(void *) param
++ (instancetype) invocationBuilderWithTarget:(id) target
+{
+   MulleInvocationBuilder   *p;
+
+   p = NSAllocateObject( self, 0, NULL);
+   p->_target = target;
+   return( [p autorelease]);
+}
+
+- (void) dealloc
+{
+   NSDeallocateObject( self);
+}
+
+
+- (instancetype) autorelease
+{
+   _MulleObjCAutoreleaseObject( self);
+   return( self);
+}
+
+
+static id  forward( struct _mulle_objc_infraclass *Self, id target, SEL _cmd, void *param)
 {
    NSMethodSignature               *signature;
    NSInvocation                    *invocation;
@@ -43,12 +71,12 @@
    struct _mulle_objc_descriptor   *desc;
    struct _mulle_objc_class        *cls;
 
-   universe  = _mulle_objc_infraclass_get_universe( self);
+   universe  = _mulle_objc_infraclass_get_universe( Self);
    desc      = _mulle_objc_universe_lookup_descriptor( universe,
                                                        (mulle_objc_methodid_t) _cmd);
    if( ! desc)
    {
-      cls = _mulle_objc_infraclass_as_class( self);
+      cls = _mulle_objc_infraclass_as_class( Self);
       mulle_objc_universe_fail_methodnotfound( universe, cls, (mulle_objc_methodid_t) _cmd);
       return( NULL);
    }
@@ -77,9 +105,22 @@ not be forwarded using invocations");
    }
 
    invocation = [NSInvocation invocationWithMethodSignature:signature];
+   [invocation setTarget:target];
    [invocation setSelector:_cmd];
    [invocation _setMetaABIFrame:param];
    return( invocation);
+}
+
+
+- (void *) forward:(void *) param
+{
+   return( forward( _mulle_objc_object_get_infraclass( self), _target, _cmd, param));
+}
+
+
++ (void *) forward:(void *) param;
+{
+   return( forward( self, nil, _cmd, param));
 }
 
 @end
@@ -118,12 +159,12 @@ not be forwarded using invocations");
 
 @implementation Foo
 
-- (void) foo:(id) obj1 : (id) obj2 : (NSUInteger) i
+- (void) foo:(id) obj1 :(id) obj2 :(NSUInteger) i
 {
    printf( "%td %s %s\n", i, [obj1 name], [obj2 name]);
 }
 
-- (void) bar:(id) obj1 : (id) obj2 : (NSUInteger) i  : (float) x : (char) y
+- (void) bar:(id) obj1 :(id) obj2 :(NSUInteger) i  :(float) x :(char) y
 {
    printf( "%td %s %s %g %c\n", i, [obj1 name], [obj2 name], x, y);
 }
@@ -133,10 +174,27 @@ not be forwarded using invocations");
 
 @interface MulleInvocationBuilder( Foo)
 
-+ (NSInvocation *) bar:(id) obj1 : (id) obj2 : (NSUInteger) i : (float) x : (char) y;
+- (NSInvocation *) bar:(id) obj1 :(id) obj2 :(NSUInteger) i :(float) x :(char) y;
++ (NSInvocation *) bar:(id) obj1 :(id) obj2 :(NSUInteger) i :(float) x :(char) y;
 
 @end
 
+
+@interface NSInvocation( MulleInvocationBuilder)
+
++ (MulleInvocationBuilder *) builderForTarget:(id) target;
+
+@end
+
+
+@implementation NSInvocation( MulleInvocationBuilder)
+
++ (MulleInvocationBuilder *) builderForTarget:(id) target;
+{
+   return( [MulleInvocationBuilder invocationBuilderWithTarget:target]);
+}
+
+@end
 
 
 int   main( void)
@@ -158,12 +216,16 @@ int   main( void)
 
    // solution b) have a category on MulleInvocationBuilder to pass here
    // with the proper size
-   invocation = [MulleInvocationBuilder bar:a :b :1848 : 18.48 : 'V'];
+   invocation = [MulleInvocationBuilder bar:a :b :1848 :18.48 :'V'];
    [invocation invokeWithTarget:foo];
 
    // general not so niceties:
    // return type of category is different
    // you usually have to change the method to be a class method, which is
    // somewhat obscure
+
+   invocation = [[NSInvocation builderForTarget:foo] bar:a :b :1848 :18.48 :'V'];
+   [invocation invoke];
+
    return( 0);
 }

@@ -61,14 +61,13 @@ static const struct mulle_container_keycallback
 //
 // this is unfortunately linkorder and platform dependent
 //
+#if DEBUG
 static void   assert_proper_testallocator_linkorder( void)
 {
-   char  *s;
-
    if( ! mulle_objc_environment_get_yes_no( "MULLE_TESTALLOCATOR"))
       return;
 
-   if( mulle_default_allocator.free == free)
+   if( mulle_allocator_is_stdlib_allocator( &mulle_default_allocator))
    {
       fprintf( stderr,
          "The testallocator is not linked in or not in the proper order.\n"
@@ -76,7 +75,7 @@ static void   assert_proper_testallocator_linkorder( void)
       abort();
    }
 }
-
+#endif
 
 void
    _mulle_objc_universefoundationinfo_init( struct _mulle_objc_universefoundationinfo *info,
@@ -225,9 +224,7 @@ void
 void
    _mulle_objc_universefoundationinfo_finalize( struct _mulle_objc_universefoundationinfo *info)
 {
-   struct _mulle_objc_universe                 *universe;
-   struct _mulle_objc_infraclass               *infra;
-   struct mulle_concurrent_hashmapenumerator   rover;
+   struct _mulle_objc_universe   *universe;
 
    universe = info->universe;
    assert( universe);
@@ -313,8 +310,7 @@ void
 }
 
 
-# pragma mark -
-# pragma mark root object handling
+# pragma mark - root object handling
 
 void   _mulle_objc_universefoundationinfo_add_rootobject( struct _mulle_objc_universefoundationinfo *info,
                                                           void *obj)
@@ -354,8 +350,7 @@ void   _mulle_objc_universefoundationinfo_release_rootobjects( struct _mulle_obj
 }
 
 
-# pragma mark -
-# pragma mark thread storage
+# pragma mark - thread storage
 
 void   _mulle_objc_universefoundationinfo_add_threadobject( struct _mulle_objc_universefoundationinfo *info,
                                                             void *obj)
@@ -393,8 +388,7 @@ void   *_mulle_objc_universefoundationinfo_get_mainthreadobject( struct _mulle_o
 
 
 
-# pragma mark -
-# pragma mark locking wrapper for above
+# pragma mark - locking wrapper for above
 
 void  _mulle_objc_universe_lockedcall_universefoundationinfo( struct _mulle_objc_universe *universe,
                                                               void (*f)( struct _mulle_objc_universefoundationinfo *))

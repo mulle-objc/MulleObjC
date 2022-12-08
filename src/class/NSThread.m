@@ -61,7 +61,7 @@
 
 MULLE_OBJC_DEPENDS_ON_CLASS( NSAutoreleasePool);
 
-static struct $
+static struct
 {
    mulle_thread_mutex_t    _lock;
    BOOL                    _isMultiThreaded;
@@ -90,47 +90,62 @@ static struct $
    mulle_thread_mutex_done( &Self._lock);
 }
 
+
++ (instancetype) mulleThreadWithTarget:(id) target
+                              selector:(SEL) sel
+                                object:(id) object
+{
+   return( [[[self alloc] initWithTarget:target
+                                selector:sel
+                                  object:object] autorelease]);
+}
+
+
 /*
  */
 - (instancetype) initWithTarget:(id) target
                        selector:(SEL) sel
-                         object:(id) argument
+                         object:(id) object
 {
    NSUInteger   options;
 
    options = 0;
    if( self == target)
       options = (MulleThreadDontRetainTarget|MulleThreadDontReleaseTarget);
-   if( self == argument)
+   if( self == object)
       options |= (MulleThreadDontRetainArgument|MulleThreadDontReleaseArgument);
 
    return( [self mulleInitWithTarget:target
                             selector:sel
-                            argument:argument
+                              object:object
                              options:options]);
 }
 
 
 - (instancetype) mulleInitWithTarget:(id) target
                             selector:(SEL) sel
-                            argument:(id) argument
+                              object:(id) object
                              options:(NSUInteger) options
 {
    if( ! target || ! sel)
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
                                                   "target and selector must not be nil");
 
+   // for subclasses
+   self = [self init];
+
    if( ! (options & MulleThreadDontRetainTarget))
       [target retain];
    if( ! (options & MulleThreadDontRetainArgument))
-      [argument retain];
+      [object retain];
+
 
    self->_releaseTarget   = ! (options & MulleThreadDontReleaseTarget);
    self->_releaseArgument = ! (options & MulleThreadDontReleaseArgument);
 
-   self->_target          = target;
-   self->_selector        = sel;
-   self->_argument        = argument;
+   self->_target   = target;
+   self->_selector = sel;
+   self->_argument = object;
 
    return( self);
 }
@@ -142,6 +157,9 @@ static struct $
    if( ! f)
       __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
                                                    "function must not be nil");
+
+   // for subclasses
+   self = [self init];
 
    self->_function         = f;
    self->_functionArgument = argument;
@@ -187,10 +205,10 @@ static struct $
 }
 
 
-static inline void  _NSThreadClearThread( NSThread *threadObject)
-{
-   _mulle_atomic_pointer_write( &threadObject->_thread, NULL);
-}
+//static inline void  _NSThreadClearThread( NSThread *threadObject)
+//{
+//   _mulle_atomic_pointer_write( &threadObject->_thread, NULL);
+//}
 
 
 static inline void  _NSThreadSetThread( NSThread *threadObject, mulle_thread_t thread)
@@ -211,15 +229,13 @@ static inline mulle_thread_t  _NSThreadGetThread( NSThread *threadObject)
  */
 static void   _mulle_objc_thread_become_universethread( struct _mulle_objc_universe  *universe)
 {
-   mulle_thread_t                             thread;
    struct _mulle_objc_universefoundationinfo  *info;
 
    //
    // the universe may have done this already for us if we are the
    // "main" thread
    //
-   thread = mulle_thread_self();
-   assert( thread != _mulle_objc_universe_get_thread( universe));
+   assert( mulle_thread_self() != _mulle_objc_universe_get_thread( universe));
 
    _mulle_objc_universe_retain( universe);
 
@@ -238,15 +254,13 @@ static void
    _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *universe,
                                                BOOL unset)
 {
-   mulle_thread_t                              thread;
    struct _mulle_objc_universefoundationinfo   *info;
 
    //
    // the universe will do this, if we are the
    // "main" thread
    //
-   thread = mulle_thread_self();
-   assert( thread != _mulle_objc_universe_get_thread( universe));
+   assert( mulle_thread_self() != _mulle_objc_universe_get_thread( universe));
    _mulle_objc_thread_remove_universe_gc( universe);
    if( unset)
       mulle_objc_thread_unset_threadinfo( universe);      // can't call Objective-C anymore
@@ -262,8 +276,6 @@ static void
 static void   _MulleThreadRegisterInUniverse( NSThread *threadObject,
                                               struct _mulle_objc_universe *universe)
 {
-   struct _mulle_objc_universefoundationinfo   *info;
-
    _mulle_objc_universe_add_threadobject( universe, threadObject); // does not retain
    _mulle_objc_thread_set_threadobject( universe, threadObject);   // this owns it!
 }
@@ -272,8 +284,6 @@ static void   _MulleThreadRegisterInUniverse( NSThread *threadObject,
 static void   _MulleThreadDeregisterInUniverse( NSThread *threadObject,
                                                 struct _mulle_objc_universe *universe)
 {
-   struct _mulle_objc_universefoundationinfo   *info;
-
    assert( _NSThreadGetThread( threadObject) == mulle_thread_self());
 
    _mulle_objc_universe_remove_threadobject( universe, threadObject); // does not retain
@@ -297,8 +307,7 @@ NSThread   *_MulleThreadGetCurrentThreadObjectInUniverse( struct _mulle_objc_uni
 
 static NSThread   *__MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc_universe *universe)
 {
-   NSThread                                    *threadObject;
-   struct _mulle_objc_universefoundationinfo   *info;
+   NSThread   *threadObject;
 
    threadObject = [NSThread new];
    _mulle_atomic_pointer_nonatomic_write( &threadObject->_thread, (void *) mulle_thread_self());
@@ -327,12 +336,13 @@ NSThread   *_MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc_univers
 void   _MulleThreadRemoveThreadObjectFromUniverse( NSThread *threadObject,
                                                    struct _mulle_objc_universe *universe)
 {
+#ifndef NDEBUG
    mulle_thread_t   thread;
 
    thread = _NSThreadGetThread( threadObject);
    assert( thread == mulle_thread_self());
    assert( thread != _mulle_objc_universe_get_thread( universe));
-
+#endif
    _MulleThreadDeregisterInUniverse( threadObject, universe);
    [threadObject release];
 
@@ -413,8 +423,7 @@ void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_univer
 //
 NSThread   *_MulleThreadGetMainThreadObjectInUniverse( struct _mulle_objc_universe *universe)
 {
-   NSThread                                    *threadObject;
-   struct _mulle_objc_universefoundationinfo   *info;
+   NSThread   *threadObject;
 
    if( ! universe)
       return( NULL);
@@ -431,7 +440,7 @@ NSThread   *_MulleThreadGetMainThreadObjectInUniverse( struct _mulle_objc_univer
    {
       // i mean it's bad, but we are probably going down anyway
 #if DEBUG
-      fprintf( stderr, "*** Main thread was never set up. [NSThread load] did not run!***\n");
+      fprintf( stderr, "*** Main thread was never set up. +[NSThread load] did not run!***\n");
 #endif
       return( NULL);
    }
@@ -478,9 +487,8 @@ void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
 
 static mulle_thread_rval_t   bouncyBounce( void *arg)
 {
-   NSThread                                    *threadObject = arg;
-   struct _mulle_objc_universe                 *universe;
-   struct _mulle_objc_universefoundationinfo   *info;
+   NSThread                      *threadObject = arg;
+   struct _mulle_objc_universe   *universe;
 
    // not sure that this is already set, depending if thread or caller
    // resumes first
@@ -843,12 +851,24 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 
 - (void) main
 {
+   _rval = -1;  // just in case :)
+
    if( _function)
-      (*_function)( self, _functionArgument);
-   else
-      mulle_objc_object_call_variablemethodid_inline( self->_target,
-                                                      (mulle_objc_methodid_t) self->_selector,
-                                                      self->_argument);
+   {
+      _rval = (*_function)( self, _functionArgument);
+      return;
+   }
+
+   _rval = (int) (intptr_t)
+            mulle_objc_object_call_variablemethodid_inline( self->_target,
+                                                            (mulle_objc_methodid_t) self->_selector,
+                                                            self->_argument);
+}
+
+
+- (int) mulleReturnStatus
+{
+   return( _rval);
 }
 
 

@@ -242,4 +242,16 @@ static inline unsigned int
    return( count);
 }
 
+static inline unsigned int
+   _mulle_autoreleasepointerarray_count( struct _mulle_autoreleasepointerarray *array)
+{
+   unsigned int   count;
+
+   for( count = 0; array; array = array->previous)
+      count += array->used;
+
+   return( count);
+}
+
+
 #endif

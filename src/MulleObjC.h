@@ -53,7 +53,9 @@
 
 // protocols and protocolclasses
 #import "MulleObjCClassCluster.h"
+#import "MulleObjCContainerObjectCallback.h"
 #import "MulleObjCException.h"
+#import "MulleObjCProtocol.h"
 #import "MulleObjCSingleton.h"
 #import "MulleObjCTaggedPointer.h"
 #import "NSCopying.h"
@@ -62,7 +64,6 @@
 #import "NSEnumeration.h"
 #import "NSMutableCopying.h"
 #import "NSObjectProtocol.h"
-#import "MulleObjCProtocol.h"
 
 // categories
 #import "NSObject+NSCodingSupport.h"

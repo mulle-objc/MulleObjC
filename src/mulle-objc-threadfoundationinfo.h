@@ -51,15 +51,16 @@ struct _mulle_objc_poolconfiguration
    void   (*autoreleaseObject)( struct _mulle_objc_poolconfiguration *, id);
    void   (*autoreleaseObjects)( struct _mulle_objc_poolconfiguration *, id *, NSUInteger, NSUInteger);
 
-   id                              tail;        // NSAutoreleasepool
+   id                              tail;        // NSAutoreleasePool
    struct _mulle_objc_infraclass   *poolClass;
 
 
    void   *(*push)( struct _mulle_objc_poolconfiguration *);
    void   (*pop)( struct _mulle_objc_poolconfiguration *, id pool);
 
-   int    releasing;
-   int    trace;
+   int             releasing;
+   int             trace;
+   unsigned int    maxObjects;  // coarse
 
    // used for debugging when MULLE_OBJC_AUTORELEASEPOOL_MAP is YES
    struct mulle_map                *object_map;
@@ -70,6 +71,7 @@ struct _mulle_objc_poolconfiguration
 struct _mulle_objc_threadfoundationinfo
 {
    struct _mulle_objc_poolconfiguration   poolconfig;
+   struct mulle_allocator                 *instance_allocator; // used with MULLE_OBJC_EMBEDDED_ALLOCATOR
 };
 
 

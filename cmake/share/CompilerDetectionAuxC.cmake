@@ -21,9 +21,3 @@ if( NOT __COMPILER_DETECTION_AUX_C_CMAKE__)
    include( CompilerDetectionAuxObjC OPTIONAL)
 
 endif()
-
-
-# extension : mulle-objc/objc-cmake
-# directory : project/all
-# template  : .../CompilerDetectionAuxC.cmake
-# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

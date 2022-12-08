@@ -49,7 +49,8 @@ enum
 };
 
 
-typedef void   MulleThreadFunction_t( NSThread *, void *);
+typedef int   MulleThreadFunction_t( NSThread *, void *);
+
 
 @interface NSThread : NSObject
 {
@@ -69,6 +70,7 @@ typedef void   MulleThreadFunction_t( NSThread *, void *);
    char                     _releaseTarget;
    char                     _releaseArgument;
    mulle_atomic_pointer_t   _cancelled;
+   int                      _rval;
 }
 
 + (NSThread *) mainThread;
@@ -85,13 +87,33 @@ typedef void   MulleThreadFunction_t( NSThread *, void *);
 
 + (void) exit;
 
++ (instancetype) mulleThreadWithTarget:(id) target
+                              selector:(SEL) sel
+                                object:(id) argument;
 
+
+- (instancetype) mulleInitWithFunction:(MulleThreadFunction_t *) f
+                              argument:(void *) argument;
+
+
+//
+// you can tweak the way thread handles target and argument here, this
+// can be useful if you are managing threads on your own. Specify bits like
+// MulleThreadDontRetainTarget as options
+//
+- (instancetype) mulleInitWithTarget:(id) target
+                            selector:(SEL) sel
+                              object:(id) object
+                             options:(NSUInteger) options;
+
+//
+// Apple says: This selector must take only one argument and must not have a
+// return value. In MulleObjC, the return value is preferred to be "int"
+//
 - (instancetype) initWithTarget:(id) target
                        selector:(SEL) sel
                          object:(id) argument;
 
-- (instancetype) mulleInitWithFunction:(MulleThreadFunction_t *) f
-                              argument:(void *) argument;
 
 - (void) start;
 - (void) main;
@@ -106,16 +128,6 @@ typedef void   MulleThreadFunction_t( NSThread *, void *);
 + (BOOL) mulleIsMultiThreaded;   // __attribute__((availability(mulleobjc,introduced=0.2)));
 + (BOOL) mulleMainThreadWaitsAtExit;
 + (void) mulleSetMainThreadWaitsAtExit:(BOOL) flag;
-
-//
-// you can tweak the way thread handles target and argument here, this
-// can be useful if you are managing threads on your own. Specify bits like
-// MulleThreadDontRetainTarget as options
-//
-- (instancetype) mulleInitWithTarget:(id) target
-                            selector:(SEL) sel
-                            argument:(id) argument
-                             options:(NSUInteger) options;
 
 // mulle additons for tests
 
@@ -141,6 +153,8 @@ typedef void   MulleThreadFunction_t( NSThread *, void *);
 
 - (char *) mulleNameUTF8String;
 - (void) mulleSetNameUTF8String:(char *) s;
+
+- (int) mulleReturnStatus;
 
 #pragma mark - Internal
 
@@ -209,6 +223,3 @@ static inline id   MulleThreadGetCurrentThreadUserInfo( void)
 // the complementary to above function
 MULLE_OBJC_GLOBAL
 void   MulleThreadSetCurrentThreadUserInfo( id info);
-
-
-
