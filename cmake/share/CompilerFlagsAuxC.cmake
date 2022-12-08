@@ -10,9 +10,3 @@ include( CompilerFlagsObjC)
 
 # load in flags defined by other plugins, presumably Objective-C
 include( CompilerFlagsAuxObjC OPTIONAL)
-
-
-# extension : mulle-objc/objc-cmake
-# directory : project/all
-# template  : .../CompilerFlagsAuxC.cmake
-# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

@@ -68,3 +68,17 @@ NSRange  MulleObjCRangeCombine( NSRange aRange, NSRange bRange)
       a_end = b_end;
    return( NSMakeRange( a->location, a_end - a->location));
 }
+
+
+char  *NSRangeUTF8String( NSRange range)
+{
+   extern void   *MulleObjCAutoreleaseAllocation( void *pointer,
+                                                  struct mulle_allocator *allocator);  
+   char   *s;
+
+   mulle_buffer_do_string( buffer, NULL, s)
+   {
+      mulle_buffer_sprintf( buffer, "[%td,%td]", range.location, range.length);
+   }
+   return( MulleObjCAutoreleaseAllocation( s, NULL));
+}

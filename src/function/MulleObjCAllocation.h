@@ -38,25 +38,42 @@
 #include <stdarg.h>
 
 
+#ifndef MULLE_OBJC_EMBEDDED_ALLOCATOR
 MULLE_C_CONST_RETURN
+#endif
 static inline struct mulle_allocator   *MulleObjCInstanceGetAllocator( id obj)
 {
-   struct _mulle_objc_class        *cls;
-   struct _mulle_objc_infraclass   *infra;
-   struct mulle_allocator          *allocator;
+   struct mulle_allocator   *allocator;
 
    if( ! obj)
       return( NULL);
 
-   cls   = _mulle_objc_object_get_isa( obj);
-   infra = _mulle_objc_class_as_infraclass( cls);
+#ifdef MULLE_OBJC_EMBEDDED_ALLOCATOR
+   void   **p_allocator;
 
-   allocator  = _mulle_objc_infraclass_get_allocator( infra);
+   // the embedded allocator has to be the top entry in the
+   // extended object header
+   p_allocator = *(void **) _mulle_objc_objectheader_get_alloc( obj);
+   // if the objectheader is at the same address, the metaheader is too small
+   assert( (uintptr_t) p_allocator < (uintptr_t) _mulle_objc_object_get_objectheader( obj));
+   allocator = *p_allocator;
+#else
+   struct _mulle_objc_class        *cls;
+   struct _mulle_objc_infraclass   *infra;
+
+   cls       = _mulle_objc_object_get_isa( obj);
+   infra     = _mulle_objc_class_as_infraclass( cls);
+   allocator = _mulle_objc_infraclass_get_allocator( infra);
+#endif
+
+   assert( allocator);
    return( allocator);
 }
 
 
+#ifndef MULLE_OBJC_EMBEDDED_ALLOCATOR
 MULLE_C_CONST_RETURN
+#endif
 static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 {
    struct mulle_allocator   *allocator;
@@ -64,10 +81,44 @@ static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
    if( ! cls)
       return( NULL);
 
+#ifdef MULLE_OBJC_EMBEDDED_ALLOCATOR
+   struct _mulle_objc_threadfoundationinfo   *info;
+   struct _mulle_objc_universe               *universe;
+
+   universe  = _mulle_objc_infraclass_get_universe( cls);
+   info      = mulle_objc_thread_get_threadfoundationinfo( universe);
+   allocator = info->instance_allocator;
+   if( allocator)
+      return( allocator);
+#endif
    allocator = _mulle_objc_infraclass_get_allocator( cls);
    return( allocator);
 }
 
+
+static inline void   MulleObjCThreadSetAllocator( struct mulle_allocator *allocator)
+{
+   struct _mulle_objc_threadfoundationinfo   *info;
+   struct _mulle_objc_universe               *universe;
+
+   universe = mulle_objc_global_get_universe_inline( __MULLE_OBJC_UNIVERSEID__);
+   info     = mulle_objc_thread_get_threadfoundationinfo( universe);
+
+   info->instance_allocator = allocator;
+}
+
+
+MULLE_C_CONST_RETURN
+static inline struct mulle_allocator   *MulleObjCThreadGetAllocator( void)
+{
+   struct _mulle_objc_threadfoundationinfo   *info;
+   struct _mulle_objc_universe               *universe;
+
+   universe = mulle_objc_global_get_universe_inline( __MULLE_OBJC_UNIVERSEID__);
+   info     = mulle_objc_thread_get_threadfoundationinfo( universe);
+
+   return( info->instance_allocator);
+}
 
 
 #pragma mark - allocate memory to return char * autoreleased
@@ -150,7 +201,14 @@ static inline void  MulleObjCClassDeallocateMemory( Class cls, void *p)
 __attribute__((returns_nonnull))
 static inline id    _MulleObjCClassAllocateInstance( Class infraCls, NSUInteger extra)
 {
-   return( (id) _mulle_objc_infraclass_alloc_instance_extra( infraCls, extra));
+   struct mulle_allocator   *allocator;
+   void                     *obj;
+
+   allocator = MulleObjCClassGetAllocator( infraCls);
+   obj       = _mulle_objc_infraclass_allocator_alloc_instance_extra( infraCls,
+                                                                      extra,
+                                                                      allocator);
+   return( (id) obj);
 }
 
 
@@ -158,17 +216,53 @@ __attribute__((returns_nonnull))
 static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
                                                             NSUInteger extra)
 {
-   return( (id) _mulle_objc_infraclass_alloc_instance_extra_nonzeroed( infraCls, extra));
+   struct mulle_allocator   *allocator;
+   void                     *obj;
+
+   allocator = MulleObjCClassGetAllocator( infraCls);
+   obj       = _mulle_objc_infraclass_allocator_alloc_instance_extra_nonzeroed( infraCls,
+                                                                                extra,
+                                                                                allocator);
+   return( (id) obj);
+}
+
+// this does not zero properties
+MULLE_OBJC_GLOBAL
+void   _MulleObjCInstanceFree( id obj);
+
+
+// resist the urge to add placeholder detection code here
+// resist the urge to add _mulle_objc_class_setup here
+__attribute__((returns_nonnull))
+static inline id    _MulleObjCClassAllocateInstanceWithAllocator( Class infraCls,
+                                                                  NSUInteger extra,
+                                                                  struct mulle_allocator *allocator)
+{
+   void   *obj;
+
+   obj = _mulle_objc_infraclass_allocator_alloc_instance_extra( infraCls,
+                                                                extra,
+                                                                allocator);
+   return( (id) obj);
+}
+
+
+__attribute__((returns_nonnull))
+static inline id    _MulleObjCClassAllocateNonZeroedObjectWithAllocator( Class infraCls,
+                                                                         NSUInteger extra,
+                                                                         struct mulle_allocator *allocator)
+{
+   void   *obj;
+
+   obj = _mulle_objc_infraclass_allocator_alloc_instance_extra_nonzeroed( infraCls,
+                                                                          extra,
+                                                                          allocator);
+   return( (id) obj);
 }
 
 
 MULLE_OBJC_GLOBAL
 void   _MulleObjCInstanceClearProperties( id obj);
-
-
-// this does not zero properties
-MULLE_OBJC_GLOBAL
-void   _MulleObjCInstanceFree( id obj);
 
 
 // legacy naming scheme, should be AllocateInstance really
@@ -289,7 +383,6 @@ static inline NSUInteger   MulleObjCCopyObjectArray( id *objects,
                                                      id *array,
                                                      NSUInteger count)
 {
-   va_list      args;
    id           *sentinel;
    id           obj;
    NSUInteger   n;

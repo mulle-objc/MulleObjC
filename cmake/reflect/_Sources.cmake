@@ -36,7 +36,9 @@ src/protocol/MulleObjCProtocol.m
 src/protocol/MulleObjCSingleton.m
 src/protocol/MulleObjCTaggedPointer.m
 src/protocol/NSCoding.m
+src/protocol/NSCopyingWithAllocator.m
 src/protocol/NSCopying.m
+src/struct/MulleObjCContainerObjectCallback.m
 src/struct/NSRange.c
 )
 

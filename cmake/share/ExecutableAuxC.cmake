@@ -16,9 +16,3 @@ if( NOT __EXECUTABLE_C_AUX_CMAKE__)
    include( OptimizedLinkObjC)
 
 endif()
-
-
-# extension : mulle-objc/objc-cmake
-# directory : project/all
-# template  : .../ExecutableAuxC.cmake
-# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

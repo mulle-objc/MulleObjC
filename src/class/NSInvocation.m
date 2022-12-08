@@ -109,7 +109,7 @@ static NSInvocation   *popStandardInvocation( void)
 {
    NSInvocation   *invocation;
 
-   while( invocation = _mulle_pointermultififo_read_barrier( &reuseInvocations))
+   while( (invocation = _mulle_pointermultififo_read_barrier( &reuseInvocations)))
    {
       fprintf( stderr, "dealloc, no reuse %p\n", invocation);
       _MulleObjCInstanceFree( invocation);
@@ -118,10 +118,38 @@ static NSInvocation   *popStandardInvocation( void)
 }
 
 
+static int   is_valid_frame_range( NSInvocation *self, char *adr, size_t size)
+{
+   return( (adr >= self->_storage) && (&adr[ size] <= self->_sentinel));
+}
+
+
+
+static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
+                                                    NSUInteger i,
+                                                    void **p_adr,
+                                                    size_t *p_size)
+{
+   MulleObjCMethodSignatureTypeInfo   *p;
+   char                               *adr;
+   size_t                             size;
+
+   p    = [self->_methodSignature mulleSignatureTypeInfoAtIndex:i];
+   adr  = &((char *) self->_storage)[ p->invocation_offset];
+   size = p->natural_size;
+
+   if( ! is_valid_frame_range( self, adr, size))
+      __mulle_objc_universe_raise_invalidindex( NULL, i);
+
+   *p_adr  = adr;
+   *p_size = size;
+}
+
+
+
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature
 {
    NSUInteger                      size;
-   NSUInteger                      standardsize;
    NSInvocation                    *invocation;
    void                            *extraBytes;
    struct _mulle_objc_infraclass   *cls;
@@ -149,7 +177,10 @@ static NSInvocation   *popStandardInvocation( void)
       {
          size       = NSInvocationStandardSize;
          invocation = popStandardInvocation();
-         fprintf( stderr, "popped for reuse %p\n", invocation);
+#ifdef DEBUG
+         if( invocation)
+            fprintf( stderr, "popped for reuse %p\n", invocation);
+#endif
       }
    }
 
@@ -162,6 +193,51 @@ static NSInvocation   *popStandardInvocation( void)
    invocation->_methodSignature = [signature retain];
 
    return( [invocation autorelease]);
+}
+
+
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel, ...
+
+{
+   char                               *adr;
+   mulle_vararg_list                  arguments;
+   MulleObjCMethodSignatureTypeInfo   *p;
+   NSInvocation                       *invocation;
+   NSMethodSignature                  *signature;
+   NSUInteger                         i, n;
+   unsigned int                       size;
+   void                               *src;
+
+   signature  = [target methodSignatureForSelector:sel];
+   invocation = [self invocationWithMethodSignature:signature];
+   [invocation setTarget:target];
+   [invocation setSelector:sel];
+
+   // TODO: we should be able to this significantly faster!!
+   // We can probably just memcpy the whole block over
+   // MEMO: Also check MulleInvocationBuilder in "tests"
+   //
+   mulle_vararg_start( arguments, sel);
+   {
+      n = [signature numberOfArguments];
+      for( i = 2; i < n; ++i)
+      {
+         // use internal index for mulleSignatureTypeInfoAtIndex!
+         p    = [signature mulleSignatureTypeInfoAtIndex:i + 1];
+         adr  = &((char *) invocation->_storage)[ p->invocation_offset];
+         size = p->natural_size;
+
+         if( ! is_valid_frame_range( invocation, adr, size))
+            __mulle_objc_universe_raise_invalidindex( NULL, i);
+
+         src = _mulle_vararg_aligned_struct( &arguments, size, p->natural_alignment);
+         memcpy( adr, src, size);
+      }
+   }
+   mulle_vararg_end( arguments);
+
+   return( invocation);
 }
 
 
@@ -195,7 +271,9 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
    {
       if( ! pushStandardInvocation( self))
       {
-         fprintf( stderr, "push for reuse %p\n", self);
+#ifdef MULLE_DEBUG
+         fprintf( stderr, "push invocation %p for reuse \n", self);
+#endif
          return;
       }
    }
@@ -262,33 +340,6 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
 }
 
 
-static int   is_valid_frame_range( NSInvocation *self, char *adr, size_t size)
-{
-   return( (adr >= self->_storage) && (&adr[ size] <= self->_sentinel));
-}
-
-
-static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
-                                                    NSUInteger i,
-                                                    void **p_adr,
-                                                    size_t *p_size)
-{
-   MulleObjCMethodSignatureTypeInfo   *p;
-   char      *adr;
-   size_t    size;
-
-   p    = [self->_methodSignature mulleSignatureTypeInfoAtIndex:i];
-   adr  = &((char *) self->_storage)[ p->invocation_offset];
-   size = p->natural_size;
-
-   if( ! is_valid_frame_range( self, adr, size))
-      __mulle_objc_universe_raise_invalidindex( NULL, i);
-
-   *p_adr  = adr;
-   *p_size = size;
-}
-
-
 - (void) getReturnValue:(void *) value_p
 {
    void     *adr;
@@ -339,6 +390,9 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
 }
 
 
+//
+// Apple: If a returnvalue has been set, this is also retained or copied.
+//
 - (void) retainArguments
 {
    NSInteger   i, n;
@@ -348,12 +402,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    char        *dup;
 
    if( _argumentsRetained)
-   {
-#if DEBUG
-      abort();
-#endif
       return;
-   }
 
    if( [_methodSignature isVariadic])
       __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
@@ -445,7 +494,6 @@ retain the arguments of variadic methods");
 {
    return( _returnValueRetained);
 }
-
 
 
 - (SEL) selector

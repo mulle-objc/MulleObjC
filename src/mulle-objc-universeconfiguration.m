@@ -151,7 +151,6 @@ static void   foundationinfo_done( struct _mulle_objc_universe *universe,
 }
 
 
-
 static void   nop( struct _mulle_objc_universe *universe,
                    void *friend,
                    struct mulle_objc_loadversion *info)
@@ -159,31 +158,30 @@ static void   nop( struct _mulle_objc_universe *universe,
 }
 
 
-
 //
 // find leaks of universe after it shut down
 //
-static void   reset_testallocator( struct _mulle_objc_universe *universe)
-{
-   void   (*mulle_testallocator_reset)( void);
-
-#if HAVE_DLSYM
-   mulle_testallocator_reset = dlsym( RTLD_DEFAULT, "mulle_testallocator_reset");
-   if( mulle_testallocator_reset)
-      (*mulle_testallocator_reset)();
-#endif
-}
-
+//static void   reset_testallocator( struct _mulle_objc_universe *universe)
+//{
+//   void   (*mulle_testallocator_reset)( void);
+//
+//#if HAVE_DLSYM
+//   mulle_testallocator_reset = dlsym( RTLD_DEFAULT, "mulle_testallocator_reset");
+//   if( mulle_testallocator_reset)
+//      (*mulle_testallocator_reset)();
+//#endif
+//}
+//
 
 struct _mulle_objc_universefoundationinfo  *
    _mulle_objc_universeconfiguration_configure_universe( struct _mulle_objc_universeconfiguration *config,
                                                          struct _mulle_objc_universe *universe)
 {
-   size_t                                      size;
-   size_t                                      neededsize;
    struct mulle_allocator                      *allocator;
    struct _mulle_objc_foundation               foundation;
    struct _mulle_objc_universefoundationinfo   *roots;
+   size_t                                      size;
+   size_t                                      neededsize;
    char                                        *kind;
 
    //
@@ -192,7 +190,7 @@ struct _mulle_objc_universefoundationinfo  *
    assert( sizeof( NSInteger) == sizeof( NSUInteger));
    assert( sizeof( ptrdiff_t) == sizeof( NSInteger));
 
-   _mulle_objc_universe_defaultbang( universe,  config->universe.allocator, NULL);
+   _mulle_objc_universe_defaultbang( universe, config->universe.allocator, NULL);
 
    universe->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
    universe->classdefaults.forwardmethod = config->universe.forward;
@@ -220,8 +218,8 @@ struct _mulle_objc_universefoundationinfo  *
                                                      ? config->universe.threadinfoinitializer
                                                      : _mulle_objc_threadinfo_initializer;
    foundation.universefriend.versionassert         = config->universe.versionassert
-                                        ? config->universe.versionassert
-                                        : nop;
+                                                     ? config->universe.versionassert
+                                                     : nop;
    foundation.rootclassid = @selector( NSObject);
    allocator              = config->foundation.objectallocator;
 
@@ -267,8 +265,7 @@ static void   versionassert( struct _mulle_objc_universe *universe,
 }
 
 
-# pragma mark -
-# pragma mark Exceptions
+# pragma mark - Exceptions
 
 static void  perror_abort( char *s)
 {
@@ -315,7 +312,6 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 {
    struct _mulle_objc_universefoundationinfo   *rootconfig;
    int                                         coverage;
-   BOOL                                        objcTestAllocatorEnabled;
 
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 

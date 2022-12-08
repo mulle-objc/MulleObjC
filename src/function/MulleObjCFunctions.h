@@ -904,11 +904,31 @@ Class   NSClassFromObject( id object);
 MULLE_OBJC_GLOBAL
 char    *MulleObjCClassGetNameUTF8String( Class cls);
 
+static inline char   *MulleObjCClassUTF8String( Class cls)
+{
+   return( MulleObjCClassGetNameUTF8String( cls));
+}
+
+
 MULLE_OBJC_GLOBAL
 char    *MulleObjCSelectorGetNameUTF8String( SEL sel);
 
+
+static inline char   *MulleObjCSelectorUTF8String( SEL sel)
+{
+   return( MulleObjCSelectorGetNameUTF8String( sel));
+}
+
+
 MULLE_OBJC_GLOBAL
 char    *MulleObjCProtocolGetNameUTF8String( PROTOCOL sel);
+
+
+static inline char   *MulleObjCProtocolUTF8String( SEL sel)
+{
+   return( MulleObjCProtocolGetNameUTF8String( sel));
+}
+
 
 MULLE_OBJC_GLOBAL
 Class   MulleObjCLookupClassByNameUTF8String( char *name);

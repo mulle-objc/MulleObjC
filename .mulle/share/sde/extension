@@ -14,3 +14,4 @@ mulle-sde/vscode-clang;extra
 mulle-sde/vscode;extra
 mulle-objc/vscode-clang;extra
 mulle-objc/github-actions;extra
+mulle-sde/idea;extra

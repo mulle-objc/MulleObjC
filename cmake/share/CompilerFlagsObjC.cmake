@@ -18,9 +18,3 @@ if( NOT __COMPILER_FLAGS_OBJC_CMAKE__)
       endif()
    endif()
 endif()
-
-
-# extension : mulle-objc/objc-cmake
-# directory : project/all
-# template  : .../CompilerFlagsObjC.cmake
-# Suppress this comment with `export MULLE_SDE_GENERATE_FILE_COMMENTS=NO`

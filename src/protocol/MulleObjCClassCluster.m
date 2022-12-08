@@ -124,7 +124,7 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
    //
    universe    = _mulle_objc_infraclass_get_universe( infraCls);
    allocator   = _mulle_objc_universe_get_allocator( universe);
-   placeholder = __mulle_objc_infraclass_alloc_instance_extra( infraCls, 0, allocator);
+   placeholder = _mulle_objc_infraclass_allocator_alloc_instance_extra( infraCls, 0, allocator);
    cls         = _mulle_objc_infraclass_as_class( infraCls);
    sel         = @selector( __initClassCluster);
    imp         = _mulle_objc_class_lookup_implementation_noforward( cls, sel);

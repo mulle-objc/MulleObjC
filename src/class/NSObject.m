@@ -145,7 +145,7 @@ static id   _MulleObjCInstantiatePlaceholderNew( Class infraCls)
    //
    universe    = _mulle_objc_infraclass_get_universe( infraCls);
    allocator   = _mulle_objc_universe_get_allocator( universe);
-   placeholder = __mulle_objc_infraclass_alloc_instance_extra( infraCls, 0, allocator);
+   placeholder = _mulle_objc_infraclass_allocator_alloc_instance_extra( infraCls, 0, allocator);
 
    cls         = _mulle_objc_infraclass_as_class( infraCls);
    sel         = @selector( __initInstantiate);
@@ -231,6 +231,12 @@ static id
 - (NSZone *) zone  // always NULL
 {
    return( (NSZone *) 0);
+}
+
+
+- (struct mulle_allocator *) mulleAllocator
+{
+   return( MulleObjCInstanceGetAllocator( self));
 }
 
 
@@ -546,18 +552,19 @@ retry:
 
    while( old = _mulle_objc_infraclass_get_cvar( self, key))
    {
-      switch( (rval = _mulle_objc_infraclass_remove_cvar( self, key, old)))
+      rval = _mulle_objc_infraclass_remove_cvar( self, key, old);
+      if( ! rval)
       {
-         case 0 :
-            [old autorelease];
-         case ENOENT :
-            return;
-
-         default :
-            errno    = rval;
-            universe = _mulle_objc_object_get_universe( self);
-            __mulle_objc_universe_raise_errno( universe, "failed to remove key");
+         [old autorelease];
+         return;
       }
+
+      if( rval == ENOENT)
+         return;
+
+      errno    = rval;
+      universe = _mulle_objc_object_get_universe( self);
+      __mulle_objc_universe_raise_errno( universe, "failed to remove key");
    }
 }
 
@@ -575,21 +582,20 @@ retry:
    assert( _mulle_objc_object_is_constant( key));
 
    [value retain];
-   switch( (rval = _mulle_objc_infraclass_set_cvar( self, key, value)))
-   {
-   case 0 :
+   rval = _mulle_objc_infraclass_set_cvar( self, key, value);
+   if( ! rval)
       return( YES);
 
-   case EEXIST :
+   if( rval == EEXIST)
+   {
       [value autorelease];
       return( NO);
-
-   default :
-      [value autorelease];
-      errno    = rval;
-      universe = _mulle_objc_object_get_universe( self);
-      __mulle_objc_universe_raise_errno( universe, "failed to insert key");
    }
+
+   [value autorelease];
+   errno    = rval;
+   universe = _mulle_objc_object_get_universe( self);
+   __mulle_objc_universe_raise_errno( universe, "failed to insert key");
 }
 
 

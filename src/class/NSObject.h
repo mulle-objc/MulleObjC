@@ -156,6 +156,7 @@
 // old name
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
+- (struct mulle_allocator *) mulleAllocator;
 - (void) mullePerformFinalize;
 
 // advanced Autorelease and ObjectGraph support

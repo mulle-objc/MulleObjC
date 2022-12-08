@@ -232,10 +232,8 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
 static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
 {
    MulleObjCMethodSignatureTypeInfo        *p;
-   MulleObjCMethodSignatureTypeInfo        *sentinel;
    struct mulle_allocator                  *allocator;
    struct mulle_objc_signatureenumerator   rover;
-   struct mulle_objc_typeinfo              info;
    char                                    *types;
 
    assert( self->_count);
@@ -255,14 +253,12 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
    else
       self->_infos = getExtraMemory( self);
 
-   p        = &self->_infos[ 1];
-   sentinel = &p[ self->_count];
-
+   p     = &self->_infos[ 1];
    types = self->_types;
    rover = mulle_objc_signature_enumerate( types);
    while( _mulle_objc_signatureenumerator_next( &rover, p))
    {
-      assert( p < sentinel);
+      assert( p < &self->_infos[ 1 + self->_count]);  // sentinel
       assert( (p == &self->_infos[ 0] || p[ -1].type != p->pure_type_end) && \
               "need fix for incompatible runtime");
       ++p;
@@ -354,7 +350,6 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
    NSUInteger                         frame_size;
    MulleObjCMethodSignatureTypeInfo   *info;
    NSUInteger                         i;
-   NSUInteger                         length;
 
    i           = _count - 1;
    info        = &get_infos( self)[ i];    // get last argument

@@ -112,6 +112,15 @@ static inline NSRange   NSIntersectionRange( NSRange range1, NSRange range2)
 }
 
 
+static inline NSUInteger   MulleObjCRangeSubtract( NSRange range1, 
+                                                   NSRange range2,
+                                                   NSRange result[ 2])
+{
+   return( mulle_range_subtract( range1, range2, result));
+}
+
+
+
 // mulle additon:
 
 static inline enum _MulleBool   MulleObjCRangeIsValid( NSRange range)
@@ -136,13 +145,13 @@ static inline enum _MulleBool   MulleObjCRangeContainsRange( NSRange big, NSRang
 NSRange  MulleObjCRangeCombine( NSRange aRange, NSRange bRange);
 
 
-static enum _MulleBool   MulleObjCRangeIsCombinableRange( NSRange a, NSRange b)
+static inline enum _MulleBool   MulleObjCRangeIsCombinableRange( NSRange a, NSRange b)
 {
    return( MulleObjCRangeCombine( a, b).length ? YES : NO);
 }
 
 
-static enum _MulleBool   MulleObjCRangeIntersectsRange( NSRange a, NSRange b)
+static inline enum _MulleBool   MulleObjCRangeIntersectsRange( NSRange a, NSRange b)
 {
    return( NSIntersectionRange( a, b).length ? YES : NO);
 }
@@ -158,5 +167,8 @@ static inline NSComparisonResult   MulleObjCRangeCompare( NSRange a, NSRange b)
 }
 
 NSComparisonResult   MulleObjCRangePointerCompare( NSRange *a, NSRange *b);
+
+
+char  *NSRangeUTF8String( NSRange range);
 
 #endif

@@ -5,6 +5,7 @@
       { @selector( MulleObjCTaggedPointer), MULLE_OBJC_NO_CATEGORYID },      // 15c9ad56;MulleObjCTaggedPointer;;
       { @selector( NSAutoreleasePool), MULLE_OBJC_NO_CATEGORYID },      // 58bb178a;NSAutoreleasePool;;
       { @selector( NSCopying), MULLE_OBJC_NO_CATEGORYID },      // 903fb1df;NSCopying;;
+      { @selector( NSCopyingWithAllocator), MULLE_OBJC_NO_CATEGORYID },      // 2dc572ec;NSCopyingWithAllocator;;
       { @selector( NSInvocation), MULLE_OBJC_NO_CATEGORYID },      // c089c043;NSInvocation;;
       { @selector( NSMethodSignature), MULLE_OBJC_NO_CATEGORYID },      // 523989f9;NSMethodSignature;;
       { @selector( NSObject), @selector( NSCodingSupport) },      // b3a66256;NSObject;55df6832;NSCodingSupport

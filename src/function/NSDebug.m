@@ -74,9 +74,7 @@ BOOL   MulleObjCIsDebugEnabled( void)
 
 static char   *__MullePrintForDebugger( id a, char *buf)
 {
-   struct _mulle_objc_class      *cls;
-   struct _mulle_objc_universe   *universe;
-   void                          *s;
+   struct _mulle_objc_class   *cls;
 
    if( ! a)
       return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*nil*"));
@@ -353,6 +351,9 @@ void   _MulleObjCZombifyObject( id obj, int shred)
       zombifyObject( obj, shred);
 }
 
+#pragma mark - dreaded conveniences
+
+#ifdef MULLE_OBJC_DEBUG_SUPPORT
 
 static char   *_mulle_objc_get_tmpdir( void)
 {
@@ -378,11 +379,6 @@ static char   *_mulle_objc_get_tmpdir( void)
 #endif
 }
 
-
-
-#ifdef MULLE_OBJC_DEBUG_SUPPORT
-
-#pragma mark - dreaded conveniences
 
 void   MulleObjCHTMLDumpUniverseToDirectory( char *directory)
 {
@@ -416,7 +412,6 @@ void   MulleObjCHTMLDumpUniverse( void)
 static struct _mulle_objc_infraclass   *infraclass_from_string( char *classname)
 {
    struct _mulle_objc_universe     *universe;
-   struct _mulle_objc_class        *cls;
    struct _mulle_objc_infraclass   *infra;
    mulle_objc_classid_t            classid;
 

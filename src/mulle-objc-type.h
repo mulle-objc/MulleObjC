@@ -153,7 +153,7 @@ enum name
 //
 // Just the same but for options
 //
-#define NS_OPTIONS_ITEM( name)            { #name, name  }
+#define NS_OPTIONS_ITEM( name)            { #name, name }
 #define NS_OPTIONS_ITEM_TYPE( name)       struct name ## __item
 #define NS_OPTIONS_TABLE( name, length)   NS_OPTIONS_ITEM_TYPE( name) name ## __table[ length]
 #define NS_OPTIONS_PRINT( name, options)                                                 \
