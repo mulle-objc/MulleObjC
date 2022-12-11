@@ -70,3 +70,4 @@ tmp.*/
 version.old
 .idea/
 cmake-build-debug/
+.ackrc

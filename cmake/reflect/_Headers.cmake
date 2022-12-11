@@ -53,7 +53,6 @@ src/mulle-objc-universefoundationinfo-private.h
 # contents selected with patternfile ??-header--public-generated-headers
 #
 set( PUBLIC_GENERATED_HEADERS
-src/reflect/_MulleObjC-export.h
 src/reflect/_MulleObjC-import.h
 src/reflect/_MulleObjC-include.h
 src/reflect/_MulleObjC-provide.h

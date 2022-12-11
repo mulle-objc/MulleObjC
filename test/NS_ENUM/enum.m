@@ -24,8 +24,6 @@ NS_ENUM_TABLE( Foo, 3) =
 };
 
 
-
-
 int   main( void)
 {
    printf( "%s\n", NS_ENUM_PRINT( Foo, FooA));
