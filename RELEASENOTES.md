@@ -1,3 +1,11 @@
+## 0.22.0
+
+* add NSRangeUTF8String function
+* add MulleObjCObjectPerformSelectorReturningBOOL convenience
+* received container callbacks from MulleObjCContainerFoundation
+* support for `NS_ENUM` and `NS_OPTIONS`
+
+
 ## 0.21.0
 
 * change GLOBALs for Windows

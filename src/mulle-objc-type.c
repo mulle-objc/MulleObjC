@@ -46,12 +46,12 @@ extern
 void   *MulleObjCAutoreleaseAllocation( void *pointer,
                                         struct mulle_allocator *allocator);
 
-char   *_NS_ENUM_OPTIONS_UTF8String( void *table,
-                                     size_t len,
-                                     size_t line_size,
-                                     size_t offset,
-                                     size_t item_len,
-                                     unsigned long long bits)
+char   *_NS_OPTIONS_UTF8String( void *table,
+                                size_t len,
+                                size_t line_size,
+                                size_t offset,
+                                size_t item_len,
+                                unsigned long long bits)
 {
    char                   *s;
    size_t                  i;
@@ -98,12 +98,60 @@ char   *_NS_ENUM_OPTIONS_UTF8String( void *table,
 }
 
 
-unsigned long long   _NS_ENUM_OPTIONS_ParseUTF8String( void *table,
-                                                       size_t len,
-                                                       size_t line_size,
-                                                       size_t offset,
-                                                       size_t item_len,
-                                                       char *s)
+char   *_NS_ENUM_UTF8String( void *table,
+                             size_t len,
+                             size_t line_size,
+                             size_t offset,
+                             size_t item_len,
+                             unsigned long long bits)
+{
+   char                   *s;
+   size_t                  i;
+   void                   *line;
+   unsigned long long     value;
+
+   assert( "the options table has too few entries" && (! len || *(char **) &((char *) table)[ line_size * (len - 1)]));
+
+   mulle_buffer_do_string( buffer, NULL, s)
+   {
+      line = table;
+      for( i = 0; i < len; i++)
+      {
+         switch( item_len)
+         {
+         case 1  : value = *(uint8_t *)  &((char *) line)[ offset]; break;
+         case 2  : value = *(uint16_t *) &((char *) line)[ offset]; break;
+         case 4  : value = *(uint32_t *) &((char *) line)[ offset]; break;
+         case 8  : value = *(uint64_t *) &((char *) line)[ offset]; break;
+         default : abort();
+         }
+
+         if( bits == value)
+         {
+            assert( *(char **) line);
+            mulle_buffer_add_string( buffer, *(char **) line);
+            bits = 0;
+            break;
+         }
+         line = &((char *) line)[ line_size];
+      }
+
+      if( bits)
+         mulle_buffer_sprintf( buffer, "0x%llx", bits);
+
+      mulle_buffer_add_string_if_empty( buffer, "0");
+   }
+
+   return( MulleObjCAutoreleaseAllocation( s, NULL));
+}
+
+
+unsigned long long   _NS_OPTIONS_ParseUTF8String( void *table,
+                                                  size_t len,
+                                                  size_t line_size,
+                                                  size_t offset,
+                                                  size_t item_len,
+                                                  char *s)
 {
    size_t               i;
    void                 *line;
@@ -148,4 +196,48 @@ next:
          ++s;
    }
    return( value);
+}
+
+
+unsigned long long   _NS_ENUM_ParseUTF8String( void *table,
+                                               size_t len,
+                                               size_t line_size,
+                                               size_t offset,
+                                               size_t item_len,
+                                               char *s)
+{
+   size_t               i;
+   void                 *line;
+   unsigned long long   value;
+   char                 *key;
+   size_t               key_len;
+
+   value = 0;
+
+   if( ! s)
+      return( value);
+
+   if( isdigit( *s))
+      return( atoll( s));
+
+   line = table;
+   for( i = 0; i < len; i++)
+   {
+      key     = *(char **) line;
+      key_len = strlen( key);
+      if( ! strncmp( key, s, key_len))
+      {
+         switch( item_len)
+         {
+         case 1  : value = *(uint8_t *)  &((char *) line)[ offset]; break;
+         case 2  : value = *(uint16_t *) &((char *) line)[ offset]; break;
+         case 4  : value = *(uint32_t *) &((char *) line)[ offset]; break;
+         case 8  : value = *(uint64_t *) &((char *) line)[ offset]; break;
+         default : abort();
+         }
+         return( value);
+      }
+      line = &((char *) line)[ line_size];
+   }
+   return( 0);
 }
