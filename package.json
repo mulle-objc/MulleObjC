@@ -1,21 +1,34 @@
 {
    "name" : "MulleObjC",
-   "version" : "0.18.0",
+   "version" : "0.22.0",
    "description" : "💎 A collection of Objective-C root classes for mulle-objc",
-   "homepage" : "https://github.com/mulle-kybernetik-tv/MulleObjC
-https://github.com/mulle-objc/MulleObjC",
-   "bugs" : "https://github.com/mulle-kybernetik-tv/MulleObjC
-https://github.com/mulle-objc/MulleObjC/issues",
+   "homepage" : "https://github.com/mulle-kybernetik-tv/MulleObjC",
+   "bugs" : "https://github.com/mulle-kybernetik-tv/MulleObjC/issues",
    "keywords" : [],
    "license" : "BSD-3-Clause",
    "repository" : {
       "type" : "git",
-      "url" : "mulle-kybernetik-tv/MulleObjC
-mulle-objc/MulleObjC"
+      "url" : "mulle-kybernetik-tv/MulleObjC"
    },
    "dependencies" : {
-      "mulle-objc-runtime" : "mulle-objc/mulle-objc-runtime",
-      "mulle-container" : "mulle-c/mulle-container",
-      "mulle-objc-list" : "mulle-objc/mulle-objc-list"
+      "mulle-container" : "git://github.com/mulle-c/mulle-container",
+      "mulle-allocator" : "git://github.com/mulle-c/mulle-allocator",
+      "mulle-c11" : "git://github.com/mulle-c/mulle-c11",
+      "mulle-data" : "git://github.com/mulle-c/mulle-data",
+      "farmhash-c" : "git://github.com/mulle-c/farmhash-c",
+      "mulle-fprintf" : "git://github.com/mulle-core/mulle-fprintf",
+      "mulle-sprintf" : "git://github.com/mulle-core/mulle-sprintf",
+      "mulle-buffer" : "git://github.com/mulle-c/mulle-buffer",
+      "mulle-utf" : "git://github.com/mulle-c/mulle-utf",
+      "mulle-vararg" : "git://github.com/mulle-c/mulle-vararg",
+      "mulle-thread" : "git://github.com/mulle-concurrent/mulle-thread",
+      "mintomic" : "git://github.com/mulle-concurrent/mintomic",
+      "mulle-multififo" : "git://github.com/mulle-concurrent/mulle-multififo",
+      "mulle-objc-runtime" : "git://github.com/mulle-objc/mulle-objc-runtime",
+      "mulle-concurrent" : "git://github.com/mulle-concurrent/mulle-concurrent",
+      "mulle-aba" : "git://github.com/mulle-concurrent/mulle-aba",
+      "mulle-objc-debug" : "git://github.com/mulle-objc/mulle-objc-debug",
+      "mulle-objc-list" : "git://github.com/mulle-objc/mulle-objc-list",
+      "mulle-objc-cc" : "git://github.com/mulle-cc/mulle-objc-cc"
    }
 }
