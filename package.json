@@ -2,13 +2,13 @@
    "name" : "MulleObjC",
    "version" : "0.22.0",
    "description" : "💎 A collection of Objective-C root classes for mulle-objc",
-   "homepage" : "https://github.com/mulle-kybernetik-tv/MulleObjC",
-   "bugs" : "https://github.com/mulle-kybernetik-tv/MulleObjC/issues",
+   "homepage" : "https://github.com/mulle-objc/MulleObjC",
+   "bugs" : "https://github.com/mulle-objc/MulleObjC/issues",
    "keywords" : [],
    "license" : "BSD-3-Clause",
    "repository" : {
       "type" : "git",
-      "url" : "mulle-kybernetik-tv/MulleObjC"
+      "url" : "github:mulle-objc/MulleObjC"
    },
    "dependencies" : {
       "mulle-container" : "git://github.com/mulle-c/mulle-container",
