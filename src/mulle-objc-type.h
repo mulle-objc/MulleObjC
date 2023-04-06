@@ -111,7 +111,7 @@ enum name
 
 // define an enum in .h:
 //
-// NS_ENUM( int, Foo) { A, B, C }
+// typedef NS_ENUM( int, Foo) { A, B, C }
 //
 // Then create an extern reference for the table in .h:
 //
@@ -119,7 +119,7 @@ enum name
 //
 // In the .c/.m file create the table:
 //
-// NS_ENUM_TABLE( Foo, 3) { NS_ENUM_ITEM( A), NS_ENUM_ITEM( B), NS_ENUM_ITEM( C) };
+// NS_ENUM_TABLE( Foo, 3) = { NS_ENUM_ITEM( A), NS_ENUM_ITEM( B), NS_ENUM_ITEM( C) };
 //
 // And that's it.
 //

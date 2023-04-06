@@ -1,0 +1,3 @@
+MulleObjC supplies the most basic runtime components like NSObject or NSThread
+to build a foundation on top of it. MulleObjC depends on standard C libraries 
+only and for instance not on `<unistd.h>`.

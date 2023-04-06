@@ -35,6 +35,8 @@
 //
 #import "NSObject.h"
 
+#import "MulleObjCDebug.h"
+
 
 @interface NSObject ( NSDebug)
 
@@ -86,54 +88,6 @@ static inline void   NSRecordAllocationEvent( int eventType, id object)
 {
 }
 
-
-//
-// these methods are only available if MulleObjC is built with Debug
-// OR with the cmake -DMULLE_OBJC_DEBUG_SUPPORT=ON
-//
-MULLE_OBJC_GLOBAL
-void   MulleObjCHTMLDumpUniverseToDirectory( char *directory);
-MULLE_OBJC_GLOBAL
-void   MulleObjCHTMLDumpUniverseToTmp( void);
-MULLE_OBJC_GLOBAL
-void   MulleObjCHTMLDumpUniverse( void);
-
-MULLE_OBJC_GLOBAL
-void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory);
-MULLE_OBJC_GLOBAL
-void   MulleObjCHTMLDumpClass( char *classname);
-MULLE_OBJC_GLOBAL
-void   MulleObjCHTMLDumpClassToTmp( char *classname);
-
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpClassToDirectory( char *classname, char *directory);
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpClassToTmp( char *classname);
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpClass( char *classname);
-
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpUniverseFrameToTmp( void);
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpUniverseToTmp( void);
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpUniverse( void);
-
-// dump all relevant classes and instance methods, starting from classname
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpMetaHierarchyToDirectory( char *classname, char *directory);
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpInfraHierarchyToTmp( char *classname);
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpInfraHierarchy( char *classname);
-
-// dump all relevant classes and class methods, starting from classname
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpMetaHierarchyToDirectory( char *classname, char *directory);
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpMetaHierarchyToTmp( char *classname);
-MULLE_OBJC_GLOBAL
-void   MulleObjCDotdumpMetaHierarchy( char *classname);
 
 // interfaces with mulle-stacktrace value enhancer
 MULLE_OBJC_GLOBAL

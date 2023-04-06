@@ -3,7 +3,7 @@
 # import <Foundation/NSDebug.h>
 #else
 # import <MulleObjC/MulleObjC.h>
-# import <MulleObjC/private/mulle-objc-universefoundationinfo-private.h>
+# import <MulleObjC/mulle-objc-universefoundationinfo-private.h>
 #endif
 
 

@@ -119,7 +119,7 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects,
                                              id argument,
                                              id argument2)
 {
-   mulle_metaabi_struct_void_return( struct { id a; id b;})  _param;
+   mulle_metaabi_union_void_return( struct { id a; id b;})  _param;
 
    _param.p.a = argument;
    _param.p.b = argument2;

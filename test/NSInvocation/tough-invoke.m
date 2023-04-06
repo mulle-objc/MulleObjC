@@ -85,7 +85,7 @@ main()
    // 0x7ffeefbff060: 0x00000030 0x00000000 (f.length)
 
    // should stradle two blocks at least
-   assert( sizeof( param.v) > mulle_metaabi_sizeof_struct( 1));
+   MULLE_C_ASSERT( sizeof( param.v) > mulle_metaabi_sizeof_union( 1));
 
    rval = mulle_objc_object_call( foo, @selector( foobar::::::), &param);
 

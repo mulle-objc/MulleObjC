@@ -354,7 +354,7 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
    i           = _count - 1;
    info        = &get_infos( self)[ i];    // get last argument
    frame_size  = info->invocation_offset + info->natural_size;
-   frame_size  = mulle_metaabi_sizeof_struct( frame_size);
+   frame_size  = mulle_metaabi_sizeof_union( frame_size);
 
    info        = &get_infos( self)[ 0];
    frame_size += info->natural_size;     // methodReturnLength
@@ -376,11 +376,7 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
 
 - (void) mulleDump
 {
-   NSUInteger                         i;
-   MulleObjCMethodSignatureTypeInfo   *info;
-   void   mulle_objc_typeinfo_dump_to_file( struct mulle_objc_typeinfo *info,
-                                            char *indent,
-                                            FILE *fp);
+   NSUInteger   i;
 
    fprintf( stderr, "signature:\n\t%s\n", self->_types);
 
@@ -394,8 +390,15 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
       default : fprintf( stderr, "arg%ld:\n", (long) i - 3); break;
       }
 
-      info = &get_infos( self)[ i];    // get last argument
-      mulle_objc_typeinfo_dump_to_file( info, "\t", stderr);
+#ifdef mulle_objc_typeinfodump_h__
+      {
+         MulleObjCMethodSignatureTypeInfo   *info;
+
+         info = &get_infos( self)[ i];    // get last argument
+         mulle_objc_typeinfo_dump_to_file( info, "\t", stderr);
+      }
+#endif
    }
 }
+
 @end

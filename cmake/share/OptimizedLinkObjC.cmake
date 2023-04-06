@@ -38,14 +38,20 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
         set( COVERAGE_DIR "${PROJECT_SOURCE_DIR}/coverage")
       endif()
       if( NOT OPTIMIZE_DIR)
-        set( OPTIMIZE_DIR "${PROJECT_BINARY_DIR}")
+        set( OPTIMIZE_DIR "${PROJECT_BINARY_DIR}/mulle-objc-optimize/optimize.d")
+      endif()
+      if( NOT OPTIMIZE_INFO_DIR)
+        set( OPTIMIZE_INFO_DIR "${PROJECT_SOURCE_DIR}/optimize")
+      endif()
+      if( NOT UNARCHIVE_DIR)
+         set( UNARCHIVE_DIR "${PROJECT_BINARY_DIR}/mulle-objc-optimize/unarchive.d")
       endif()
 
       if( NOT EXISTS "${COVERAGE_DIR}/method-coverage.csv")
-         message( FATAL_ERROR "Coverage file ${COVERAGE_DIR}/method-coverage.csv is missing")
+         message( FATAL_ERROR "Coverage file \"${COVERAGE_DIR}/method-coverage.csv\" is missing")
       endif()
       if( NOT EXISTS "${COVERAGE_DIR}/class-coverage.csv")
-         message( FATAL_ERROR "Coverage file ${COVERAGE_DIR}/class-coverage.csv is missing")
+         message( FATAL_ERROR "Coverage file \"${COVERAGE_DIR}/class-coverage.csv\" is missing")
       endif()
 
 
@@ -56,47 +62,47 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       message( STATUS "ALL_LOAD_NAME is ${ALL_LOAD_NAME}")
       message( STATUS "COVERAGE_DIR is ${COVERAGE_DIR}")
       message( STATUS "OPTIMIZE_DIR is ${OPTIMIZE_DIR}")
+      message( STATUS "OPTIMIZE_INFO_DIR is ${OPTIMIZE_INFO_DIR}")
+      message( STATUS "UNARCHIVE_DIR is ${UNARCHIVE_DIR}")
+      message( STATUS "DEPENDENCY_DIR is ${MULLE_SDK_DEPENDENCY_DIR}")
+      message( STATUS "PROJECT_BINARY_DIR is ${PROJECT_BINARY_DIR}")
 
       set( CUSTOM_OUTPUT
-         ${OPTIMIZABLE_LOAD_NAME}
-         ${ALL_LOAD_NAME}
+         "${PROJECT_BINARY_DIR}/${OPTIMIZABLE_LOAD_NAME}"
+         "${PROJECT_BINARY_DIR}/${ALL_LOAD_NAME}"
       )
 
       if( MSVC)
          find_program( UNARCHIVE mulle-objc-unarchive.bat
-                           PATHS "${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/bin"
-                                 "${DEPENDENCY_DIR}/bin"
-                                 "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/bin")
+                           PATHS ${ADDITIONAL_BIN_PATH})
          find_program( OPTIMIZE mulle-objc-optimize.bat
-                           PATHS "${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/bin"
-                                 "${DEPENDENCY_DIR}/bin"
-                                 "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/bin")
+                           PATHS ${ADDITIONAL_BIN_PATH})
       else()
          find_program( UNARCHIVE mulle-objc-unarchive
-                           PATHS "${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/bin"
-                                 "${DEPENDENCY_DIR}/bin"
-                                 "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/bin")
+                           PATHS ${ADDITIONAL_BIN_PATH})
          find_program( OPTIMIZE mulle-objc-optimize
-                           PATHS "${DEPENDENCY_DIR}/${CMAKE_BUILD_TYPE}/bin"
-                                 "${DEPENDENCY_DIR}/bin"
-                                 "${DEPENDENCY_DIR}/${FALLBACK_BUILD_TYPE}/bin")
+                           PATHS ${ADDITIONAL_BIN_PATH})
       endif()
 
 
       add_custom_command( OUTPUT ${CUSTOM_OUTPUT}
-       COMMAND chmod -R +w ${DEPENDENCY_DIR}
-       COMMAND ${UNARCHIVE} --unarchive-dir ${DEPENDENCY_DIR}/unarchive
+       COMMAND ${UNARCHIVE} ${MULLE_TECHNICAL_FLAGS}
+                            --unarchive-dir "${UNARCHIVE_DIR}"
+                            --unarchive-info-dir "${OPTIMIZE_INFO_DIR}"
+                            --just-unpack
                             ${ALL_LOAD_DEPENDENCY_LIBRARIES}
-       COMMAND chmod -R -w ${DEPENDENCY_DIR}
-       COMMAND ${OPTIMIZE} --c-name ${OPTIMIZABLE_LOAD_NAME}
-                           --objc-name ${ALL_LOAD_NAME}
-                           --unarchive-dir ${DEPENDENCY_DIR}/unarchive
-                           --dependency-dir ${DEPENDENCY_DIR}
-                           --optimize-dir ${OPTIMIZE_DIR}
-                           --coverage-dir ${COVERAGE_DIR}
+       COMMAND ${OPTIMIZE} ${MULLE_TECHNICAL_FLAGS}
+                           --c-name "${OPTIMIZABLE_LOAD_NAME}"
+                           --objc-name "${ALL_LOAD_NAME}"
+                           --coverage-dir "${COVERAGE_DIR}"
+                           --dependency-dir "${MULLE_SDK_DEPENDENCY_DIR}"
+                           --optimize-info-dir "${OPTIMIZE_INFO_DIR}"
+                           --optimize-dir "${OPTIMIZE_DIR}"
+                           --prefix "${PROJECT_BINARY_DIR}"
+                           --unarchive-dir "${UNARCHIVE_DIR}"
                            ${ALL_LOAD_DEPENDENCY_LIBRARIES}
-       DEPENDS ${ALL_LOAD_DEPENDENCY_LIBRARIES}
-       COMMENT "Create optimizable Objective-C libraries"
+          DEPENDS ${ALL_LOAD_DEPENDENCY_LIBRARIES}
+          COMMENT "Create optimizable Objective-C libraries"
       )
 
 
@@ -106,7 +112,7 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
 
       # replace ALL_LOAD_DEPENDENCY_LIBRARIES with the non-optimzable stuff
       set( ALL_LOAD_DEPENDENCY_LIBRARIES
-         ${OPTIMIZE_DIR}/${ALL_LOAD_NAME}
+         "${PROJECT_BINARY_DIR}/${ALL_LOAD_NAME}"
       )
 
       #
@@ -114,8 +120,9 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       # to pick up regular C symbols
       #
       set( DEPENDENCY_LIBRARIES
+         "${PROJECT_BINARY_DIR}/${OPTIMIZABLE_LOAD_NAME}"
          ${DEPENDENCY_LIBRARIES}
-         ${OPTIMIZE_DIR}/${OPTIMIZABLE_LOAD_NAME}
+         "${PROJECT_BINARY_DIR}/${OPTIMIZABLE_LOAD_NAME}"
       )
 
       add_dependencies( ${LIBRARY_NAME} "_${LIBRARY_NAME}_optimized_libraries")

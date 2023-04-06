@@ -58,6 +58,9 @@ static inline char   *_NSComparisonResultUTF8String( NSComparisonResult result)
 // having YES, NO as an enum messes up the boxed expressions @YES @NO
 // but use @(YES) @(NO) and everything is fine
 //
+// TODO: an intptr_t would be wasteful in properties but would easy the
+//       pain in metaabi calls
+//
 enum _MulleBool
 {
    YES = 1,
