@@ -265,9 +265,9 @@ static inline void   addObject( struct _mulle_objc_poolconfiguration *config, id
 }
 
 
-/* objects can have space between them
- * ex.  objects = struct { id a; intptr_t x; }[ 120];
- *      addObjects( self, objects, 120, sizeof( id) + sizeof( intptr_t))
+/* objects can have space between them:
+ * ex.  objects = struct a { id a; intptr_t x; }[ 120];
+ *      addObjects( self, objects, 120, sizeof( struct a))
  */
 static inline void   addObjects( struct _mulle_objc_poolconfiguration *config,
                                  id *objects,

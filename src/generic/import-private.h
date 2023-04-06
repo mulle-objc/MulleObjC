@@ -21,7 +21,7 @@
    Here the prefix is harmless and serves disambiguation. If you have no
    sourcetree, then you don't need it.
  */
-#import "_MulleObjC-import-private.h"
+// #import "_MulleObjC-import-private.h"
 
 /* You can add some more include statements here */
 #ifdef MULLE_OBJC_DEBUG_SUPPORT

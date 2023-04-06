@@ -37,6 +37,56 @@
 #define mulle_objc_autoreleasepointerarray__h___
 
 
+// MEMO: generalise for C.
+//
+// {
+//    void   *current_free;
+//    void   *current_context;
+//    void   *default_free;
+//    void   *default_context;
+// }
+//
+// Objects stream... Assume that:
+// a) mostly only C or only ObjC
+// b) infrequent mix of different contexts for free routine
+//
+// change to C (remember last free_routine,
+//    0x0x0 (return to default_free, default_context (objc))
+//    0x0x1, free_routine, free_context, free_block
+//    <other      just free
+//
+// setup:
+// default_free    = current_free    = _mulle_objc_object_release2;
+// default_context = current_context = NULL;
+//
+// add( obj, free, context)
+//    if( context != current_context || free != current_free)
+//       if( context == default_context && free == default_free))
+//          *p++= 0x0;
+//       else
+//          *p++= 0x1;
+//          *p++= current_free;
+//          *p++= current_context;
+//
+//  *p++ = obj;
+//
+// release()
+//    current_free = default_free;
+//    current_free = default_context;
+//    while( p < sentinel)
+//       if( *p == 0)
+//          current_free    = default_free;
+//          current_context = default_context;
+//          ++p
+//       else
+//          if( *p == 1)
+//             ++p;
+//             current_free    = *p++;
+//             current_context = *p++;
+//
+//       (*current_free)( *p++, current_context);
+//
+
 #include <stdio.h>
 
 
@@ -119,12 +169,12 @@ static inline void
                mulle_map_remove( object_map, opfer);
             else
                mulle_map_set( object_map, opfer, (void *) value);
-            mulle_objc_object_release( opfer);
+            _mulle_objc_object_release_inline( opfer);
          }
       }
       else
          while( objects > sentinel)
-            mulle_objc_object_release( *--objects);
+            _mulle_objc_object_release_inline( *--objects);
 
       if( p != staticStorage)
       {
@@ -193,7 +243,9 @@ static inline void
    _mulle_autoreleasepointerarray_add( struct _mulle_autoreleasepointerarray *array,
                                        id p)
 {
+   assert( p);
    assert( array->used < MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS);
+
    array->objects[ array->used++] = p;
 }
 

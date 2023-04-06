@@ -22,7 +22,8 @@
 // if the "real" foundation has defined this, don't use the builtin stuff
 
 
-#include "_MulleObjC-include.h"
+#include <mulle-core/mulle-core.h>
+
 
 #ifdef MULLE_OBJC_BUILD
 # define MULLE_OBJC_GLOBAL    MULLE_C_GLOBAL
@@ -52,10 +53,6 @@
 #   warning "compiling for 10.4 (not __DARWIN_UNIX03), with __eprintf"
 #  endif
 # endif
-#endif
-
-#if MULLE_CONTAINER_VERSION < ((1 << 20) | (1 << 8) | 0)
-# error "mulle-container is too old"
 #endif
 
 #endif

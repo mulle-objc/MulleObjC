@@ -24,12 +24,9 @@
    sourcetree, then you don't need it.
  */
 
-#import "_MulleObjC-import.h"
+// #import "_MulleObjC-import.h"
 
 /* You can add some more import statements here */
 
-#if MULLE_OBJC_RUNTIME_VERSION < ((0 << 20) | (16 << 8) | 0)
-# error "mulle-objc-runtime is too old"
-#endif
 
 #endif

@@ -12,7 +12,8 @@
 #ifndef MulleObjCUniverse__h__
 #define MulleObjCUniverse__h__
 
-#include "include.h"
+#include "mulle-objc.h"
+
 
 MULLE_C_CONST_NONNULL_RETURN
 static inline struct _mulle_objc_universe  *MulleObjCGetUniverse( void)

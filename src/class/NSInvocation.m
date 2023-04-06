@@ -46,6 +46,9 @@
 
 #pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
 
+#ifdef DEBUG
+//# define DEBUG_INVOCATION
+#endif
 
 //
 // what is somewhat tricky in the MetaABI is, that we need to store the
@@ -162,7 +165,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    }
 
 //   frame_size  = [signature frameLength];
-//   size        = mulle_metaabi_sizeof_struct( frame_size);
+//   size        = mulle_metaabi_sizeof_union( frame_size);
 //   size       += [signature methodReturnLength];
 //   size       += alignof( long double);  // for alignment
 
@@ -177,7 +180,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
       {
          size       = NSInvocationStandardSize;
          invocation = popStandardInvocation();
-#ifdef DEBUG
+#ifdef DEBUG_INVOCATION
          if( invocation)
             fprintf( stderr, "popped for reuse %p\n", invocation);
 #endif
@@ -500,7 +503,7 @@ retain the arguments of variadic methods");
 {
    SEL   result;
 
-   assert( sizeof( SEL) == sizeof( mulle_objc_methodid_t));
+   MULLE_C_ASSERT( sizeof( SEL) == sizeof( mulle_objc_methodid_t));
 
    [self getArgument:&result
              atIndex:1];
@@ -654,7 +657,7 @@ static void   invocation_with_nil_target_warning( NSInvocation *self)
       assert( frame);
 
       frame_size  = [_methodSignature frameLength];
-      size        = mulle_metaabi_sizeof_struct( frame_size);
+      size        = mulle_metaabi_sizeof_union( frame_size);
       size        -= sizeof( id) + sizeof( SEL); // _cmd is a pointer
 
       // blow up to metaABI size

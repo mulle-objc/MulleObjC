@@ -19,6 +19,7 @@ src/class/NSObject.m
 src/class/NSProxy.m
 src/class/NSThread.m
 src/function/MulleObjCAllocation.m
+src/function/MulleObjCDebug.m
 src/function/MulleObjCExceptionHandler.m
 src/function/MulleObjCFunctions.m
 src/function/MulleObjCPrinting.m

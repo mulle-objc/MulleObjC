@@ -151,7 +151,7 @@ static inline NSRange   MulleObjCValidateRangeAgainstLength( NSRange range,
    // assume NSUInteger is 8 bit, then we need to check for also for a
    // negative length/location value making things difficult { 3, 255 }
    //
-   end = mulle_range_get_end( range);
+   end = _mulle_range_get_end( range);
    if( end > length || end < range.location)
       MulleObjCThrowInvalidRangeException( range);
 

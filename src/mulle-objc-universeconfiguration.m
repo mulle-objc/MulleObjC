@@ -50,16 +50,12 @@
 #import "NSDebug.h"
 #import "NSThread.h"
 
-#import "mulle-objc-universeconfiguration-private.h"
-#import "mulle-objc-universefoundationinfo-private.h"
+#include "mulle-objc-universeconfiguration-private.h"
+#include "mulle-objc-universefoundationinfo-private.h"
 
 #ifdef __has_include
 # if __has_include( <mulle-objc-list/mulle-objc-list.h>)
 #  include <mulle-objc-list/mulle-objc-list.h>
-# endif
-# if __has_include( <mulle-objc-debug/mulle-objc-debug.h>)
-#  include <mulle-objc-debug/mulle-objc-debug.h>
-#  define HAVE_DUMP  1
 # endif
 # if __has_include( <dlfcn.h>)
 #  include <dlfcn.h>
@@ -85,7 +81,6 @@ void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
    if( trace)
       mulle_objc_universe_trace( universe, "teardown of the universe in progress");
 
-#if HAVE_DUMP
    if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE"))
    {
       mulle_objc_universe_trace( universe, "writing coverage files...");
@@ -105,7 +100,6 @@ void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
          filename = "class-coverage.csv";
       mulle_objc_universe_csvdump_classcoverage_to_filename( universe, filename);
    }
-#endif
 }
 
 
@@ -183,12 +177,34 @@ struct _mulle_objc_universefoundationinfo  *
    size_t                                      size;
    size_t                                      neededsize;
    char                                        *kind;
+   int                                         coverage;
 
    //
    // this is needed for mulle_printf '%td' conversions.
    //
-   assert( sizeof( NSInteger) == sizeof( NSUInteger));
-   assert( sizeof( ptrdiff_t) == sizeof( NSInteger));
+   MULLE_C_ASSERT( sizeof( NSInteger) == sizeof( NSUInteger));
+   MULLE_C_ASSERT( sizeof( ptrdiff_t) == sizeof( NSInteger));
+
+   // needed for coverage, slows things down a bit and bloats caches
+   // got to set pedantic_exit now
+   coverage = mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE");
+   if( coverage)
+   {
+      universe->config.coverage                = YES;
+      universe->config.repopulate_caches       = YES;
+      universe->config.pedantic_exit           = YES;
+      universe->config.no_classcuster_coverage =
+         ! mulle_objc_environment_get_yes_no( "MULLE_OBJC_CLASS_CLUSTER_COVERAGE");
+
+      fprintf( stderr, "mulle-objc: coverage files will be written at exit\n");
+
+      //
+      // printing stuck classes is helpful to generate extended coverage
+      // for un-optimizable libraries. Stuck categories probably
+      // not so much though
+      //
+      universe->debug.print.stuck_class_coverage = coverage;
+   }
 
    _mulle_objc_universe_defaultbang( universe, config->universe.allocator, NULL);
 
@@ -311,26 +327,12 @@ static void   *return_self( void *p)
 void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 {
    struct _mulle_objc_universefoundationinfo   *rootconfig;
-   int                                         coverage;
 
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    // will be overwritten by foundation to convert to NSString
    rootconfig->string.charsfromobject = (char *(*)()) return_self;
    rootconfig->string.objectfromchars = (void *(*)()) return_self;
-
-   // needed for coverage, slows things down a bit and bloats caches
-   coverage                           = mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE");
-   universe->config.repopulate_caches = coverage;
-   if( coverage)
-      fprintf( stderr, "mulle-objc: coverage files will be written at exit\n");
-
-   //
-   // printing stuck classes is helpful to generate extended coverage
-   // for un-optimizable libraries. Stuck categories probably
-   // not so much though
-   //
-   universe->debug.print.stuck_class_coverage = coverage;
 
 #ifdef MULLE_OBJC_LIST_HOOK
    mulle_objc_list_install_hook( universe);

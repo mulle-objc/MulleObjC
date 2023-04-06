@@ -71,3 +71,7 @@ version.old
 .idea/
 cmake-build-debug/
 .ackrc
+wilted/
+mulle-template-composer-*
+mulle-markdown-preview-*.html
+build-*

@@ -21,14 +21,6 @@ src/struct
 )
 
 #
-# contents selected with patternfile ??-header--private-generated-headers
-#
-set( PRIVATE_GENERATED_HEADERS
-src/reflect/_MulleObjC-import-private.h
-src/reflect/_MulleObjC-include-private.h
-)
-
-#
 # contents selected with patternfile ??-header--private-generic-headers
 #
 set( PRIVATE_GENERIC_HEADERS
@@ -53,8 +45,6 @@ src/mulle-objc-universefoundationinfo-private.h
 # contents selected with patternfile ??-header--public-generated-headers
 #
 set( PUBLIC_GENERATED_HEADERS
-src/reflect/_MulleObjC-import.h
-src/reflect/_MulleObjC-include.h
 src/reflect/_MulleObjC-provide.h
 )
 
@@ -85,6 +75,7 @@ src/class/NSObject.h
 src/class/NSProxy.h
 src/class/NSThread.h
 src/function/MulleObjCAllocation.h
+src/function/MulleObjCDebug.h
 src/function/MulleObjCExceptionHandler.h
 src/function/MulleObjCFunctions.h
 src/function/MulleObjCHashFunctions.h

@@ -1,5 +1,5 @@
 #import <MulleObjC/MulleObjC.h>
-#import <MulleObjC/private/MulleObjCExceptionHandler-Private.h>
+#import <MulleObjC/MulleObjCExceptionHandler-Private.h>
 
 //
 // ## MulleInvocationBuilder

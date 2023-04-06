@@ -1,11 +1,10 @@
 //
-//  NSDebug.h
+//  MulleObjCDebug.h
 //  MulleObjC
 //
-//  Copyright (c) 2011 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2011 Codeon GmbH.
+//  Created by Nat! on 11.03.23.
+//  Copyright © 2023 Mulle kybernetiK.
 //  All rights reserved.
-//
 //
 //  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions are met:
@@ -33,69 +32,51 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "NSObject.h"
 
-#import "MulleObjCDebug.h"
+#include "include.h"
 
-
-@interface NSObject ( NSDebug)
-
-- (id) debugDescription;
-
-@end
-
+// these need to be in MulleObjC to get the compiled UNIVERSE ID
 
 MULLE_OBJC_GLOBAL
-char   *_NSPrintForDebugger( id a);
+void   MulleObjCHTMLDumpUniverseToDirectory( char *directory);
+MULLE_OBJC_GLOBAL
+void   MulleObjCHTMLDumpUniverseToTmp( void);
+MULLE_OBJC_GLOBAL
+void   MulleObjCHTMLDumpUniverse( void);
 
 MULLE_OBJC_GLOBAL
-MULLE_C_CONST_RETURN
-BOOL   MulleObjCIsDebugEnabled( void);
-
-#define NSDebugEnabled  MulleObjCIsDebugEnabled()
-
-
+void   MulleObjCHTMLDumpClassToDirectory( char *classname, char *directory);
+MULLE_OBJC_GLOBAL
+void   MulleObjCHTMLDumpClass( char *classname);
+MULLE_OBJC_GLOBAL
+void   MulleObjCHTMLDumpClassToTmp( char *classname);
 
 MULLE_OBJC_GLOBAL
-void   _MulleObjCZombifyObject( id obj, int shred);
-
-static inline void   MulleObjCZombifyObject( id obj, int shred)
-{
-   if( ! obj)
-      return;
-
-   _MulleObjCZombifyObject( obj, shred);
-}
-
-
-//
-// now coming up: some unused old junk
-//                that sticks around for compatibility
-enum
-{
-   NSObjectAutoreleasedEvent = 3,
-   NSObjectExtraRefDecrementedEvent = 5,
-   NSObjectExtraRefIncrementedEvent = 4,
-   NSObjectInternalRefDecrementedEvent =7,
-   NSObjectInternalRefIncrementedEvent = 8
-};
-
-extern BOOL   NSKeepAllocationStatistics;
-
-
-// compatibility
-static inline void   NSRecordAllocationEvent( int eventType, id object)
-{
-}
-
-
-// interfaces with mulle-stacktrace value enhancer
+void   MulleObjCDotdumpClassToDirectory( char *classname, char *directory);
 MULLE_OBJC_GLOBAL
-char   *MulleObjCStacktraceSymbolize( void *addresse,
-                                      size_t max,
-                                      char *buf,
-                                      size_t len,
-                                      void **userinfo);
+void   MulleObjCDotdumpClassToTmp( char *classname);
+MULLE_OBJC_GLOBAL
+void   MulleObjCDotdumpClass( char *classname);
 
 MULLE_OBJC_GLOBAL
-void   MulleObjCCSVDumpMethodsToTmp( void);
+void   MulleObjCDotdumpUniverseFrameToTmp( void);
+MULLE_OBJC_GLOBAL
+void   MulleObjCDotdumpUniverseToTmp( void);
+MULLE_OBJC_GLOBAL
+void   MulleObjCDotdumpUniverse( void);
+
+// dump all relevant classes and instance methods, starting from classname
+MULLE_OBJC_GLOBAL
+void   MulleObjCDotdumpMetaHierarchyToDirectory( char *classname, char *directory);
+MULLE_OBJC_GLOBAL
+void   MulleObjCDotdumpInfraHierarchyToTmp( char *classname);
+MULLE_OBJC_GLOBAL
+void   MulleObjCDotdumpInfraHierarchy( char *classname);
+
+// dump all relevant classes and class methods, starting from classname
+MULLE_OBJC_GLOBAL
+void   MulleObjCDotdumpMetaHierarchyToDirectory( char *classname, char *directory);
+MULLE_OBJC_GLOBAL
+void   MulleObjCDotdumpMetaHierarchyToTmp( char *classname);
+MULLE_OBJC_GLOBAL
+void   MulleObjCDotdumpMetaHierarchy( char *classname);

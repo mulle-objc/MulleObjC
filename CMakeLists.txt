@@ -3,7 +3,11 @@ cmake_minimum_required( VERSION 3.18) # 3.15 fails on windows
 project( MulleObjC C)
 
 
-option( MULLE_OBJC_DEBUG_SUPPORT "Provide trace and dump support for release builds" OFF)
+if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+   option( MULLE_OBJC_DEBUG_SUPPORT "Provide trace and dump support for release builds" OFF)
+else()
+   option( MULLE_OBJC_DEBUG_SUPPORT "Provide trace and dump support for release builds" ON)
+endif()
 
 ### mulle-sde environment
 
@@ -16,7 +20,7 @@ include( Environment)
 
 include( Files)
 
-if( MULLE_OBJC_DEBUG_SUPPORT OR NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Release"))
+if( MULLE_OBJC_DEBUG_SUPPORT)
    add_definitions( -DMULLE_OBJC_DEBUG_SUPPORT)
 endif()
 
@@ -24,8 +28,8 @@ endif()
 
 if( HEADERS_PHASE)
    install( FILES ${INSTALL_PUBLIC_HEADERS}  DESTINATION "include/${PROJECT_NAME}")
-   install( FILES ${INSTALL_PRIVATE_HEADERS} DESTINATION "include/${PROJECT_NAME}/private")
-   install( FILES ${CMAKE_INCLUDES}          DESTINATION "include/${PROJECT_NAME}/cmake")
+   install( FILES ${INSTALL_PRIVATE_HEADERS} DESTINATION "include/${PROJECT_NAME}")
+   install( FILES ${INSTALL_CMAKE_INCLUDES}          DESTINATION "include/${PROJECT_NAME}/cmake")
 
    # short cut out
    if( NOT COMPILE_PHASE AND NOT LINK_PHASE)
@@ -36,7 +40,7 @@ endif()
 
 if( LINK_PHASE)
    include( Dependencies OPTIONAL)
-   if( NOT MULLE_OBJC_DEBUG_SUPPORT AND ("${CMAKE_BUILD_TYPE}" STREQUAL "Release"))
+   if( NOT MULLE_OBJC_DEBUG_SUPPORT)
       list( REMOVE_ITEM DEPENDENCY_LIBRARIES "${MULLE_OBJC_DEBUG_LIBRARY}")
    endif()
 endif()
