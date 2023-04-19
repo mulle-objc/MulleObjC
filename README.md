@@ -6,11 +6,12 @@ MulleObjC supplies the most basic runtime components like NSObject or NSThread
 to build a foundation on top of it. MulleObjC depends on standard C libraries 
 only and for instance not on `<unistd.h>`.
 
+| Release Version                                       | Release Notes
+|-------------------------------------------------------|--------------
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag//MulleObjC.svg?branch=release) [![Build Status](https://github.com//MulleObjC/workflows/CI/badge.svg?branch=release)](//github.com//MulleObjC/actions)| [RELEASENOTES](RELEASENOTES.md) |
 
-| Release Version
-|-----------------------------------
-| ![Tag](https://img.shields.io/github/tag/mulle-objc/MulleObjC.svg) [![Build Status](https://github.com/mulle-objc/MulleObjC/workflows/CI/badge.svg?branch=release)](//github.com/mulle-objc/MulleObjC/actions)
 
+## API
 
 ### Classes
 
@@ -47,59 +48,68 @@ directly. Creating a foundation on top of **mulle-objc**  without using
 MulleObjC must be compiled with the **mulle-clang** compiler, or a compiler
 which supports the metaABI required for the mulle-objc runtime.
 
-## Required Libraries and Tools
-
-![Libraries and Tools](//raw.githubusercontent.com/mulle-objc/MulleObjC/release/dox/MulleObjC-dependencies.png)
-
-  Name         | Build Status | Release Version
----------------|--------------|---------------------------------
-[mulle-container](//github.com/mulle-c/mulle-container) | [![Build Status](https://github.com/mulle-c/mulle-container/workflows/CI/badge.svg?branch=release)](//travis-ci.org/mulle-c/mulle-container) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-c/mulle-container.svg) [![Build Status](https://github.com/mulle-c/mulle-container/workflows/CI/badge.svg?branch=release)](//travis-ci.org/mulle-c/mulle-container)
-[mulle-objc-list](//github.com/mulle-objc/mulle-objc-list) | [![Build Status](https://github.com/mulle-objc/mulle-objc-list/workflows/CI/badge.svg?branch=release)](//travis-ci.org/mulle-objc/mulle-objc-list) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-list.svg) [![Build Status](https://github.com/mulle-objc/mulle-objc-list/workflows/CI/badge.svg?branch=release)](//travis-ci.org/mulle-objc/mulle-objc-list)
-[mulle-objc-runtime](//github.com/mulle-objc/mulle-objc-runtime) | [![Build Status](https://github.com/mulle-objc/mulle-objc-runtime/workflows/CI/badge.svg?branch=release)](//travis-ci.org/mulle-objc/mulle-objc-runtime) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-runtime.svg) [![Build Status](https://github.com/mulle-objc/mulle-objc-runtime/workflows/CI/badge.svg?branch=release)](//travis-ci.org/mulle-objc/mulle-objc-runtime)
 
 
-### You are here
 
-![Overview](overview.dot.svg)
+## Requirements
 
+|   Requirement         | Release Version  | Description
+|-----------------------|------------------|---------------
+| [mulle-container](https://github.com/mulle-c/mulle-container) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag//.svg) [![Build Status](https://github.com///workflows/CI/badge.svg?branch=release)](https://github.com///actions/workflows/mulle-sde-ci.yml) | 🛄 Arrays, hashtables and a queue
+| [mulle-fprintf](https://github.com/mulle-core/mulle-fprintf) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag//.svg) [![Build Status](https://github.com///workflows/CI/badge.svg?branch=release)](https://github.com///actions/workflows/mulle-sde-ci.yml) | 🔢 mulle-fprintf marries mulle-sprintf to stdio.h
+| [mulle-multififo](https://github.com/mulle-concurrent/mulle-multififo) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag//.svg) [![Build Status](https://github.com///workflows/CI/badge.svg?branch=release)](https://github.com///actions/workflows/mulle-sde-ci.yml) | 🐛 mulle-multififo multi-producer/multi-consumer FIFO holding `void *`
+| [mulle-objc-runtime](https://github.com/mulle-objc/mulle-objc-runtime) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag//.svg) [![Build Status](https://github.com///workflows/CI/badge.svg?branch=release)](https://github.com///actions/workflows/mulle-sde-ci.yml) | ⏩ A fast, portable Objective-C runtime written 100% in C11
+| [mulle-objc-debug](https://github.com/mulle-objc/mulle-objc-debug) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag//.svg) [![Build Status](https://github.com///workflows/CI/badge.svg?branch=release)](https://github.com///actions/workflows/mulle-sde-ci.yml) | 🐞 Debug support for the mulle-objc-runtime
+| [mulle-objc-list](https://github.com/mulle-objc/mulle-objc-list) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag//.svg) [![Build Status](https://github.com///workflows/CI/badge.svg?branch=release)](https://github.com///actions/workflows/mulle-sde-ci.yml) | 📒 Lists mulle-objc runtime information contained in executables.
+| [mulle-objc-cc](https://github.com/mulle-cc/mulle-objc-cc) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag//.svg) [![Build Status](https://github.com///workflows/CI/badge.svg?branch=release)](https://github.com///actions/workflows/mulle-sde-ci.yml) | ⏩ make mulle-clang the default Objective-C compiler
 
 
 ## Add
 
-This is project is a [mulle-sde](//mulle-sde.github.io/) project.
-Add it with:
+Use [mulle-sde](//github.com/mulle-sde) to add MulleObjC to your project:
 
 ``` sh
-mulle-sde dependency add --objc --github mulle-objc MulleObjC
+mulle-sde add github:/
 ```
 
-Executables will need to link with [MulleObjC-startup](//github.com/mulle-objc/MulleObjC-startup) as well.
+To only add the sources of MulleObjC with dependency
+sources use [clib](https://github.com/clibs/clib):
+
+
+``` sh
+clib install --out src/ /
+```
+
+Add `-isystem src/` to your `CFLAGS` and compile all the sources that were downloaded with your project.
+
 
 ## Install
 
-See [mulle-objc-developer](//github.com/mulle-objc/mulle-objc-developer) for
-installation instructions.
+### Install with mulle-sde
 
-## Acknowledgements
+Use [mulle-sde](//github.com/mulle-sde) to build and install MulleObjC and all dependencies:
 
-Parts of this library:
-
-```
-Copyright (c) 2006-2007 Christopher J. W. Lloyd
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+``` sh
+mulle-sde install --prefix /usr/local \
+   https://github.com///archive/latest.tar.gz
 ```
 
-### Platforms and Compilers
+### Manual Installation
 
-All platforms and compilers supported by
-[mulle-c11](//github.com/mulle-c/mulle-c11/) and
-[mulle-thread](//github.com/mulle-concurrent/mulle-thread/).
+Install the [Requirements](#Requirements) and then
+install **MulleObjC** with [cmake](https://cmake.org):
 
+``` sh
+cmake -B build \
+      -DCMAKE_INSTALL_PREFIX=/usr/local \
+      -DCMAKE_PREFIX_PATH=/usr/local \
+      -DCMAKE_BUILD_TYPE=Release &&
+cmake --build build --config Release &&
+cmake --install build --config Release
+```
 
 ## Author
 
-[Nat!](//www.mulle-kybernetik.com/weblog) for
-[Mulle kybernetiK](//www.mulle-kybernetik.com) and
-[Codeon GmbH](//www.codeon.de)
+[Nat!](https://mulle-kybernetik.com/weblog) for Mulle kybernetiK
+
+

@@ -1,3 +1,7 @@
+### 0.22.1
+
+* adapt to changes in mulle-objc-runtime
+
 ## 0.22.0
 
 * add NSRangeUTF8String function
