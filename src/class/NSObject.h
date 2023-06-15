@@ -158,6 +158,7 @@
 
 - (struct mulle_allocator *) mulleAllocator;
 - (void) mullePerformFinalize;
+- (BOOL) mulleIsFinalized;
 
 // advanced Autorelease and ObjectGraph support
 

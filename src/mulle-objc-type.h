@@ -48,6 +48,8 @@
  */
 #include <mulle-objc-runtime/minimal.h>
 
+#include <string.h>
+
 //
 // this should be C readable
 // these are here in the header, but they are actually defined by the
@@ -56,6 +58,35 @@
 // --- compiler defined begin ---
 typedef void                            *id;
 typedef struct _mulle_objc_infraclass   *Class;  // the meta-class is not "visible" to Class users
+
+
+
+// returns `dst`
+MULLE_C_NONNULL_FIRST_SECOND
+static inline id   *mulle_id_copy( id *dst, id *src, size_t length)
+{
+   return( memcpy( dst, src, sizeof( id) * length));
+}
+
+
+// returns `dst`
+MULLE_C_NONNULL_FIRST_SECOND
+static inline id   *mulle_id_move( id *dst, id *src, size_t length)
+{
+   return( memmove( dst, src, sizeof( id) * length));
+}
+
+// returns `dst`
+MULLE_C_NONNULL_FIRST
+static inline void  *mulle_id_clear( id *dst, size_t length)
+{
+   return( memset( dst, 0, sizeof( id) * length));
+}
+
+
+#define mulle_flexarray_do_id( buf, static_len, len) \
+   mulle_flexarray_do( buf, id, (static_len), (len))
+
 
 //
 // "Protocol" as a valid keyword and a pseudo-class does not exist

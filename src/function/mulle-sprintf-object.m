@@ -44,7 +44,7 @@
 #import "import-private.h"
 
 
-#if MULLE_SPRINTF_VERSION < ((0 << 20) | (6 << 8) | 0)
+#if MULLE__SPRINTF_VERSION < ((0 << 20) | (6 << 8) | 0)
 # error "mulle-sprintf is too old"
 #endif
 

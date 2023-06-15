@@ -55,6 +55,7 @@ typedef NSRange              *NSRangePointer;
 
 //
 // can be used in many methods to specify { 0, [self length] }
+// The actual maximum range is { 0, mulle_range_location_max + 1}, though
 //
 static inline NSRange   MulleMakeFullRange( void)
 {
@@ -80,7 +81,7 @@ static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
 
 static inline NSUInteger   NSMaxRange( NSRange range)
 {
-  return( mulle_range_get_end( range));
+  return( mulle_range_get_max( range));
 }
 
 
@@ -118,6 +119,16 @@ static inline NSUInteger   MulleObjCRangeSubtract( NSRange range1,
 {
    return( mulle_range_subtract( range1, range2, result));
 }
+
+
+
+static inline NSUInteger   MulleObjCRangeInsert( NSRange range1,
+                                                 NSRange range2,
+                                                 NSRange result[ 2])
+{
+   return( mulle_range_insert( range1, range2, result));
+}
+
 
 
 
@@ -169,6 +180,14 @@ static inline NSComparisonResult   MulleObjCRangeCompare( NSRange a, NSRange b)
 NSComparisonResult   MulleObjCRangePointerCompare( NSRange *a, NSRange *b);
 
 
-char  *NSRangeUTF8String( NSRange range);
+char  *MulleObjCRangeUTF8String( NSRange range);
+
+
+#define MulleObjCRangeFor( range, name)                               \
+   for( NSUInteger name          = (range).location,                  \
+                   name ## __end = (range).location + (range).length; \
+        name < name ## __end;                                         \
+        ++name                                                        \
+      )
 
 #endif

@@ -70,7 +70,7 @@ NSRange  MulleObjCRangeCombine( NSRange aRange, NSRange bRange)
 }
 
 
-char  *NSRangeUTF8String( NSRange range)
+char  *MulleObjCRangeUTF8String( NSRange range)
 {
    extern void   *MulleObjCAutoreleaseAllocation( void *pointer,
                                                   struct mulle_allocator *allocator);  

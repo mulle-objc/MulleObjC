@@ -246,6 +246,12 @@ static id
 }
 
 
+- (BOOL) mulleIsFinalized
+{
+   return( _mulle_objc_object_is_finalized( self));
+}
+
+
 - (void) finalize
 {
    _MulleObjCInstanceClearProperties( self);

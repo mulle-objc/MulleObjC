@@ -98,6 +98,7 @@ _PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 
 // this is a mulle addition
 - (void) mullePerformFinalize;
+- (BOOL) mulleIsFinalized;
 
 PROTOCOLCLASS_END()
 

@@ -37,10 +37,6 @@
 #include "minimal.h"
 
 
-MULLE_OBJC_GLOBAL
-char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
-
-
 #pragma mark - accessor shortcuts
 
 // BOOL
@@ -1004,3 +1000,19 @@ static inline struct _mulle_objc_property  *MulleObjCInstanceSearchProperty( id 
                                                    (mulle_objc_propertyid_t) propertyid));
 }
 
+
+
+MULLE_OBJC_GLOBAL
+char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
+
+
+// fill buffer with description of memory, that is defined by type which
+// is an @encode() string.
+//
+// example: 
+//    double a[ 3] = { 0, 1, 2 };
+//    MulleObjCDescribeMemory( buffer, mulle_data_make( a, sizeof( a)), @encode( a));
+//
+BOOL  MulleObjCDescribeMemory( struct mulle_buffer *buffer, 
+                               struct mulle_data data,
+                               char *type);

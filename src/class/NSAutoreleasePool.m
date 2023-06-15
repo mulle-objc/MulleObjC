@@ -353,7 +353,7 @@ static inline void   addObjects( struct _mulle_objc_poolconfiguration *config,
       }
       else
       {
-         memcpy( &array->objects[ array->used], objects, sizeof( id) * amount);
+         mulle_id_copy( &array->objects[ array->used], objects, amount);
          objects = &objects[ amount];
       }
 
