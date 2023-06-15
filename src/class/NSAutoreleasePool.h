@@ -164,7 +164,7 @@ static inline void   NSPopAutoreleasePool( NSAutoreleasePool *pool)
 
 
 // the compiler will inline this directly
-__attribute__((always_inline))
+MULLE_C_ALWAYS_INLINE
 static inline id   NSAutoreleaseObject( id obj)
 {
    if( obj)

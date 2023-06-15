@@ -48,6 +48,7 @@
 
 #import "NSObjectProtocol.h"
 
+#include <ctype.h>
 // std-c and dependencies
 
 
@@ -536,5 +537,265 @@ void   *MulleObjCClassGetLoadAddress( Class cls)
 
    pair = _mulle_objc_infraclass_get_classpair( cls);
    return( (void *) _mulle_objc_classpair_get_loadclass( pair));
+}
+
+
+#define get_scalarvalue( v, type, p, sentinel)     \
+   do                                              \
+   {                                               \
+      type   *q;                                   \
+                                                   \
+      p = mulle_pointer_align( p, alignof( type)); \
+      q = ((type *) p) + 1;                        \
+      if( q > (type *) sentinel)                   \
+         return( NULL);                            \
+      v = *((type *) p);                           \
+      p = (void *) q;                              \
+   }                                               \
+   while( 0)                                       
+
+
+static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer, 
+                                        struct mulle_data data,
+                                        char **p_type, 
+                                        char *sep)
+{
+   char       *p;
+   char       *sentinel;
+   char       *type;
+   char       *element_type;
+   int        i, n;
+   char       *s;
+   union mulle_objc_scalarvalue
+   {
+      char                            *c_atom;
+      intptr_t                        c_bool;
+      char                            *c_charptr;
+      char                            c_chr;
+      struct _mulle_objc_infraclass   c_class;
+      double                          c_dbl;
+      float                           c_flt;
+      id                              c_id;
+      int                             c_int;
+      long                            c_lng;
+      long double                     c_lng_dbl;
+      long long                       c_lng_lng;
+      mulle_objc_methodid_t           c_sel;
+      short                           c_sht;
+      unsigned char                   c_uchr;
+      unsigned int                    c_uint;
+      unsigned long                   c_ulng;
+      unsigned long long              c_ulng_lng;
+      unsigned short                  c_usht;
+      void                            *c_ptr;
+   } v;
+
+   type     = *p_type;
+   p        = data.bytes;
+   sentinel = &data.bytes[ data.length];
+
+   switch( *type)
+   {
+   case _C_ID        :
+   case _C_ASSIGN_ID :
+   case _C_COPY_ID   :
+   case _C_CLASS     :
+      get_scalarvalue( v.c_id, id, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%@", sep, v.c_id);
+      break;
+
+   case _C_SEL     :
+      get_scalarvalue( v.c_sel, SEL, p, sentinel);
+      s = MulleObjCSelectorGetNameUTF8String( v.c_sel);
+      mulle_buffer_sprintf( buffer, "%s@selector( %s)", sep, s);
+      break;
+
+   case _C_BOOL   :
+      get_scalarvalue( v.c_bool, intptr_t, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%td", sep, v.c_bool);
+      break;
+
+   case _C_DBL   :
+      get_scalarvalue( v.c_dbl, double, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%g", sep, v.c_dbl);
+      break;
+
+   case _C_FLT   :
+      get_scalarvalue( v.c_flt, float, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%g", sep, v.c_flt);
+      break;
+
+   case _C_CHR   :
+      get_scalarvalue( v.c_chr, char, p, sentinel);
+      if( isprint( v.c_chr))
+         mulle_buffer_sprintf( buffer, "%s'%c'", sep, v.c_chr);
+      else
+         mulle_buffer_sprintf( buffer, "%s'\\%03o'", sep, v.c_chr);
+      break;
+
+   case _C_INT   :
+      get_scalarvalue( v.c_int, int, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%d", sep, v.c_int);
+      break;
+
+   case _C_LNG   :
+      get_scalarvalue( v.c_lng, long, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%ld", sep, v.c_lng);
+      break;
+
+   case _C_LNG_LNG   :
+      get_scalarvalue( v.c_lng_lng, long long, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%lld", sep, v.c_lng_lng);
+      break;
+
+   case _C_SHT   :
+      get_scalarvalue( v.c_sht, short, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%d", sep, v.c_sht);
+      break;
+
+   case _C_UCHR   :
+      get_scalarvalue( v.c_uchr, unsigned char, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%u", sep, v.c_uchr);
+      break;
+
+   case _C_UINT   :
+      get_scalarvalue( v.c_uint, unsigned int, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%u", sep, v.c_uint);
+      break;
+
+   case _C_ULNG   :
+      get_scalarvalue( v.c_ulng, unsigned long, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%lu", sep, v.c_ulng);
+      break;
+
+   case _C_ULNG_LNG   :
+      get_scalarvalue( v.c_ulng_lng, unsigned long long, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%llu", sep, v.c_ulng_lng);
+      break;
+
+   case _C_USHT   :
+      get_scalarvalue( v.c_usht, unsigned short, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%u", sep, v.c_usht);
+      break;
+
+   case _C_ATOM     :
+   case _C_UNDEF    :
+   case _C_VECTOR   :
+   case _C_BFLD     :
+   case _C_ARY_E    :
+   case _C_STRUCT_E :   
+   case _C_UNION_E  :   
+      mulle_buffer_sprintf( buffer, "%s???", sep);
+      return( NULL);
+
+   case _C_VOID     :
+      mulle_buffer_sprintf( buffer, "%s<void>", sep);
+      break;
+
+   case _C_PTR     :
+      get_scalarvalue( v.c_ptr, void *, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%p", sep, v.c_ptr);
+      break;
+
+   case _C_CHARPTR :
+      get_scalarvalue( v.c_charptr, char *, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%s", sep, v.c_charptr);
+      break;
+
+   case _C_STRUCT_B :
+      do
+         ++type;
+      while( *type != '=');
+      ++type; // skip =
+
+      mulle_buffer_sprintf( buffer, "%s{", sep);
+      sep = " ";
+      n   = 0;
+      while( *type != _C_STRUCT_E)
+      {
+         p = _MulleObjCDescribeMemory( buffer, 
+                                       mulle_data_make( p, sentinel - p),
+                                       &type, 
+                                       sep);
+         if( ! p)
+            return( NULL);
+         sep = ", ";
+         n++;
+      }
+
+      mulle_buffer_add_string( buffer, n ? " }" : "}");
+      break;
+
+   case _C_UNION_B  :
+      do
+         ++type;
+      while( *type != '=');
+      ++type; // skip =
+
+      mulle_buffer_sprintf( buffer, "%s(", sep);
+      sep = " ";
+      n   = 0;
+      if( *type != _C_UNION_E)
+      {
+         p = _MulleObjCDescribeMemory( buffer, 
+                                       mulle_data_make( p, sentinel - p),
+                                       &type, 
+                                       sep);
+         if( ! p)
+            return( NULL);
+         sep = ", ";
+         n   = 1;
+      }
+
+      while( *type != _C_UNION_E)
+         ++type;
+      mulle_buffer_add_string( buffer, n ? " )" : ")");
+      break;
+
+   case _C_ARY_B :
+      ++type;
+      n = atoi( type);
+      while( *type >= '0' && *type <= '9')
+         ++type;
+
+      mulle_buffer_sprintf( buffer, "%s[", sep);
+      for( sep = " ", i = 0; i < n; i++, sep = ", ")
+      {
+         element_type = type;
+         p = _MulleObjCDescribeMemory( buffer, 
+                                       mulle_data_make( p, sentinel - p),
+                                       &element_type, 
+                                       sep);
+         if( ! p)
+            return( NULL);
+      }
+      type = element_type;
+      if( *type != _C_ARY_E)
+      {
+         mulle_buffer_sprintf( buffer, "%s???", sep);
+         return( NULL);
+      }
+      mulle_buffer_add_string( buffer, n ? " ]" : "]");
+      break;
+   }
+
+   *p_type = type + 1;
+   return( p);
+}
+
+
+BOOL  MulleObjCDescribeMemory( struct mulle_buffer *buffer, 
+                               struct mulle_data data,
+                               char *type)
+{
+   size_t   memo;
+
+   memo = mulle_buffer_get_length( buffer);
+   if( _MulleObjCDescribeMemory( buffer, data, &type, ""))
+      return( YES);
+
+   mulle_buffer_set_length( buffer, memo);
+   mulle_buffer_add_string( buffer, "<broken type>");
+   return( NO);
 }
 

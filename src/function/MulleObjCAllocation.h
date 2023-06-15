@@ -198,7 +198,7 @@ static inline void  MulleObjCClassDeallocateMemory( Class cls, void *p)
 
 // resist the urge to add placeholder detection code here
 // resist the urge to add _mulle_objc_class_setup here
-__attribute__((returns_nonnull))
+MULLE_C_NONNULL_RETURN
 static inline id    _MulleObjCClassAllocateInstance( Class infraCls, NSUInteger extra)
 {
    struct mulle_allocator   *allocator;
@@ -212,7 +212,7 @@ static inline id    _MulleObjCClassAllocateInstance( Class infraCls, NSUInteger 
 }
 
 
-__attribute__((returns_nonnull))
+MULLE_C_NONNULL_RETURN
 static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
                                                             NSUInteger extra)
 {
@@ -233,7 +233,7 @@ void   _MulleObjCInstanceFree( id obj);
 
 // resist the urge to add placeholder detection code here
 // resist the urge to add _mulle_objc_class_setup here
-__attribute__((returns_nonnull))
+MULLE_C_NONNULL_RETURN
 static inline id    _MulleObjCClassAllocateInstanceWithAllocator( Class infraCls,
                                                                   NSUInteger extra,
                                                                   struct mulle_allocator *allocator)
@@ -247,7 +247,7 @@ static inline id    _MulleObjCClassAllocateInstanceWithAllocator( Class infraCls
 }
 
 
-__attribute__((returns_nonnull))
+MULLE_C_NONNULL_RETURN
 static inline id    _MulleObjCClassAllocateNonZeroedObjectWithAllocator( Class infraCls,
                                                                          NSUInteger extra,
                                                                          struct mulle_allocator *allocator)

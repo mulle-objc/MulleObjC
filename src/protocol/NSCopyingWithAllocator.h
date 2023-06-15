@@ -41,6 +41,8 @@
 #import "NSZone.h"
 
 
+// MEMO: scheme needs to remember allocator in the instance header or ?
+
 // NSCopyingWithAllocator is supposed to be used to transfer an object and
 // it's ivars/properties to another allocator. If it can be determined that
 // the object is already there, then this will just retain.
