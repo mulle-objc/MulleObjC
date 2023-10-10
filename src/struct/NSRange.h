@@ -134,6 +134,13 @@ static inline NSUInteger   MulleObjCRangeInsert( NSRange range1,
 
 // mulle additon:
 
+// returns invalid range if range is not usable
+static inline NSRange   MulleObjCRangeValidateAgainstLength( NSRange range, NSUInteger length)
+{
+   return( mulle_range_validate_against_length( range, length));
+}
+
+
 static inline enum _MulleBool   MulleObjCRangeIsValid( NSRange range)
 {
    return( mulle_range_is_valid( range));

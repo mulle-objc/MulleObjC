@@ -70,6 +70,7 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
    char                     _releaseTarget;
    char                     _releaseArgument;
    mulle_atomic_pointer_t   _cancelled;
+   struct mulle_map         _map;  // not the -threadDictionary !
    int                      _rval;
 }
 
@@ -223,3 +224,36 @@ static inline id   MulleThreadGetCurrentThreadUserInfo( void)
 // the complementary to above function
 MULLE_OBJC_GLOBAL
 void   MulleThreadSetCurrentThreadUserInfo( id info);
+
+
+
+//
+// this is a convenience, if you feel that
+// -[[[NSThread currentThread] threadDictionary] setObject:foo forKey:xx]
+// is a little too much Objective-C for whats essentially stack local storage
+// (https://www.gnu.org/software/libc/manual/html_node/ISO-C-Thread_002dlocal-Storage.html)
+//
+// This is slower then tss, but has no key quantity limitations like
+// pthreads. Eventually migrate to thread_local, when this is universally
+// supported I guess.
+//
+static inline void   MulleThreadSetObjectForKeyUTF8String( id value, char *key)
+{
+   NSThread   *thread;
+
+   thread = MulleThreadGetCurrentThread();
+   mulle_map_set( &((struct { @defs( NSThread); } *) thread)->_map,
+                  key,
+                  value);
+}
+
+
+static inline id   MulleThreadObjectForKeyUTF8String( char *key)
+{
+   NSThread   *thread;
+
+   thread = MulleThreadGetCurrentThread();
+   return( mulle_map_get( &((struct { @defs( NSThread); } *) thread)->_map,
+                          key));
+}
+

@@ -331,19 +331,13 @@ static void   zombifyObject( id obj, int shred)
 void   _MulleObjCZombifyObject( id obj, int shred)
 {
    struct _mulle_objc_class      *cls;
-   struct _mulle_objc_universe   *universe;
    size_t                        size;
-
+   extern void _mulle_objc_object_trace_operation( void *obj, 
+                                                   char *operation);
    assert( obj);
 
-   cls      = _mulle_objc_object_get_isa( obj);
-   universe = _mulle_objc_class_get_universe( cls);
-   if( universe->debug.trace.instance)
-   {
-      extern void   _mulle_objc_object_trace_operation( void *obj, char *operation);
-
-      _mulle_objc_object_trace_operation( obj, "zombified");
-   }
+   cls = _mulle_objc_object_get_isa( obj);
+   _mulle_objc_object_trace_operation( obj, "zombified");
 
    size = _mulle_objc_class_get_instancesize( cls);
    if( size >= sizeof( Class)) // sizeof( _MulleObjCLargeZombie)
