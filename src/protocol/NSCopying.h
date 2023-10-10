@@ -56,6 +56,12 @@
 @optional  // only optional, if derived from NSObject
 - (id) copy;
 
+//
+// if YES, then all properties that are marked "copy" or "retain" are
+// copyied and retained during -copy (using NSCopyObject)
+//
++ (BOOL) mulleCopyRetainsProperties;  // default YES!
+
 @end
 
 

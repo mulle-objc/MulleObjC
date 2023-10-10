@@ -49,6 +49,9 @@
 // catching accidental writes into them
 //
 MULLE_OBJC_GLOBAL
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyCopiedCStringValueRetainCallback;
+
+MULLE_OBJC_GLOBAL
 const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyRetainValueRetainCallback;
 MULLE_OBJC_GLOBAL
 const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyCopyValueRetainCallback;
@@ -70,7 +73,6 @@ const struct mulle_container_valuecallback    _MulleObjCContainerValueAssignCall
 
 MULLE_OBJC_GLOBAL
 const struct mulle_container_keycallback      _MulleObjCContainerKeyRetainPointerCompareCallback;
-
 
 MULLE_OBJC_GLOBAL
  struct mulle_container_keycallback     *MulleObjCContainerKeyRetainCallback;

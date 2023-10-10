@@ -305,7 +305,8 @@ static void   checkAutoreleaseRelease( NSObject *self)
       if( autoreleaseCount >= retainCount)
       {
          __mulle_objc_universe_raise_internalinconsistency( universe,
-               "object %p would be autoreleased too often", self);
+               "object <%s %p> would be autoreleased too often",
+                     MulleObjCInstanceGetClassNameUTF8String( self), self);
    	}
    }
 }
@@ -893,7 +894,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 {
    // this produces NSInvalidArgumentException on OS X for (SEL) 0
    return( (IMP) _mulle_objc_object_lookup_implementation( (void *) self,
-                                                            (mulle_objc_methodid_t) sel));
+                                                           (mulle_objc_methodid_t) sel));
 }
 
 

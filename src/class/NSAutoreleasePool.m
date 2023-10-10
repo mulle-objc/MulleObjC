@@ -55,9 +55,27 @@
 # define DEBUG_MAX_OBJECTS
 #endif
 
+static void   mulle_objc_make_class_boring( Class self)
+{
+   struct _mulle_objc_class   *infra;
+   struct _mulle_objc_class   *meta;
+
+   infra = (struct _mulle_objc_class *) self;
+   _mulle_objc_class_set_state_bit( infra, MULLE_OBJC_CLASS_IS_BORING_ALLOCATION);
+
+   meta = (struct _mulle_objc_class *) 
+            _mulle_objc_infraclass_get_metaclass( (struct _mulle_objc_infraclass *) infra);
+   _mulle_objc_class_set_state_bit( meta, MULLE_OBJC_CLASS_IS_BORING_ALLOCATION);
+}
 
 
 @implementation NSAutoreleasePool
+
++ (void) load 
+{
+   mulle_objc_make_class_boring( self);
+}
+
 
 static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config,
                                   id pool);
@@ -833,6 +851,12 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 
 
 @implementation _MulleObjCAutoreleaseAllocation
+
++ (void) load 
+{
+   mulle_objc_make_class_boring( self);
+}
+
 
 + (id) newWithPointer:(void *) pointer
             allocator:(struct mulle_allocator *) allocator

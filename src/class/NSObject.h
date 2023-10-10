@@ -78,6 +78,29 @@
 //           |                     |
 //           '---------------------'
 //
+//
+// Instead of using the alloc/init/autorelease pattern, MulleObjC provides the
+// +object method on NSObject subclasses to instantiate autoreleased objects
+// without needing separate +alloc and -init calls. For example:
+//
+// Foo *s = [Foo object];
+//
+// Convenience constructor methods like -stringWithUTF8String: can also be used
+// to construct autoreleased instances:
+//
+// NSString *s = [NSString stringWithUTF8String:"text"];
+//
+// The main advantage is skipping the verbose alloc/init step. In MulleObjC,
+// all objects are autoreleased by default. When retained, they should not be
+// -released but -autoreleased later (except in -dealloc which is special due to
+// being always single threaded).
+//
+// References to objects are preferably kept in @properties, so retain/release
+// is handled automatically by the compiler. Avoid manual retains and releases.
+//
+// MulleObjC code should use -object, convenience constructors and @properties
+// to manage object lifetime. This results in clean, efficient code without
+// explicit retain/release calls.
 
 @interface NSObject < NSObject>
 

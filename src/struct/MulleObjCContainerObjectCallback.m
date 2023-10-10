@@ -152,6 +152,27 @@ const struct mulle_container_valuecallback
 
 
 const struct mulle_container_keyvaluecallback
+   _MulleObjCContainerKeyCopiedCStringValueRetainCallback =
+{
+   {
+      .hash     = mulle_container_keycallback_cstring_hash,
+      .is_equal = mulle_container_keycallback_cstring_is_equal,
+      .retain   = (void *(*)()) mulle_container_callback_cstring_copy,
+      .release  = _mulle_container_keycallback_pointer_free,
+      .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_cstring_describe,
+      .notakey  = NULL,
+      .userinfo = NULL
+   },
+   {
+      (mulle_container_valuecallback_retain_t *)  mulle_container_callback_object_retain,
+      (mulle_container_valuecallback_release_t *) mulle_container_callback_object_autorelease,
+      (mulle_container_valuecallback_describe_t *) mulle_container_callback_object_describe,
+      NULL
+   }
+};
+
+
+const struct mulle_container_keyvaluecallback
 	_MulleObjCContainerKeyRetainValueRetainCallback =
 {
    {

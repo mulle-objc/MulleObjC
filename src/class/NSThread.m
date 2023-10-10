@@ -101,6 +101,15 @@ static struct
 }
 
 
+- (id) init
+{
+   _mulle_map_init( &self->_map,
+                    0,
+                    (void *) &_MulleObjCContainerKeyCopiedCStringValueRetainCallback,
+                    MulleObjCInstanceGetAllocator( self));
+   return( self);
+}
+
 /*
  */
 - (instancetype) initWithTarget:(id) target
@@ -138,7 +147,6 @@ static struct
       [target retain];
    if( ! (options & MulleThreadDontRetainArgument))
       [object retain];
-
 
    self->_releaseTarget   = ! (options & MulleThreadDontReleaseTarget);
    self->_releaseArgument = ! (options & MulleThreadDontReleaseArgument);
@@ -178,6 +186,8 @@ static struct
 
    [runLoop mullePerformFinalize];
    [runLoop autorelease];
+
+   mulle_map_done( &self->_map);
 
    [self->_userInfo autorelease];
    self->_userInfo = nil;
@@ -597,6 +607,7 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
 {
 }
 
+
 - (void) __isProbablyGoingSingleThreaded
 {
    //
@@ -674,7 +685,6 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    [threadObject->_userInfo autorelease];
    threadObject->_userInfo = [info retain];
 }
-
 
 
 - (id) mulleSetRunLoop:(id) runLoop
@@ -954,5 +964,6 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    return( [super retain]);
 }
 #endif
+
 
 @end

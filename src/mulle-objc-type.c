@@ -57,9 +57,11 @@ char   *_NS_OPTIONS_UTF8String( void *table,
    size_t                  i;
    void                   *line;
    unsigned long long     value;
+   char                   *empty;
 
    assert( "the enum table has too few entries" && (! len || *(char **) &((char *) table)[ line_size * (len - 1)]));
 
+   empty = NULL;
    mulle_buffer_do_string( buffer, NULL, s)
    {
       line = table;
@@ -74,14 +76,17 @@ char   *_NS_OPTIONS_UTF8String( void *table,
          default : abort();
          }
 
-         if( (bits & value) == value)
-         {
-            mulle_buffer_add_string_if_not_empty( buffer, "|");
-            assert( *(char **) line);
-            mulle_buffer_add_string( buffer, *(char **) line);
+         if( ! value)
+            empty = *(char **) line;
+         else
+            if( (bits & value) == value)
+            {
+               mulle_buffer_add_string_if_not_empty( buffer, "|");
+               assert( *(char **) line);
+               mulle_buffer_add_string( buffer, *(char **) line);
 
-            bits &= ~value;
-         }
+               bits &= ~value;
+            }
          line = &((char *) line)[ line_size];
       }
 
@@ -91,7 +96,7 @@ char   *_NS_OPTIONS_UTF8String( void *table,
          mulle_buffer_sprintf( buffer, "0x%llx", bits);
       }
 
-      mulle_buffer_add_string_if_empty( buffer, "0");
+      mulle_buffer_add_string_if_empty( buffer, empty ? empty : "0");
    }
 
    return( MulleObjCAutoreleaseAllocation( s, NULL));
