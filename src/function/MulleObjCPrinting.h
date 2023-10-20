@@ -51,3 +51,23 @@ MULLE_OBJC_GLOBAL
 char   *MulleObjC_asprintf( char *format, ...);
 
 
+
+#define mulle_buffer_do_autoreleased_string( name, allocator, s)               \
+   for( struct mulle_buffer name ## __storage = MULLE_BUFFER_INIT( allocator), \
+                            *name = &name ## __storage,                        \
+                            name ## __i = { 0 };                               \
+                                                                               \
+        s = (name ## __i._storage)                                             \
+               ? MulleObjCAutoreleaseAllocation(                               \
+                   mulle_buffer_extract_string( &name ## __storage),           \
+                   (allocator))                                                \
+               : NULL,                                                         \
+        ! name ## __i._storage;                                                \
+                                                                               \
+        name ## __i._storage = (void *) 0x1                                    \
+      )                                                                        \
+                                                                               \
+      for( int  name ## __j = 0;    /* break protection */                     \
+           name ## __j < 1;                                                    \
+           name ## __j++)
+

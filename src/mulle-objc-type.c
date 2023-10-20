@@ -42,9 +42,43 @@
 
 
 // returns pointer as a convenience
-extern
+extern char   *MulleObjC_asprintf( char *format, ...);
+
 void   *MulleObjCAutoreleaseAllocation( void *pointer,
                                         struct mulle_allocator *allocator);
+
+char   *_NS_table_search_UTF8String( void *table,
+                                     size_t len,
+                                     size_t line_size,
+                                     size_t offset,
+                                     size_t item_len,
+                                     unsigned long long bit)
+{
+   size_t                 i;
+   void                   *line;
+   unsigned long long     value;
+
+   line = table;
+   for( i = 0; i < len; i++)
+   {
+      switch( item_len)
+      {
+      case 1  : value = *(uint8_t *)  &((char *) line)[ offset]; break;
+      case 2  : value = *(uint16_t *) &((char *) line)[ offset]; break;
+      case 4  : value = *(uint32_t *) &((char *) line)[ offset]; break;
+      case 8  : value = *(uint64_t *) &((char *) line)[ offset]; break;
+      default : abort();
+      }
+
+      if( bit == value)
+         return( *(char **) line);
+
+      line = &((char *) line)[ line_size];
+   }
+   return( NULL);
+}
+
+
 
 char   *_NS_OPTIONS_UTF8String( void *table,
                                 size_t len,
@@ -103,51 +137,24 @@ char   *_NS_OPTIONS_UTF8String( void *table,
 }
 
 
+
 char   *_NS_ENUM_UTF8String( void *table,
                              size_t len,
                              size_t line_size,
                              size_t offset,
                              size_t item_len,
-                             unsigned long long bits)
+                             unsigned long long value)
 {
-   char                   *s;
-   size_t                  i;
-   void                   *line;
-   unsigned long long     value;
+   char   *s;
 
    assert( "the options table has too few entries" && (! len || *(char **) &((char *) table)[ line_size * (len - 1)]));
 
-   mulle_buffer_do_string( buffer, NULL, s)
-   {
-      line = table;
-      for( i = 0; i < len; i++)
-      {
-         switch( item_len)
-         {
-         case 1  : value = *(uint8_t *)  &((char *) line)[ offset]; break;
-         case 2  : value = *(uint16_t *) &((char *) line)[ offset]; break;
-         case 4  : value = *(uint32_t *) &((char *) line)[ offset]; break;
-         case 8  : value = *(uint64_t *) &((char *) line)[ offset]; break;
-         default : abort();
-         }
-
-         if( bits == value)
-         {
-            assert( *(char **) line);
-            mulle_buffer_add_string( buffer, *(char **) line);
-            bits = 0;
-            break;
-         }
-         line = &((char *) line)[ line_size];
-      }
-
-      if( bits)
-         mulle_buffer_sprintf( buffer, "0x%llx", bits);
-
-      mulle_buffer_add_string_if_empty( buffer, "0");
-   }
-
-   return( MulleObjCAutoreleaseAllocation( s, NULL));
+   s = _NS_table_search_UTF8String( table, len, line_size, offset, item_len, value);
+   if( s)
+      return( s);
+   if( ! value)
+      return( "0");
+   return( MulleObjC_asprintf( "0x%llx", value));
 }
 
 

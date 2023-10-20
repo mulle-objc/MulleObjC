@@ -105,7 +105,7 @@ static struct
 {
    _mulle_map_init( &self->_map,
                     0,
-                    (void *) &_MulleObjCContainerKeyCopiedCStringValueRetainCallback,
+                    (void *) &_MulleObjCContainerCopyCStringKeyRetainValueCallback,
                     MulleObjCInstanceGetAllocator( self));
    return( self);
 }

@@ -611,8 +611,8 @@ static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer,
       break;
 
    case _C_BOOL   :
-      get_scalarvalue( v.c_bool, intptr_t, p, sentinel);
-      mulle_buffer_sprintf( buffer, "%s%td", sep, v.c_bool);
+      get_scalarvalue( v.c_bool, int, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%bd", sep, v.c_bool);
       break;
 
    case _C_DBL   :
