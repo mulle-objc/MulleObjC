@@ -929,6 +929,13 @@ static inline char   *MulleObjCProtocolUTF8String( SEL sel)
 MULLE_OBJC_GLOBAL
 Class   MulleObjCLookupClassByNameUTF8String( char *name);
 
+
+static inline SEL   MulleObjCClassGetID( Class cls)
+{
+   return( cls ? _mulle_objc_infraclass_get_classid( cls) : (SEL) 0);
+}
+
+
 MULLE_OBJC_GLOBAL
 Class   MulleObjCLookupClassByClassID( SEL classid);
 

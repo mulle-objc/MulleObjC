@@ -43,46 +43,64 @@
 
 #include "include.h"
 
+
+// GLOSSARY:
 //
-// these are "const" to make them reside possibly in
-// writeprotected storage, which can be convenient for
-// catching accidental writes into them
+//  | Adverb               | Key Type | On Insert | On Removal     | Comparison
+//  |----------------------|----------|-----------|----------------|--------------
+//  | Assign               | object   | nop       | nop            | `-isEqual`
+//  | AssignRetainedObject | object   | nop       | `-autorelease` | `-isEqual`
+//  | CopyCString          | cstring  | `strdup`  | `free`         | `strcmp`
+//  | Copy                 | object   | `-copy`   | `-autorelease` | `-isEqual`
+//  | Integer              | void *   | nop       | nop            | `==`
+//  | Retain               | object   | `-retain` | `-autorelease` | `-isEqual`
+//  | RetainPointerCompare | object   | `-retain` | `-autorelease` | `==`
+//
+// these are "const" to make them reside possibly in writeprotected storage,
+// which might be convenient for catching accidental writes into them.
 //
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyCopiedCStringValueRetainCallback;
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerCopyCStringKeyRetainValueCallback;
 
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyRetainValueRetainCallback;
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerRetainKeyRetainValueCallback;
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyCopyValueRetainCallback;
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerCopyKeyRetainValueCallback;
 
-// NSDictionary uses this for init sometimes
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyAssignValueAssignCallback;
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerIntegerKeyRetainValueCallback;
+
+// NSDictionary uses this for archiving sometimes, its dangerous!
+MULLE_OBJC_GLOBAL
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerAssignRetainedKeyAssignRetainedValueCallback;
 // NSDictionary usually uses this
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyRetainValueCopyCallback;
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerRetainKeyCopyValueCallback;
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keyvaluecallback   _MulleObjCContainerKeyCopyValueCopyCallback;
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerCopyKeyCopyValueCallback;
 
-// i was too lazy to multiply it out, do it if needed
+// i was too lazy to multiply it out, do it if needed,
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keycallback      _MulleObjCContainerKeyAssignCallback;
+const struct mulle_container_keycallback      _MulleObjCContainerAssignKeyCallback;
 MULLE_OBJC_GLOBAL
-const struct mulle_container_valuecallback    _MulleObjCContainerValueAssignCallback;
+const struct mulle_container_keycallback      _MulleObjCContainerAssignRetainedKeyCallback;
+MULLE_OBJC_GLOBAL
+const struct mulle_container_valuecallback    _MulleObjCContainerAssignValueCallback;
+MULLE_OBJC_GLOBAL
+const struct mulle_container_valuecallback    _MulleObjCContainerAssignRetainedValueCallback;
 
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keycallback      _MulleObjCContainerKeyRetainPointerCompareCallback;
+const struct mulle_container_keycallback      _MulleObjCContainerRetainPointerCompareKeyCallback;
 
 MULLE_OBJC_GLOBAL
- struct mulle_container_keycallback     *MulleObjCContainerKeyRetainCallback;
+ struct mulle_container_keycallback     *MulleObjCContainerRetainKeyCallback;
 // NSSet usually uses this
 MULLE_OBJC_GLOBAL
- struct mulle_container_keycallback     *MulleObjCContainerKeyCopyCallback;
+ struct mulle_container_keycallback     *MulleObjCContainerCopyKeyCallback;
 MULLE_OBJC_GLOBAL
- struct mulle_container_valuecallback   *MulleObjCContainerValueRetainCallback;
+ struct mulle_container_valuecallback   *MulleObjCContainerRetainValueCallback;
 MULLE_OBJC_GLOBAL
- struct mulle_container_valuecallback   *MulleObjCContainerValueCopyCallback;
+ struct mulle_container_valuecallback   *MulleObjCContainerCopyValueCallback;
 
 // TODO: use these and kill code in MuleObjCStandardFoundation
 // #define NSIntMapKeyCallBacks                   mulle_container_keycallback_int
@@ -96,10 +114,10 @@ MULLE_OBJC_GLOBAL
 // #define NSNonOwnedPointerMapValueCallBacks     mulle_container_valuecallback_nonowned_pointer
 // #define NSOwnedPointerMapValueCallBacks        mulle_container_valuecallback_owned_pointer
 
-#define NSObjectMapKeyCallBacks                *MulleObjCContainerKeyCopyCallback
-#define NSObjectMapValueCallBacks              *MulleObjCContainerValueRetainCallback
-#define NSNonRetainedObjectMapKeyCallBacks     _MulleObjCContainerKeyAssignCallback
-#define NSNonRetainedObjectMapValueCallBacks   _MulleObjCContainerValueAssignCallback
+#define NSObjectMapKeyCallBacks                *MulleObjCContainerCopyKeyCallback
+#define NSObjectMapValueCallBacks              *MulleObjCContainerRetainValueCallback
+#define NSNonRetainedObjectMapKeyCallBacks     _MulleObjCContainerAssignKeyCallback
+#define NSNonRetainedObjectMapValueCallBacks   _MulleObjCContainerAssignValueCallback
 
 //MULLE_OBJC_CONTAINER_FOUNDATION_EXTERN_GLOBAL
 //NSHashTableCallBacks   MulleObjCNonRetainedObjectHashCallBacks;
