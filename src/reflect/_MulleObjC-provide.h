@@ -9,6 +9,10 @@
  *
  *      mulle-sde environment set MULLE_MATCH_TO_C_RUN DISABLE
  */
+#ifndef mulle_objc_provide_h__
+#define mulle_objc_provide_h__
+
+
 #include "mulle-sprintf-object.h"
 #include "minimal.h"
 #include "mulle-objc-classbit.h"
@@ -17,3 +21,6 @@
 #include "mulle-objc.h"
 #include "mulle-objc-threadfoundationinfo.h"
 #include "mulle-objc-type.h"
+
+
+#endif
