@@ -4,10 +4,11 @@
 1848
 1848
 ( 1848 )
-{ 1848, '2', 3 }
+(struct abc) { 1848, '2', 3 }
+(struct mulle_structarray) { <pointer>, <pointer>, <pointer>, 0, 16, 0 }
 [ 1, 1848, 3 ]
-VfL Bochum 1848
+<Foo <pointer>>
 @selector( callMeMaybe:)
-0x1848
-VfL Bochum 1848
+<pointer>
+"VfL Bochum 1848"
 <broken type>

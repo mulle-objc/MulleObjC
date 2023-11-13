@@ -47,6 +47,33 @@ static void   test_struct( void)
    }
 }
 
+
+static void   test_struct2( void)
+{
+   struct mulle_structarray  array;
+   struct abc {  int a; char b; double c; } x = { 1848, '2', 3 } ;
+
+   mulle_structarray_init( &array, 
+                           sizeof( struct abc), 
+                           alignof( struct abc), 
+                           0, 
+                           NULL);
+   mulle_structarray_add( &array, &x);
+
+   char   *s;
+
+   mulle_buffer_do( buffer)
+   {
+      MulleObjCDescribeMemory( buffer, 
+                               mulle_data_make( &array, sizeof( array)), 
+                               @encode( struct mulle_structarray));
+      s = mulle_buffer_get_string( buffer);
+      printf( "%s\n", s);
+   }
+   mulle_structarray_done( &array);
+}
+
+
 static void   test_float( void)
 {
    float   x = 1848;
@@ -229,6 +256,7 @@ int   main( int argc, char *argv[])
 
    test_union();
    test_struct();
+   test_struct2();
    test_array();
 
    test_object();

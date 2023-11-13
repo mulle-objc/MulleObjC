@@ -217,7 +217,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    [invocation setTarget:target];
    [invocation setSelector:sel];
 
-   // TODO: we should be able to this significantly faster!!
+   // TODO: we should be able to do this significantly faster!!
    // We can probably just memcpy the whole block over
    // MEMO: Also check MulleInvocationBuilder in "tests"
    //

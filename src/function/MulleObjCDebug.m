@@ -270,6 +270,22 @@ void   MulleObjCDotdumpMetaHierarchy( char *classname)
    MulleObjCDotdumpMetaHierarchyToDirectory( classname, ".");
 }
 
+
+void   MulleObjCDumpObject( id obj)
+{
+   char   *s;
+
+   mulle_buffer_do_string( buffer, NULL, s)
+   {
+      mulle_buffer_sprintf( buffer, "<%s %p> = ", 
+         MulleObjCObjectGetClassNameUTF8String( obj),
+         obj);
+      MulleObjCDescribeIvars( buffer, obj);
+   }
+   fprintf( stderr, "%s\n", s);
+}
+
+
 #else
 
 void   MulleObjCHTMLDumpUniverseToDirectory( char *directory)
@@ -393,6 +409,13 @@ void   MulleObjCDotdumpMetaHierarchyToTmp( char *classname)
 
 
 void   MulleObjCDotdumpMetaHierarchy( char *classname)
+{
+   fprintf( stderr, "%s is only available when MulleObjC is compiled with \
+-DMULLE_OBJC_DEBUG_SUPPORT\n", __FUNCTION__);
+}
+
+
+void   MulleObjCDumpObject( id obj)
 {
    fprintf( stderr, "%s is only available when MulleObjC is compiled with \
 -DMULLE_OBJC_DEBUG_SUPPORT\n", __FUNCTION__);

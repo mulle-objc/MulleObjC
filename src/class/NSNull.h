@@ -1,9 +1,9 @@
 //
-//  version.h
-//  MulleObjC
+//  NSNull.h
+//  MulleObjCValueFoundation
 //
-//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2018 Codeon GmbH.
+//  Copyright (c) 2011 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2011 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -33,15 +33,19 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#import "NSObject.h"
 
-// This header should be includeable by C and must not require inclusion
-// or link the runtime
+#import "NSCoding.h"
+#import "NSCopying.h"
+#import "MulleObjCSingleton.h"
 
-#ifndef MulleObjC_version__h__
-#define MulleObjC_version__h__
+//
+// The mulle-objc NSNull reacts to all unknown methods by return nil/NULL/0 (!)
+//
+@interface NSNull : NSObject < MulleObjCSingleton, NSCopying, NSCoding, MulleObjCValue, MulleObjCImmutable>
+{
+}
 
++ (NSNull *) null;
 
-#define MULLE_OBJC_VERSION    ((0UL << 20) | (23 << 8) | 0)
-
-#endif
-
+@end

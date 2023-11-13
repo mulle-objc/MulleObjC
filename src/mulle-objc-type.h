@@ -84,8 +84,8 @@ static inline void  *mulle_id_clear( id *dst, size_t length)
 }
 
 
-#define mulle_flexarray_do_id( buf, static_len, len) \
-   mulle_flexarray_do( buf, id, (static_len), (len))
+#define mulle_id_alloca_do( buf, len) \
+   mulle_alloca_do( buf, id, (len))
 
 
 //

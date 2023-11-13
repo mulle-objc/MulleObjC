@@ -49,9 +49,11 @@
 //  | Adverb               | Key Type | On Insert | On Removal     | Comparison
 //  |----------------------|----------|-----------|----------------|--------------
 //  | Assign               | object   | nop       | nop            | `-isEqual`
-//  | AssignRetainedObject | object   | nop       | `-autorelease` | `-isEqual`
+//  | AssignRetained       | object   | nop       | `-autorelease` | `-isEqual`
+//  | AssignCString        | cstring  | nop       | nop            | `strcmp`
 //  | CopyCString          | cstring  | `strdup`  | `free`         | `strcmp`
 //  | Copy                 | object   | `-copy`   | `-autorelease` | `-isEqual`
+//  | FreeCString          | cstring  | nop       | `free`         | `strcmp`
 //  | Integer              | void *   | nop       | nop            | `==`
 //  | Retain               | object   | `-retain` | `-autorelease` | `-isEqual`
 //  | RetainPointerCompare | object   | `-retain` | `-autorelease` | `==`
@@ -81,52 +83,34 @@ const struct mulle_container_keyvaluecallback   _MulleObjCContainerCopyKeyCopyVa
 
 // i was too lazy to multiply it out, do it if needed,
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keycallback      _MulleObjCContainerAssignKeyCallback;
+const struct mulle_container_keycallback        _MulleObjCContainerAssignKeyCallback;
+MULLE_OBJC_GLOBAL  
+const struct mulle_container_keycallback        _MulleObjCContainerAssignRetainedKeyCallback;
+
 MULLE_OBJC_GLOBAL
-const struct mulle_container_keycallback      _MulleObjCContainerAssignRetainedKeyCallback;
+const struct mulle_container_keycallback        _MulleObjCContainerRetainPointerCompareKeyCallback;
+
+
+#define _MulleObjCContainerAssignCStringKeyCallback    mulle_container_keycallback_nonowned_cstring
+#define _MulleObjCContainerFreeCStringKeyCallback      mulle_container_keycallback_owned_cstring
+#define _MulleObjCContainerCopyCStringKeyCallback      mulle_container_keycallback_copied_cstring
+
+
 MULLE_OBJC_GLOBAL
 const struct mulle_container_valuecallback    _MulleObjCContainerAssignValueCallback;
 MULLE_OBJC_GLOBAL
 const struct mulle_container_valuecallback    _MulleObjCContainerAssignRetainedValueCallback;
 
-MULLE_OBJC_GLOBAL
-const struct mulle_container_keycallback      _MulleObjCContainerRetainPointerCompareKeyCallback;
 
-MULLE_OBJC_GLOBAL
- struct mulle_container_keycallback     *MulleObjCContainerRetainKeyCallback;
-// NSSet usually uses this
-MULLE_OBJC_GLOBAL
- struct mulle_container_keycallback     *MulleObjCContainerCopyKeyCallback;
-MULLE_OBJC_GLOBAL
- struct mulle_container_valuecallback   *MulleObjCContainerRetainValueCallback;
-MULLE_OBJC_GLOBAL
- struct mulle_container_valuecallback   *MulleObjCContainerCopyValueCallback;
+#define _MulleObjCContainerAssignCStringValueCallback    mulle_container_valuecallback_nonowned_cstring
+#define _MulleObjCContainerFreeCStringValueCallback      mulle_container_valuecallback_owned_cstring
+#define _MulleObjCContainerCopyCStringValueCallback      mulle_container_valuecallback_copied_cstring
 
-// TODO: use these and kill code in MuleObjCStandardFoundation
-// #define NSIntMapKeyCallBacks                   mulle_container_keycallback_int
-// #define NSIntegerMapKeyCallBacks               mulle_container_keycallback_intptr
-// #define NSNonOwnedPointerMapKeyCallBacks       mulle_container_keycallback_nonowned_pointer
-// #define NSNonOwnedPointerOrNullMapKeyCallBacks mulle_container_keycallback_nonowned_pointer_or_null
-// #define NSOwnedPointerMapKeyCallBacks          mulle_container_keycallback_owned_pointer
-// 
-// #define NSIntMapValueCallBacks                 mulle_container_valuecallback_int
-// #define NSIntegerMapValueCallBacks             mulle_container_valuecallback_intptr
-// #define NSNonOwnedPointerMapValueCallBacks     mulle_container_valuecallback_nonowned_pointer
-// #define NSOwnedPointerMapValueCallBacks        mulle_container_valuecallback_owned_pointer
 
-#define NSObjectMapKeyCallBacks                *MulleObjCContainerCopyKeyCallback
-#define NSObjectMapValueCallBacks              *MulleObjCContainerRetainValueCallback
-#define NSNonRetainedObjectMapKeyCallBacks     _MulleObjCContainerAssignKeyCallback
-#define NSNonRetainedObjectMapValueCallBacks   _MulleObjCContainerAssignValueCallback
-
-//MULLE_OBJC_CONTAINER_FOUNDATION_EXTERN_GLOBAL
-//NSHashTableCallBacks   MulleObjCNonRetainedObjectHashCallBacks;
-//
-//MULLE_OBJC_CONTAINER_FOUNDATION_EXTERN_GLOBAL
-//NSHashTableCallBacks   MulleObjCObjectHashCallBacks;
-//
-//MULLE_OBJC_CONTAINER_FOUNDATION_EXTERN_GLOBAL
-//NSHashTableCallBacks   MulleObjCOwnedObjectIdentityHashCallBacks;
+#define MulleObjCContainerRetainKeyCallback    (*(struct mulle_container_keycallback *) &_MulleObjCContainerRetainKeyRetainValueCallback.keycallback)
+#define MulleObjCContainerCopyKeyCallback      (*(struct mulle_container_keycallback *) &_MulleObjCContainerCopyKeyCopyValueCallback.keycallback)
+#define MulleObjCContainerRetainValueCallback  (*(struct mulle_container_valuecallback *) &_MulleObjCContainerRetainKeyRetainValueCallback.valuecallback)
+#define MulleObjCContainerCopyValueCallback    (*(struct mulle_container_valuecallback *) &_MulleObjCContainerCopyKeyCopyValueCallback.valuecallback)
 
 
 
@@ -169,22 +153,22 @@ char *
                                              struct mulle_allocator **p_allocator);
 
 
-// some mulle additions
-MULLE_OBJC_GLOBAL
-const struct mulle_container_keycallback   MulleNonOwnedCStringMapKeyCallBacks;
-
-MULLE_OBJC_GLOBAL
-const struct mulle_container_keycallback   MulleOwnedCStringMapKeyCallBacks;
-
-MULLE_OBJC_GLOBAL
-const struct mulle_container_keycallback   MulleCopiedCStringMapKeyCallBacks;
-
-MULLE_OBJC_GLOBAL
-const struct mulle_container_valuecallback   MulleNonOwnedCStringMapValueCallBacks;
-
-MULLE_OBJC_GLOBAL
-const struct mulle_container_valuecallback   MulleOwnedCStringMapValueCallBacks;
-
-// struct mulle_container_valuecallback   MulleCopiedCStringMapValueCallBacks;
+// // some mulle additions
+// MULLE_OBJC_GLOBAL
+// const struct mulle_container_keycallback     _MulleNonOwnedCStringMapKeyCallBacks;
+// 
+// MULLE_OBJC_GLOBAL
+// const struct mulle_container_keycallback     _MulleOwnedCStringMapKeyCallBacks;
+// 
+// MULLE_OBJC_GLOBAL
+// const struct mulle_container_keycallback     _MulleCopiedCStringMapKeyCallBacks;
+// 
+// MULLE_OBJC_GLOBAL
+// const struct mulle_container_valuecallback   _MulleNonOwnedCStringMapValueCallBacks;
+// 
+// MULLE_OBJC_GLOBAL
+// const struct mulle_container_valuecallback   _MulleOwnedCStringMapValueCallBacks;
+// 
+// // struct mulle_container_valuecallback   MulleCopiedCStringMapValueCallBacks;
 
 #endif
