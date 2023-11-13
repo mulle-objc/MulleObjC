@@ -14,6 +14,7 @@ set( SOURCES
 src/class/NSAutoreleasePool.m
 src/class/NSInvocation.m
 src/class/NSMethodSignature.m
+src/class/NSNull.m
 src/class/NSObject+NSCodingSupport.m
 src/class/NSObject.m
 src/class/NSProxy.m

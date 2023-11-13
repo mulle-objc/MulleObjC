@@ -70,6 +70,7 @@ src/class/MulleObjCLoader.h
 src/class/NSAutoreleasePool.h
 src/class/NSInvocation.h
 src/class/NSMethodSignature.h
+src/class/NSNull.h
 src/class/NSObject+NSCodingSupport.h
 src/class/NSObject.h
 src/class/NSProxy.h

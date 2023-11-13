@@ -39,7 +39,7 @@
 
 
 //
-// C format strings
+// C format strings, the returned char * is autoreleased!
 //
 MULLE_OBJC_GLOBAL
 char   *MulleObjC_vasprintf( char *format, va_list args);

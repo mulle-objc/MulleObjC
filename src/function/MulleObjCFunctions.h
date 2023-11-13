@@ -950,6 +950,12 @@ MULLE_OBJC_GLOBAL
 char  *MulleObjCInstanceGetClassNameUTF8String( id obj);
 
 
+static inline 
+char  *MulleObjCObjectGetClassNameUTF8String( id obj)
+{
+   return( MulleObjCInstanceGetClassNameUTF8String( obj));
+}
+
 static inline void   *MulleObjCClassGetExtraBytes( Class cls)
 {
    return( cls ? _mulle_objc_infraclass_get_classextra( cls) : NULL);
@@ -1023,3 +1029,6 @@ char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignm
 BOOL  MulleObjCDescribeMemory( struct mulle_buffer *buffer, 
                                struct mulle_data data,
                                char *type);
+
+// dump known instance variables of an object
+void  MulleObjCDescribeIvars( struct mulle_buffer *buffer, id obj);

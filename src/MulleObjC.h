@@ -47,6 +47,7 @@
 #import "NSAutoreleasePool.h"
 #import "NSInvocation.h"
 #import "NSMethodSignature.h"
+#import "NSNull.h"
 #import "NSObject.h"
 #import "NSProxy.h"
 #import "NSThread.h"

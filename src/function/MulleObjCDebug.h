@@ -80,3 +80,7 @@ MULLE_OBJC_GLOBAL
 void   MulleObjCDotdumpMetaHierarchyToTmp( char *classname);
 MULLE_OBJC_GLOBAL
 void   MulleObjCDotdumpMetaHierarchy( char *classname);
+
+
+MULLE_OBJC_GLOBAL
+void   MulleObjCDumpObject( id object);

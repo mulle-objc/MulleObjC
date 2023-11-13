@@ -566,6 +566,10 @@ static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer,
    char       *element_type;
    int        i, n;
    char       *s;
+   char       *type_name_s;
+   char       *type_name_e;
+   int        type_name_len;
+
    union mulle_objc_scalarvalue
    {
       char                            *c_atom;
@@ -601,13 +605,25 @@ static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer,
    case _C_COPY_ID   :
    case _C_CLASS     :
       get_scalarvalue( v.c_id, id, p, sentinel);
-      mulle_buffer_sprintf( buffer, "%s%@", sep, v.c_id);
+      mulle_buffer_add_string( buffer, sep);
+      if( v.c_id)
+         mulle_buffer_sprintf( buffer, "<%s %p>",
+                              MulleObjCObjectGetClassNameUTF8String( v.c_id),
+                              v.c_id);
+      else
+         mulle_buffer_add_string( buffer, "nil");
       break;
 
    case _C_SEL     :
       get_scalarvalue( v.c_sel, SEL, p, sentinel);
-      s = MulleObjCSelectorGetNameUTF8String( v.c_sel);
-      mulle_buffer_sprintf( buffer, "%s@selector( %s)", sep, s);
+      mulle_buffer_add_string( buffer, sep);
+      if( v.c_sel)
+      {
+         s = MulleObjCSelectorGetNameUTF8String( v.c_sel);
+         mulle_buffer_sprintf( buffer, "@selector( %s)", s);
+      }
+      else
+         mulle_buffer_add_string( buffer, "0");
       break;
 
    case _C_BOOL   :
@@ -694,19 +710,33 @@ static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer,
 
    case _C_PTR     :
       get_scalarvalue( v.c_ptr, void *, p, sentinel);
+      // skip over type
       mulle_buffer_sprintf( buffer, "%s%p", sep, v.c_ptr);
-      break;
+      *p_type = mulle_objc_signature_next_type( type);
+      return( p);
 
    case _C_CHARPTR :
       get_scalarvalue( v.c_charptr, char *, p, sentinel);
-      mulle_buffer_sprintf( buffer, "%s%s", sep, v.c_charptr);
+      mulle_buffer_add_string( buffer, sep);
+      if( v.c_charptr)
+         mulle_buffer_add_quoted_string( buffer, v.c_charptr);
+      else
+         mulle_buffer_add_string( buffer, "NULL");
       break;
 
    case _C_STRUCT_B :
+      type_name_s = type + 1;
       do
          ++type;
       while( *type != '=');
+      type_name_e = type;
       ++type; // skip =
+
+      type_name_len = (int) (type_name_e - type_name_s);
+      if( type_name_len)
+         mulle_buffer_sprintf( buffer, "(struct %.*s) ",
+                                        type_name_len,
+                                        type_name_s);
 
       mulle_buffer_sprintf( buffer, "%s{", sep);
       sep = " ";
@@ -727,11 +757,18 @@ static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer,
       break;
 
    case _C_UNION_B  :
+      type_name_s = type + 1;
       do
          ++type;
       while( *type != '=');
+      type_name_e = type;
       ++type; // skip =
 
+      type_name_len = (int) (type_name_e - type_name_s);
+      if( type_name_len)
+         mulle_buffer_sprintf( buffer, "(union %.*s) ",
+                                        type_name_len,
+                                        type_name_s);
       mulle_buffer_sprintf( buffer, "%s(", sep);
       sep = " ";
       n   = 0;
@@ -799,3 +836,121 @@ BOOL  MulleObjCDescribeMemory( struct mulle_buffer *buffer,
    return( NO);
 }
 
+
+struct describe_ivar_context
+{
+   struct mulle_data     data;
+   struct mulle_buffer   *buffer;
+   char                  *sep;
+};
+
+
+static mulle_objc_walkcommand_t
+   describe_ivar( struct _mulle_objc_ivar *ivar,
+                  struct _mulle_objc_infraclass *infra,
+                  void *userinfo)
+{
+   struct describe_ivar_context  *context = userinfo;
+   struct mulle_buffer           *buffer  = context->buffer;
+   void                          *address;
+   char                          *signature;
+   struct mulle_data             ivardata;
+   unsigned int                  offset;
+
+   mulle_buffer_add_string( buffer, context->sep);
+   context->sep = ",\n   ";
+   mulle_buffer_add_string( buffer, _mulle_objc_ivar_get_name( ivar));
+   mulle_buffer_add_string( buffer, " = ");
+
+   signature = _mulle_objc_ivar_get_signature( ivar);
+   offset    = _mulle_objc_ivar_get_offset( ivar);
+   ivardata  = mulle_data_make( (char *) context->data.bytes + offset,
+                                context->data.length - offset);
+   address   = _MulleObjCDescribeMemory( buffer,
+                                         ivardata,
+                                         &signature,
+                                         "");
+   if( address == context->data.bytes)
+   {
+      mulle_buffer_add_string( buffer, "<broken type>");
+      return( mulle_objc_walk_cancel);
+   }
+   return( mulle_objc_walk_ok);
+}
+
+
+static mulle_objc_walkcommand_t
+   collect_ivar( struct _mulle_objc_ivar *ivar,
+                 struct _mulle_objc_infraclass *infra,
+                 void *userinfo)
+{
+   struct mulle_pointerarray   *array = userinfo;
+
+   mulle_pointerarray_add( array, ivar);
+   return( mulle_objc_walk_ok);
+}
+
+
+// static int   compare_ivar_by_offset( void **p_a, void **p_b, void *userinfo)
+// {
+//    struct _mulle_objc_ivar *a = *p_a;
+//    struct _mulle_objc_ivar *b = *p_b;
+//    int    rval;
+//
+//    rval = (_mulle_objc_ivar_get_offset( a) > _mulle_objc_ivar_get_offset( b)) -
+//           (_mulle_objc_ivar_get_offset( a) < _mulle_objc_ivar_get_offset( b));
+//    return( rval);
+// }
+//
+
+static int   compare_ivar_by_name( void **p_a, void **p_b, void *userinfo)
+{
+   struct _mulle_objc_ivar *a = *p_a;
+   struct _mulle_objc_ivar *b = *p_b;
+   int    rval;
+
+   rval = strcmp( _mulle_objc_ivar_get_name( a), _mulle_objc_ivar_get_name( b));
+   return( rval);
+}
+
+
+void  MulleObjCDescribeIvars( struct mulle_buffer *buffer, id obj)
+{
+   struct _mulle_objc_infraclass  *infra;
+   struct _mulle_objc_ivar        *ivar;
+   struct describe_ivar_context   context = { 0};
+   size_t                         memo;
+
+   infra = mulle_objc_object_get_infraclass( obj);
+   if( ! infra)
+      return;
+
+   context = (struct describe_ivar_context)
+   {
+      .buffer = buffer,
+      .data   = mulle_data_make( (void *) obj,
+                                 _mulle_objc_infraclass_get_instancesize( infra)),
+      .sep    = "\n   "
+   };
+
+   mulle_buffer_add_string( buffer, "{");
+   memo = mulle_buffer_get_length( buffer);
+
+   mulle_pointerarray_do_flexible( ivars, 16)
+   {
+      _mulle_objc_infraclass_walk_ivars( infra,
+                                         _mulle_objc_infraclass_get_inheritance( infra),
+                                         collect_ivar,
+                                         ivars);
+      mulle_pointerarray_qsort_r_inline( ivars, compare_ivar_by_name, NULL);
+      mulle_pointerarray_for( ivars, ivar)
+      {
+         if( describe_ivar( ivar, infra, &context) != mulle_objc_walk_ok)
+            break;
+      }
+   }
+
+   if( mulle_buffer_get_length( buffer) != memo)
+      mulle_buffer_add_string( buffer, "\n");
+   mulle_buffer_add_string( buffer, "}");
+}
