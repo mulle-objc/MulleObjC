@@ -719,7 +719,7 @@ static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer,
       get_scalarvalue( v.c_charptr, char *, p, sentinel);
       mulle_buffer_add_string( buffer, sep);
       if( v.c_charptr)
-         mulle_buffer_add_quoted_string( buffer, v.c_charptr);
+         mulle_buffer_add_c_string( buffer, v.c_charptr);
       else
          mulle_buffer_add_string( buffer, "NULL");
       break;

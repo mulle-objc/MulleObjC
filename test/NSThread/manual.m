@@ -8,13 +8,15 @@
 
 
 
-static void  function( void *universe)
+static mulle_thread_rval_t  function( void *universe)
 {
    NSThread   *thread;
 
    thread = _MulleThreadCreateThreadObjectInUniverse( universe);
    [[NSObject new] autorelease];
    _MulleThreadRemoveThreadObjectFromUniverse( thread, universe);
+
+   mulle_thread_return();
 }
 
 

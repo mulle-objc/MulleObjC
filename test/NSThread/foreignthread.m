@@ -6,7 +6,7 @@
 #endif
 
 
-static void   function( void *arg)
+static mulle_thread_rval_t   function( void *arg)
 {
    NSAutoreleasePool   *pool;
 
@@ -22,6 +22,8 @@ static void   function( void *arg)
    fprintf( stderr, "function::NSPopAutoreleasePool\n");
    NSPopAutoreleasePool( pool);
    fprintf( stderr, "function::exit\n");
+
+   mulle_thread_return();
 }
 
 

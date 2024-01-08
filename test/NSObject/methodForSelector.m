@@ -75,7 +75,7 @@ static void   testInstanceMethodForSelector( id self, SEL sel)
    id    obj;
 
    imp = [self instanceMethodForSelector:sel];
-   if( _mulle_objc_class_is_forwardimplementation( self, imp))
+   if( _mulle_objc_class_is_forwardimplementation( self, (mulle_objc_implementation_t) imp))
    {
       printf( "forward:\n");
       return;
@@ -94,7 +94,7 @@ static void   testMethodForSelector( id self, SEL sel)
    IMP   imp;
 
    imp = [self methodForSelector:sel];
-   if( _mulle_objc_class_is_forwardimplementation( _mulle_objc_object_get_isa( self), imp))
+   if( _mulle_objc_class_is_forwardimplementation( _mulle_objc_object_get_isa( self), (mulle_objc_implementation_t) imp))
    {
       printf( "forward:\n");
       return;
@@ -132,7 +132,7 @@ static void  test_class( Class cls)
 }
 
 
-main()
+int  main( void)
 {
 #ifdef __MULLE_OBJC__
    if( mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__) != mulle_objc_universe_is_ok)

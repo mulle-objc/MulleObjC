@@ -79,7 +79,7 @@
 @end
 
 
-main()
+int  main( void)
 {
    Foo   *foo;
    Bar   *bar;

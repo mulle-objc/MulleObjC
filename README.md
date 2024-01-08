@@ -6,9 +6,11 @@ MulleObjC supplies the most basic runtime components like NSObject or NSThread
 to build a foundation on top of it. MulleObjC depends on standard C libraries 
 only and for instance not on `<unistd.h>`.
 
+
+
 | Release Version                                       | Release Notes
 |-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag//MulleObjC.svg?branch=release) [![Build Status](https://github.com//MulleObjC/workflows/CI/badge.svg?branch=release)](//github.com//MulleObjC/actions)| [RELEASENOTES](RELEASENOTES.md) |
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/MulleObjC.svg?branch=release) [![Build Status](https://github.com/mulle-objc/MulleObjC/workflows/CI/badge.svg?branch=release)](//github.com/mulle-objc/MulleObjC/actions) | [RELEASENOTES](RELEASENOTES.md) |
 
 
 ## API
@@ -47,6 +49,7 @@ directly. Creating a foundation on top of **mulle-objc**  without using
 
 MulleObjC must be compiled with the **mulle-clang** compiler, or a compiler
 which supports the metaABI required for the mulle-objc runtime.
+
 
 
 
@@ -217,6 +220,12 @@ When you call a class method, the metaclass methods operate on the metaclass dat
 
 
 
+### You are here
+
+![Overview](overview.dot.svg)
+
+
+
 ## Requirements
 
 |   Requirement         | Release Version  | Description
@@ -232,10 +241,17 @@ When you call a class method, the metaclass methods operate on the metaclass dat
 
 ## Add
 
+**This project is a component of the [mulle-core](//github.com/mulle-core/mulle-core) library. As such you usually will *not* add or install it
+individually, unless you specifically do not want to link against
+`mulle-core`.**
+
+
+### Add as an individual component
+
 Use [mulle-sde](//github.com/mulle-sde) to add MulleObjC to your project:
 
 ``` sh
-mulle-sde add github:/
+mulle-sde add github:mulle-objc/MulleObjC
 ```
 
 To only add the sources of MulleObjC with dependency
@@ -243,10 +259,10 @@ sources use [clib](https://github.com/clibs/clib):
 
 
 ``` sh
-clib install --out src/ /
+clib install --out src/mulle-objc mulle-objc/MulleObjC
 ```
 
-Add `-isystem src/` to your `CFLAGS` and compile all the sources that were downloaded with your project.
+Add `-isystem src/mulle-objc` to your `CFLAGS` and compile all the sources that were downloaded with your project.
 
 
 ## Install
@@ -274,8 +290,10 @@ cmake --build build --config Release &&
 cmake --install build --config Release
 ```
 
+
 ## Author
 
-[Nat!](https://mulle-kybernetik.com/weblog) for Mulle kybernetiK
+[Nat!](https://mulle-kybernetik.com/weblog) for Mulle kybernetiK  
+
 
 

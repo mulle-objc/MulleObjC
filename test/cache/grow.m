@@ -156,7 +156,7 @@
 
 
 
-main()
+int  main( void)
 {
    Foo   *foo;
 

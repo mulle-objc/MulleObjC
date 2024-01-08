@@ -14,7 +14,7 @@
 
 
 // just don't leak anything
-main()
+int  main( void)
 {
 #if defined( __MULLE_OBJC__)
    struct _mulle_objc_universe    *universe;

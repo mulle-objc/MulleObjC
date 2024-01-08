@@ -75,7 +75,8 @@ static int  _sprintf_object_conversion( struct mulle_buffer *buffer,
       else
          s = [(id) v.obj UTF8String];
    }
-
+   // do not use alternate output on string
+   info->memory.hash_found = 0;
    return( _mulle_sprintf_charstring_conversion( buffer, info, s));
 }
 

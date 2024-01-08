@@ -3,9 +3,9 @@
 1848
 1848
 1848
-( 1848 )
+(union abc) ( 1848 )
 (struct abc) { 1848, '2', 3 }
-(struct mulle_structarray) { <pointer>, <pointer>, <pointer>, 0, 16, 0 }
+(struct mulle_structarray) { <pointer>, <pointer>, <pointer>, 0, 16, 16, 0 }
 [ 1, 1848, 3 ]
 <Foo <pointer>>
 @selector( callMeMaybe:)

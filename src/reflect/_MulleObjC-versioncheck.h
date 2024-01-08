@@ -7,10 +7,10 @@
 
 #if defined( MULLE__OBJC__RUNTIME_VERSION)
 # ifndef MULLE__OBJC__RUNTIME_VERSION_MIN
-#  define MULLE__OBJC__RUNTIME_VERSION_MIN  ((0 << 20) | (23 << 8) | 0)
+#  define MULLE__OBJC__RUNTIME_VERSION_MIN  ((0UL << 20) | (23 << 8) | 0)
 # endif
 # ifndef MULLE__OBJC__RUNTIME_VERSION_MAX
-#  define MULLE__OBJC__RUNTIME_VERSION_MAX  ((0 << 20) | (24 << 8) | 0)
+#  define MULLE__OBJC__RUNTIME_VERSION_MAX  ((0UL << 20) | (24 << 8) | 0)
 # endif
 # if MULLE__OBJC__RUNTIME_VERSION < MULLE__OBJC__RUNTIME_VERSION_MIN
 #  error "mulle-objc-runtime is too old"

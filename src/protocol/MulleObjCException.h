@@ -145,7 +145,7 @@ static inline NSRange   MulleObjCValidateRangeAgainstLength( NSRange range,
    // later call -length again to validate the range...
    //
    if( range.length == -1)
-      range = NSMakeRange( 0, length);
+      range = NSMakeRange( range.location, length - range.location);
 
    //
    // assume NSUInteger is 8 bit, then we need to check for also for a
@@ -157,4 +157,32 @@ static inline NSRange   MulleObjCValidateRangeAgainstLength( NSRange range,
 
    return( range);
 }
+
+
+
+static inline NSRange   MulleObjCAdjustRangeForLength( NSRange range,
+                                                       NSUInteger length)
+{
+   NSUInteger  end;
+
+   //
+   // specialty, if length == -1, it means "full" range
+   // this speeds up these cases, where you want to specify full range
+   // but need to call -length first to create the range, and then
+   // later call -length again to validate the range...
+   //
+   if( range.length == -1)
+      range = NSMakeRange( range.location, length - range.location);
+
+   //
+   // assume NSUInteger is 8 bit, then we need to check for also for a
+   // negative length/location value making things difficult { 3, 255 }
+   //
+   end = _mulle_range_get_max( range);
+   if( end > length || end < range.location)
+      range.length = 0;
+
+   return( range);
+}
+
 
