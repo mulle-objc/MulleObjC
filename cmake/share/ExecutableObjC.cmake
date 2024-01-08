@@ -35,17 +35,29 @@ if( UNIX AND NOT (APPLE OR COSMOPOLITAN OR MUSL_STATIC_ONLY))
    endif()
 endif()
 
+#
+# MEMO: if I don't "if" MULLE_ATINIT_LIBRARY, then the compiler test on
+#       cmake on Apple will error out, because it doesn't link it for
+#       testing the compiler.
+#
 if( APPLE AND MULLE_OBJC)
    if( LINK_PHASE)
-      target_link_options( "${EXECUTABLE_LINK_TARGET}"
-         PUBLIC
-            "SHELL:LINKER:-exported_symbol,___register_mulle_objc_universe"
-      )
+      if( MULLE_OBJC_RUNTIME_LIBRARY)
+         target_link_options( "${EXECUTABLE_LINK_TARGET}"
+            PUBLIC
+               "SHELL:LINKER:-exported_symbol,___register_mulle_objc_universe"
+         )
+      endif()
 
-      if( MULLE_TEST)
+      if( MULLE_ATINIT_LIBRARY)
          target_link_options( "${EXECUTABLE_LINK_TARGET}"
             PUBLIC
                "SHELL:LINKER:-exported_symbol,__mulle_atinit"
+         )
+      endif()
+      if( MULLE_ATEXIT_LIBRARY)
+         target_link_options( "${EXECUTABLE_LINK_TARGET}"
+            PUBLIC
                "SHELL:LINKER:-exported_symbol,_mulle_atexit"
          )
       endif()

@@ -113,11 +113,15 @@ static inline NSRange   NSIntersectionRange( NSRange range1, NSRange range2)
 }
 
 
-static inline NSUInteger   MulleObjCRangeSubtract( NSRange range1, 
-                                                   NSRange range2,
-                                                   NSRange result[ 2])
+//
+// creates a hole of range2 in range1, result[ 0] will be the "cut" front of
+// range1 and result[ 1] will be the back.
+//
+static inline void   MulleObjCRangeSubtract( NSRange range1,
+                                             NSRange range2,
+                                             NSRange result[ 2])
 {
-   return( mulle_range_subtract( range1, range2, result));
+   mulle_range_subtract( range1, range2, result);
 }
 
 

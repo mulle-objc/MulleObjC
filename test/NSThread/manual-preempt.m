@@ -8,7 +8,7 @@
 
 
 
-static void  function( void *universe)
+static mulle_thread_rval_t  function( void *universe)
 {
    NSThread   *thread;
 
@@ -17,6 +17,7 @@ static void  function( void *universe)
 
    // we just run into the end of the thread, which should be OK
 //   _MulleThreadRemoveFromUniverse( thread, universe);
+   mulle_thread_return();
 }
 
 

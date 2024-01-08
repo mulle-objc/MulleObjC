@@ -23,7 +23,7 @@ static void print_bool( BOOL flag)
    printf( "%s\n", flag ? "YES" : "NO");
 }
 
-main()
+int  main( void)
 {
    Foo   *foo;
    Bar   *bar;

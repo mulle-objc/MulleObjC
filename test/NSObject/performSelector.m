@@ -49,7 +49,7 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 
 
 
-main()
+int  main( void)
 {
    Foo   *foo;
 

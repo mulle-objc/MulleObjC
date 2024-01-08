@@ -41,7 +41,7 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 @end
 
 
-main()
+int  main( void)
 {
    Foo          *foo;
    static char  vfl[32] =

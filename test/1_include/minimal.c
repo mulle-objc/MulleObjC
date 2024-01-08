@@ -1,7 +1,7 @@
 #include <MulleObjC/minimal.h>
 
 
-main()
+int  main( void)
 {
    return( 0);
 }

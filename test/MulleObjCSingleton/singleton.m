@@ -3,6 +3,7 @@
 # import <Foundation/NSDebug.h>
 #else
 # import <MulleObjC/MulleObjC.h>
+# import <mulle-objc-debug/mulle-objc-debug.h>
 # import <MulleObjC/mulle-objc-universefoundationinfo-private.h>
 #endif
 
@@ -44,7 +45,7 @@ static void   count_exception( void *format, va_list args)
 }
 
 
-main()
+int  main( void)
 {
    Foo                                        *foo;
    Bar                                        *bar;
@@ -65,7 +66,7 @@ main()
 
    bar = [Bar sharedInstance];      // this is wrong
 
-   MulleObjCDotdumpUniverse( universe);
+   mulle_objc_universe_dotdump_to_directory( universe, ".");
 
    return( 1);
 }

@@ -8,8 +8,9 @@
 
 
 
-static void  function( void *universe)
+static mulle_thread_rval_t  function( void *universe)
 {
+   mulle_thread_return();
 }
 
 

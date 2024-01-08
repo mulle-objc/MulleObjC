@@ -5,7 +5,7 @@
 #endif
 
 
-main()
+int  main( void)
 {
    id   obj;
 

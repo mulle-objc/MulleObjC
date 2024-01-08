@@ -7,7 +7,7 @@
 #endif
 
 
-main()
+int  main( void)
 {
    NSThread                                    *thread;
    struct _mulle_objc_universefoundationinfo   *info;

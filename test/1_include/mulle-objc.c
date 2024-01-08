@@ -1,7 +1,7 @@
 #include <MulleObjC/mulle-objc.h>
 
 
-main()
+int  main( void)
 {
    return( 0);
 }

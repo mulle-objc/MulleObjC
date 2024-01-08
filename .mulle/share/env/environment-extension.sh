@@ -23,6 +23,12 @@ export MULLE_MATCH_IGNORE_PATH=""
 
 
 #
+# mulle-c and mulle-objc projects have an actual latest tag, so don't resolve
+#
+export MULLE_SOURCETREE_RESOLVE_TAG="NO"
+
+
+#
 # If you are really basing on MulleObjC you need this startup lib
 #
 export PREFERRED_STARTUP_LIBRARY="MulleObjC-startup"

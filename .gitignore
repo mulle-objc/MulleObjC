@@ -78,3 +78,4 @@ build-*
 coverage*.html
 *.gcda
 *.gcno
+cola/wilted/

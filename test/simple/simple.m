@@ -9,7 +9,7 @@
 
 
 
-main()
+int  main( void)
 {
     @autoreleasepool
     {

@@ -337,7 +337,7 @@ export MULLE__OBJC__DEBUG_NODETYPE="git"
 #
 # mulle-objc-debug url: ${MULLE__OBJC__DEBUG_URL:-https://github.com/mulle-objc/mulle-objc-debug/archive/${MULLE_TAG}.tar.gz}
 #
-export MULLE__OBJC__DEBUG_URL="https://github.com/mulle-objc/mulle-objc-debug.git"
+export MULLE__OBJC__DEBUG_URL="https://github.com/mulle-objc/mulle-objc-debug.tar.git"
 
 
 #
