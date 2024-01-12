@@ -1,3 +1,24 @@
+## 0.23.0
+
+* moved NSInteger and BOOL to mulle-c11, this only breaks stuff if you included the header directly
+* new convenience function `MulleObjCAdjustRangeForLength`
+* **BREAKING CHANGE** MulleObjCRangeSubtract has now a very different call signature
+* NSNull has moved to MulleObjC
+* Container callbacks have been reorganized again **BREAKING CHANGE**, definitions that really belong to MulleObjCContainerFoundation like ...Map...Callbacks are no longer in MulleObjC
+* NSByteOrder now tries to include the right system header and puts more effort into defining endianess `__LITTLE_ENDIAN__` and `__BIG_ENDIAN__`
+* new debugging function MulleObjCDumpObject uses introspection MulleObjCDescribeIvars (also new) to print all ivars of an object
+* added **MulleObjCClassGetID** function
+* change callback names from f.i. ValueRetainCallback to RetainValueCallback, since ValueCallback is closer to the type name
+* add convenience ``mulle_buffer_do_autoreleased_string`` which should be more favored in use to ``mulle_buffer_do_string`` with a following MulleObjCAllocationAutorelease
+* new ``NS_OPTIONS_LOOKUP`` and ``NS_ENUM_LOOKUP`` functions, more streamlines printing
+* you can now store thread local objects with MulleThreadObjectForKeyUTF8String, which should be reasonably fast (but not as fast as tss)
+* NSCopyObject is now smart with respect to properties and can properly retain them, unless you turn this off with +mulleCopyRetainsProperties
+* new function MulleObjCDescribeMemory
+* **breaking** renamed NSRangeUTF8String to MulleObjCRangeUTF8String
+* added MulleObjCRangeFor
+* added id helper functions such as `mulle_flexarray_do_id` or `mulle_id_copy`
+
+
 ### 0.22.1
 
 * adapt to changes in mulle-objc-runtime
