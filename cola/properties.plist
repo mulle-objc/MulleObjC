@@ -12,30 +12,6 @@
    dependencies =
    (
       {
-         description="🛄 Arrays, hashtables and a queue";
-         domain="github";
-         name="mulle-container";
-         repo="mulle-container";
-         url="https://github.com/mulle-c/mulle-container";
-         user="mulle-c";
-      },
-      {
-         description="🔢 mulle-fprintf marries mulle-sprintf to stdio.h";
-         domain="github";
-         name="mulle-fprintf";
-         repo="mulle-fprintf";
-         url="https://github.com/mulle-core/mulle-fprintf";
-         user="mulle-core";
-      },
-      {
-         description="🐛 mulle-multififo multi-producer/multi-consumer FIFO holding `void *`";
-         domain="github";
-         name="mulle-multififo";
-         repo="mulle-multififo";
-         url="https://github.com/mulle-concurrent/mulle-multififo";
-         user="mulle-concurrent";
-      },
-      {
          description="⏩ A fast, portable Objective-C runtime written 100% in C11";
          domain="github";
          name="mulle-objc-runtime";
@@ -52,20 +28,20 @@
          user="mulle-objc";
       },
       {
-         description="📒 Lists mulle-objc runtime information contained in executables.";
-         domain="github";
-         name="mulle-objc-list";
-         repo="mulle-objc-list";
-         url="https://github.com/mulle-objc/mulle-objc-list";
-         user="mulle-objc";
-      },
-      {
          description="⏩ make mulle-clang the default Objective-C compiler";
          domain="github";
          name="mulle-objc-cc";
          repo="mulle-objc-cc";
          url="https://github.com/mulle-cc/mulle-objc-cc";
          user="mulle-cc";
+      },
+      {
+         description="📒 Lists mulle-objc runtime information contained in executables.";
+         domain="github";
+         name="mulle-objc-list";
+         repo="mulle-objc-list";
+         url="https://github.com/mulle-objc/mulle-objc-list";
+         user="mulle-objc";
       }
-   )
+   );
 }
