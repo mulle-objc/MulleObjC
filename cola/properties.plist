@@ -7,7 +7,7 @@
       user="mulle-objc";
       repo="MulleObjC";
       homepage="https://github.com/mulle-objc/MulleObjC";
-      license="BSD-3-Clause"
+      license="BSD-3-Clause";
    };
    dependencies =
    (
