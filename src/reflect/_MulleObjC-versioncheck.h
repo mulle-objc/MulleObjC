@@ -5,6 +5,21 @@
 #ifndef mulle_objc_versioncheck_h__
 #define mulle_objc_versioncheck_h__
 
+#if defined( MULLE__OBJC__DEBUG_VERSION)
+# ifndef MULLE__OBJC__DEBUG_VERSION_MIN
+#  define MULLE__OBJC__DEBUG_VERSION_MIN  ((0UL << 20) | (21 << 8) | 1)
+# endif
+# ifndef MULLE__OBJC__DEBUG_VERSION_MAX
+#  define MULLE__OBJC__DEBUG_VERSION_MAX  ((0UL << 20) | (22 << 8) | 0)
+# endif
+# if MULLE__OBJC__DEBUG_VERSION < MULLE__OBJC__DEBUG_VERSION_MIN
+#  error "mulle-objc-debug is too old"
+# endif
+# if MULLE__OBJC__DEBUG_VERSION >= MULLE__OBJC__DEBUG_VERSION_MAX
+#  error "mulle-objc-debug is too new"
+# endif
+#endif
+
 #if defined( MULLE__OBJC__RUNTIME_VERSION)
 # ifndef MULLE__OBJC__RUNTIME_VERSION_MIN
 #  define MULLE__OBJC__RUNTIME_VERSION_MIN  ((0UL << 20) | (23 << 8) | 0)
