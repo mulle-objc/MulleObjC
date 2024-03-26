@@ -318,9 +318,9 @@ struct _mulle_objc_method   NSObject_msgForward_method =
 };
 
 
-static void   *return_self( void *p)
+static void   *return_null( void *p)
 {
-   return( p);
+   return( NULL);
 }
 
 
@@ -331,8 +331,8 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    // will be overwritten by foundation to convert to NSString
-   rootconfig->string.charsfromobject = (char *(*)()) return_self;
-   rootconfig->string.objectfromchars = (void *(*)()) return_self;
+   rootconfig->string.charsfromobject = (char *(*)()) return_null;
+   rootconfig->string.objectfromchars = (void *(*)()) return_null;
 
 #ifdef MULLE_OBJC_LIST_HOOK
    mulle_objc_list_install_hook( universe);
@@ -360,13 +360,13 @@ MULLE_C_NO_RETURN MULLE_C_NEVER_INLINE void
 MULLE_C_NO_RETURN
 static void   internal_inconsistency( id format, va_list args)
 {
-   _mulle_objc_vprintf_abort( (char *) format, args);
+   _mulle_objc_vprintf_abort( [format UTF8String], args);
 }
 
 MULLE_C_NO_RETURN
 static void   invalid_argument( id format, va_list args)
 {
-   _mulle_objc_vprintf_abort( (char *) format, args);
+   _mulle_objc_vprintf_abort( [format UTF8String], args);
 }
 
 MULLE_C_NO_RETURN

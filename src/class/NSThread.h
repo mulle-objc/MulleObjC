@@ -35,6 +35,7 @@
 //
 #import "NSObject.h"
 
+#import "MulleObjCProtocol.h"
 
 @class NSAutoreleasePool;
 @class NSThread;
@@ -52,9 +53,12 @@ enum
 typedef int   MulleThreadFunction_t( NSThread *, void *);
 
 
-@interface NSThread : NSObject
+// TODO: not really threasafe, need to fix
+// it's not really immutable but thread safe (except that its not )
+//
+@interface NSThread : NSObject < MulleObjCThreadSafe>
 {
-   mulle_atomic_pointer_t   _thread;
+   mulle_atomic_pointer_t   _osThread;
 
    id                       _target;
    SEL                      _selector;
@@ -65,7 +69,7 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
    MulleThreadFunction_t    *_function;
    void                     *_functionArgument;  // unmanaged
 
-   char                     *_nameUTF8String;
+   mulle_atomic_pointer_t   _nameUTF8String;
    char                     _isDetached;
    char                     _releaseTarget;
    char                     _releaseArgument;
@@ -73,6 +77,8 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
    struct mulle_map         _map;  // not the -threadDictionary !
    int                      _rval;
 }
+
+@property( dynamic, assign) char  *mulleNameUTF8String  MULLE_OBJC_THREADSAFE_PROPERTY;
 
 + (NSThread *) mainThread;
 + (NSThread *) currentThread;
@@ -152,8 +158,7 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 - (void) cancel;
 
 
-- (char *) mulleNameUTF8String;
-- (void) mulleSetNameUTF8String:(char *) s;
+
 
 - (int) mulleReturnStatus;
 
@@ -199,11 +204,11 @@ void   _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config
 static inline NSThread   *MulleThreadGetCurrentThread( void)
 {
    struct _mulle_objc_universe   *universe;
-   NSThread                      *thread;
+   NSThread                      *threadObject;
 
-   universe = mulle_objc_global_get_universe( __MULLE_OBJC_UNIVERSEID__);
-   thread   = _mulle_objc_thread_get_threadobject( universe);
-   return( thread);
+   universe     = mulle_objc_global_get_universe( __MULLE_OBJC_UNIVERSEID__);
+   threadObject = _mulle_objc_thread_get_threadobject( universe);
+   return( threadObject);
 }
 
 
@@ -211,13 +216,15 @@ static inline NSThread   *MulleThreadGetCurrentThread( void)
 // This is the preferred way to retrieve the threadDictionary
 // of the current thread for reading. But since the threadDictionary is
 // installed lazily (as it is), this is NOT a good way to set values.
+// -threadDictionary will be introduced by MulleObjCContainerFoundation, since
+// we don't know dictionaries here in MulleObjC
 //
 static inline id   MulleThreadGetCurrentThreadUserInfo( void)
 {
-   NSThread   *thread;
+   NSThread   *threadObject;
 
-   thread = MulleThreadGetCurrentThread();
-   return( ((struct { @defs( NSThread); } *) thread)->_userInfo);
+   threadObject = MulleThreadGetCurrentThread();
+   return( ((struct { @defs( NSThread); } *) threadObject)->_userInfo);
 }
 
 
@@ -239,10 +246,11 @@ void   MulleThreadSetCurrentThreadUserInfo( id info);
 //
 static inline void   MulleThreadSetObjectForKeyUTF8String( id value, char *key)
 {
-   NSThread   *thread;
+   NSThread   *threadObject;
 
-   thread = MulleThreadGetCurrentThread();
-   mulle_map_set( &((struct { @defs( NSThread); } *) thread)->_map,
+   threadObject = MulleThreadGetCurrentThread();
+   assert( ! value || [value mulleIsAccessibleByThread:threadObject]);
+   mulle_map_set( &((struct { @defs( NSThread); } *) threadObject)->_map,
                   key,
                   value);
 }
@@ -250,10 +258,24 @@ static inline void   MulleThreadSetObjectForKeyUTF8String( id value, char *key)
 
 static inline id   MulleThreadObjectForKeyUTF8String( char *key)
 {
-   NSThread   *thread;
+   NSThread   *threadObject;
 
-   thread = MulleThreadGetCurrentThread();
-   return( mulle_map_get( &((struct { @defs( NSThread); } *) thread)->_map,
+   threadObject = MulleThreadGetCurrentThread();
+   return( mulle_map_get( &((struct { @defs( NSThread); } *) threadObject)->_map,
                           key));
 }
+
+
+
+static inline mulle_thread_t  _NSThreadGetOSThread( NSThread *threadObject)
+{
+   return( (mulle_thread_t) _mulle_atomic_pointer_read( &((struct { @defs( NSThread); } *) threadObject)->_osThread));
+}
+
+
+static inline mulle_thread_t  _NSThreadGetCurrentOSThread( void)
+{
+   return( (mulle_thread_t) mulle_thread_self());
+}
+
 

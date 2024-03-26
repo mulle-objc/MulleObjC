@@ -98,6 +98,7 @@ static NSInvocation   *popStandardInvocation( void)
    header = _mulle_objc_object_get_objectheader( invocation);
    _mulle_atomic_pointer_nonatomic_write( &header->_retaincount_1, 0);
 
+   _mulle_objc_objectheader_set_thread( header, mulle_thread_self());
    return( invocation);
 }
 
@@ -114,7 +115,9 @@ static NSInvocation   *popStandardInvocation( void)
 
    while( (invocation = _mulle_pointermultififo_read_barrier( &reuseInvocations)))
    {
+#ifdef DEBUG_INVOCATION
       fprintf( stderr, "dealloc, no reuse %p\n", invocation);
+#endif
       _MulleObjCInstanceFree( invocation);
    }
    _mulle_pointermultififo_done( &reuseInvocations);
@@ -274,7 +277,7 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
    {
       if( ! pushStandardInvocation( self))
       {
-#ifdef MULLE_DEBUG
+#ifdef DEBUG_INVOCATION
          fprintf( stderr, "push invocation %p for reuse \n", self);
 #endif
          return;

@@ -184,7 +184,7 @@ static id   MulleObjCSingletonNew( Class self)
 
 
 //
-// for the receiver the returnvalue is considered autoreleased, he doesn't
+// for the receiver the return value is considered autoreleased, he doesn't
 // have to retain it, if he doesn't want to keep it
 //
 id   MulleObjCSingletonCreate( Class self)

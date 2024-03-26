@@ -42,82 +42,6 @@
 #import "NSRange.h"
 
 
-#pragma clang diagnostic ignored "-Wobjc-root-class"
-#pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
-#pragma clang diagnostic ignored "-Wprotocol"
-
-
-static mulle_objc_walkcommand_t
-   copy_or_retain_property( struct _mulle_objc_property *property,
-                            struct _mulle_objc_infraclass *cls,
-                            void *info)
-{
-   id                        self = info;
-   uint32_t                  mode;
-   id                        *p_ivar;
-   id                        value;
-   int                       offset;
-   mulle_objc_ivarid_t       ivarid;
-   struct _mulle_objc_ivar   *ivar;
-   
-   mode = property->bits & (_mulle_objc_property_retain|_mulle_objc_property_copy);
-   if( ! mode)
-      return( mulle_objc_walk_ok);
-
-   ivarid  = _mulle_objc_property_get_ivarid( property);
-   ivar    = mulle_objc_infraclass_search_ivar( cls, ivarid);
-   offset  = _mulle_objc_ivar_get_offset( ivar);
-   p_ivar  = (id *) &((char *) self)[ offset];
-   value   = (mode & _mulle_objc_property_copy) ? [*p_ivar copy] : [*p_ivar retain];
-   *p_ivar = value;
-
-   return( mulle_objc_walk_ok);
-}
-
-
-id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
-{
-   id      clone;
-   Class   infraCls;
-
-   infraCls = [object class];
-   clone    = _MulleObjCClassAllocateInstance( infraCls, extraBytes);
-   memcpy( clone, object, extraBytes + _mulle_objc_infraclass_get_instancesize( infraCls));
-
-   // MEMO: rename to mulleCopyOfInstanceRetainsProperties ?
-   if( [infraCls mulleCopyRetainsProperties])
-   {
-      _mulle_objc_infraclass_walk_properties( infraCls,
-                                              _mulle_objc_infraclass_get_inheritance( infraCls),
-                                              copy_or_retain_property,
-                                              clone);  
-   }
-   return( clone);
-}
-
-
-
-@interface NSCopying < NSCopying>
-@end
-
-
-
-@implementation NSCopying
-
-- (id) copy
-{
-   return( NSCopyObject( self, 0, NULL));
-}
-
-
-+ (BOOL) mulleCopyRetainsProperties
-{
-   return( YES);
-}
-
-@end
-
-
 @implementation NSObject ( NSCopying)
 
 
@@ -127,16 +51,10 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
 "\n"
 "Either rename your -copyWithZone: implementations to -copy or add a\n"
 "-copy method to each class that implements -copyWithZone:\n"
+"Your returned object must be immutable!\n"
 "\n"
 "Endless recursion awaits those, who don't heed this advice.\n");
    abort();
 }
-
-
-- (id) copy
-{
-   return( NSCopyObject( self, 0, NULL));
-}
-
 
 @end

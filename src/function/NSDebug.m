@@ -42,6 +42,7 @@
 // other files in this library
 #include "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
+#import "MulleObjCProtocol.h"
 #import "MulleObjCUniverse.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
@@ -134,14 +135,14 @@ char   *_NSPrintForDebugger( id a)
    cls      = _mulle_objc_object_get_isa( a);
    universe = _mulle_objc_class_get_universe( cls);
 
-   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( debugDescription));
+   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( debugDescription));
    if( imp)
    {
       s = (*imp)( a, @selector( debugDescription), NULL);
       return( _mulle_objc_universe_characters( universe, s));
    }
 
-   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( UTF8String));
+   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( UTF8String));
    if( imp)
    {
       s = (*imp)( a, @selector( UTF8String), NULL);
@@ -150,7 +151,7 @@ char   *_NSPrintForDebugger( id a)
 
    spacer = "";
    aux    = "";
-   imp    = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls, @selector( description));
+   imp    = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( description));
    if( imp)
    {
       s = (*imp)( a, @selector( description), NULL);
@@ -167,9 +168,10 @@ char   *_NSPrintForDebugger( id a)
 }
 
 
-@interface _MulleObjCZombie
-{
-}
+@interface _MulleObjCZombie < MulleObjCThreadSafe>
+
+- (BOOL) respondsToSelector:(SEL) sel     MULLE_OBJC_THREADSAFE_METHOD;
+
 @end
 
 

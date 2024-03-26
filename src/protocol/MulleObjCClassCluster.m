@@ -128,8 +128,12 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
    cls         = _mulle_objc_infraclass_as_class( infraCls);
    sel         = @selector( __initClassCluster);
    imp         = _mulle_objc_class_lookup_implementation_noforward( cls, sel);
+
+   // inherently thread safe with no affinity
+   _mulle_objc_object_set_thread( placeholder, 0);
    if( imp)
       (*imp)( placeholder, sel, NULL);
+
 
    return( (MulleObjCClassCluster *) placeholder);
 }

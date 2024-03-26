@@ -171,4 +171,12 @@ char *
 // 
 // // struct mulle_container_valuecallback   MulleCopiedCStringMapValueCallBacks;
 
+
+
+MULLE_OBJC_GLOBAL
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerPointerKeyIntegerValueCallback;
+
+MULLE_OBJC_GLOBAL
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerIntegerKeyPointerValueCallback;
+
 #endif

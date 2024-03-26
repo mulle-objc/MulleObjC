@@ -1,0 +1,8 @@
++[Foo mulleIsThreadSafe:] YES
+-[Foo mulleIsThreadSafe:] NO
++[Bar mulleIsThreadSafe:] YES
+-[Bar mulleIsThreadSafe:] YES
++[FooBar mulleIsThreadSafe:] YES
+-[FooBar mulleIsThreadSafe:] NO
++[BarFoo mulleIsThreadSafe:] YES
+-[BarFoo mulleIsThreadSafe:] YES

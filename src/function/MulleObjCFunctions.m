@@ -131,25 +131,6 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects,
                             &_param);
 }
 
-#undef MulleObjCIMPTraceCall
-void   MulleObjCIMPTraceCall( IMP imp, id obj, SEL sel, void *param)
-{
-   struct _mulle_objc_universe   *universe;
-   struct _mulle_objc_class      *cls;
-
-   if( ! obj)
-      return;
-
-   cls      = _mulle_objc_object_get_isa( obj);
-   universe = _mulle_objc_class_get_universe( cls);
-   if( universe->debug.trace.method_call)
-      mulle_objc_class_trace_call( cls,
-                                   obj,
-                                   (mulle_objc_methodid_t) sel,
-                                   param,
-                                   (mulle_objc_implementation_t) imp);
-}
-
 
 # pragma mark - String Functions
 
@@ -188,8 +169,8 @@ char   *MulleObjCSelectorGetNameUTF8String( SEL sel)
 
 char   *MulleObjCProtocolGetNameUTF8String( PROTOCOL proto)
 {
-   struct _mulle_objc_protocol     *protocol;
-   struct _mulle_objc_universe     *universe;
+   struct _mulle_objc_protocol   *protocol;
+   struct _mulle_objc_universe   *universe;
 
    universe = MulleObjCGetUniverse();
    protocol = _mulle_objc_universe_lookup_protocol( universe,

@@ -111,121 +111,146 @@ char *
 }
 
 
-#define INTEGER_KEY_CALLBACK                                                                     \
-   {                                                                                             \
-      .hash     = mulle_container_keycallback_pointer_hash,                                      \
-      .is_equal = mulle_container_keycallback_intptr_is_equal,                                   \
-      .retain   = mulle_container_keycallback_self,                                              \
-      .release  = mulle_container_keycallback_nop,                                               \
-      .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_intptr_describe, \
-      .notakey  = mulle_not_an_intptr,                                                           \
-      .userinfo = NULL                                                                           \
+#define INTEGER_KEY_CALLBACK                                                                            \
+   {                                                                                                    \
+      .hash     = mulle_container_keycallback_pointer_hash,                                             \
+      .is_equal = mulle_container_keycallback_intptr_is_equal,                                          \
+      .retain   = mulle_container_keycallback_self,                                                     \
+      .release  = mulle_container_keycallback_nop,                                                      \
+      .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_intptr_describe,  \
+      .notakey  = mulle_not_an_intptr,                                                                  \
+      .userinfo = NULL                                                                                  \
    }
 
 
-#define COPIED_CSTRING_KEY_CALLBACK                                                              \
-  {                                                                                              \
-      .hash     = mulle_container_keycallback_cstring_hash,                                      \
-      .is_equal = mulle_container_keycallback_cstring_is_equal,                                  \
-      .retain   = (void *(*)()) mulle_container_callback_cstring_copy,                           \
-      .release  = _mulle_container_keycallback_pointer_free,                                     \
+#define POINTER_KEY_CALLBACK                                                                            \
+   {                                                                                                    \
+      .hash     = mulle_container_keycallback_pointer_hash,                                             \
+      .is_equal = mulle_container_keycallback_pointer_is_equal,                                         \
+      .retain   = mulle_container_keycallback_self,                                                     \
+      .release  = mulle_container_keycallback_nop,                                                      \
+      .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_pointer_describe, \
+      .notakey  = NULL,                                                                                 \
+      .userinfo = NULL                                                                                  \
+   }
+
+
+#define COPIED_CSTRING_KEY_CALLBACK                                                                     \
+  {                                                                                                     \
+      .hash     = mulle_container_keycallback_cstring_hash,                                             \
+      .is_equal = mulle_container_keycallback_cstring_is_equal,                                         \
+      .retain   = (void *(*)()) mulle_container_callback_cstring_copy,                                  \
+      .release  = _mulle_container_keycallback_pointer_free,                                            \
       .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_cstring_describe, \
-      .notakey  = NULL,                                                                          \
-      .userinfo = NULL                                                                           \
+      .notakey  = NULL,                                                                                 \
+      .userinfo = NULL                                                                                  \
    }
 
-#define ASSIGN_KEY_CALLBACK                                                                     \
-   {                                                                                            \
-      (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_object_hash,       \
-      (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_object_is_equal,   \
-      (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_assign,        \
-      (mulle_container_keycallback_release_t *)  mulle_container_keycallback_nop,               \
-      (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,      \
-                                                                                                \
-      nil,                                                                                      \
-      NULL                                                                                      \
-   }
-
-
-#define ASSIGN_RETAINED_KEY_CALLBACK                                                            \
-   {                                                                                            \
-      (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_object_hash,       \
-      (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_object_is_equal,   \
-      (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_assign,        \
-      (mulle_container_keycallback_release_t *)  mulle_container_callback_object_autorelease,   \
-      (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,      \
-                                                                                                \
-      nil,                                                                                      \
-      NULL                                                                                      \
-   }
-
-#define RETAIN_KEY_CALLBACK                                                                    \
-   {                                                                                           \
-      (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_object_hash,      \
-      (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_object_is_equal,  \
-      (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_retain,       \
-      (mulle_container_keycallback_release_t *)  mulle_container_callback_object_autorelease,  \
-      (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,     \
-                                                                                               \
-      nil,                                                                                     \
-      NULL                                                                                     \
-   }
-
-#define COPY_KEY_CALLBACK                                                                      \
-   {                                                                                           \
-      (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_object_hash,      \
-      (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_object_is_equal,  \
-      (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_copy,         \
-      (mulle_container_keycallback_release_t *)  mulle_container_callback_object_autorelease,  \
-      (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,     \
-                                                                                               \
-      nil,                                                                                     \
-      NULL                                                                                     \
-   }
-
-#define RETAIN_POINTER_COMPARE_KEY_CALLBACK                                                    \
-   {                                                                                           \
-      (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_pointer_hash,     \
-      (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_pointer_is_equal, \
-      (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_retain,       \
-      (mulle_container_keycallback_release_t *)  mulle_container_callback_object_autorelease,  \
-      (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,     \
-                                                                                               \
-      nil,                                                                                     \
-      NULL                                                                                     \
+#define ASSIGN_KEY_CALLBACK                                                                               \
+   {                                                                                                      \
+      .hash     = (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_object_hash,     \
+      .is_equal = (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_object_is_equal, \
+      .retain   = (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_assign,      \
+      .release  = (mulle_container_keycallback_release_t *)  mulle_container_keycallback_nop,             \
+      .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,    \
+      .notakey  = nil,                                                                                    \
+      .userinfo = NULL                                                                                    \
    }
 
 
-#define ASSIGN_VALUE_CALLBACK                                                                   \
-   {                                                                                            \
-      mulle_container_valuecallback_self,                                                       \
-      (mulle_container_valuecallback_release_t *) mulle_container_keycallback_nop,              \
-      (mulle_container_valuecallback_describe_t *) mulle_container_callback_object_describe,    \
-      NULL                                                                                      \
+#define ASSIGN_RETAINED_KEY_CALLBACK                                                                      \
+   {                                                                                                      \
+      .hash     = (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_object_hash,     \
+      .is_equal = (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_object_is_equal, \
+      .retain   = (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_assign,      \
+      .release  = (mulle_container_keycallback_release_t *)  mulle_container_callback_object_autorelease, \
+      .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,    \
+      .notakey  = nil,                                                                                    \
+      .userinfo = NULL                                                                                    \
    }
 
-#define ASSIGN_RETAINED_VALUE_CALLBACK                                                          \
-   {                                                                                            \
-      mulle_container_valuecallback_self,                                                       \
-      (mulle_container_valuecallback_release_t *) mulle_container_callback_object_autorelease,  \
-      (mulle_container_valuecallback_describe_t *) mulle_container_callback_object_describe,    \
-      NULL                                                                                      \
+#define RETAIN_KEY_CALLBACK                                                                                \
+   {                                                                                                       \
+      .hash     = (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_object_hash,      \
+      .is_equal = (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_object_is_equal,  \
+      .retain   = (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_retain,       \
+      .release  = (mulle_container_keycallback_release_t *)  mulle_container_callback_object_autorelease,  \
+      .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,     \
+      .notakey  = nil,                                                                                     \
+      .userinfo = NULL                                                                                     \
    }
 
-#define RETAIN_VALUE_CALLBACK                                                                   \
-   {                                                                                            \
-      (mulle_container_valuecallback_retain_t *)  mulle_container_callback_object_retain,       \
-      (mulle_container_valuecallback_release_t *) mulle_container_callback_object_autorelease,  \
-      (mulle_container_valuecallback_describe_t *) mulle_container_callback_object_describe,    \
-      NULL                                                                                      \
+#define COPY_KEY_CALLBACK                                                                                  \
+   {                                                                                                       \
+      .hash     = (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_object_hash,      \
+      .is_equal = (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_object_is_equal,  \
+      .retain   = (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_copy,         \
+      .release  = (mulle_container_keycallback_release_t *)  mulle_container_callback_object_autorelease,  \
+      .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,     \
+      .notakey  = nil,                                                                                     \
+      .userinfo = NULL                                                                                     \
    }
 
-#define COPY_VALUE_CALLBACK                                                                     \
-   {                                                                                            \
-      (mulle_container_valuecallback_retain_t *)  mulle_container_callback_object_copy,         \
-      (mulle_container_valuecallback_release_t *) mulle_container_callback_object_autorelease,  \
-      (mulle_container_valuecallback_describe_t *) mulle_container_callback_object_describe,    \
-      NULL                                                                                      \
+#define RETAIN_POINTER_COMPARE_KEY_CALLBACK                                                                \
+   {                                                                                                       \
+      .hash     = (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_pointer_hash,     \
+      .is_equal = (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_pointer_is_equal, \
+      .retain   = (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_retain,       \
+      .release  = (mulle_container_keycallback_release_t *)  mulle_container_callback_object_autorelease,  \
+      .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,     \
+      .notakey  = nil,                                                                                     \
+      .userinfo = NULL                                                                                     \
+   }
+
+
+#define INTEGER_VALUE_CALLBACK                                                                              \
+   {                                                                                                        \
+      .retain   = mulle_container_valuecallback_self,                                                       \
+      .release  = (mulle_container_valuecallback_release_t *) mulle_container_keycallback_nop,              \
+      .describe = (mulle_container_valuecallback_describe_t *) mulle_container_callback_intptr_describe,    \
+      .userinfo = NULL                                                                                      \
+   }
+
+
+#define POINTER_VALUE_CALLBACK                                                                              \
+   {                                                                                                        \
+      .retain   = mulle_container_valuecallback_self,                                                       \
+      .release  = (mulle_container_valuecallback_release_t *) mulle_container_keycallback_nop,              \
+      .describe = (mulle_container_valuecallback_describe_t *) mulle_container_callback_pointer_describe,   \
+      .userinfo = NULL                                                                                      \
+   }
+
+
+#define ASSIGN_VALUE_CALLBACK                                                                               \
+   {                                                                                                        \
+      .retain   = mulle_container_valuecallback_self,                                                       \
+      .release  = (mulle_container_valuecallback_release_t *) mulle_container_keycallback_nop,              \
+      .describe = (mulle_container_valuecallback_describe_t *) mulle_container_callback_object_describe,    \
+      .userinfo = NULL                                                                                      \
+   }
+
+#define ASSIGN_RETAINED_VALUE_CALLBACK                                                                      \
+   {                                                                                                        \
+      .retain   = mulle_container_valuecallback_self,                                                       \
+      .release  = (mulle_container_valuecallback_release_t *) mulle_container_callback_object_autorelease,  \
+      .describe = (mulle_container_valuecallback_describe_t *) mulle_container_callback_object_describe,    \
+      .userinfo = NULL                                                                                      \
+   }
+
+#define RETAIN_VALUE_CALLBACK                                                                               \
+   {                                                                                                        \
+      .retain   = (mulle_container_valuecallback_retain_t *)  mulle_container_callback_object_retain,       \
+      .release  = (mulle_container_valuecallback_release_t *) mulle_container_callback_object_autorelease,  \
+      .describe = (mulle_container_valuecallback_describe_t *) mulle_container_callback_object_describe,    \
+      .userinfo = NULL                                                                                      \
+   }
+
+#define COPY_VALUE_CALLBACK                                                                                 \
+   {                                                                                                        \
+      .retain   = (mulle_container_valuecallback_retain_t *)  mulle_container_callback_object_copy,         \
+      .release  = (mulle_container_valuecallback_release_t *) mulle_container_callback_object_autorelease,  \
+      .describe = (mulle_container_valuecallback_describe_t *) mulle_container_callback_object_describe,    \
+      .userinfo = NULL                                                                                      \
    }
 
 
@@ -288,21 +313,21 @@ const struct mulle_container_keyvaluecallback
 };
 
 
-const  struct mulle_container_keyvaluecallback
+const struct mulle_container_keyvaluecallback
 	_MulleObjCContainerCopyKeyRetainValueCallback =
 {
    COPY_KEY_CALLBACK,
    RETAIN_VALUE_CALLBACK
 };
 
-const  struct mulle_container_keyvaluecallback
+const struct mulle_container_keyvaluecallback
 	_MulleObjCContainerRetainKeyCopyValueCallback =
 {
    RETAIN_KEY_CALLBACK,
    COPY_VALUE_CALLBACK
 };
 
-const  struct mulle_container_keyvaluecallback
+const struct mulle_container_keyvaluecallback
 	_MulleObjCContainerCopyKeyCopyValueCallback =
 {
    COPY_KEY_CALLBACK,
@@ -311,12 +336,30 @@ const  struct mulle_container_keyvaluecallback
 
 
 // these still autorelease though
-const  struct mulle_container_keyvaluecallback
+const struct mulle_container_keyvaluecallback
    _MulleObjCContainerAssignRetainedKeyAssignRetainedValueCallback =
 {
    ASSIGN_RETAINED_KEY_CALLBACK,
    ASSIGN_RETAINED_VALUE_CALLBACK
 };
+
+
+
+const struct mulle_container_keyvaluecallback
+   _MulleObjCContainerPointerKeyIntegerValueCallback =
+{
+   POINTER_KEY_CALLBACK,
+   INTEGER_VALUE_CALLBACK
+};
+
+
+const struct mulle_container_keyvaluecallback
+   _MulleObjCContainerIntegerKeyPointerValueCallback =
+{
+   INTEGER_KEY_CALLBACK,
+   POINTER_VALUE_CALLBACK
+};
+
 
 
 //extern struct mulle_container_keyvaluecallback   MulleObjCContainerRetainKeyCopyValueCallback;

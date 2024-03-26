@@ -41,7 +41,8 @@
 //
 // singletons are expected to be created through "sharedInstance"
 // and not through alloc, if you use alloc you get another instance
-//
+// They must be threadsafe, but the subclass has to ensure this, so
+// there is no <MulleObjcThreadSafe> on it by default
 _PROTOCOLCLASS_INTERFACE0( MulleObjCSingleton)
 
 @optional  // MulleObjCSingleton implements this for you

@@ -79,7 +79,23 @@ extern void   NSDeallocateObject( id obj)
 extern void   NSDeallocateObject( id obj)
 
 
+#define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_0   __attribute__((annotate("objc_user_0")))
+#define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_1   __attribute__((annotate("objc_user_1")))
+#define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_2   __attribute__((annotate("objc_user_2")))
+#define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_3   __attribute__((annotate("objc_user_3")))
+#define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_4   __attribute__((annotate("objc_user_4")))
+
+#define MULLE_OBJC_THREADSAFE_METHOD   \
+   _MULLE_OBJC_METHOD_USER_ATTRIBUTE_4
+
+// just the same, but I don't want to use  MULLE_OBJC_THREADSAFE on its own
+#define MULLE_OBJC_THREADSAFE_PROPERTY  \
+   _MULLE_OBJC_METHOD_USER_ATTRIBUTE_4
+
+
+
 @protocol NSObject;
+@class NSThread;
 
 /*
  * Helper macros to declare protocol classes.
@@ -137,27 +153,28 @@ _Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
 
 @protocol MulleObjCRuntimeObject
 
-//
-// these methods must not be overriden
-// the runtime will replace any [foo alloc] call
-// with a C function (with -O2 or better)
-//
-- (NSZone *) zone   __attribute__((deprecated("zones have no meaning and will eventually disappear")));  // always NULL
+// this is basically mulle-objc-runtime/mulle-objc-retain-release.h
+- (instancetype) retain          MULLE_OBJC_THREADSAFE_METHOD;
+- (void) release                 MULLE_OBJC_THREADSAFE_METHOD;
+- (NSUInteger) retainCount       MULLE_OBJC_THREADSAFE_METHOD;
 
-- (instancetype) retain;
-- (void) release;
-- (instancetype) autorelease;
-- (NSUInteger) retainCount;
-
-// some mulle additions for AAO mode and complete ObjectGraph support
-
-// AAO suport
-+ (instancetype) instantiate;
-- (instancetype) immutableInstance;
+- (void) dealloc;
+- (void) finalize;
 
 // ObjectGraph support
 - (id) _becomeRootObject;
-- (void) _pushToParentAutoreleasePool;
+
+// check if an object can be safely accessed by a thread, use this for
+// validatation and debugging only
+- (BOOL) mulleIsThreadSafe          MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) mulleIsAccessible          MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject   MULLE_OBJC_THREADSAFE_METHOD;
+
+// if you pass an object from one thread to another the sender does
+// a relinquish and the receiver does a gain. For objects that are threadsafe
+// already, this does nothing
+- (void) mulleGainAccess            MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleRelinquishAccess      MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
 
@@ -171,5 +188,32 @@ static inline id   MulleObjCObjectRetain( id obj)
 
 static inline void   MulleObjCObjectRelease( id obj)
 {
-   return( mulle_objc_object_release_inline( obj));
+   mulle_objc_object_release_inline( obj);
 }
+
+
+// Does not work, _Pragma can't do it
+// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_0_PUSH \
+// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_0\"))), apply_to = objc_method)")
+//
+// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_1_PUSH \
+// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_1\"))), apply_to = objc_method")
+//
+// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_2_PUSH \
+// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_2\"))), apply_to = objc_method")
+//
+// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_3_PUSH \
+// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_3\"))), apply_to = objc_method")
+//
+// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_4_PUSH \
+// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_4\"))), apply_to = objc_method")
+//
+// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_POP    \
+// _Pragma( "clang attribute pop")
+// #define MULLE_OBJC_THREADSAFE_METHODS_PUSH \
+//    _MULLE_OBJC_METHOD_USER_ATTRIBUTE_4_PUSH
+//
+// #define MULLE_OBJC_THREADSAFE_METHODS_POP \
+//    _MULLE_OBJC_METHOD_USER_ATTRIBUTE_POP
+//
+

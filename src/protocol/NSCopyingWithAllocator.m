@@ -155,8 +155,11 @@ id   NSCopyObjectWithAllocator( id obj,
    struct copy_info  info;
 
 
-   if( [obj mulleAllocator] == allocator)
+   if( [obj respondsToSelector:@selector( mulleAllocator)] &&
+       [(NSObject *) obj mulleAllocator] == allocator)
+   {
       return( [obj retain]);
+   }
 
    infraCls = [obj class];
    clone    = _MulleObjCClassAllocateInstanceWithAllocator( infraCls,

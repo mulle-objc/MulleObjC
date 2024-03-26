@@ -36,6 +36,7 @@
 #import "NSObject.h"
 
 #import "MulleObjCProtocol.h"
+#import "NSCopying.h"
 
 
 typedef enum
@@ -49,7 +50,7 @@ typedef enum
 typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeInfo;
 
 
-@interface NSMethodSignature : NSObject < MulleObjCImmutable>
+@interface NSMethodSignature : NSObject < MulleObjCImmutableProtocols, NSCopying>
 {
    uint32_t                            _bits;    // see method_descriptor
    uint16_t                            _count;

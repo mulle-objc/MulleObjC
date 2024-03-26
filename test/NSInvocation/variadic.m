@@ -12,6 +12,9 @@
 @implementation Foo
 
 
+//
+// *** change foobar: to foo: ***
+//
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) sel
 {
    if( sel == @selector( foobar:))
@@ -31,6 +34,7 @@
 
    return( [super forwardInvocation:invocation]);
 }
+
 
 - (void) doesNotForwardVariadicSelector:(SEL) sel
 {
