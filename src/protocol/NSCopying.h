@@ -42,31 +42,23 @@
 
 
 //
-// the old copyWithZone: is gone. If you have copyWithZone: methods
-// code, a method -copy that calls your -copyWithZone:
+// the old copyWithZone: is gone. If you have copyWithZone: methods,
+// code a method -copy that calls your -copyWithZone:
 //
 @protocol NSCopying
 
 //
-// Does not retun an instancetype (e.g. NSMutableSet returns NSSet).
-// Should return an instance that is immutable.
+// Does not return an instancetype (e.g. NSMutableSet returns NSSet).
+// Must return an instance that is immutable.
 // If it isn't immutable, you should be using -mutableCopy (which is
 // deprecated), or simply use constructors to copy.
 //
-@optional  // only optional, if derived from NSObject
-- (id) copy;
-
-//
-// if YES, then all properties that are marked "copy" or "retain" are
-// copyied and retained during -copy (using NSCopyObject)
-//
-+ (BOOL) mulleCopyRetainsProperties;  // default YES!
+- (id /*<MulleObjCImmutable>*/) copy;  /* MulleObjCImmutable protocol is too tedious */
 
 @end
 
 
-@class NSCopying; // needed for the compiler to understand this is
+// no longer a protocolclass
+// @class NSCopying; // needed for the compiler to understand this is
                   // protocol class
 
-MULLE_OBJC_GLOBAL
-id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone);

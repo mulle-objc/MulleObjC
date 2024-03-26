@@ -111,6 +111,7 @@
 // new does NOT call +alloc or +allocWithZone:
 // override new too, if you override alloc
 //
+
 + (instancetype) new;
 + (instancetype) alloc;
 + (instancetype) allocWithZone:(NSZone *) zone  __attribute__((deprecated("zones have no meaning and will eventually disappear")));   // deprecated
@@ -120,37 +121,15 @@
 //
 - (instancetype) init;
 - (void) dealloc;  /* ---> #2# */
+- (struct mulle_allocator *) mulleAllocator;
 
 // will autorelease properties, except readonly ones!
-- (void) finalize;
 
-- (NSUInteger) hash;
-- (BOOL) isEqual:(id) other;
-
-- (Class) superclass;
-- (Class) class;
-- (instancetype) self;
-- (BOOL) isKindOfClass:(Class) cls;
-- (BOOL) isMemberOfClass:(Class) cls;
-
-
-- (BOOL) conformsToProtocol:(PROTOCOL) protocol;
-- (BOOL) respondsToSelector:(SEL) sel;
-- (id) performSelector:(SEL) sel;
-- (id) performSelector:(SEL) sel
-            withObject:(id) obj;
-- (id) performSelector:(SEL) sel
-            withObject:(id) obj1
-            withObject:(id) obj2;
-
-- (BOOL) isProxy;
-
-+ (Class) class;
 + (BOOL) isSubclassOfClass:(Class) cls;
 + (BOOL) instancesRespondToSelector:(SEL) sel;
 
-- (IMP) methodForSelector:(SEL) sel;
 + (IMP) instanceMethodForSelector:(SEL) sel;
+- (IMP) methodForSelector:(SEL) sel               MULLE_OBJC_THREADSAFE_METHOD;
 
 
 #pragma mark mulle additions
@@ -179,15 +158,11 @@
 // old name
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
-- (struct mulle_allocator *) mulleAllocator;
-- (void) mullePerformFinalize;
-- (BOOL) mulleIsFinalized;
-
 // advanced Autorelease and ObjectGraph support
 
-- (id) _becomeRootObject;          // retains  #1#, returns self
-- (id) _resignAsRootObject;        // autoreleases, returns self
-- (BOOL) _isRootObject;
+- (id) _becomeRootObject               MULLE_OBJC_THREADSAFE_METHOD;  // retains  #1#, returns self
+- (id) _resignAsRootObject             MULLE_OBJC_THREADSAFE_METHOD;   // autoreleases, returns self
+- (BOOL) _isRootObject                 MULLE_OBJC_THREADSAFE_METHOD;
 
 - (id) _pushToParentAutoreleasePool;  // returns self
 
@@ -224,6 +199,7 @@
 
 @class NSMethodSignature;
 @class NSInvocation;
+@class NSThread;
 
 
 @interface NSObject ( RuntimeInit)
@@ -261,7 +237,7 @@
 //
 // IMPORTANT!! Do not call [super forward:] as the forwarded selector
 // is contained in _cmd and would be clobbered by a regular method call
-// instead use _mulle_objc_object_superlookup_implementation_inline_nofail and
+// instead use _mulle_objc_object_lookup_superimplementation_inline_nofail and
 // them send _cmd and args as received.
 //
 // Use the tool mulle-objc-uniqueid with '<yourclassname>;forward:' to create
@@ -277,7 +253,7 @@
 // {
 // #define MYID  0x????????
 //    IMP   imp;
-//    imp = _mulle_objc_object_superlookup_implementation_inline_nofail( self, MYID);
+//    imp = _mulle_objc_object_lookup_superimplementation_inline_nofail( self, MYID);
 //    return( (*imp)( self, _cmd, args));
 // }
 
@@ -298,7 +274,11 @@
 - (char *) UTF8String;  // used to be cStringDescription
 
 // you can use mulle_fprintf( "%#@") to trigger this colorization method
-- (char *) colorizedUTF8String;  // used to be cStringDescription
+// as this is used in debugging, the methods must be threadSafe (in contrast
+// to -UTF8String which is not neccesarily)
+
+- (char *) threadSafeUTF8String        MULLE_OBJC_THREADSAFE_METHOD;  // used to be cStringDescription
+- (char *) colorizedUTF8String         MULLE_OBJC_THREADSAFE_METHOD;
 
 // color code to be placed in front of UTF8String (NULL for no colorization)
 // default NULL
@@ -310,11 +290,11 @@
 //    printf "%b\n" "\\033[38;5;${code}m"'\\033[38;5;'"${code}"m"\\033[0m"
 // done
 //
-- (char *) colorizerPrefixUTF8String;
+- (char *) colorizerPrefixUTF8String   MULLE_OBJC_THREADSAFE_METHOD;
 
 // color code to be placed in the back of UTF8String (can't be NULL)
 // default "\033[0m" should reset the color back to normal
-- (char *) colorizerSuffixUTF8String;
+- (char *) colorizerSuffixUTF8String   MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
 

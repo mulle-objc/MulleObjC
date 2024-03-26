@@ -45,6 +45,13 @@
 #include <stdio.h>
 
 
+extern
+MULLE_C_NO_RETURN void
+   _mulle_objc_vprintf_abort( char *format, va_list args);
+
+extern
+MULLE_C_NO_RETURN void
+   _mulle_objc_printf_abort( char *format, ...);
 #pragma mark - C
 
 
@@ -62,7 +69,7 @@ MULLE_C_NO_RETURN void
    if( s && vectors)
       vectors->invalid_argument( s, args);
    else
-      vfprintf( stderr, format, args);
+      _mulle_objc_vprintf_abort( format, args);
    abort();
 }
 
@@ -93,7 +100,7 @@ MULLE_C_NO_RETURN void
    if( s && vectors)
       vectors->internal_inconsistency( s, args);
    else
-      vfprintf( stderr, format, args);
+      _mulle_objc_vprintf_abort( format, args);
    abort();
 }
 
@@ -120,11 +127,13 @@ MULLE_C_NO_RETURN void
 
    mulle_objc_break_exception();
    vectors = mulle_objc_universe_get_foundationexceptionhandlertable( universe);
-   s       = vectors ? _mulle_objc_universe_string( universe, format) : 0;
-   if( s && vectors)
+   if( vectors)
+   {
+      s = _mulle_objc_universe_string( universe, format);
       vectors->errno_error( s, args);
+   }
    else
-      vfprintf( stderr, format, args);
+      _mulle_objc_vprintf_abort( format, args);
    abort();
 }
 
@@ -152,7 +161,7 @@ MULLE_C_NO_RETURN void
    if( vectors)
       vectors->invalid_index( index);
    else
-      fprintf( stderr, "invalid index %lu\n", (long) index);
+      _mulle_objc_printf_abort( "invalid index %lu\n", (long) index);
    abort();
 }
 

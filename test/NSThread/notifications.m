@@ -95,16 +95,20 @@
 
 int main( void)
 {
-   [[NSThread currentThread] setUserInfo:[[[StupidString alloc] initWithCString:"main"] autorelease]];
+   // force TAO problems early
+   @autoreleasepool
+   {
+      [[NSThread currentThread] setUserInfo:[[[StupidString alloc] initWithCString:"main"] autorelease]];
 
-   printf( "START: %s\n", __FUNCTION__);
+      printf( "START: %s\n", __FUNCTION__);
 
-   [NSThread detachNewThreadSelector:@selector( doNothing:)
-                            toTarget:[NSThread class]
-                          withObject:nil];
-   [NSThread detachNewThreadSelector:@selector( sleep1:)
-                            toTarget:[NSThread class]
-                          withObject:nil];
+      [NSThread detachNewThreadSelector:@selector( doNothing:)
+                               toTarget:[NSThread class]
+                             withObject:nil];
+      [NSThread detachNewThreadSelector:@selector( sleep1:)
+                               toTarget:[NSThread class]
+                             withObject:nil];
+   }
    sleep( 3);
    printf( "STOP: %s\n", __FUNCTION__);
    return( 0);

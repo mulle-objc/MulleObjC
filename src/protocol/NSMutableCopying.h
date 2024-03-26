@@ -34,6 +34,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 #import "NSObject.h"
+#import "MulleObjCProtocol.h"
 
 struct NSZone;
 
@@ -44,10 +45,27 @@ struct NSZone;
 //
 @protocol NSMutableCopying
 
-@optional  // only optional if derived from NSObject
-- (id) mutableCopy
-   __attribute__((deprecated( "mutableCopy does not work as expected, if the receiver is nil",
-                              "Use a NSMutable<Class> constructor instead")));
+//
+// Does not retun an instancetype (e.g. NSMutableSet returns NSSet).
+// Should return an instance that is immutable.
+// If it isn't immutable, you should be using -mutableCopy (which is
+// deprecated), or simply use constructors to copy.
+//
+@optional  // only optional, if derived from NSObject
+- (id <MulleObjCMutableProtocols>) mutableCopy;
+
+//
+// if YES, then all properties that are marked "copy" or "retain" are
+// copyied and retained during -copy (using NSCopyObject)
+//
++ (BOOL) mulleCopyRetainsProperties;  // default YES!
 
 @end
 
+
+@class NSMutableCopying; // needed for the compiler to understand this is
+                        // protocol class
+
+
+MULLE_OBJC_GLOBAL
+id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone);

@@ -65,27 +65,47 @@
 
 _PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 
-- (Class) superclass;
-- (Class) class;
+// used by faults, not necessarily threadsafe
 - (instancetype) self;
 
-- (id) performSelector:(SEL) sel;
-- (id) performSelector:(SEL) sel
-            withObject:(id) obj;
-- (id) performSelector:(SEL) sel
-            withObject:(id) obj
-            withObject:(id) other;
-- (BOOL) isProxy;
-- (BOOL) isKindOfClass:(Class) cls;
-- (BOOL) isMemberOfClass:(Class) cls;
-- (BOOL) conformsToProtocol:(PROTOCOL) protocol;
-- (BOOL) respondsToSelector:(SEL) sel;
+- (Class) superclass                              MULLE_OBJC_THREADSAFE_METHOD;
+- (Class) class                                   MULLE_OBJC_THREADSAFE_METHOD;
++ (Class) class                                   MULLE_OBJC_THREADSAFE_METHOD;
 
+- (BOOL) isProxy                                  MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) isKindOfClass:(Class) cls                MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) isMemberOfClass:(Class) cls              MULLE_OBJC_THREADSAFE_METHOD;
+
+// AAO suport
++ (instancetype) instantiate;
 // these are not in the traditional NSObject protocol
+
 + (instancetype) new;
 + (instancetype) alloc;
-+ (instancetype) allocWithZone:(NSZone *) zone;  // deprecated
 - (instancetype) init;
+- (void) dealloc;
+- (void) finalize;
+
+- (instancetype) autorelease                      MULLE_OBJC_THREADSAFE_METHOD;
+
+- (BOOL) conformsToProtocol:(PROTOCOL) protocol   MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) respondsToSelector:(SEL) sel             MULLE_OBJC_THREADSAFE_METHOD;
+- (void) _pushToParentAutoreleasePool;
+
+
+- (NSZone *) zone   __attribute__((deprecated("zones have no meaning and will eventually disappear")));  // always NULL
+
+// this is ... questionable
+- (instancetype) immutableInstance;
+
+// these methods are threadsafe, but the called methods may not be
+// its performSelector duty to check that
+- (id) performSelector:(SEL) sel                  MULLE_OBJC_THREADSAFE_METHOD;
+- (id) performSelector:(SEL) sel
+            withObject:(id) obj                   MULLE_OBJC_THREADSAFE_METHOD;
+- (id) performSelector:(SEL) sel
+            withObject:(id) obj
+            withObject:(id) other                 MULLE_OBJC_THREADSAFE_METHOD;
 
 // for collections. isEqual: determines set membership
 - (NSUInteger) hash;
@@ -97,8 +117,11 @@ _PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 - (char *) UTF8String;
 
 // this is a mulle addition
-- (void) mullePerformFinalize;
-- (BOOL) mulleIsFinalized;
+- (void) mullePerformFinalize                      MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) mulleIsFinalized                          MULLE_OBJC_THREADSAFE_METHOD;
+
+// some mulle additions for AAO mode and complete ObjectGraph support
+
 
 PROTOCOLCLASS_END()
 

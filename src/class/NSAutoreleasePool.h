@@ -33,9 +33,7 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "NSObject.h"
-
-#import "NSThread.h"
+#import "MulleObjCRuntimeObject.h"
 
 #import "MulleObjCAutoreleasePool.h"
 
@@ -50,6 +48,8 @@
 // Be careful when touching a running system
 // This is not a subclass of NSObject, because it really is different
 //
+// A NSAutoreleasePool is not even a MulleObjCRuntimeObject, you can't do
+// much with it
 @interface NSAutoreleasePool
 {
    NSAutoreleasePool   *_owner;
@@ -59,9 +59,11 @@
 
 + (id) alloc;
 + (id) new;
-+ (Class) class;
 - (id) init;
-- (void) release;
+
++ (Class) class         MULLE_OBJC_THREADSAFE_METHOD;
+- (Class) class         MULLE_OBJC_THREADSAFE_METHOD;
+- (void) release        MULLE_OBJC_THREADSAFE_METHOD;
 
 + (void) addObject:(id) object;
 - (void) addObject:(id) object;

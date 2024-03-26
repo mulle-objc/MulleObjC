@@ -40,6 +40,7 @@
 // other files in this library
 #import "mulle-objc-type.h"
 #import "mulle-objc-classbit.h"
+#import "MulleObjCException.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
 #import "MulleObjCIntegralType.h"
@@ -51,6 +52,7 @@
 #import "NSAutoreleasePool.h"
 #import "NSMethodSignature.h"
 #import "NSInvocation.h"
+#import "NSThread.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
 
@@ -74,13 +76,13 @@
 
 
 // intentonally a root object (!)
-@interface _MulleObjCInstantiatePlaceholder
+@interface _MulleObjCInstantiatePlaceholder <MulleObjCPlaceboRetainCount>
 {
 @public
    Class   _cls;
 }
 
-+ (Class) class;
++ (Class) class   MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
 
@@ -151,7 +153,7 @@ static id   _MulleObjCInstantiatePlaceholderNew( Class infraCls)
    sel         = @selector( __initInstantiate);
    imp         = _mulle_objc_class_lookup_implementation_noforward( cls, sel);
    if( imp)
-      (*imp)( placeholder, sel, NULL);
+      mulle_objc_implementation_invoke( imp, placeholder, sel, placeholder);
 
    return( (id) placeholder);
 }
@@ -191,16 +193,6 @@ static id
    universe  = _mulle_objc_class_get_universe( cls);
    allocator = _mulle_objc_universe_get_allocator( universe);
    __mulle_objc_instance_free( (void *) self, allocator);
-}
-
-
-- (void) finalize
-{
-}
-
-
-- (void) release
-{
 }
 
 @end
@@ -409,25 +401,52 @@ retry:
 
 + (instancetype) instantiatedObject // alloc + autorelease + init
 {
-   return( [[self instantiate] init]);
+   id   obj;
+
+   obj = [self instantiate];
+   obj = [obj init];
+   return( obj);
 }
 
 
 + (instancetype) object // same as above
 {
-   return( [[self instantiate] init]);
+   id   obj;
+
+   obj = [self instantiate];
+   obj = [obj init];
+   return( obj);
 }
 
 
 - (instancetype) immutableInstance
 {
-   return( [[self copy] autorelease]);
+   id   obj;
+
+   obj = [self copy];
+   obj = [obj autorelease];
+   assert( [obj conformsToProtocol:@protocol( MulleObjCImmutable)]);
+   return( obj);
 }
 
 
 - (instancetype) mutableInstance
 {
-   return( [[self mutableCopy] autorelease]);
+   id   obj;
+
+   obj = [self mutableCopy];
+   obj = [obj autorelease];
+   return( obj);
+}
+
+
+- (instancetype) mulleThreadSafeInstance
+{
+   id   obj;
+
+   obj = [self immutableInstance];
+   assert( [obj mulleIsThreadSafe]);
+   return( obj);
 }
 
 
@@ -536,6 +555,85 @@ retry:
 
    return( [self _becomeRootObject]);
 }
+
+
+//
+// do not override these, inherit MulleObjCThreadSafe or optionally
+// MulleObjCThreadUnsafe
+//
+- (BOOL) mulleIsThreadSafe    MULLE_OBJC_THREADSAFE_METHOD
+{
+   return( NO);  // this is the default, so NSObject itself technically is thread safe
+}
+
+
+// class methods are deemed to be inherently thread safe, because there are
+// no variables involved. If you do have state you gotta lock it.
++ (BOOL) mulleIsThreadSafe
+{
+   return( YES);
+}
+
+
+- (BOOL) mulleIsAccessible
+{
+   mulle_thread_t   osThread;
+
+   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
+   if( ! osThread)
+      return( YES);
+   return( osThread == _NSThreadGetCurrentOSThread());
+}
+
+
+- (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject
+{
+   mulle_thread_t   osThread;
+
+   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
+   if( ! osThread)
+      return( YES);
+
+   if( ! threadObject)
+      threadObject = [NSThread currentThread];
+   return( osThread == _NSThreadGetOSThread( threadObject));
+}
+
+
+- (void) mulleGainAccess
+{
+   mulle_thread_t   osThread;
+   mulle_thread_t   currentOSThread;
+
+   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
+   if( ! osThread)
+      return;
+
+   currentOSThread = _NSThreadGetCurrentOSThread();
+   if( currentOSThread != osThread && osThread != (mulle_thread_t) -1)
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p can not gain access to this object %p\n",
+                                                      currentOSThread, self);
+   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, currentOSThread);
+}
+
+
+- (void) mulleRelinquishAccess
+{
+   mulle_thread_t   osThread;
+   mulle_thread_t   currentOSThread;
+
+   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
+   if( ! osThread)
+      return;
+
+   currentOSThread = _NSThreadGetCurrentOSThread();
+   if( currentOSThread != osThread && osThread != (mulle_thread_t) -1)
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p does not have access to this object %p\n",
+                                                      currentOSThread, self);
+   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, (mulle_thread_t) -1);
+}
+
+
 
 
 #if HAVE_CLASS_VALUE
@@ -719,14 +817,15 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 + (Class) class
 {
-   Class  cls;
-
-   cls = _mulle_objc_object_get_infraclass( self);
-   return( cls);
+   return( self);
+//   Class  cls;
+//
+//   cls = _mulle_objc_object_get_infraclass( self);
+//   return( cls);
 }
 
 
-+ (BOOL)  isSubclassOfClass:(Class) otherClass
++ (BOOL) isSubclassOfClass:(Class) otherClass
 {
    Class   cls;
 
@@ -762,6 +861,17 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
++ (char *) UTF8String
+{
+   char                       *s;
+   struct _mulle_objc_class   *cls;
+
+   cls = _mulle_objc_object_get_isa( self);
+   s   = _mulle_objc_class_get_name( cls);
+   return( s);
+}
+
+
 - (char *) UTF8String
 {
    char                       *result;
@@ -776,6 +886,23 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
    return( result);
 }
+
+
+- (char *) threadSafeUTF8String
+{
+   char                       *result;
+   char                       *s;
+   struct _mulle_objc_class   *cls;
+
+   cls = _mulle_objc_object_get_isa( self);
+   s   = _mulle_objc_class_get_name( cls);
+
+   mulle_asprintf( &result, "<%s %p>", s, self);
+   MulleObjCAutoreleaseAllocation( result, NULL);
+
+   return( result);
+}
+
 
 
 - (char *) colorizerPrefixUTF8String
@@ -797,7 +924,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    char   *s;
    char   *result;
 
-   s               = [self UTF8String];
+   s               = [self threadSafeUTF8String];
    colorizedHeader = [self colorizerPrefixUTF8String];
 
    if( ! colorizedHeader)
@@ -830,6 +957,15 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    struct _mulle_objc_class       *cls;
    struct _mulle_objc_classpair   *pair;
 
+   // we know that these calls are meaningless,
+#ifndef NDEBUG
+   if( protocol == @protocol( MulleObjCThreadSafe) ||
+       protocol == @protocol( MulleObjCThreadUnsafe))
+   {
+      fprintf( stderr, "-conformsToProtocol:@protocol( MulleObjCThreadSafe) (or MulleObjCThreadUnsafe) is not doing what you want\n");
+   }
+#endif
+
    cls  = _mulle_objc_object_get_isa( self);
    pair = _mulle_objc_class_get_classpair( cls);
    return( (BOOL) _mulle_objc_classpair_conformsto_protocolid( pair,
@@ -841,14 +977,18 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (id) performSelector:(SEL) sel
 {
-   return( mulle_objc_object_call_variablemethodid_inline( self, (mulle_objc_methodid_t) sel, (void *) self));
+   return( mulle_objc_object_call_variablemethodid_inline( self,
+                                                           (mulle_objc_methodid_t) sel,
+                                                           (void *) self));
 }
 
 
 - (id) performSelector:(SEL) sel
             withObject:(id) obj
 {
-   return( mulle_objc_object_call_variablemethodid_inline( self, (mulle_objc_methodid_t) sel, (void *) obj));
+   return( mulle_objc_object_call_variablemethodid_inline( self,
+                                                           (mulle_objc_methodid_t) sel,
+                                                           (void *) obj));
 }
 
 
@@ -870,7 +1010,9 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    param.p.obj1 = obj1;
    param.p.obj2 = obj2;
 
-   return( mulle_objc_object_call_variablemethodid_inline( self, (mulle_objc_methodid_t) sel, &param));
+   return( mulle_objc_object_call_variablemethodid_inline( self,
+                                                           (mulle_objc_methodid_t) sel,
+                                                           &param));
 }
 
 
@@ -912,7 +1054,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    // that the infraclass cache may not be ready yet
    //
    cls = _mulle_objc_infraclass_as_class( self);
-   imp = (IMP) _mulle_objc_class_lookup_implementation_nocache_noforward( cls,
+   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls,
                                                                           (mulle_objc_methodid_t) sel);
    return( imp ? YES : NO);
 }
@@ -925,11 +1067,11 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    // this produces NSInvalidArgumentException on OS X for (SEL) 0
 
    //
-   // must be non caching for technical reasons (them being)
-   // that the infraclass cache may not be ready yet
+   // must be non refreshing for technical reasons (them being,
+   // that the infraclass cache may not be ready yet)
    //
    cls = _mulle_objc_infraclass_as_class( self);
-   return( (IMP) _mulle_objc_class_lookup_implementation_nocache( cls,
+   return( (IMP) _mulle_objc_class_lookup_implementation_nofill( cls,
                                                                   (mulle_objc_methodid_t) sel));
 }
 
@@ -1217,10 +1359,10 @@ static void   throw_unknown_ivarid( struct _mulle_objc_class *cls,
                                     mulle_objc_ivarid_t ivarid)
 {
    __mulle_objc_universe_raise_invalidargument( _mulle_objc_class_get_universe( cls),
-                                              "Class %08x \"%s\" has no ivar with id %08x found",
-                                               _mulle_objc_class_get_classid( cls),
-                                               _mulle_objc_class_get_name( cls),
-                                               ivarid);
+                                                "Class %08x \"%s\" has no ivar with id %08x found",
+                                                _mulle_objc_class_get_classid( cls),
+                                                _mulle_objc_class_get_name( cls),
+                                                ivarid);
 }
 
 

@@ -103,7 +103,7 @@
 
 
 #ifdef DEBUG
-- (id) retain
+- (instancetype) retain
 {
    return( [super retain]);
 }

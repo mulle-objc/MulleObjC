@@ -37,12 +37,13 @@
 
 #import "NSCoding.h"
 #import "NSCopying.h"
+#import "MulleObjCProtocol.h"
 #import "MulleObjCSingleton.h"
 
 //
 // The mulle-objc NSNull reacts to all unknown methods by return nil/NULL/0 (!)
 //
-@interface NSNull : NSObject < MulleObjCSingleton, NSCopying, NSCoding, MulleObjCValue, MulleObjCImmutable>
+@interface NSNull : NSObject < MulleObjCSingleton, MulleObjCValueProtocols, NSCoding>
 {
 }
 

@@ -50,7 +50,7 @@
 
 
 /*
-   To be dependend on MulleObjC put this before
+   To be dependent on MulleObjC put this before
    your +load code:
 
    ```

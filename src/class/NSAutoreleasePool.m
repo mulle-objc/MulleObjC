@@ -39,6 +39,7 @@
 
 // other files in this library
 #import "MulleObjCAllocation.h"
+#import "MulleObjCProtocol.h"
 #import "MulleObjCAutoreleasePool.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
@@ -771,15 +772,15 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 }
 
 
-- (instancetype) retain
-{
-   abort();
-}
-
-
 + (Class) class
 {
    return( self);
+}
+
+
+- (Class) class
+{
+   return( _mulle_objc_object_get_infraclass( self));
 }
 
 
@@ -799,6 +800,13 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 - (void) drain
 {
    [self release];
+}
+
+
+
+- (instancetype) retain       MULLE_OBJC_THREADSAFE_METHOD
+{
+   abort();
 }
 
 
@@ -842,11 +850,16 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
-@interface _MulleObjCAutoreleaseAllocation
+@interface _MulleObjCAutoreleaseAllocation < MulleObjCThreadSafe>
 {
 	void                     *_pointer;
 	struct mulle_allocator   *_allocator;
 }
+
+- (void) release                          MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) isProxy                          MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) respondsToSelector:(SEL) sel     MULLE_OBJC_THREADSAFE_METHOD;
+
 @end
 
 
@@ -902,6 +915,7 @@ static void   dealloc( _MulleObjCAutoreleaseAllocation *self)
 {
 	return( NO);
 }
+
 
 - (BOOL) respondsToSelector:(SEL) sel
 {

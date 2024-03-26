@@ -33,37 +33,160 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "NSCopying.h"
-
 #import "MulleObjCRuntimeObject.h"
 
-//
-// A value is a base type, considered to be one value
-// like NSString, NSDate. Could have named MulleAtom too, but I don't know...
-//
-// A value is not a composite of values or other objects. If it has a settable
-// property (not readonly), it's not a value.
-//
-@protocol MulleObjCValue
-@end
 
+// This introduces a hierarchy of robustness of objects
 //
-// MulleImmutables are inherently thread safe. Structure your value class
-// to have a MulleObjCPlaceholder like NSData. This is a MulleValue so
-// NSData : NSObject <MulleValue>. Then have a concrete immutable subclass
-// like _NSConcreteData : NSData < MulleImmutable>.
+// | Protocol                | Description
+// |-------------------------|------------------------------------
+// | `MulleObjCThreadUnsafe` | The default, only message from one thread concurrently. Protect code with an outside lock if needed.
+// | `MulleObjCThreadSafe`   | Can be messaged from multiple threads concurrently. Protected by an inside lock or has atomic code.
+// | `MulleObjCImmutable`    | Internal state does not change after -init. Can be messaged from multiple threads concurrently. No internal lock needed.
+// | `MulleObjCValue`        | Does not return `MulleObjCThreadUnsafe` objects (or unsafe pointers) from methods. Can be messaged from multiple threads concurrently. No internal lock needed.
 //
-@protocol NSCopying;
-@protocol MulleObjCRuntimeObject;
+// To adopt MulleObjCValue say: @interface Foo < MulleObjCValue, MulleObjCImmutable, MulleObjCThreadSafe>
+// To adopt MulleObjCImmutable say: @interface Foo < MulleObjCImmutable, MulleObjCThreadSafe>
+// To adopt MulleObjCThreadSafe say: @interface Foo < MulleObjCThreadSafe>
+//
+// Once a class has become <MulleObjCImmutable> or <MulleObjCValue> you can not
+// make a subclass mutable again (since you can't remove protocols)
+//
+// You **can** turn a MulleObjCThreadUnsafe into MulleObjCThreadUnsafe and
+// vice versa over the inheritance chain.
+//
+// A thread safe object, can be messaged from multiple threads, therefore a
+// thread safe object is not checked for thread affinity. The return values
+// of a thread safe object may not be thread safe though! The thread safety
+// of the return value can not be determined by the type (e.g. NSString).
+// Since you can return a NSMutableString as NSString.
+//
 
-_PROTOCOLCLASS_INTERFACE( MulleObjCImmutable, NSCopying, MulleObjCRuntimeObject)
+
+
+
+// "MulleObjCThreadSafe" object can be messaged from multiple threads, may
+// return objects that are not thread safe though.
+//
+// Only use -mulleIsThreadSafe to test for thread safety.
+// DO NOT test for thread safety by -conformsToProtocol: since a class maybe
+// marked both MulleObjCThreadSafe and MulleObjCThreadUnsafe in its
+// inheritance chain. The last marker wins!
+//
+// Example: NSArray
+// -> MulleObjCThreadSafe
+//
+// Example: NSMutableDictionary
+// -> MulleObjCThreadUnsafe
+//
+// You don't have to marker you classes with MulleObjCThreadUnsafe,
+// as this will be the default. But it's also not a bad self-documenting idea.
+//
+//
+_PROTOCOLCLASS_INTERFACE0( MulleObjCThreadSafe)
+
+@optional
+- (BOOL) mulleIsThreadSafe    MULLE_OBJC_THREADSAFE_METHOD;
+- (id) mulleThreadSafeCopy; // returns self retained
+
+PROTOCOLCLASS_END()
+
+
+_PROTOCOLCLASS_INTERFACE0( MulleObjCThreadUnsafe)
+
+@optional
+- (BOOL) mulleIsThreadSafe    MULLE_OBJC_THREADSAFE_METHOD;
+
+// conceivably this method could be wrap a mutableCopy into a
+// locking object (like MulleThreadSafeObject at time of writing)
+- (id) mulleThreadSafeCopy;  // will return nil (!) this is useful so you can change affinity
+
 PROTOCOLCLASS_END()
 
 
 //
-// Inherently any class that isn't marked immutable must be considered
-// mutable, so this doesn't exist.
+// "MulleImmutable" objects are inherently thread safe. But you need to
+// declare this separately with MulleObjCThreadSafe. The tangible benefit of
+// this protocol class is that you get the -copy operator for free.
 //
-// @protocol MulleObjCMutable
-// @end
+// -conformsToProtocol:@selector( MulleObjCImmutable) must be a valid test.
+//
+//
+_PROTOCOLCLASS_INTERFACE( MulleObjCImmutable, MulleObjCRuntimeObject)
 
+@optional
+- (id /*<MulleObjCImmutable>*/) copy;  // protocol is too tedious
+
+PROTOCOLCLASS_END()
+
+
+//
+// A "MulleObjCInvariant" object, as an example is any immutable base type
+// like one of the value classes like NSString, NSDate. The main promise of a
+// "value" object is that it itself is immutable and that it only returns
+// immutable return values. Therefore a regular NSArray can't be
+// "MulleObjCInvariant". A NSValue is not a MulleObjCInvariant, because it
+// can return arbitrary pointers. It's OK to return `char *` as long as its
+// understood that the receiver won't modify or free it (needs to be
+// autoreleased or static)
+//
+// So if any method returns a pointer to a mutable state (C or ObjC) --> NO.
+//
+// Note: Inherently you can't "prove" this, when you have a function like
+// objc_setAssociatedObject...
+//
+// You MUST not subclass a MulleObjCInvariant and add mutable state unto it.
+// Use composition for such setups.
+//
+// -conformsToProtocol:@selector( MulleObjCInvariant) must be a valid test.
+//
+// DON'T place MulleObjCInvariant on your value class cluster, but instead
+// place it on each concrete subclass.
+//
+@protocol MulleObjCInvariant
+@end
+
+
+// its expected that you can serialize a value
+@protocol MulleObjCValue
+@end
+
+// its expected that you can serialize a container
+@protocol MulleObjCContainer
+@end
+
+
+// convenience declaration to put on concrete immutable value subclasses
+#define MulleObjCValueProtocols             MulleObjCValue, MulleObjCInvariant, MulleObjCRuntimeObject, MulleObjCImmutable, MulleObjCThreadSafe
+
+// convenience declaration to put on concrete mutable value subclasses
+#define MulleObjCMutableValueProtocols      MulleObjCValue,  MulleObjCThreadUnsafe, MulleObjCRuntimeObject
+
+// convenience declaration to put on concrete immutable container subclasses
+#define MulleObjCContainerProtocols         MulleObjCContainer, MulleObjCRuntimeObject, MulleObjCImmutable, MulleObjCThreadSafe
+
+// convenience declaration to put on concrete mutable container subclasses
+// generally we don't like -mutableCopy and don't want to prolong its existence
+#define MulleObjCMutableContainerProtocols  MulleObjCContainer, MulleObjCThreadUnsafe, MulleObjCRuntimeObject
+
+
+// convenience declaration to put on all other immutable objects
+#define MulleObjCImmutableProtocols         MulleObjCImmutable, MulleObjCThreadSafe, MulleObjCRuntimeObject
+
+// convenience declaration to *optionally* put on all other objects
+#define MulleObjCMutableProtocols           MulleObjCThreadUnsafe, MulleObjCRuntimeObject
+
+
+_PROTOCOLCLASS_INTERFACE0( MulleObjCPlaceboRetainCount)
+
+@optional
+- (instancetype) retain          MULLE_OBJC_THREADSAFE_METHOD;
+- (instancetype) autorelease     MULLE_OBJC_THREADSAFE_METHOD;
+- (void) release                 MULLE_OBJC_THREADSAFE_METHOD;
+
+- (NSUInteger) retainCount       MULLE_OBJC_THREADSAFE_METHOD;
+
+- (void) finalize;
+- (void) dealloc;
+
+@end

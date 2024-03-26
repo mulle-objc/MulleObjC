@@ -631,15 +631,15 @@ int   main( int argc, char  *argv[])
       [foo doNo];
       [foo doSuperNo];
 
-      cache = _mulle_objc_class_get_methodcache( _mulle_objc_object_get_isa( foo));
+      cache = _mulle_objc_class_get_impcache_cache( _mulle_objc_object_get_isa( foo));
 
-      fprintf( stderr, "doNo          = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doNo)));
-      fprintf( stderr, "doOne:        = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doOne:)));
-      fprintf( stderr, "doTwo::       = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doTwo::)));
-      fprintf( stderr, "doThree:::    = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doThree:::)));
-      fprintf( stderr, "doFour::::    = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doFour::::)));
-      fprintf( stderr, "doSuperNo     = %d\n", _mulle_objc_cache_find_entryindex( cache, @selector( doSuperNo)));
-      fprintf( stderr, "Foobar;doNo      = %d\n", _mulle_objc_cache_find_entryindex( cache, mulle_objc_superid_from_string( "Foobar;doNo")));
+      fprintf( stderr, "doNo          = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doNo)));
+      fprintf( stderr, "doOne:        = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doOne:)));
+      fprintf( stderr, "doTwo::       = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doTwo::)));
+      fprintf( stderr, "doThree:::    = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doThree:::)));
+      fprintf( stderr, "doFour::::    = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doFour::::)));
+      fprintf( stderr, "doSuperNo     = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doSuperNo)));
+      fprintf( stderr, "Foobar;doNo      = %d\n", _mulle_objc_cache_probe_entryindex( cache, mulle_objc_superid_from_string( "Foobar;doNo")));
      }
 #endif
 

@@ -45,6 +45,12 @@ _PROTOCOLCLASS_INTERFACE( MulleObjCTaggedPointer, MulleObjCImmutable)
 
 + (BOOL) isTaggedPointerEnabled;
 
+@optional
+- (instancetype) retain          MULLE_OBJC_THREADSAFE_METHOD;
+- (instancetype) autorelease     MULLE_OBJC_THREADSAFE_METHOD;
+- (void) release                 MULLE_OBJC_THREADSAFE_METHOD;
+- (NSUInteger) retainCount       MULLE_OBJC_THREADSAFE_METHOD;
+
 PROTOCOLCLASS_END()
 
 
@@ -54,6 +60,7 @@ int  MulleObjCTaggedPointerRegisterClassAtIndex( Class cls,
                                                  unsigned int index);
 
 
+MULLE_C_CONST_RETURN
 static inline int   MulleObjCTaggedPointerClassGetIndex( Class cls)
 {
    if( ! cls)
@@ -66,12 +73,14 @@ static inline int   MulleObjCTaggedPointerClassGetIndex( Class cls)
 }
 
 
+MULLE_C_CONST_RETURN
 static inline BOOL   MulleObjCTaggedPointerIsIntegerValue( NSInteger value)
 {
    return( (BOOL) mulle_objc_taggedpointer_is_valid_signed_value( value));
 }
 
 
+MULLE_C_CONST_RETURN
 static inline BOOL
    MulleObjCTaggedPointerIsUnsignedIntegerValue( NSUInteger value)
 {
@@ -79,6 +88,7 @@ static inline BOOL
 }
 
 
+MULLE_C_CONST_RETURN
 static inline void   *
    MulleObjCCreateTaggedPointerWithIntegerValueAndIndex( NSInteger value,
                                                          NSUInteger index)
@@ -87,6 +97,7 @@ static inline void   *
 }
 
 
+MULLE_C_CONST_RETURN
 static inline void   *
    MulleObjCCreateTaggedPointerWithUnsignedIntegerValueAndIndex( NSUInteger value,
                                                                  NSUInteger index)

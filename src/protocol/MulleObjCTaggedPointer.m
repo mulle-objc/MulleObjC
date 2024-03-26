@@ -74,6 +74,13 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCTaggedPointer)
 }
 
 
+- (NSUInteger) retainCount
+{
+   return( MULLE_OBJC_NEVER_RELEASE);
+}
+
+
+
 - (instancetype) copy
 {
    return( self);

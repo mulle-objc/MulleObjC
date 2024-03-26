@@ -43,7 +43,7 @@
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
-static inline void   _MulleObjCAutoreleaseObject( id obj)
+static inline id   _MulleObjCAutoreleaseObject( id obj)
 {
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;
@@ -51,6 +51,7 @@ static inline void   _MulleObjCAutoreleaseObject( id obj)
    universe = _mulle_objc_object_get_universe( obj);
    config   = mulle_objc_thread_get_poolconfiguration( universe);
    (*config->autoreleaseObject)( config, obj);
+   return( obj);
 }
 
 
