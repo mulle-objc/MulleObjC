@@ -44,6 +44,7 @@
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
 #import "NSAutoreleasePool.h"
+#import "NSInvocation.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
 
@@ -91,16 +92,34 @@ static struct
 }
 
 
++ (instancetype) mulleThreadWithInvocation:(NSInvocation *) invocation
+{
+   NSThread   *threadObject;
+
+   threadObject = [self alloc];
+   threadObject = [threadObject mulleInitWithInvocation:invocation];
+   threadObject = [threadObject autorelease];
+   return( threadObject);
+}
+
+
 + (instancetype) mulleThreadWithTarget:(id) target
                               selector:(SEL) sel
                                 object:(id) object
 {
-   return( [[[self alloc] initWithTarget:target
+   NSThread   *threadObject;
+
+   threadObject = [self alloc];
+   threadObject = [threadObject initWithTarget:target
                                 selector:sel
-                                  object:object] autorelease]);
+                                  object:object];
+   threadObject = [threadObject autorelease];
+   return( threadObject);
 }
 
 
+/*
+ */
 - (id) init
 {
    _mulle_map_init( &self->_map,
@@ -110,50 +129,29 @@ static struct
    return( self);
 }
 
-/*
- */
+
+
 - (instancetype) initWithTarget:(id) target
                        selector:(SEL) sel
                          object:(id) object
 {
-   NSUInteger   options;
+   NSInvocation   *invocation;
 
-   options = 0;
-   if( self == target)
-      options = (MulleThreadDontRetainTarget|MulleThreadDontReleaseTarget);
-   if( self == object)
-      options |= (MulleThreadDontRetainArgument|MulleThreadDontReleaseArgument);
+   invocation = [NSInvocation mulleInvocationWithTarget:target
+                                               selector:sel
+                                                 object:object];
+   [invocation retainArguments];
 
-   return( [self mulleInitWithTarget:target
-                            selector:sel
-                              object:object
-                             options:options]);
+   return( [self mulleInitWithInvocation:invocation]);
 }
 
 
-- (instancetype) mulleInitWithTarget:(id) target
-                            selector:(SEL) sel
-                              object:(id) object
-                             options:(NSUInteger) options
+- (instancetype) mulleInitWithInvocation:(NSInvocation *) invocation
 {
-   if( ! target || ! sel)
-      __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
-                                                  "target and selector must not be nil");
-
    // for subclasses
    self = [self init];
 
-   if( ! (options & MulleThreadDontRetainTarget))
-      [target retain];
-   if( ! (options & MulleThreadDontRetainArgument))
-      [object retain];
-
-   self->_releaseTarget   = ! (options & MulleThreadDontReleaseTarget);
-   self->_releaseArgument = ! (options & MulleThreadDontReleaseArgument);
-
-   self->_target   = target;
-   self->_selector = sel;
-   self->_argument = object;
+   self->_invocation = [invocation retain];
 
    return( self);
 }
@@ -180,7 +178,7 @@ static struct
    id   runLoop;
 
    runLoop = [self mulleRunLoop];
-   _mulle_atomic_pointer_nonatomic_write( &self->_runLoop, nil);
+   _mulle_atomic_pointer_write_nonatomic( &self->_runLoop, nil);
 
    [runLoop mullePerformFinalize];
    [runLoop autorelease];
@@ -190,13 +188,8 @@ static struct
    [self->_userInfo autorelease];
    self->_userInfo = nil;
 
-   if( self->_releaseTarget)
-      [self->_target autorelease];
-   self->_target = nil;
-
-   if( self->_releaseArgument)
-      [self->_argument autorelease];
-   self->_argument = nil;
+   [self->_invocation autorelease];
+   self->_invocation = nil;
 
    [super finalize];
 }
@@ -208,7 +201,6 @@ static struct
    assert( ! self->_userInfo);
 
    MulleObjCInstanceDeallocateMemory( self, _nameUTF8String);
-
    _MulleObjCInstanceFree( self);
 }
 
@@ -219,6 +211,8 @@ static struct
 //}
 
 
+// MEMO: this is only atomic because it will be set by both threads for
+//       consistency in both threads
 static inline void  _NSThreadSetOSThread( NSThread *threadObject, mulle_thread_t thread)
 {
    _mulle_atomic_pointer_cas( &threadObject->_osThread, (void *) thread, NULL);
@@ -312,7 +306,7 @@ static NSThread   *__MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc
    NSThread   *threadObject;
 
    threadObject = [NSThread new];
-   _mulle_atomic_pointer_nonatomic_write( &threadObject->_osThread, (void *) mulle_thread_self());
+   _mulle_atomic_pointer_write_nonatomic( &threadObject->_osThread, (void *) mulle_thread_self());
 
    //
    // create pool configuration, ahead of register so it can
@@ -363,7 +357,7 @@ NSThread   *_MulleThreadCreateMainThreadObjectInUniverse( struct _mulle_objc_uni
    struct _mulle_objc_universefoundationinfo   *info;
 
    info = _mulle_objc_universe_get_universefoundationinfo( universe);
-   if( _mulle_atomic_pointer_nonatomic_read( &info->thread.n_threads))
+   if( _mulle_atomic_pointer_read_nonatomic( &info->thread.n_threads))
       __mulle_objc_universe_raise_internalinconsistency( universe, \
          "Universe %p is still or already multithreaded", universe);
 
@@ -406,7 +400,6 @@ void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_univer
 
    assert( _NSThreadGetOSThread( threadObject) == mulle_thread_self());
    assert( _NSThreadGetOSThread( threadObject) == _mulle_objc_universe_get_thread( universe));
-   assert( ! threadObject->_argument);
    assert( [threadObject retainCount] == 1);
 
    _MulleThreadDeregisterInUniverse( threadObject, universe);
@@ -529,9 +522,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    //
    assert( ! self->_userInfo);
 
-   [self->_target mulleGainAccess];
-   [self->_argument mulleGainAccess];
-
+   [self->_invocation mulleGainAccess];
    [self main];
 
    [NSThread exit];
@@ -565,8 +556,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    [self retain];
    _mulle_objc_universe_retain( universe);
 
-   [self->_target mulleRelinquishAccess];
-   [self->_argument mulleRelinquishAccess];
+   [self->_invocation mulleRelinquishAccess];
 
    if( mulle_thread_create( bouncyBounce, self, &thread))
       __mulle_objc_universe_raise_errno( universe, "thread creation");
@@ -668,7 +658,7 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
 
 - (BOOL) wasAutocreated
 {
-   return( _target == nil);
+   return( _invocation == nil);
 }
 
 
@@ -720,16 +710,20 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 
 - (void) mulleSetNameUTF8String:(char *) s
 {
-   struct mulle_allocator  *allocator;
-   void                    *actual;
-   void                    *old;
+   struct mulle_allocator       *allocator;
+   struct _mulle_objc_universe  *universe;
+   void                         *actual;
+   void                         *old;
 
-   allocator = MulleObjCInstanceGetAllocator( self);
+   // need universe allocator for abafree
+   universe  = _mulle_objc_object_get_universe( self);
+   allocator = _mulle_objc_universe_get_allocator( universe);
    old       = _mulle_atomic_pointer_read( &_nameUTF8String);
    if( s)
       s = mulle_allocator_strdup( allocator, s);
 
    actual = __mulle_atomic_pointer_cas( &_nameUTF8String, s, old);
+
    if( actual == old)
       mulle_allocator_abafree( allocator, old);
    else
@@ -742,14 +736,14 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    Class   cls;
    char    *s;
 
-   s = [self mulleNameUTF8String];
+   s = _mulle_atomic_pointer_read( &_nameUTF8String);
    if( s)
       return( s);
 
    cls = [self class];
    if( [cls mainThread] == self)
       return( "NSMainThread");
-   return( MulleObjCClassGetNameUTF8String( cls));
+   return( MulleObjC_asprintf( "<%s %p>", MulleObjCClassGetNameUTF8String( cls), self));
 }
 
 
@@ -896,11 +890,8 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
       return;
    }
 
-   // bouncyBounce as made self->_target accessible
-   _rval = (int) (intptr_t)
-            mulle_objc_object_call_variablemethodid_inline( self->_target,
-                                                            (mulle_objc_methodid_t) self->_selector,
-                                                            self->_argument);
+   // bouncyBounce has made _invocation accessible
+   [self->_invocation invoke];
 }
 
 
@@ -916,6 +907,8 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 }
 
 
+// TODO: figure out how to do pthread_cancel in windows, then maybe use it
+//       instead
 - (void) cancel
 {
    _mulle_atomic_pointer_write( &_cancelled, (void *) 1);
@@ -928,11 +921,27 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 {
    NSThread   *threadObject;
 
-   threadObject = [[[NSThread alloc] initWithTarget:target
-                                           selector:sel
-                                            object:argument] autorelease];
+   threadObject = [NSThread alloc];
+   threadObject = [threadObject initWithTarget:target
+                                      selector:sel
+                                        object:argument];
+   threadObject = [threadObject autorelease];
+
    [threadObject start];
 }
+
+
++ (void) mulleDetachNewThreadWithInvocation:(NSInvocation *) invocation
+{
+   NSThread   *threadObject;
+
+   threadObject = [NSThread alloc];
+   threadObject = [threadObject mulleInitWithInvocation:invocation];
+   threadObject = [threadObject autorelease];
+
+   [threadObject start];
+}
+
 
 
 + (void) mulleDetachNewThreadWithFunction:(MulleThreadFunction_t *) f
@@ -940,8 +949,11 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 {
    NSThread   *threadObject;
 
-   threadObject = [[[NSThread alloc] mulleInitWithFunction:f
-                                                  argument:argument] autorelease];
+   threadObject = [NSThread alloc];
+   threadObject = [threadObject mulleInitWithFunction:f
+                                             argument:argument];
+   threadObject = [threadObject autorelease];
+
    [threadObject start];
 }
 

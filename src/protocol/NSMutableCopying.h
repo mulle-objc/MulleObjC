@@ -52,7 +52,7 @@ struct NSZone;
 // deprecated), or simply use constructors to copy.
 //
 @optional  // only optional, if derived from NSObject
-- (id <MulleObjCMutableProtocols>) mutableCopy;
+- (id) mutableCopy;
 
 //
 // if YES, then all properties that are marked "copy" or "retain" are

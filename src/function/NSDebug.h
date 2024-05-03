@@ -44,7 +44,8 @@
 
 @end
 
-
+// this is the method that is searched for by "gdb" when you do a `po obj`
+// in it
 MULLE_OBJC_GLOBAL
 char   *_NSPrintForDebugger( id a);
 

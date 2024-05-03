@@ -156,6 +156,14 @@ PROTOCOLCLASS_END()
 @end
 
 
+@protocol MulleObjCContainerProperty
+
+- (void) addObject:(id) object;
+- (void) removeObject:(id) object;
+
+@end
+
+
 // convenience declaration to put on concrete immutable value subclasses
 #define MulleObjCValueProtocols             MulleObjCValue, MulleObjCInvariant, MulleObjCRuntimeObject, MulleObjCImmutable, MulleObjCThreadSafe
 

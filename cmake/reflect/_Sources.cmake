@@ -11,6 +11,7 @@ endif()
 # contents selected with patternfile ??-source--sources
 #
 set( SOURCES
+src/class/MulleObject.m
 src/class/NSAutoreleasePool.m
 src/class/NSInvocation.m
 src/class/NSMethodSignature.m
@@ -23,7 +24,9 @@ src/function/MulleObjCAllocation.m
 src/function/MulleObjCDebug.m
 src/function/MulleObjCExceptionHandler.m
 src/function/MulleObjCFunctions.m
+src/function/MulleObjCIvar.m
 src/function/MulleObjCPrinting.m
+src/function/MulleObjCProperty.m
 src/function/MulleObjCStackFrame.m
 src/function/NSDebug.m
 src/function/mulle-sprintf-object.m
@@ -35,6 +38,7 @@ src/mulle-objc-universefoundationinfo.m
 src/protocol/MulleObjCClassCluster.m
 src/protocol/MulleObjCException.m
 src/protocol/MulleObjCProtocol.m
+src/protocol/MulleObjCRootObject.m
 src/protocol/MulleObjCSingleton.m
 src/protocol/MulleObjCTaggedPointer.m
 src/protocol/NSCoding.m

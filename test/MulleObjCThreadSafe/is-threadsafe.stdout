@@ -6,3 +6,5 @@
 -[FooBar mulleIsThreadSafe:] NO
 +[BarFoo mulleIsThreadSafe:] YES
 -[BarFoo mulleIsThreadSafe:] YES
++[BarKeeper mulleIsThreadSafe:] YES
+-[BarKeeper mulleIsThreadSafe:] YES

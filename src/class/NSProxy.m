@@ -49,6 +49,12 @@
 
 @implementation NSProxy
 
++ (BOOL) isProxy
+{
+   return( NO);
+}
+
+
 - (BOOL) isProxy
 {
    return( YES);

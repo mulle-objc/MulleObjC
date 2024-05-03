@@ -50,115 +50,6 @@
 #include <stdarg.h>
 
 
-// the parameters are shuffled this way, because its a walk callback
-
-int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
-                                       struct _mulle_objc_infraclass *cls,
-                                       void *self);
-
-int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
-                                       struct _mulle_objc_infraclass *cls,
-                                       void *self)
-{
-   uint32_t                   bits;
-   ptrdiff_t                  offset;
-   struct _mulle_objc_ivar    *ivar;
-   mulle_objc_ivarid_t        ivarid;
-
-   // don't clear readonly properties for (seems incompatible with Apple)
-   bits = _mulle_objc_property_get_bits( property);
-   if( bits & _mulle_objc_property_readonly)
-      return( 0);
-
-   if( bits & _mulle_objc_property_setterclear)
-   {
-      mulle_objc_object_call_variablemethodid_inline( self, property->setter, NULL);
-      return( 0);
-   }
-
-   //
-   // This happens for readonly properties, which have no setter.
-   // They are penalized with a bsearch for the ivar.
-   //
-   // Why ?
-   //    Readonly properties are unneccessary. Use a regular accessor.
-   //    The property has no direct link to the ivar. The compiler can't emit
-   //    this as the ivar could reside in the superclass.
-   //    Adding the ivar at runtime into the loaded structure breaks the
-   //    constness of the setup, which I'd like to keep and blows up the
-   //    runtime for supporting readonly, which I find superflous and
-   //    likely to be removed.
-   //
-   // Remedy?
-   //    Compiler emits setter code for readonly properties. Let the compiler
-   //    complain/warn about the missing setter.
-   //
-   if( bits & _mulle_objc_property_autoreleaseclear)
-   {
-      ivarid = _mulle_objc_property_get_ivarid( property);
-      ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
-      offset = _mulle_objc_ivar_get_offset( ivar);
-      mulle_objc_object_set_property_value( self, 0, offset, NULL, 0, 0);
-   }
-   return( 0);
-}
-
-
-# pragma mark - improve dealloc speed for classes that don't have properties that need to be released
-
-
-int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
-                                              mulle_objc_walkpropertiescallback_t f,
-                                              void *userinfo);
-
-int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
-                                              mulle_objc_walkpropertiescallback_t f,
-                                              void *userinfo)
-{
-   struct _mulle_objc_propertylist   *list;
-   struct _mulle_objc_infraclass     *superclass;
-   unsigned int                      n;
-   int                               rval;
-
-   // protocol properties are part of the class
-   if( _mulle_objc_infraclass_get_state_bit( infra, MULLE_OBJC_INFRACLASS_HAS_CLEARABLE_PROPERTY))
-   {
-      n = mulle_concurrent_pointerarray_get_count( &infra->propertylists);
-      assert( n);
-      if( infra->base.inheritance & MULLE_OBJC_CLASS_DONT_INHERIT_CATEGORIES)
-         n = 1;
-
-      mulle_concurrent_pointerarray_for_reverse( &infra->propertylists, n, list)
-      {
-         if( (rval = _mulle_objc_propertylist_walk( list, f, infra, userinfo)))
-            return( rval);
-      }
-   }
-
-   // in MulleObjC the superclass is always searched
-   superclass = _mulle_objc_infraclass_get_superclass( infra);
-   if( superclass && superclass != infra)
-      return( _MulleObjCClassWalkClearableProperties( superclass, f, userinfo));
-
-   return( 0);
-}
-
-
-void   _MulleObjCInstanceClearProperties( id obj)
-{
-   struct _mulle_objc_class        *cls;
-   struct _mulle_objc_infraclass   *infra;
-
-   // walk through properties and release them
-   cls  = _mulle_objc_object_get_isa( obj);
-   // if it's a meta class it's an error during debug
-   infra = _mulle_objc_class_as_infraclass( cls);
-   _MulleObjCClassWalkClearableProperties( infra,
-                                           _MulleObjCInstanceClearProperty,
-                                           obj);
-}
-
-
 // this does not zero properties
 void   _MulleObjCInstanceFree( id obj)
 {
@@ -198,20 +89,6 @@ void   NSDeallocateObject( id self)
 
 
 
-void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s)
-{
-   struct mulle_allocator  *allocator;
-
-   if( s == *ivar)
-      return;
-
-   allocator = MulleObjCInstanceGetAllocator( self);
-   if( s)
-      s = mulle_allocator_strdup( allocator, s);
-
-   mulle_allocator_free( allocator, *ivar);
-   *ivar = s;
-}
 
 
 void   *MulleObjCCallocAutoreleased( NSUInteger n,

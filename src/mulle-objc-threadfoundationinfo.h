@@ -44,7 +44,12 @@
 
 
 //
-// these are shortcuts for the currently active pool in this thread
+// MEMO: if we want to support coroutines, we need to switch the autorelease
+//       pool around too. This would typically mean you'd switch the `tail`
+//       and maybe `maxObjects` on a context switch. You'd probably drop the
+//       object map debugging support. Each context would have its own
+//       struct _mulle_objc_poolconfiguration, which would need to be
+//       transferred into the execution thread for lookup.
 //
 struct _mulle_objc_poolconfiguration
 {
@@ -59,6 +64,7 @@ struct _mulle_objc_poolconfiguration
    void   (*pop)( struct _mulle_objc_poolconfiguration *, id pool);
 
    int             releasing;
+   // debugging support
    int             trace;
    unsigned int    maxObjects;  // coarse
 
@@ -85,6 +91,7 @@ static inline struct _mulle_objc_poolconfiguration *
 /*
  * Threadinfo interface
  */
+MULLE_C_CONST_NONNULL_RETURN
 static inline struct _mulle_objc_poolconfiguration *
    _mulle_objc_threadinfo_get_poolconfiguration( struct _mulle_objc_threadinfo *config)
 {

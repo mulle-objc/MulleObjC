@@ -1,5 +1,5 @@
 -[NSThread mulleIsThreadSafe] YES
--[NSThread threadAffinity] 0
+-[NSThread threadAffinity] (nil)
 -[NSThread mulleIsAccessible] YES
 -[NSThread mulleIsAccessibleByThread:NSMainThread] YES
 -[NSThread mulleIsAccessibleByThread:NSThread] YES

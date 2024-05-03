@@ -1,9 +1,8 @@
 //
-//  NSFastEnumeration.h
+//  MulleObjCIvar.m
 //  MulleObjC
 //
-//  Copyright (c) 2011 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2011 Codeon GmbH.
+//  Copyright (c) 2024 Nat! - Mulle kybernetiK.
 //  All rights reserved.
 //
 //
@@ -35,40 +34,28 @@
 //
 #import "import.h"
 
-#import "mulle-objc-type.h"
-#import "MulleObjCIntegralType.h"
+
+MULLE_OBJC_GLOBAL
+int   _MulleObjCObjectSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
+
+MULLE_OBJC_GLOBAL
+int   _MulleObjCObjectGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
 
 
+MULLE_OBJC_GLOBAL
+id   MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid);
+
+MULLE_OBJC_GLOBAL
+void   MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value);
+
+
+
+// will not duplicate if *ivar == s
+// Interface is kinda bad, because copy/pasting this to -dealloc makes me
+// write:
+//   MulleObjCInstanceDeallocateMemory( self, **&**_fontName); !! WRONG
+// with the erroneus & before the _ivar
 //
-// The object that is enumerated needs to be retained by the enumerator for
-// the duration of the enumeration, which can be forever.
-//
-@protocol NSEnumeration
+MULLE_OBJC_GLOBAL
+void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s);
 
-- (id) nextObject;
-
-@end
-
-
-typedef struct
-{
-   NSUInteger   state;
-   id           *itemsPtr;
-   NSUInteger   *mutationsPtr;
-   NSUInteger   extra[5];
-} NSFastEnumerationState;
-
-
-//
-// One principal advantage of NSFastEnumeration over NSEnumeration is,
-// that it is specified for `for` `in` loops. That means that the object
-// that gets enumerated need not be retained.
-//
-@protocol NSFastEnumeration
-
-- (NSUInteger) count;  // exerimentally added, this way
-                       // NSFastEnumeration is basically NSContainer (if it existed)
-- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *) state
-                                   objects:(id *) objects
-                                     count:(NSUInteger) count;
-@end

@@ -39,41 +39,34 @@
 
 @class NSAutoreleasePool;
 @class NSThread;
+@class NSInvocation;
 struct MulleObjCAutoreleasePoolConfiguration;
-
-enum
-{
-   MulleThreadDontRetainTarget    = 0x1,
-   MulleThreadDontRetainArgument  = 0x2,
-   MulleThreadDontReleaseTarget   = 0x4,
-   MulleThreadDontReleaseArgument = 0x8
-};
 
 
 typedef int   MulleThreadFunction_t( NSThread *, void *);
 
 
-// TODO: not really threasafe, need to fix
+// TODO: not really threadsafe, need to fix
+//       should use a NSInvocation really instead of the self brewed
+//        target selector argument thingy
 // it's not really immutable but thread safe (except that its not )
+//
+// A NSThread is a 1:1 relationship to a mulle_thread, if the mulle_thread dies
+// the  NSThread is gone. We don't switch threads inside a NSThread.
 //
 @interface NSThread : NSObject < MulleObjCThreadSafe>
 {
    mulle_atomic_pointer_t   _osThread;
-
-   id                       _target;
-   SEL                      _selector;
-   id                       _argument;
    mulle_atomic_pointer_t   _runLoop;
-   id                       _userInfo;
+   mulle_atomic_pointer_t   _nameUTF8String;
+   mulle_atomic_pointer_t   _cancelled;
 
-   MulleThreadFunction_t    *_function;
+   NSInvocation             *_invocation;
+   id                       _userInfo;           // only valid in thread
+   MulleThreadFunction_t    *_function;          // unmanaged
    void                     *_functionArgument;  // unmanaged
 
-   mulle_atomic_pointer_t   _nameUTF8String;
    char                     _isDetached;
-   char                     _releaseTarget;
-   char                     _releaseArgument;
-   mulle_atomic_pointer_t   _cancelled;
    struct mulle_map         _map;  // not the -threadDictionary !
    int                      _rval;
 }
@@ -85,15 +78,24 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 
 + (BOOL) mulleIsMainThread;
 
+// target and object will be retained
 + (void) detachNewThreadSelector:(SEL) sel
                         toTarget:(id) target
                       withObject:(id) argument;
+
+// caller is responsible to call -retainArguments on invocation
++ (void) mulleDetachNewThreadWithInvocation:(NSInvocation *) invocation;
 
 + (void) mulleDetachNewThreadWithFunction:(MulleThreadFunction_t *) f
                                  argument:(void *) argument;
 
 + (void) exit;
 
+
+// caller is responsible to call -retainArguments on invocation
++ (instancetype) mulleThreadWithInvocation:(NSInvocation *) invocation;
+
+// target and object will be retained
 + (instancetype) mulleThreadWithTarget:(id) target
                               selector:(SEL) sel
                                 object:(id) argument;
@@ -103,19 +105,14 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
                               argument:(void *) argument;
 
 
-//
-// you can tweak the way thread handles target and argument here, this
-// can be useful if you are managing threads on your own. Specify bits like
-// MulleThreadDontRetainTarget as options
-//
-- (instancetype) mulleInitWithTarget:(id) target
-                            selector:(SEL) sel
-                              object:(id) object
-                             options:(NSUInteger) options;
+// caller is responsible to call -retainArguments on invocation
+- (instancetype) mulleInitWithInvocation:(NSInvocation *) invocation;
+
 
 //
 // Apple says: This selector must take only one argument and must not have a
 // return value. In MulleObjC, the return value is preferred to be "int"
+// target and object will be retained
 //
 - (instancetype) initWithTarget:(id) target
                        selector:(SEL) sel
@@ -156,8 +153,6 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 // this is "cooperative", it doesn't send any signals
 - (BOOL) isCancelled;
 - (void) cancel;
-
-
 
 
 - (int) mulleReturnStatus;

@@ -1,0 +1,7 @@
++[Foo(B) clobber]
++[Foo(B) clobber]
++[Foo(A) clobber]
++[Foo clobber]
++[Foo(B) clobber]
++[Foo(A) clobber]
++[Foo clobber]

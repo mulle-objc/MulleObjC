@@ -344,6 +344,7 @@ static inline id   MulleObjCIMPCall( IMP imp, id obj, SEL sel, id argument)
                                                   argument));
 }
 
+
 static inline id   MulleObjCIMPCall1( IMP imp, id obj, SEL sel, id argument)
 {
    return( MulleObjCIMPCall( imp, obj, sel, argument));
@@ -736,7 +737,6 @@ static inline unsigned int
    cls = _mulle_objc_object_get_isa( obj);
    return( _mulle_objc_class_search_clobber_chain( cls, sel, array, n));
 }
-
 
 
 #pragma mark - message sending helper

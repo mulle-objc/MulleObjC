@@ -5,13 +5,28 @@
 #endif
 
 
+@interface Root
+@end
+
+
+@implementation Root
+
+- (void) hash
+{
+}
+
+@end
+
 int  main( void)
 {
    id   obj;
 
-   // can only do existance (non-crash) checks
-   [NSObject hash];
    obj = [NSObject new];
    [obj hash];
    [obj release];
+
+   [Root hash];
+
+   // can only do existance (non-crash) checks
+   [NSObject hash];
 }

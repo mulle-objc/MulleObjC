@@ -55,6 +55,10 @@ PROTOCOLCLASS_END()
 
 
 
+// -1 is error, errno tells the tale
+// EINVAL: cls is nil
+// ENOENT: index not available due to architecture
+// will abort if another class already squats
 MULLE_OBJC_GLOBAL
 int  MulleObjCTaggedPointerRegisterClassAtIndex( Class cls,
                                                  unsigned int index);
@@ -89,6 +93,22 @@ static inline BOOL
 
 
 MULLE_C_CONST_RETURN
+static inline BOOL
+   MulleObjCTaggedPointerIsFloatValue( float value)
+{
+   return( (BOOL) mulle_objc_taggedpointer_is_valid_float_value( value));
+}
+
+
+MULLE_C_CONST_RETURN
+static inline BOOL
+   MulleObjCTaggedPointerIsDoubleValue( double value)
+{
+   return( (BOOL) mulle_objc_taggedpointer_is_valid_double_value( value));
+}
+
+
+MULLE_C_CONST_RETURN
 static inline void   *
    MulleObjCCreateTaggedPointerWithIntegerValueAndIndex( NSInteger value,
                                                          NSUInteger index)
@@ -107,6 +127,25 @@ static inline void   *
 
 
 MULLE_C_CONST_RETURN
+static inline void   *
+   MulleObjCCreateTaggedPointerWithFloatValueAndIndex( float value,
+                                                       NSUInteger index)
+{
+   return( mulle_objc_create_float_taggedpointer( value, (unsigned int) index));
+}
+
+
+MULLE_C_CONST_RETURN
+static inline void   *
+   MulleObjCCreateTaggedPointerWithDoubleValueAndIndex( double value,
+                                                        NSUInteger index)
+{
+   return( mulle_objc_create_double_taggedpointer( value, (unsigned int) index));
+}
+
+
+
+MULLE_C_CONST_RETURN
 static inline NSInteger  MulleObjCTaggedPointerGetIntegerValue( void *pointer)
 {
    return( mulle_objc_taggedpointer_get_signed_value( pointer));
@@ -118,6 +157,22 @@ static inline NSUInteger
    MulleObjCTaggedPointerGetUnsignedIntegerValue( void *pointer)
 {
    return( mulle_objc_taggedpointer_get_unsigned_value( pointer));
+}
+
+
+
+MULLE_C_CONST_RETURN
+static inline float  MulleObjCTaggedPointerGetFloatValue( void *pointer)
+{
+   return( mulle_objc_taggedpointer_get_float_value( pointer));
+}
+
+
+MULLE_C_CONST_RETURN
+static inline double
+   MulleObjCTaggedPointerGetDoubleValue( void *pointer)
+{
+   return( mulle_objc_taggedpointer_get_double_value( pointer));
 }
 
 

@@ -33,6 +33,7 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#import "MulleObjCRootObject.h"
 #import "NSObjectProtocol.h"
 
 
@@ -44,9 +45,7 @@
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
-@interface NSProxy < NSObject>
-{
-}
+@interface NSProxy < MulleObjCRootObject, NSObject>
 @end
 
 #pragma clang diagnostic pop

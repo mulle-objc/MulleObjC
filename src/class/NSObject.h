@@ -35,6 +35,9 @@
 //
 #import "NSObjectProtocol.h"
 
+#import "MulleObjCRootObject.h"
+
+
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
@@ -102,9 +105,9 @@
 // to manage object lifetime. This results in clean, efficient code without
 // explicit retain/release calls.
 
-@interface NSObject < NSObject>
+@interface NSObject < MulleObjCRootObject, NSObject>
 
-
+#if 0
 // regular methods
 
 //
@@ -131,11 +134,12 @@
 + (IMP) instanceMethodForSelector:(SEL) sel;
 - (IMP) methodForSelector:(SEL) sel               MULLE_OBJC_THREADSAFE_METHOD;
 
-
 #pragma mark mulle additions
 
 // does not search superclasses
 - (BOOL) mulleContainsProtocol:(PROTOCOL) protocol;
+
+#endif
 
 // Experimental
 #if 0
@@ -158,6 +162,7 @@
 // old name
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
+#if 0
 // advanced Autorelease and ObjectGraph support
 
 - (id) _becomeRootObject               MULLE_OBJC_THREADSAFE_METHOD;  // retains  #1#, returns self
@@ -189,6 +194,8 @@
  */
 - (NSUInteger) _getOwnedObjects:(id *) objects
                        maxCount:(NSUInteger) maxCount;
+
+#endif
 
 - (BOOL) __isSingletonObject;
 - (BOOL) __isClassClusterObject;
@@ -223,6 +230,7 @@
 + (BOOL) mulleContainsProtocol:(PROTOCOL) protocol;
 
 @end
+
 
 @interface NSObject ( Forwarding)
 
