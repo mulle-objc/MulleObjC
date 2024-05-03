@@ -67,6 +67,7 @@ src/MulleObjCVersion.h
 src/MulleObjC.h
 src/class/MulleObjCAutoreleasePool.h
 src/class/MulleObjCLoader.h
+src/class/MulleObject.h
 src/class/NSAutoreleasePool.h
 src/class/NSInvocation.h
 src/class/NSMethodSignature.h
@@ -80,7 +81,9 @@ src/function/MulleObjCDebug.h
 src/function/MulleObjCExceptionHandler.h
 src/function/MulleObjCFunctions.h
 src/function/MulleObjCHashFunctions.h
+src/function/MulleObjCIvar.h
 src/function/MulleObjCPrinting.h
+src/function/MulleObjCProperty.h
 src/function/MulleObjCStackFrame.h
 src/function/NSByteOrder.h
 src/function/NSDebug.h
@@ -95,6 +98,7 @@ src/mulle-objc-type.h
 src/protocol/MulleObjCClassCluster.h
 src/protocol/MulleObjCException.h
 src/protocol/MulleObjCProtocol.h
+src/protocol/MulleObjCRootObject.h
 src/protocol/MulleObjCRuntimeObject.h
 src/protocol/MulleObjCSingleton.h
 src/protocol/MulleObjCTaggedPointer.h
@@ -102,7 +106,7 @@ src/protocol/NSCoding.h
 src/protocol/NSContainer.h
 src/protocol/NSCopyingWithAllocator.h
 src/protocol/NSCopying.h
-src/protocol/NSEnumeration.h
+src/protocol/NSFastEnumeration.h
 src/protocol/NSMutableCopying.h
 src/protocol/NSObjectProtocol.h
 src/reflect/_MulleObjC-versioncheck.h

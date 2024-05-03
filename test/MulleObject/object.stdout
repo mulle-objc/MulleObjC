@@ -1,0 +1,8 @@
+Value
+respondsTo( myValue) = YES
+respondsTo( notMyValue) = NO
+respondsTo( unknownValue) = NO
+Value
+respondsTo( myValue) = YES
+respondsTo( notMyValue) = YES
+respondsTo( unknownValue) = NO

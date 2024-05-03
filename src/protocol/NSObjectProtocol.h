@@ -90,6 +90,9 @@ _PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 
 - (BOOL) conformsToProtocol:(PROTOCOL) protocol   MULLE_OBJC_THREADSAFE_METHOD;
 - (BOOL) respondsToSelector:(SEL) sel             MULLE_OBJC_THREADSAFE_METHOD;
++ (IMP) instanceMethodForSelector:(SEL) sel;
+- (IMP) methodForSelector:(SEL) sel               MULLE_OBJC_THREADSAFE_METHOD;
+
 - (void) _pushToParentAutoreleasePool;
 
 

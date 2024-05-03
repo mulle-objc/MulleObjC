@@ -1,10 +1,12 @@
+-[NSThread currentThread] NSMainThread
 -[Bar mulleIsThreadSafe] YES
--[Bar threadAffinity] 0
+-[Bar threadAffinity] (nil)
 -[Bar mulleIsAccessible] YES
 -[Bar mulleIsAccessibleByThread:NSMainThread] YES
 -[Bar mulleIsAccessibleByThread:NSMainThread] YES
+-[NSThread currentThread] NSThread
 -[Bar mulleIsThreadSafe] YES
--[Bar threadAffinity] 0
+-[Bar threadAffinity] (nil)
 -[Bar mulleIsAccessible] YES
 -[Bar mulleIsAccessibleByThread:NSThread] YES
 -[Bar mulleIsAccessibleByThread:NSMainThread] YES

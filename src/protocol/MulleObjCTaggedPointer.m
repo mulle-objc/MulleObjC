@@ -81,7 +81,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCTaggedPointer)
 
 
 
-- (instancetype) copy
+- (id) copy
 {
    return( self);
 }
@@ -115,10 +115,7 @@ int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
    }
 
    universe = _mulle_objc_infraclass_get_universe( cls);
-   if( ! index)
-      __mulle_objc_universe_raise_invalidindex( universe, index);
-
-   rval = _mulle_objc_universe_set_taggedpointerclass_at_index( universe, cls, index);
+   rval     = _mulle_objc_universe_set_taggedpointerclass_at_index( universe, cls, index);
    if( ! rval)
       _mulle_objc_infraclass_set_taggedpointerindex( cls, index);
    return( rval);

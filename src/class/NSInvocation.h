@@ -64,6 +64,9 @@
 + (NSInvocation *) mulleInvocationWithTarget:(id) target
                                     selector:(SEL) sel, ...;
 
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel
+                                      object:(id) object;
 
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature;
 

@@ -31,6 +31,14 @@
 @implementation BarFoo
 @end
 
+// this just inherits Bar and does not modify protocols: threadsafety as Bar
+@interface BarKeeper : Bar 
+@end
+
+
+@implementation BarKeeper
+@end
+
 static void   test( Class cls)
 {
    id  obj;
@@ -51,6 +59,7 @@ int main( void)
    test( [Bar class]);
    test( [FooBar class]);
    test( [BarFoo class]);
+   test( [BarKeeper class]);
 
    return( 0);
 }

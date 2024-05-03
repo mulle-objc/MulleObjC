@@ -80,6 +80,18 @@ static inline void
 }
 
 
+// for MulleObjCCorutine
+
+MULLE_OBJC_GLOBAL
+void   _mulle_objc_poolconfiguration_init( struct _mulle_objc_poolconfiguration *config, Class poolClass);
+
+MULLE_OBJC_GLOBAL
+void   _mulle_objc_poolconfiguration_reset( struct _mulle_objc_poolconfiguration *config);
+
+MULLE_OBJC_GLOBAL
+void   _mulle_objc_poolconfiguration_done( struct _mulle_objc_poolconfiguration *config);
+
+
 // for NSThread
 MULLE_OBJC_GLOBAL
 void   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe);

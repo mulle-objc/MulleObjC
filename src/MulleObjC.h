@@ -44,6 +44,7 @@
 
 // classes
 #import "MulleObjCLoader.h"
+#import "MulleObject.h"
 #import "NSAutoreleasePool.h"
 #import "NSInvocation.h"
 #import "NSMethodSignature.h"
@@ -54,15 +55,17 @@
 
 // protocols and protocolclasses
 #import "MulleObjCClassCluster.h"
-#import "MulleObjCContainerObjectCallback.h"
 #import "MulleObjCException.h"
 #import "MulleObjCProtocol.h"
+#import "MulleObjCRootObject.h"
+#import "MulleObjCRuntimeObject.h"
 #import "MulleObjCSingleton.h"
 #import "MulleObjCTaggedPointer.h"
-#import "NSCopying.h"
 #import "NSCoding.h"
 #import "NSContainer.h"
-#import "NSEnumeration.h"
+#import "NSCopying.h"
+#import "NSCopyingWithAllocator.h"
+#import "NSFastEnumeration.h"
 #import "NSMutableCopying.h"
 #import "NSObjectProtocol.h"
 
@@ -70,10 +73,18 @@
 #import "NSObject+NSCodingSupport.h"
 
 // structs
-// none.. all C
+// otherwise none.. all C
 
 // functions
 #import "MulleObjCAllocation.h"
+#import "MulleObjCAutoreleasePool.h"
+#import "MulleObjCExceptionHandler.h"
 #import "MulleObjCFunctions.h"
+#import "MulleObjCHashFunctions.h"
+#import "MulleObjCIvar.h"
+#import "MulleObjCProperty.h"
+#import "MulleObjCPrinting.h"
+#import "MulleObjCStackFrame.h"
 #import "MulleObjCUniverse.h"
+#import "NSByteOrder.h"
 

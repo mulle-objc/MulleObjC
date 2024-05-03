@@ -65,6 +65,12 @@ static mulle_objc_walkcommand_t
       return( mulle_objc_walk_ok);
 
    ivarid  = _mulle_objc_property_get_ivarid( property);
+   if( ! ivarid)  // gotta by dynamic then
+   {
+      assert( property->bits & _mulle_objc_property_dynamic);
+      return( mulle_objc_walk_ok);
+   }
+
    ivar    = mulle_objc_infraclass_search_ivar( cls, ivarid);
    offset  = _mulle_objc_ivar_get_offset( ivar);
    p_ivar  = (id *) &((char *) self)[ offset];
@@ -110,9 +116,9 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
 
 @implementation NSMutableCopying
 
-- (id <MulleObjCMutableProtocols>) mutableCopy
+- (id) mutableCopy
 {
-   return( (id <MulleObjCMutableProtocols>) NSCopyObject( self, 0, NULL));
+   return( NSCopyObject( self, 0, NULL));
 }
 
 

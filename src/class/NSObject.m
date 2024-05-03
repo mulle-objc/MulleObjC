@@ -63,14 +63,14 @@
 
 @interface NSObject ( NSCopying)
 
-- (instancetype) copy;
+- (id) copy;
 
 @end
 
 
 @interface NSObject ( NSMutableCopying)
 
-- (instancetype) mutableCopy;
+- (id) mutableCopy;
 
 @end
 
@@ -122,7 +122,7 @@
 #endif
 
    obj = [_cls alloc];
-   obj = mulle_objc_object_call_variablemethodid_inline( obj, 
+   obj = mulle_objc_object_call_variable_inline( obj,
                                                          (mulle_objc_methodid_t) _cmd, 
                                                          _param);
    [obj autorelease];
@@ -202,6 +202,7 @@ static id
 
 @implementation NSObject
 
+#if 0
 + (instancetype) alloc
 {
    return( _MulleObjCClassAllocateInstance( self, 0));
@@ -336,6 +337,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 {
    return( (NSUInteger) _mulle_objc_object_get_retaincount( self));
 }
+#endif
 
 
 - (instancetype) self
@@ -450,113 +452,7 @@ retry:
 }
 
 
-+ (NSUInteger) _getRootObjects:(id *) buf
-                      maxCount:(NSUInteger) maxCount
-{
-   struct _mulle_objc_universefoundationinfo   *config;
-   struct _mulle_objc_universe                 *universe;
-   NSUInteger                                  count;
-   struct mulle_setenumerator                  rover;
-   id                                          obj;
-   id                                          *sentinel;
-
-   universe = _mulle_objc_infraclass_get_universe( self);
-
-   _mulle_objc_universe_lock( universe);
-   {
-      _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
-
-      count    = mulle_set_get_count( config->object.roots);
-      sentinel = &buf[ count < maxCount ? count : maxCount];
-
-      rover = mulle_set_enumerate( config->object.roots);
-      while( buf < sentinel)
-      {
-         mulle_setenumerator_next( &rover, (void **) &obj);
-         assert( obj);
-         *buf++ = obj;
-      }
-      mulle_setenumerator_done( &rover);
-   }
-   _mulle_objc_universe_unlock( universe);
-
-   return( count);
-}
-
-
-- (BOOL) _isRootObject
-{
-   struct _mulle_objc_universefoundationinfo   *config;
-   struct _mulle_objc_universe                 *universe;
-   struct mulle_setenumerator                  rover;
-   id                                          obj;
-
-   universe = _mulle_objc_object_get_universe( self);
-   obj      = nil;
-
-   _mulle_objc_universe_lock( universe);
-   {
-      _mulle_objc_universe_get_foundationspace( universe, (void **) &config, NULL);
-
-      rover = mulle_set_enumerate( config->object.roots);
-      while( mulle_setenumerator_next( &rover, (void **) &obj))
-      {
-         if( obj == self)
-            break;
-      }
-      mulle_setenumerator_done( &rover);
-   }
-   _mulle_objc_universe_unlock( universe);
-
-   return( obj ? YES : NO);
-}
-
-
-- (id) _becomeRootObject
-{
-   struct _mulle_objc_universe   *universe;
-
-   if( _mulle_objc_object_is_constant( self))
-      return( self);
-
-   assert( ! [self _isRootObject]);
-
-   self = [self retain];
-   universe = _mulle_objc_object_get_universe( self);
-   _mulle_objc_universe_add_rootobject( universe, self);
-   return( self);
-}
-
-
-- (id) _resignAsRootObject
-{
-   struct _mulle_objc_universe   *universe;
-
-   if( _mulle_objc_object_is_constant( self))
-      return( self);
-
-   universe = _mulle_objc_object_get_universe( self);
-   _mulle_objc_universe_remove_rootobject( universe, self);
-   return( [self autorelease]);
-}
-
-
-- (id) _pushToParentAutoreleasePool
-{
-   NSAutoreleasePool   *pool;
-
-   pool = [NSAutoreleasePool _parentAutoreleasePool];
-   if( pool)
-   {
-      [self retain];
-      [pool addObject:self];
-      return( self);
-   }
-
-   return( [self _becomeRootObject]);
-}
-
-
+#if 0
 //
 // do not override these, inherit MulleObjCThreadSafe or optionally
 // MulleObjCThreadUnsafe
@@ -633,7 +529,7 @@ retry:
    _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, (mulle_thread_t) -1);
 }
 
-
+#endif
 
 
 #if HAVE_CLASS_VALUE
@@ -795,6 +691,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
+#if 0
 #pragma mark - class introspection
 
 - (Class) superclass
@@ -860,6 +757,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    return( _mulle_objc_object_get_isa( self) == _mulle_objc_infraclass_as_class( otherClass));
 }
 
+#endif
 
 + (char *) UTF8String
 {
@@ -937,7 +835,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    return( result);
 }
 
-
+#if 0
 #pragma mark - protocol introspection
 
 - (BOOL) mulleContainsProtocol:(PROTOCOL) protocol
@@ -977,7 +875,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (id) performSelector:(SEL) sel
 {
-   return( mulle_objc_object_call_variablemethodid_inline( self,
+   return( mulle_objc_object_call_variable_inline( self,
                                                            (mulle_objc_methodid_t) sel,
                                                            (void *) self));
 }
@@ -986,7 +884,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 - (id) performSelector:(SEL) sel
             withObject:(id) obj
 {
-   return( mulle_objc_object_call_variablemethodid_inline( self,
+   return( mulle_objc_object_call_variable_inline( self,
                                                            (mulle_objc_methodid_t) sel,
                                                            (void *) obj));
 }
@@ -1010,7 +908,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    param.p.obj1 = obj1;
    param.p.obj2 = obj2;
 
-   return( mulle_objc_object_call_variablemethodid_inline( self,
+   return( mulle_objc_object_call_variable_inline( self,
                                                            (mulle_objc_methodid_t) sel,
                                                            &param));
 }
@@ -1076,99 +974,6 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-#pragma mark - walk object graph support
-
-struct collect_info
-{
-   id           self;
-   NSUInteger   n;
-   id           *objects;
-   id           *sentinel;
-};
-
-
-static int   collect( struct _mulle_objc_ivar *ivar,
-                      struct _mulle_objc_class *cls,
-                      struct collect_info *info)
-{
-   char  *signature;
-
-   signature = _mulle_objc_ivar_get_signature( ivar);
-   switch( *signature)
-   {
-   case _C_RETAIN_ID :
-   case _C_COPY_ID   :
-      if( info->objects < info->sentinel)
-      {
-         *info->objects = _mulle_objc_object_get_pointervalue_for_ivar( info->self, ivar);
-         if( *info->objects)
-            info->objects++;
-      }
-      ++info->n;
-   }
-   return( 0);
-}
-
-
-+ (NSUInteger) _getOwnedObjects:(id *) objects
-                         maxCount:(NSUInteger) maxCount
-{
-   return( 0);
-}
-
-
-- (NSUInteger) _getOwnedObjects:(id *) objects
-                       maxCount:(NSUInteger) maxCount
-{
-   struct _mulle_objc_class   *cls;
-   struct collect_info        info;
-
-   assert( (! objects && ! maxCount) || objects);
-
-   info.self     = self;
-   info.n        = 0;
-   info.objects  = objects;
-   info.sentinel = &objects[ maxCount];
-
-   cls = _mulle_objc_object_get_isa( self);
-   if( _mulle_objc_class_is_metaclass( cls))
-   {
-      // could actually put class vars in maybe ?
-      return( 0);
-   }
-   _mulle_objc_infraclass_walk_ivars( _mulle_objc_class_as_infraclass( cls),
-                                      _mulle_objc_class_get_inheritance( cls),
-                                      (int (*)()) collect,
-                                      &info);
-   return( info.n);
-}
-
-
-#pragma mark - forwarding
-
-- (id) forwardingTargetForSelector:(SEL) sel
-{
-   return( nil);
-}
-
-
-- (void) doesNotForwardVariadicSelector:(SEL) sel
-{
-   __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self), "variadic methods can not be forwarded using invocations");
-}
-
-
-- (void) doesNotRecognizeSelector:(SEL) sel
-{
-   struct _mulle_objc_universe   *universe;
-   struct _mulle_objc_class      *cls;
-
-   cls      = _mulle_objc_object_get_isa( self);
-   universe = _mulle_objc_class_get_universe( cls);
-   mulle_objc_universe_fail_methodnotfound( universe, cls, (mulle_objc_methodid_t) sel);
-}
-
-
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) sel
 {
    struct _mulle_objc_class    *cls;
@@ -1206,6 +1011,32 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    return( [NSMethodSignature signatureWithObjCTypes:method->descriptor.signature]);
 }
 
+#endif
+
+#pragma mark - forwarding
+
+- (id) forwardingTargetForSelector:(SEL) sel
+{
+   return( nil);
+}
+
+
+- (void) doesNotForwardVariadicSelector:(SEL) sel
+{
+   __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self), "variadic methods can not be forwarded using invocations");
+}
+
+
+- (void) doesNotRecognizeSelector:(SEL) sel
+{
+   struct _mulle_objc_universe   *universe;
+   struct _mulle_objc_class      *cls;
+
+   cls      = _mulle_objc_object_get_isa( self);
+   universe = _mulle_objc_class_get_universe( cls);
+   mulle_objc_universe_fail_methodnotfound( universe, cls, (mulle_objc_methodid_t) sel);
+}
+
 
 - (void *) forward:(void *) param
 {
@@ -1216,7 +1047,7 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 
    target = [self forwardingTargetForSelector:_cmd];
    if( target)
-      return( mulle_objc_object_call_variablemethodid_inline( target,
+      return( mulle_objc_object_call_variable_inline( target,
                                                              (mulle_objc_methodid_t) _cmd,
                                                              param));
    /*
@@ -1270,163 +1101,5 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    [self doesNotRecognizeSelector:[anInvocation selector]];
 }
 
-
-static int   get_ivar_offset( struct _mulle_objc_infraclass *infra,
-                              mulle_objc_ivarid_t ivarid,
-                              void *buf,
-                              size_t size)
-{
-   struct _mulle_objc_ivar   *ivar;
-
-   ivar = _mulle_objc_infraclass_search_ivar( infra, ivarid);
-   if( ! ivar)
-      return( -2);
-
-#ifndef NDEBUG
-   {
-      char           *signature;
-      unsigned int   ivar_size;
-      unsigned int   ivar_align;
-
-      signature = _mulle_objc_ivar_get_signature( ivar);
-      mulle_objc_signature_supply_size_and_alignment( signature, &ivar_size, &ivar_align);
-      assert( ivar_size == size);
-      assert( ((intptr_t) buf & (ivar_align - 1)) == 0);
-   }
-#endif
-
-   return( _mulle_objc_ivar_get_offset( ivar));
-}
-
-
-int   _MulleObjCObjectSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)
-{
-   int                        offset;
-   struct _mulle_objc_class   *cls;
-
-   cls = _mulle_objc_object_get_isa( self);
-
-   assert( _mulle_objc_class_is_infraclass( cls));
-   assert( mulle_objc_ivarid_is_sane( ivarid));
-   assert( buf);
-
-   offset = get_ivar_offset( (Class) cls, ivarid, buf, size);
-   switch( offset)
-   {
-   case -2 :
-      return( -1);
-   case -1 :
-      // hashed offset not yet implemented
-      return( -1);
-   default :
-      break;
-   }
-
-   memcpy( &((char *) self)[ offset], buf, size);
-   return( 0);
-}
-
-
-int   _MulleObjCObjectGetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)
-{
-   int                        offset;
-   struct _mulle_objc_class   *cls;
-
-   cls = _mulle_objc_object_get_isa( self);
-
-   assert( _mulle_objc_class_is_infraclass( cls));
-   assert( mulle_objc_ivarid_is_sane( ivarid));
-   assert( buf);
-
-   offset = get_ivar_offset( (Class) cls, ivarid, buf, size);
-   switch( offset)
-   {
-      case -2 :
-         return( -1);
-      case -1 :
-         // hashed offset not yet implemented
-         return( -1);
-      default :
-         break;
-   }
-
-   memcpy( buf, &((char *) self)[ offset], size);
-   return( 0);
-}
-
-
-static void   throw_unknown_ivarid( struct _mulle_objc_class *cls,
-                                    mulle_objc_ivarid_t ivarid)
-{
-   __mulle_objc_universe_raise_invalidargument( _mulle_objc_class_get_universe( cls),
-                                                "Class %08x \"%s\" has no ivar with id %08x found",
-                                                _mulle_objc_class_get_classid( cls),
-                                                _mulle_objc_class_get_name( cls),
-                                                ivarid);
-}
-
-
-id   MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid)
-{
-   id   obj;
-
-   if( ! self)
-      return( nil);
-
-   if( _MulleObjCObjectGetIvar( self, ivarid, &obj, sizeof( obj)))
-      throw_unknown_ivarid( _mulle_objc_object_get_isa( self), ivarid);
-
-   return( obj);
-}
-
-
-void   MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value)
-{
-   id                         old;
-   struct _mulle_objc_class   *cls;
-   struct _mulle_objc_ivar    *ivar;
-   char                       *signature;
-   char                       *typeinfo;
-   int                        offset;
-   id                         *p;
-
-   if( ! self)
-      return;
-
-   cls = _mulle_objc_object_get_isa( self);
-
-   assert( _mulle_objc_class_is_infraclass( cls));
-   assert( mulle_objc_ivarid_is_sane( ivarid));
-
-   ivar = _mulle_objc_infraclass_search_ivar( (Class) cls, ivarid);
-   if( ! ivar)
-      throw_unknown_ivarid( cls, ivarid);
-
-   offset = _mulle_objc_ivar_get_offset( ivar);
-   if( offset == -1)
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                         "hashed access not yet implemented");
-
-   p         = (id *) &((char *) self)[ offset];
-   signature = _mulle_objc_ivar_get_signature( ivar);
-   typeinfo  = _mulle_objc_signature_skip_extendedtypeinfo( signature);
-
-   switch( *typeinfo)
-   {
-   case _C_COPY_ID   :
-      old   = *p;
-      [old autorelease];
-      value = [value copy];
-      break;
-
-   case _C_RETAIN_ID :
-      old   = *p;
-      [old autorelease];
-      value = [value retain];
-      break;
-   }
-
-   *p = value;
-}
 
 @end

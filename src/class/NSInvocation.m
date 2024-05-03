@@ -96,7 +96,7 @@ static NSInvocation   *popStandardInvocation( void)
    memset( invocation, 0, size);
 
    header = _mulle_objc_object_get_objectheader( invocation);
-   _mulle_atomic_pointer_nonatomic_write( &header->_retaincount_1, 0);
+   _mulle_atomic_pointer_write_nonatomic( &header->_retaincount_1, 0);
 
    _mulle_objc_objectheader_set_thread( header, mulle_thread_self());
    return( invocation);
@@ -247,6 +247,34 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
 }
 
 
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel
+                                      object:(id) object
+
+{
+   NSInvocation        *invocation;
+   NSMethodSignature   *signature;
+
+   signature = [target methodSignatureForSelector:sel];
+   if( [signature numberOfArguments] != 3)
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                         "method must accept one argument");
+   if( [signature isVariadic])
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                         "method must not be variadic");
+
+   invocation = [self invocationWithMethodSignature:signature];
+   [invocation setTarget:target];
+   [invocation setSelector:sel];
+   [invocation setArgument:&object
+                   atIndex:2];
+
+
+   return( invocation);
+}
+
+
+
 static BOOL   _isStandardInvocation( NSInvocation *invocation)
 {
    struct _mulle_objc_infraclass   *cls;
@@ -338,6 +366,57 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
       break;
    }
 }
+
+
+static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self, SEL sel)
+{
+   NSInteger   i, n;
+   char        *type;
+   id          obj;
+
+   type = [self->_methodSignature methodReturnType];
+   switch( *type)
+   {
+   case _C_CLASS     :
+   case _C_ASSIGN_ID :
+   case _C_RETAIN_ID :
+   case _C_COPY_ID   :
+      [self getReturnValue:&obj];
+      [obj performSelector:sel];
+   }
+
+   n = [self->_methodSignature numberOfArguments];
+   for( i = 0; i < n; ++i)
+   {
+      type = [self->_methodSignature getArgumentTypeAtIndex:i];
+      switch( *type)
+      {
+      case _C_CLASS     :
+      case _C_ASSIGN_ID :
+      case _C_COPY_ID   :
+      case _C_RETAIN_ID :
+         [self getArgument:&obj
+                  atIndex:i];
+         [obj performSelector:sel];
+         break;
+      }
+   }
+}
+
+
+- (void) mulleGainAccess
+{
+   [super mulleGainAccess];
+   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd);
+}
+
+
+- (void) mulleRelinquishAccess
+{
+   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd);
+   [super mulleRelinquishAccess];
+}
+
 
 
 - (NSMethodSignature *) methodSignature
@@ -453,7 +532,6 @@ retain the arguments of variadic methods");
 {
    return( _argumentsRetained);
 }
-
 
 
 - (void) mulleRetainReturnValue
@@ -592,23 +670,23 @@ static void   invocation_with_nil_target_warning( NSInvocation *self)
       {
          info  = [self->_methodSignature mulleSignatureTypeInfoAtIndex:0];
          param = &self->_storage[ info->invocation_offset];
-         rval  = mulle_objc_object_call_variablemethodid_inline( target, sel, param);
+         rval  = mulle_objc_object_call_variable_inline( target, sel, param);
          break;
       }
 
-      rval = mulle_objc_object_call_variablemethodid_inline( target, sel, target);
+      rval = mulle_objc_object_call_variable_inline( target, sel, target);
       break;
 
    case MulleObjCMetaABITypeVoidPointer    :
       info  = [self->_methodSignature mulleSignatureTypeInfoAtIndex:3];
       param = &self->_storage[ info->invocation_offset];
-      rval  = mulle_objc_object_call_variablemethodid_inline( target, sel, *(void **) param);
+      rval  = mulle_objc_object_call_variable_inline( target, sel, *(void **) param);
       break;
 
    case MulleObjCMetaABITypeParameterBlock :
       info  = [self->_methodSignature mulleSignatureTypeInfoAtIndex:3];
       param = &self->_storage[ info->invocation_offset];
-      rval  = mulle_objc_object_call_variablemethodid_inline( target, sel, param);
+      rval  = mulle_objc_object_call_variable_inline( target, sel, param);
       break;
    }
 

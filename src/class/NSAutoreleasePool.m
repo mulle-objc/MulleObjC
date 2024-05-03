@@ -91,13 +91,13 @@ static void   _autoreleaseObjects( struct _mulle_objc_poolconfiguration *config,
 static struct mulle_container_keyvaluecallback    object_map_callback;
 
 
-static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_universe *universe,
-                                                        struct _mulle_objc_poolconfiguration *config)
+void   _mulle_objc_poolconfiguration_init( struct _mulle_objc_poolconfiguration *config, Class poolClass)
 {
    char   *s;
 
-   config->poolClass = mulle_objc_universe_lookup_infraclass_nofail( universe,
-                                                                     @selector( NSAutoreleasePool));
+   assert( config);
+
+   config->poolClass = poolClass;
 
    //
    // If autorelease pools are using the "default" allocator, they show up in
@@ -139,6 +139,46 @@ static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_unive
       if( ! config->trace && (*s != '0' && *s != 'N'))
          config->trace = 0xFF;
    }
+}
+
+
+void   _mulle_objc_poolconfiguration_reset( struct _mulle_objc_poolconfiguration *config)
+{
+   assert( config);
+
+   // remove all pools
+   while( config->tail)
+      (*config->pop)( config, config->tail);
+   (*config->push)( config);  // create a pool
+}
+
+
+void   _mulle_objc_poolconfiguration_done( struct _mulle_objc_poolconfiguration *config)
+{
+   assert( config);
+
+   // remove all pools
+   while( config->tail)
+      (*config->pop)( config, config->tail);
+
+   if( config->object_map == &config->_object_map)
+   {
+      _mulle_map_done( &config->_object_map);
+      config->object_map = NULL;
+   }
+}
+
+
+
+
+static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_universe *universe,
+                                                        struct _mulle_objc_poolconfiguration *config)
+{
+   Class   poolClass;
+
+   poolClass = mulle_objc_universe_lookup_infraclass_nofail( universe,
+                                                             @selector( NSAutoreleasePool));
+   _mulle_objc_poolconfiguration_init( config, poolClass);
    (*config->push)( config);  // create a pool
 }
 
@@ -158,10 +198,7 @@ void   mulle_objc_thread_reset_poolconfiguration( struct _mulle_objc_universe *u
    config = mulle_objc_thread_get_poolconfiguration( universe);
    assert( config);
 
-   // remove all pools
-   while( config->tail)
-      (*config->pop)( config, config->tail);
-   (*config->push)( config);  // create a pool
+   _mulle_objc_poolconfiguration_reset( config);
 }
 
 
@@ -172,15 +209,7 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
    config = mulle_objc_thread_get_poolconfiguration( universe);
    assert( config);
 
-   // remove all pools
-   while( config->tail)
-      (*config->pop)( config, config->tail);
-
-   if( config->object_map == &config->_object_map)
-   {
-      _mulle_map_done( &config->_object_map);
-      config->object_map = NULL;
-   }
+   _mulle_objc_poolconfiguration_done( config);
 }
 
 

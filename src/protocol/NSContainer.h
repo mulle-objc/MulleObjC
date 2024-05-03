@@ -3,17 +3,8 @@
 #import "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
 #import "NSObjectProtocol.h"
-#import "NSEnumeration.h"
+#import "NSFastEnumeration.h"
 #import "NSCopying.h"
-
-
-
-//
-// This doesn't exist because NSFastEnumeration is synonymous technically.
-//
-//@protocol MulleContainer
-//@end
-
 
 
 // TODO: WHY IS THIS IN MulleObjC ??
@@ -23,7 +14,7 @@
 
 //
 // Note the NSEnumeration is not required, as NSFastEnumeration
-// is now used.NSFastEnumeration is also synonym for MulleContainer, which
+// is now used. NSFastEnumeration is also synonym for MulleContainer, which
 // therefore doesn't exist.
 //
 // Use id <NSObject> so that NSProxy and other conforming root class

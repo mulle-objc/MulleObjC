@@ -261,10 +261,6 @@ static inline id    _MulleObjCClassAllocateNonZeroedObjectWithAllocator( Class i
 }
 
 
-MULLE_OBJC_GLOBAL
-void   _MulleObjCInstanceClearProperties( id obj);
-
-
 // legacy naming scheme, should be AllocateInstance really
 static inline id   NSAllocateObject( Class infra, NSUInteger extra, NSZone *zone)
 {
@@ -406,15 +402,4 @@ static inline NSUInteger   MulleObjCCopyObjectArray( id *objects,
 
    return( n);
 }
-
-
-
-// will not duplicate if *ivar == s
-// Interface is kinda bad, because copy/pasting this to -dealloc makes me
-// write:
-//   MulleObjCInstanceDeallocateMemory( self, **&**_fontName); !! WRONG
-// with the erroneus & before the _ivar
-//
-MULLE_OBJC_GLOBAL
-void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s);
 

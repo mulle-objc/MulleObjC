@@ -94,7 +94,7 @@ struct _mulle_objc_universefoundationinfo_debug
 // this becomes part of the universe structure..
 //
 #define _MULLE_OBJC_FOUNDATIONINFO_N_STRINGSUBCLASSES  8
-#define _MULLE_OBJC_FOUNDATIONINFO_N_NUMBERSUBCLASSES  8
+#define _MULLE_OBJC_FOUNDATIONINFO_N_NUMBERSUBCLASSES  12
 
 struct _mulle_objc_universefoundationinfo
 {

@@ -29,7 +29,7 @@ static int   n_instances;
 }
 
 
-+ (void) test
++ (void) test:(id) unused
 {
    Foo   *foo;
    Foo   *other;
@@ -55,7 +55,7 @@ int  main()
 
    cls    = [Foo class];
    thread = [[NSThread instantiate] initWithTarget:cls
-                                          selector:@selector( test)
+                                          selector:@selector( test:)
                                             object:nil];
    printf( "startUndetached\n");
    [thread mulleStartUndetached];

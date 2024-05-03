@@ -125,10 +125,10 @@ _Pragma("clang diagnostic push")             \
 @optional
 
 
-#define PROTOCOLCLASS_INTERFACE( name, ...)  \
-_Pragma("clang diagnostic push")             \
-@class name;                                 \
-@protocol name < NSObject, __VA_ARGS__ >     \
+#define PROTOCOLCLASS_INTERFACE( name, ...)            \
+_Pragma("clang diagnostic push")                       \
+@class name;                                           \
+@protocol name < NSObject __VA_OPT__(,) __VA_ARGS__ >  \
 @optional
 
 
