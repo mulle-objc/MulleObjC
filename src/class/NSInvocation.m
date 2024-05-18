@@ -256,6 +256,9 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    NSMethodSignature   *signature;
 
    signature = [target methodSignatureForSelector:sel];
+   if( ! signature)
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                         "method not found on target");
    if( [signature numberOfArguments] != 3)
       __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
                                                          "method must accept one argument");
@@ -268,7 +271,6 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    [invocation setSelector:sel];
    [invocation setArgument:&object
                    atIndex:2];
-
 
    return( invocation);
 }
@@ -368,7 +370,7 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
 }
 
 
-static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self, SEL sel)
+static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self, SEL sel, id arg)
 {
    NSInteger   i, n;
    char        *type;
@@ -382,7 +384,8 @@ static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self
    case _C_RETAIN_ID :
    case _C_COPY_ID   :
       [self getReturnValue:&obj];
-      [obj performSelector:sel];
+      [obj performSelector:sel
+                withObject:arg];
    }
 
    n = [self->_methodSignature numberOfArguments];
@@ -397,26 +400,27 @@ static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self
       case _C_RETAIN_ID :
          [self getArgument:&obj
                   atIndex:i];
-         [obj performSelector:sel];
+         [obj performSelector:sel
+                   withObject:arg];
          break;
       }
    }
 }
 
 
-- (void) mulleGainAccess
+- (id) mulleGainAccess
 {
-   [super mulleGainAccess];
-   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd);
+   self = [super mulleGainAccess];
+   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd, self);
+   return( self);
 }
 
 
-- (void) mulleRelinquishAccess
+- (void) mulleRelinquishAccessWithTAOStrategy:(NSUInteger) strategy
 {
-   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd);
-   [super mulleRelinquishAccess];
+   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd, (id) strategy);
+   [super mulleRelinquishAccessWithTAOStrategy:strategy];
 }
-
 
 
 - (NSMethodSignature *) methodSignature
@@ -505,6 +509,7 @@ retain the arguments of variadic methods");
       case _C_RETAIN_ID :
          [self getArgument:&obj
                   atIndex:i];
+         // assert( [obj mulleIsAccessible]);  // can't do this !
          [obj retain];
          break;
 
@@ -613,6 +618,7 @@ retain the arguments of variadic methods");
 
 - (void) setTarget:target
 {
+   assert( ! target || [target mulleIsAccessible]);
    [self setArgument:&target
              atIndex:0];
 }

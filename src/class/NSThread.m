@@ -480,16 +480,35 @@ void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
 }
 
 
+
+// called by bouncyBounce
+- (void) main
+{
+   _rval = -1;  // just in case :)
+
+   if( _function)
+   {
+      _rval = (*_function)( self, _functionArgument);
+      return;
+   }
+
+   // bouncyBounce has made _invocation accessible
+   [self->_invocation invoke];
+}
+
+
+// called via -mulleStartUndetachedWithTAOStrategy:
 static mulle_thread_rval_t   bouncyBounce( void *arg)
 {
    NSThread                      *self = arg;
    struct _mulle_objc_universe   *universe;
 
-   // not sure that this is already set, depending if thread or caller
-   // resumes first
+   // it's not sure that this is already set, depends if thread or caller
+   // comes first
    _NSThreadSetOSThread( self, mulle_thread_self());
 
    universe = _mulle_objc_object_get_universe( self);
+
    // we are in the "naked" thread, but we already have a threadObject
    // so register this thread to be able to to ObjC calls
    _mulle_objc_thread_become_universethread( universe);
@@ -531,7 +550,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 }
 
 
-- (void) mulleStartUndetached
+- (void) mulleStartUndetachedWithTAOStrategy:(MulleObjCTAOStrategy) strategy
 {
    struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_universefoundationinfo   *info;
@@ -559,15 +578,38 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    [self->_invocation mulleRelinquishAccess];
 
    if( mulle_thread_create( bouncyBounce, self, &thread))
-      __mulle_objc_universe_raise_errno( universe, "thread creation");
+   {
+      // undo this
+      _mulle_objc_universe_release( universe);
+      [self release];
 
-   // we can not be sure thread has done this already, but we need to
+      __mulle_objc_universe_raise_errno( universe, "thread creation");
+   }
+
+   // we can not be sure thread has done this already, but we want to
    // be up-to-date
    _NSThreadSetOSThread( self, thread);
 
    if( universe->debug.trace.thread)
       mulle_objc_universe_trace( universe, "%p started thread %p", mulle_thread_self(), thread);
 }
+
+
+- (void) mulleStartUndetached
+{
+   MulleObjCTAOStrategy   strategy;
+
+   strategy = [MulleObjCObjectGetClass( self) mulleTAOStrategy];
+   [self mulleStartUndetachedWithTAOStrategy:strategy];
+}
+
+
+- (void) start
+{
+   [self mulleStartUndetached];
+   [self mulleDetach];
+}
+
 
 
 /*
@@ -867,31 +909,9 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    {
       universe = _mulle_objc_object_get_universe( self),
       __mulle_objc_universe_raise_internalinconsistency( universe,
-                        "can't join a detached thread. Use -mulleStartUndetached");
+                        "can't join a detached thread. Use -mulleStartUndetachedWithTAOStrategy:");
    }
    mulle_thread_join( _NSThreadGetOSThread( self));
-}
-
-
-- (void) start
-{
-   [self mulleStartUndetached];
-   [self mulleDetach];
-}
-
-
-- (void) main
-{
-   _rval = -1;  // just in case :)
-
-   if( _function)
-   {
-      _rval = (*_function)( self, _functionArgument);
-      return;
-   }
-
-   // bouncyBounce has made _invocation accessible
-   [self->_invocation invoke];
 }
 
 
@@ -976,6 +996,12 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 //   fprintf( stderr, "%s %p %ld\n", __PRETTY_FUNCTION__, (void *) mulle_thread_self(), n_threads);
    if( n_threads == 1)
       [thread __isProbablyGoingSingleThreaded];
+
+   //
+   // it's important to get rid of the invocation in this thread, so that
+   // -finalizers run here. Consequently we gotta lose the invocation here
+   // We also do this for the userInfo stuff, i.e. lets run a finalize
+   [thread mullePerformFinalize];
 
    mulle_thread_exit( 0);
 }

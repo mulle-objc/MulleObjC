@@ -124,4 +124,6 @@ void   mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe);
 MULLE_OBJC_GLOBAL
 void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe);
 
+MULLE_OBJC_GLOBAL MULLE_C_NO_RETURN
+void   NSStringVPrintfAbort( id format, va_list args);
 #endif

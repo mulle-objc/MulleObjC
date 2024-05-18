@@ -283,7 +283,8 @@ static void   versionassert( struct _mulle_objc_universe *universe,
 
 # pragma mark - Exceptions
 
-static void  perror_abort( char *s)
+MULLE_C_NO_RETURN
+void   perror_abort( char *s)
 {
    perror( s);
    abort();
@@ -358,16 +359,11 @@ MULLE_C_NO_RETURN MULLE_C_NEVER_INLINE void
 
 
 MULLE_C_NO_RETURN
-static void   internal_inconsistency( id format, va_list args)
+void   NSStringVPrintfAbort( id format, va_list args)
 {
    _mulle_objc_vprintf_abort( [format UTF8String], args);
 }
 
-MULLE_C_NO_RETURN
-static void   invalid_argument( id format, va_list args)
-{
-   _mulle_objc_vprintf_abort( [format UTF8String], args);
-}
 
 MULLE_C_NO_RETURN
 static void   invalid_index( NSUInteger i)
@@ -397,20 +393,21 @@ const struct _mulle_objc_universeconfiguration   *
          NULL
       },
       {
-         sizeof( struct _mulle_objc_universeconfiguration),
-         NULL,
+         .configurationsize = sizeof( struct _mulle_objc_universeconfiguration),
+         .objectallocator   = NULL,
+         .exceptiontable    =
          { // exception vectors
-            (void (*)()) perror_abort,
-            internal_inconsistency,
-            invalid_argument,
-            invalid_index,
-            invalid_range
+           .errno_error            = (void (*)()) perror_abort,
+           .internal_inconsistency = NSStringVPrintfAbort,
+           .invalid_argument       = NSStringVPrintfAbort,
+           .invalid_index          = invalid_index,
+           .invalid_range          = invalid_range
          }
       },
       {
-         (void (*)()) _mulle_objc_universeconfiguration_configure_universe,
-         mulle_objc_postcreate_universe,
-         mulle_objc_teardown_universe
+         .setup      = (void (*)()) _mulle_objc_universeconfiguration_configure_universe,
+         .postcreate = mulle_objc_postcreate_universe,
+         .teardown   = mulle_objc_teardown_universe
       }
    };
 

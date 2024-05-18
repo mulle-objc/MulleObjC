@@ -70,7 +70,7 @@ int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
    //    this as the ivar could reside in the superclass.
    //    Adding the ivar at runtime into the loaded structure breaks the
    //    constness of the setup, which I'd like to keep and blows up the
-   //    runtime for supporting readonly, which I find superflous and
+   //    runtime for supporting readonly, which I find superfluous and
    //    likely to be removed.
    //
    // Remedy?

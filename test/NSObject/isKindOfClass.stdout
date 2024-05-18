@@ -6,9 +6,17 @@ Foo:
 YES
 NO
 NO
+NO
 
 Bar:
 YES
+NO
+NO
+NO
+
+XXX:
+YES
+NO
 NO
 NO
 
@@ -16,9 +24,24 @@ foo:
 YES
 YES
 NO
+NO
 
 bar:
 YES
 YES
 YES
+NO
+
+xxx:
+YES
+NO
+NO
+YES
+
+fails:
+NO
+NO
+NO
+NO
+NO
 NO

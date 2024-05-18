@@ -6,6 +6,7 @@
 
 @class NSMethodSignature;
 
+
 //
 // TODO: for code reuse, give this NSObject as a protocolclass ?
 //
@@ -55,11 +56,29 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 - (BOOL) mulleIsAccessible          MULLE_OBJC_THREADSAFE_METHOD;
 - (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject   MULLE_OBJC_THREADSAFE_METHOD;
 
+//
+// if an object is still autoreleased in one thread, it can be dangerous
+// to `mulleRelinquishAccess` access to it to transfer it to another thread
+// as the -finalize routine may hit and message objects that are in the
+// wrong thread..
+//
+- (BOOL) mulleIsAutoreleased;
+
 // if you pass an object from one thread to another the sender does
 // a relinquish and the receiver does a gain. For objects that are threadsafe
 // already, this does nothing
-- (void) mulleGainAccess            MULLE_OBJC_THREADSAFE_METHOD;
-- (void) mulleRelinquishAccess      MULLE_OBJC_THREADSAFE_METHOD;
+- (id) mulleGainAccess            MULLE_OBJC_THREADSAFE_METHOD;
+
+//
+// the TAO strategy is important, when you are passing objects that are
+// not threadsafe and which may lead directly or indirectly to calling not
+// threadsafe object methods in -finalize and/or -dealloc. When you use
+// -mulleRelinquishAccess, it will call mulleRelinquishAccessWithTAOStrategy: with
+// the value from -mulleTAOStrategy
+//
+- (void) mulleRelinquishAccess                                                 MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy  MULLE_OBJC_THREADSAFE_METHOD;
+- (MulleObjCTAOStrategy) mulleTAOStrategy                                      MULLE_OBJC_THREADSAFE_METHOD;
 
 
 #pragma mark - class introspection
@@ -112,3 +131,48 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 
 PROTOCOLCLASS_END();
 
+
+//
+// Some functions we need elsewhere, due to root classes having problems
+// to call [super isKindOfClass:] as objective-C compiler is still deficient
+//
+static inline
+BOOL   MulleObjCClassIsSubclassOfClass( Class self, Class otherClass)
+{
+   struct _mulle_objc_infraclass   *infra;
+
+   infra = self;
+   do
+   {
+      if( infra == (struct _mulle_objc_infraclass *) otherClass)
+         return( YES);
+   }
+   while( (infra = _mulle_objc_infraclass_get_superclass( infra)));
+
+   return( NO);
+}
+
+
+// NSObjectIsKindOfClass apparently was "official" at some point in time
+static inline
+BOOL   NSObjectIsKindOfClass( id self, Class otherClass)
+{
+   struct _mulle_objc_class   *cls;
+
+   cls = _mulle_objc_object_get_isa( self);
+   do
+   {
+      if( cls == _mulle_objc_infraclass_as_class( otherClass))
+         return( YES);
+   }
+   while( (cls = _mulle_objc_class_get_superclass( cls)));
+
+   return( NO);
+}
+
+
+static inline
+BOOL   MulleObjCInstanceIsMemberOfClass( id self, Class otherClass)
+{
+   return( _mulle_objc_object_get_isa( self) == _mulle_objc_infraclass_as_class( otherClass));
+}

@@ -27,6 +27,8 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadSafe)
    return( MulleObjCObjectRetain( self)); // is a little unclean
 }
 
+// no need for mulleTAOStrategy as it doesn't appy to threadSafe objects
+
 PROTOCOLCLASS_END()
 
 
@@ -52,6 +54,20 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadUnsafe)
    return( nil);
 }
 
+
+// This may be superfluous, since coming from MulleObjCThreadSafe there
+// is no change in the implementation (as the method wont get called). And if
+// some subclass, wants to extend, why would we clobber ? Though, if someone
+// mistakenly "fixed" this in his MulleObjCThreadSafe class, he might be
+// surprised that putting on MulleObjCThreadSafe in his subclass doesn't fix
+//problems....
+//
+// So ensure that the strategy is back to the default
+//
+- (MulleObjCTAOStrategy) mulleTAOStrategy
+{
+   return( MulleObjCTAOCallerRemovesFromCurrentPool);
+}
 
 PROTOCOLCLASS_END()
 
@@ -80,6 +96,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCPlaceboRetainCount)
 - (void) finalize
 {
 }
+
 
 - (void) dealloc
 {
