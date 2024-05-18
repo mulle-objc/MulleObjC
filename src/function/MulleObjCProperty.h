@@ -57,3 +57,104 @@ int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *inf
 
 MULLE_OBJC_GLOBAL
 void   _MulleObjCInstanceClearProperties( id obj, BOOL clearReadOnly);
+
+
+//  MulleObjRecycle and MulleObjCAcquire are useful to transfer objects from
+//  one thread to another.
+//
+//  `_MulleObjCAcquirePointerAtomically` is a thread-safe way to acquire a pointer
+//  atomically. It will return the pointer value if it is not NULL, otherwise
+//  it will return NULL.
+//
+//  `_MulleObjCRecyclePointerAtomically is a thread-safe way to recycle a pointer
+//  atomically. It will return <> 0, if the pointer was successfully recycled, otherwise
+//  it will return 0.
+//
+//  To transfer an object from one thread to another, it gets recycled by one
+//  thread and acquired by the other thread. Notice that an object in its
+//  recycled state is in limbo until the other thread has acquired it and must
+//  not be messaged. It is the responsibility of the storing thread to
+//  discard the object in its -dealloc method, if an object was recycled but
+//  never acquired.
+//
+//  Code it thusly:
+//
+//  ``` objc
+//  - (void) dealloc
+//  {
+//     id   obj;
+//
+//     obj = (id) _mulle_atomic_pointer_read_nonatomic( &self->_available);
+//     [obj release];
+//
+//     [super dealloc];
+//  }
+//  ```
+//
+static inline void   *_MulleObjCAcquirePointerAtomically( mulle_atomic_pointer_t *p)
+{
+   void   *value;
+   void   *actual;
+
+   value = _mulle_atomic_pointer_read( p);
+   if( ! value)
+      return( NULL);
+
+   for(;;)
+   {
+      // zero out _drawnLayer if its contents are "layer"
+      // don't zero on mismatch
+      // return the actual contents of _drawnLayer (before zeroing)
+      actual = __mulle_atomic_pointer_cas( p, NULL, value);
+      if( ! actual || actual == value)
+         return( actual);
+      value = actual;
+   }
+}
+
+
+static inline id   _MulleObjCAcquireObjectAtomically( mulle_atomic_pointer_t *p)
+{
+   id    obj;
+
+   obj = _MulleObjCAcquirePointerAtomically( p);
+   return( [obj mulleGainAccess]);
+}
+
+
+static inline int   _MulleObjRecyclePointerAtomically( mulle_atomic_pointer_t *p,
+                                                       void *value)
+{
+   assert( value);
+   return( _mulle_atomic_pointer_cas( p, value, NULL));
+}
+
+
+//
+// This can fail, if another thread already recycled an object. Its up to the
+// caller to decide, if he wants to acquire and discard this value, or
+// discard his object (or keep both)
+//
+static inline BOOL   _MulleObjCRecycleObjectAtomically( mulle_atomic_pointer_t *p,
+                                                        id obj)
+{
+   int   rval;
+
+   if( ! obj)
+      return( YES);  // fine
+
+   // this will remove the object from our autorelease pools
+   // and its now retained
+   [obj mulleRelinquishAccess];
+   rval = _MulleObjRecyclePointerAtomically( p, obj);
+   if( ! rval)
+   {
+      //MulleUICLog( "Failed to store %#@ into pointer %p", obj, p);
+      [obj mulleGainAccess];  // if recycling, fails plop it back into our thread
+                              // and let autoreleasepool reap it
+      return( NO);
+   }
+   return( YES);
+}
+
+

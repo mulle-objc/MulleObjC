@@ -54,8 +54,10 @@
 {
    NSAutoreleasePool   *_owner;
    void                *_storage;
+   char                _mulleNameUTF8String[ 32];
 }
 
+@property( dynamic, assign) char  *mulleNameUTF8String;
 
 + (id) alloc;
 + (id) new;
@@ -70,26 +72,59 @@
 
 #pragma mark mulle additions:
 
-+ (void) _addObjects:(id *) objects
-               count:(NSUInteger) count;
-- (void) _addObjects:(id *) objects
-               count:(NSUInteger) count;
++ (void) mulleAddObjects:(id *) objects
+                   count:(NSUInteger) count;
+- (void) mulleAddObjects:(id *) objects
+                   count:(NSUInteger) count;
 
-+ (NSAutoreleasePool *) _defaultAutoreleasePool;
-+ (NSAutoreleasePool *) _parentAutoreleasePool;
-- (NSAutoreleasePool *) _parentAutoreleasePool;
++ (NSAutoreleasePool *) mulleDefaultAutoreleasePool;
++ (NSAutoreleasePool *) mulleParentAutoreleasePool;
+- (NSAutoreleasePool *) mulleParentAutoreleasePool;
 
 //
 // these only check within the current thread, these routines are
 // not fast as they search linearly. only useful for debugging
 //
-- (BOOL) _containsObject:(id) p;
-- (NSUInteger) _countObject:(id) p;
+- (BOOL) mulleContainsObject:(id) p;
+- (NSUInteger) mulleCountObject:(id) p;
 
-+ (BOOL) _containsObject:(id) p;
-+ (NSUInteger) _countObject:(id) p;
++ (BOOL) mulleContainsObject:(id) p;
++ (NSUInteger) mulleCountObject:(id) p;
 
+// untested! This like -drain, but the autoreleasepool stays in place
+// so its somewhat nicer than:
+//
+//    NSPopAutoreleasePool( pool);
+//    pool = NSPushAutoreleasePool();
 - (void) mulleReleaseAllObjects;
+
+
+//
+// just do the specific autoreleasepool, find all objects that match
+// and immediately release them. Of course your thread must not touch any
+// of these objects thereafter
+//
++ (void) mulleReleaseObjects:(id *) p
+                       count:(NSUInteger) count;
+- (void) mulleReleaseObjects:(id *) p
+                       count:(NSUInteger) count;
+
+//
+// Returns YES, if 'p' has autoreleases
+//
++ (BOOL) mulleContainsObject:(id) p;
+- (BOOL) mulleContainsObject:(id) p;
+
+
+// count number of autoreleases for object
++ (NSUInteger) mulleCountObject:(id) p;
+- (NSUInteger) mulleCountObject:(id) p;
+
+// just for statistical interest, these are not distinct objects but
+// "autoreleases"
+//
++ (NSUInteger) mulleCount;
+- (NSUInteger) mulleCount;
 
 @end
 
@@ -129,7 +164,6 @@ static inline NSAutoreleasePool   *MulleAutoreleasePoolPush( void)
 {
    return( _MulleAutoreleasePoolPush( __MULLE_OBJC_UNIVERSEID__));
 }
-
 
 
 // we ignore the size

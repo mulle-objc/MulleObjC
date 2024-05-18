@@ -45,14 +45,14 @@ struct MulleObjCAutoreleasePoolConfiguration;
 
 typedef int   MulleThreadFunction_t( NSThread *, void *);
 
-
-// TODO: not really threadsafe, need to fix
-//       should use a NSInvocation really instead of the self brewed
-//        target selector argument thingy
-// it's not really immutable but thread safe (except that its not )
 //
 // A NSThread is a 1:1 relationship to a mulle_thread, if the mulle_thread dies
 // the  NSThread is gone. We don't switch threads inside a NSThread.
+// If you pass non-threadsafe objects to the NSThread via the NSInvocation,
+// these objects will be unusable in the caller thread once the thread is
+// started. You must not access them anymore. This includes the target.
+// The default strategy even removes not-threadsafe objects from the active
+// NSAutoreleasePool of the caller thread.
 //
 @interface NSThread : NSObject < MulleObjCThreadSafe>
 {
@@ -71,6 +71,8 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
    int                      _rval;
 }
 
+// this property can only be set by the caller, before the thread is
+// actually executed
 @property( dynamic, assign) char  *mulleNameUTF8String  MULLE_OBJC_THREADSAFE_PROPERTY;
 
 + (NSThread *) mainThread;
@@ -141,7 +143,8 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 
 // the thread is started and starts running, but still should be joined or
 // detached
-- (void) mulleStartUndetached;   // __attribute__((availability(mulleobjc,introduced=0.2)));
+- (void) mulleStartUndetached;  // uses -mulleTAOStrategy of the NSInvocation
+- (void) mulleStartUndetachedWithTAOStrategy:(MulleObjCTAOStrategy) strategy;
 
 // do this only once, the runloop will be retained by NSThread
 // do not use the passed in runLoop, instead use the return value
@@ -274,3 +277,42 @@ static inline mulle_thread_t  _NSThreadGetCurrentOSThread( void)
 }
 
 
+
+
+
+
+//
+// This is a function for test code to see if your class has problems with
+// the TAO-dilemma.
+// The setupMethod should configure the receiver as incoveniently as possible
+// i.e. all properties (references) should be to non-threadsafe objects (where
+// it makes sense)
+//
+// e.g.
+// ``` objc
+// @implementation Test (TAOTest)
+// - (void) mulleTAOTestSetup:(id) arg
+// {
+//    Bar   *bar;
+//
+//    MULLE_C_UNUSED( arg);
+//    bar = [Bar object];
+//    [self setBar:bar];
+// }
+// @end
+
+static inline void  MulleObjCTAOTest( Class cls, id arg)
+{
+   id         obj;
+   NSThread   *thread;
+
+   @autoreleasepool
+   {
+      obj    = [cls object];
+      thread = [[[NSThread alloc] initWithTarget:obj
+                                        selector:@selector( mulleTAOTestSetup)
+                                          object:arg] autorelease];
+      [thread mulleStartUndetached];
+      [thread mulleJoin];
+   }
+}

@@ -147,7 +147,8 @@ PROTOCOLCLASS_END()
 @end
 
 
-// its expected that you can serialize a value
+
+// Its expected that you can serialize a value.
 @protocol MulleObjCValue
 @end
 
@@ -164,25 +165,42 @@ PROTOCOLCLASS_END()
 @end
 
 
+
 // convenience declaration to put on concrete immutable value subclasses
-#define MulleObjCValueProtocols             MulleObjCValue, MulleObjCInvariant, MulleObjCRuntimeObject, MulleObjCImmutable, MulleObjCThreadSafe
+// order is important here
+#define MulleObjCValueProtocols             MulleObjCRuntimeObject,  \
+                                            MulleObjCValue,          \
+                                            MulleObjCInvariant,      \
+                                            MulleObjCImmutable,      \
+                                            MulleObjCThreadSafe
 
 // convenience declaration to put on concrete mutable value subclasses
-#define MulleObjCMutableValueProtocols      MulleObjCValue,  MulleObjCThreadUnsafe, MulleObjCRuntimeObject
+#define MulleObjCMutableValueProtocols      MulleObjCRuntimeObject,  \
+                                            MulleObjCValue,          \
+                                            MulleObjCThreadUnsafe
+
 
 // convenience declaration to put on concrete immutable container subclasses
-#define MulleObjCContainerProtocols         MulleObjCContainer, MulleObjCRuntimeObject, MulleObjCImmutable, MulleObjCThreadSafe
+#define MulleObjCContainerProtocols         MulleObjCRuntimeObject,  \
+                                            MulleObjCContainer,      \
+                                            MulleObjCImmutable,      \
+                                            MulleObjCThreadSafe
 
 // convenience declaration to put on concrete mutable container subclasses
 // generally we don't like -mutableCopy and don't want to prolong its existence
-#define MulleObjCMutableContainerProtocols  MulleObjCContainer, MulleObjCThreadUnsafe, MulleObjCRuntimeObject
-
+#define MulleObjCMutableContainerProtocols  MulleObjCRuntimeObject,  \
+                                            MulleObjCContainer,      \
+                                            MulleObjCThreadUnsafe
 
 // convenience declaration to put on all other immutable objects
-#define MulleObjCImmutableProtocols         MulleObjCImmutable, MulleObjCThreadSafe, MulleObjCRuntimeObject
+#define MulleObjCImmutableProtocols         MulleObjCRuntimeObject,  \
+                                            MulleObjCImmutable,      \
+                                            MulleObjCThreadSafe      \
+
 
 // convenience declaration to *optionally* put on all other objects
-#define MulleObjCMutableProtocols           MulleObjCThreadUnsafe, MulleObjCRuntimeObject
+#define MulleObjCMutableProtocols           MulleObjCRuntimeObject,  \
+                                            MulleObjCThreadUnsafe
 
 
 _PROTOCOLCLASS_INTERFACE0( MulleObjCPlaceboRetainCount)

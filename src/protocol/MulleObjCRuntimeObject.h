@@ -17,6 +17,19 @@
 #endif
 
 
+typedef NS_ENUM( NSUInteger, MulleObjCTAOStrategy)
+{
+   MulleObjCTAOCallerRemovesFromCurrentPool, // use this, if you just created the object to pass
+   MulleObjCTAOCallerRemovesFromAllPools,    // try to avoid this
+   MulleObjCTAOReceiverPerformsFinalize,     // for special setups
+   MulleObjCTAOKnownThreadSafeMethods,       // aspire to use this (-finalize/-dealloc only do threadsafe stuff)
+   MulleObjCTAOKnownThreadSafe               // or this (only threadsafe objects are involved)
+};
+
+extern NS_ENUM_TABLE( MulleObjCTAOStrategy, 5);
+
+
+
 // make this somewhat "official" by removing the underscore prefix
 typedef struct _mulle_objc_dependency     mulle_objc_dependency_t;
 
@@ -172,9 +185,11 @@ _Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
 
 // if you pass an object from one thread to another the sender does
 // a relinquish and the receiver does a gain. For objects that are threadsafe
-// already, this does nothing
-- (void) mulleGainAccess            MULLE_OBJC_THREADSAFE_METHOD;
+// already, this does nothing. -mulleGainAccess returnValue is that of -autorelease
+- (id) mulleGainAccess              MULLE_OBJC_THREADSAFE_METHOD;
 - (void) mulleRelinquishAccess      MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy MULLE_OBJC_THREADSAFE_METHOD;
+- (MulleObjCTAOStrategy) mulleTAOStrategy MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
 

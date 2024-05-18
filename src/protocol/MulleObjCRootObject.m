@@ -13,6 +13,16 @@
 #import "mulle-objc-universefoundationinfo-private.h"
 
 
+NS_ENUM_TABLE( MulleObjCTAOStrategy, 5) =
+{
+   NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromCurrentPool),
+   NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromAllPools),
+   NS_ENUM_ITEM( MulleObjCTAOReceiverPerformsFinalize),
+   NS_ENUM_ITEM( MulleObjCTAOKnownThreadSafeMethods),
+   NS_ENUM_ITEM( MulleObjCTAOKnownThreadSafe)
+};
+
+
 PROTOCOLCLASS_IMPLEMENTATION( MulleObjCRootObject)
 
 + (instancetype) alloc
@@ -74,7 +84,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCRootObject)
 
    if( config->object.zombieenabled)
    {
-      if( [NSAutoreleasePool _countObject:self] )
+      if( [NSAutoreleasePool mulleCountObject:self] )
          __mulle_objc_universe_raise_internalinconsistency( universe,
                         "deallocing object %p still in autoreleasepool", self);
    }
@@ -105,7 +115,7 @@ static void   checkAutoreleaseRelease( id self)
       NSUInteger   autoreleaseCount;
       NSUInteger   retainCount;
 
-      autoreleaseCount = [NSAutoreleasePool _countObject:self];
+      autoreleaseCount = [NSAutoreleasePool mulleCountObject:self];
       retainCount      = [self retainCount];
       if( autoreleaseCount >= retainCount)
       {
@@ -173,11 +183,13 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 - (BOOL) mulleIsAccessible
 {
    mulle_thread_t   osThread;
+   mulle_thread_t   currentOSThread;
 
    osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
    if( ! osThread)
       return( YES);
-   return( osThread == _NSThreadGetCurrentOSThread());
+   currentOSThread = _NSThreadGetCurrentOSThread();
+   return( osThread == currentOSThread);
 }
 
 
@@ -195,37 +207,158 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-- (void) mulleGainAccess
+- (BOOL) mulleIsAutoreleased
+{
+   return( [NSAutoreleasePool mulleCountObject:self] > 0);
+}
+
+
+//
+// There are three kinds of TAO states:
+//
+//   1. Object belongs to no  threads (osThread == -1) lives in no autoreleasepool
+//   2. Object belongs to one thread  (osThread == x)  lives in x's autoreleaspool
+//   3. Object belongs to all threads (osThread == 0)  lives in all autoreleasepools (!)
+//
+// In terms of mulle-objc "always autoreleased" philosophy an object that is
+// accessible by a thread, also lives in one of the autoreleasepools of the
+// thread.
+//
+// mulleGainAccess       transitions:  1 -> 2, 3 -> 3
+// mulleRelinquishAccess transitions:  2 -> 1, 3 -> 3
+//
+// A mulleGainAccess needs to be paired with a mulleRelinquishAccess.
+//
+// The transfer ensures that the object is placed into the autorelease pool
+// of the receiving thread. mulleRelinquishAccess retains the object
+//
+
+- (id) mulleGainAccess
 {
    mulle_thread_t   osThread;
    mulle_thread_t   currentOSThread;
 
    osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
+   if( osThread)
+   {
+#ifdef DEBUG
+      currentOSThread = _NSThreadGetCurrentOSThread();
+      if( osThread != (mulle_thread_t) -1)
+      {
+         // This can happen if you gain an [NSArray arrayWithObjets:foo, foo, nil];
+         // So an object could have been already gainedAccess to. This is no
+         // problem as the relinquish will have retaied twice also
+         if( currentOSThread != osThread)
+            MulleObjCThrowInternalInconsistencyExceptionUTF8String( "your thread %p "
+                                                                    "can not gain access "
+                                                                    "to object %p "
+                                                                    "still owned by thread %p",
+                                                                    currentOSThread,
+                                                                    self,
+                                                                    osThread);
+      }
+#else
+      assert( osThread == -1 || currentOSThread == osThread);
+#endif
+      _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, currentOSThread);
+   }
+
+   // the relinquish will have added a -retain
+   return( [self autorelease]);
+}
+
+
+- (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy
+{
+   mulle_thread_t   osThread;
+   mulle_thread_t   currentOSThread;
+
+   [self retain];
+
+   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
    if( ! osThread)
       return;
 
+   //
+   // MEMO: we don't need to make this check in Release
+   //       as this is an error that appears during development quickly
+#ifdef DEBUG
    currentOSThread = _NSThreadGetCurrentOSThread();
-   if( currentOSThread != osThread && osThread != (mulle_thread_t) -1)
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p can not gain access to this object %p\n",
-                                                      currentOSThread, self);
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, currentOSThread);
+   if( currentOSThread != osThread)
+   {
+      // This can happen if you relinquish [NSArray arrayWithObjets:foo, foo, nil];
+      // So an object could have been already relinquished. This is no problem
+      // as the gain will also autorelease it twice
+      if( osThread == (mulle_thread_t) -1)
+         return;
+
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p "
+                                                              "does not have access "
+                                                              "to this object %p "
+                                                              "owned by thread %p",
+                                                              currentOSThread,
+                                                              self,
+                                                              osThread);
+   }
+#else
+   assert( osThread != -1 || currentOSThread == osThread);
+#endif
+   //
+   // add this now, before the object might get removed from current thread
+   // autoreleasepool
+   //
+   switch( strategy)
+   {
+   case MulleObjCTAOKnownThreadSafe          :
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're assuming object %p "
+                                                              "is threadsafe but it has an "
+                                                              "affinity to thread %p (indicating it is not)",
+                                                              self,
+                                                              osThread);
+      // the differentations are just for self commenting code
+   case MulleObjCTAOKnownThreadSafeMethods   :
+      // no way to check this, TAO will catch it
+   case MulleObjCTAOReceiverPerformsFinalize :
+      break;
+
+   //
+   // This should generally not be used over MulleObjCForceAutoreleaseCurrentPool.
+   // It indicates that someone is still holding a reference and is likely to
+   // fail in the future
+   //
+   case MulleObjCTAOCallerRemovesFromAllPools :
+      [NSAutoreleasePool mulleReleaseObjects:&self
+                                       count:1];
+      break;
+
+   case MulleObjCTAOCallerRemovesFromCurrentPool :
+      [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleaseObjects:&self
+                                                                     count:1];
+#ifdef DEBUG
+      if( [NSAutoreleasePool mulleContainsObject:self])
+         MulleObjCThrowInternalInconsistencyExceptionUTF8String( "a parent autoreleasepool is still holding "
+                                                                 "a reference to object %p ",
+                                                                 self);
+#endif
+      break;
+   }
+
+   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, (mulle_thread_t) -1);
+}
+
+
+- (MulleObjCTAOStrategy) mulleTAOStrategy
+{
+   return( MulleObjCTAOCallerRemovesFromCurrentPool);
 }
 
 
 - (void) mulleRelinquishAccess
 {
-   mulle_thread_t   osThread;
-   mulle_thread_t   currentOSThread;
+   MulleObjCTAOStrategy   strategy;
 
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( ! osThread)
-      return;
-
-   currentOSThread = _NSThreadGetCurrentOSThread();
-   if( currentOSThread != osThread && osThread != (mulle_thread_t) -1)
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p does not have access to this object %p\n",
-                                                      currentOSThread, self);
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, (mulle_thread_t) -1);
+   strategy = [self mulleTAOStrategy];
+   [self mulleRelinquishAccessWithTAOStrategy:strategy];
 }
 
 
@@ -265,40 +398,29 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
+// YES if the receiving class is a subclass of—or identical to—aClass, otherwise NO.
 
 + (BOOL) isSubclassOfClass:(Class) otherClass
 {
-   Class   cls;
-
-   cls = self;
-   do
-   {
-      if( cls == otherClass)
-         return( YES);
-   }
-   while( (cls = _mulle_objc_infraclass_get_superclass( cls)));
-   return( NO);
+   return( MulleObjCClassIsSubclassOfClass( self, otherClass));
 }
 
 
 - (BOOL) isKindOfClass:(Class) otherClass
 {
-   struct _mulle_objc_class   *cls;
+   return( NSObjectIsKindOfClass( self, otherClass));
+}
 
-   cls = _mulle_objc_object_get_isa( self);
-   do
-   {
-      if( cls == _mulle_objc_infraclass_as_class( otherClass))
-         return( YES);
-   }
-   while( (cls = _mulle_objc_class_get_superclass( cls)));
-   return( NO);
+
++ (BOOL) isMemberOfClass:(Class) otherClass
+{
+   return( NO);  // seemingly the most compatible implementation...
 }
 
 
 - (BOOL) isMemberOfClass:(Class) otherClass
 {
-   return( _mulle_objc_object_get_isa( self) == _mulle_objc_infraclass_as_class( otherClass));
+   return( MulleObjCInstanceIsMemberOfClass( self, otherClass));
 }
 
 
@@ -481,6 +603,9 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
+//
+// somewhat negelected code zone
+//
 #pragma mark - universe owned objects
 
 + (NSUInteger) _getRootObjects:(id *) buf
@@ -578,7 +703,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 {
    NSAutoreleasePool   *pool;
 
-   pool = [NSAutoreleasePool _parentAutoreleasePool];
+   pool = [NSAutoreleasePool mulleParentAutoreleasePool];
    if( pool)
    {
       [self retain];
@@ -590,8 +715,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-
-
+// neglected code zone
 #pragma mark - walk object graph support
 
 struct collect_info

@@ -262,7 +262,7 @@ static id
 
    if( config->object.zombieenabled)
    {
-      if( [NSAutoreleasePool _countObject:self] )
+      if( [NSAutoreleasePool mulleCountObject:self] )
          __mulle_objc_universe_raise_internalinconsistency( universe,
          					"deallocing object %p still in autoreleasepool", self);
    }
@@ -293,7 +293,7 @@ static void   checkAutoreleaseRelease( NSObject *self)
       NSUInteger   autoreleaseCount;
       NSUInteger   retainCount;
 
-      autoreleaseCount = [NSAutoreleasePool _countObject:self];
+      autoreleaseCount = [NSAutoreleasePool mulleCountObject:self];
       retainCount      = [self retainCount];
       if( autoreleaseCount >= retainCount)
       {

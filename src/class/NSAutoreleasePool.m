@@ -213,6 +213,18 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
 }
 
 
+- (char *) mulleNameUTF8String
+{
+   return( _mulleNameUTF8String[ 0] ? &_mulleNameUTF8String[ 0] : "unnamed");
+}
+
+
+- (void) mulleSetNameUTF8String:(char *) s
+{
+   strncpy( _mulleNameUTF8String, s ? s : "", sizeof( _mulleNameUTF8String) - 1);
+}
+
+
 //
 // Apparently not used anymore
 //
@@ -251,21 +263,6 @@ static inline struct _mulle_autoreleasepointerarray   *
 
    size = _mulle_objc_infraclass_get_instancesize( config->poolClass);
    return( (struct _mulle_autoreleasepointerarray *) &((char *) pool)[ size]);
-}
-
-
-static inline int   _containsObject( NSAutoreleasePool *self, id p)
-{
-   struct _mulle_autoreleasepointerarray   *array;
-
-   if( ! self)
-      return( 0);
-
-   array = (struct _mulle_autoreleasepointerarray *) self->_storage;
-   if( ! array)
-      return( 0);
-
-   return( _mulle_autoreleasepointerarray_contains( array, p));
 }
 
 
@@ -411,7 +408,7 @@ static inline void   addObjects( struct _mulle_objc_poolconfiguration *config,
 }
 
 
-+ (NSAutoreleasePool *) _defaultAutoreleasePool
++ (NSAutoreleasePool *) mulleDefaultAutoreleasePool
 {
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;
@@ -422,7 +419,7 @@ static inline void   addObjects( struct _mulle_objc_poolconfiguration *config,
 }
 
 
-+ (NSAutoreleasePool *) _parentAutoreleasePool
++ (NSAutoreleasePool *) mulleParentAutoreleasePool
 {
    NSAutoreleasePool                      *pool;
    struct _mulle_objc_poolconfiguration   *config;
@@ -437,12 +434,15 @@ static inline void   addObjects( struct _mulle_objc_poolconfiguration *config,
 }
 
 
-- (NSAutoreleasePool *) _parentAutoreleasePool
+- (NSAutoreleasePool *) mulleParentAutoreleasePool
 {
    return( self->_owner);
 }
 
 
+//
+// autoreleaseObject
+//
 static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, id p)
 {
    NSUInteger   count;
@@ -503,6 +503,7 @@ static inline void   autoreleaseObject( id p, struct _mulle_objc_universe *unive
 }
 
 
+
 - (void) addObject:(id) p
 {
    autoreleaseObject( p, _mulle_objc_object_get_universe( self));
@@ -514,6 +515,10 @@ static inline void   autoreleaseObject( id p, struct _mulle_objc_universe *unive
    autoreleaseObject( p, _mulle_objc_infraclass_get_universe( self));
 }
 
+
+//
+// autoreleaseObjects
+//
 
 static void   _autoreleaseObjects( struct _mulle_objc_poolconfiguration *config,
                                    id *objects,
@@ -586,32 +591,72 @@ static inline void   autoreleaseObjects( id *objects,
 }
 
 
-- (void) _addObjects:(id *) objects
+- (void) mulleAddObjects:(id *) objects
                count:(NSUInteger) count
 {
    autoreleaseObjects( objects, count, _mulle_objc_object_get_universe( self));
 }
 
 
-+ (void) _addObjects:(id *) objects
++ (void) mulleAddObjects:(id *) objects
                count:(NSUInteger) count
 {
    autoreleaseObjects( objects, count, _mulle_objc_object_get_universe( self));
 }
 
 
-- (BOOL) _containsObject:(id) p
+//
+// contains
+//
+static inline int   mulleContainsObject( NSAutoreleasePool *self, id p)
+{
+   struct _mulle_autoreleasepointerarray   *array;
+
+   if( ! self)
+      return( 0);
+
+   array = (struct _mulle_autoreleasepointerarray *) self->_storage;
+   if( ! array)
+      return( 0);
+
+   return( _mulle_autoreleasepointerarray_contains( array, p));
+}
+
+
+- (BOOL) mulleContainsObject:(id) p
 {
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;
 
    universe = _mulle_objc_object_get_universe( self);
    config   = mulle_objc_thread_get_poolconfiguration( universe);
-   return( _containsObject( config->tail, p));
+   return( mulleContainsObject( config->tail, p));
 }
 
 
-static inline int   _countObject( NSAutoreleasePool *self, id p)
++ (BOOL) mulleContainsObject:(id) p
+{
+   NSAutoreleasePool                      *pool;
+   struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
+
+   universe = _mulle_objc_object_get_universe( self);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
+   if( config->object_map)
+      return( (NSUInteger) mulle_map_get( config->object_map, p) != 0);
+
+   for( pool = config->tail; pool; pool = pool->_owner)
+      if( mulleContainsObject( pool, p))
+         return( YES);
+
+   return( NO);
+}
+
+
+//
+// count
+//
+static inline int   mulleCountObject( NSAutoreleasePool *self, id p)
 {
    struct _mulle_autoreleasepointerarray   *array;
 
@@ -626,37 +671,18 @@ static inline int   _countObject( NSAutoreleasePool *self, id p)
 }
 
 
-- (NSUInteger) _countObject:(id) p;
+- (NSUInteger) mulleCountObject:(id) p;
 {
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;
 
    universe = _mulle_objc_object_get_universe( self);
    config   = mulle_objc_thread_get_poolconfiguration( universe);
-   return( _countObject( config->tail, p));
+   return( mulleCountObject( config->tail, p));
 }
 
 
-+ (BOOL) _containsObject:(id) p
-{
-   NSAutoreleasePool                      *pool;
-   struct _mulle_objc_poolconfiguration   *config;
-   struct _mulle_objc_universe            *universe;
-
-   universe = _mulle_objc_object_get_universe( self);
-   config   = mulle_objc_thread_get_poolconfiguration( universe);
-   if( config->object_map)
-      return( (NSUInteger) mulle_map_get( config->object_map, p) != 0);
-
-   for( pool = config->tail; pool; pool = pool->_owner)
-      if( _containsObject( pool, p))
-         return( YES);
-
-   return( NO);
-}
-
-
-+ (NSUInteger) _countObject:(id) p;
++ (NSUInteger) mulleCountObject:(id) p;
 {
    NSAutoreleasePool                      *pool;
    NSUInteger                             count;
@@ -670,12 +696,109 @@ static inline int   _countObject( NSAutoreleasePool *self, id p)
 
    count  = 0;
    for( pool = config->tail; pool; pool = pool->_owner)
-      count += _countObject( pool, p);
+      count += mulleCountObject( pool, p);
 
    return( count);
 }
 
 
+static inline unsigned int   mulleCount( NSAutoreleasePool *self)
+{
+   struct _mulle_autoreleasepointerarray   *array;
+
+   if( ! self)
+      return( 0);
+
+   array = (struct _mulle_autoreleasepointerarray *) self->_storage;
+   if( ! array)
+      return( 0);
+
+   return( _mulle_autoreleasepointerarray_count( array));
+}
+
+
+- (NSUInteger) mulleCount
+{
+   struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
+
+   universe = _mulle_objc_object_get_universe( self);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
+   return( mulleCount( config->tail));
+}
+
+
++ (NSUInteger) mulleCount
+{
+   NSAutoreleasePool                      *pool;
+   NSUInteger                             count;
+   struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
+
+   universe = _mulle_objc_object_get_universe( self);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
+
+   count    = 0;
+   for( pool = config->tail; pool; pool = pool->_owner)
+      count += mulleCount( pool);
+
+   return( count);
+}
+
+
+
+
+//
+// release
+//
+static inline void   releaseObjects( NSAutoreleasePool *self,
+                                    id *p,
+                                    NSUInteger n,
+                                    struct mulle_map *object_map)
+{
+   struct _mulle_autoreleasepointerarray   *array;
+
+   if( ! self)
+      return;
+
+   array = (struct _mulle_autoreleasepointerarray *) self->_storage;
+   if( ! array)
+      return;
+
+   _mulle_autoreleasepointerarray_release_objects( array, p, n, object_map);
+}
+
+
+- (void) mulleReleaseObjects:(id *) p
+                       count:(NSUInteger) count
+{
+   struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
+
+   universe = _mulle_objc_object_get_universe( self);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
+   releaseObjects( config->tail, p, count, config->object_map);
+}
+
+
++ (void) mulleReleaseObjects:(id *) p
+                       count:(NSUInteger) count
+{
+   NSAutoreleasePool                      *pool;
+   struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
+
+   universe = _mulle_objc_object_get_universe( self);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
+
+   for( pool = config->tail; pool; pool = pool->_owner)
+      releaseObjects( pool, p, count, config->object_map);
+}
+
+
+//
+// push / pop pools
+//
 static void   *pushAutoreleasePool( struct _mulle_objc_poolconfiguration *config)
 {
    NSAutoreleasePool                       *pool;

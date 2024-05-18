@@ -40,9 +40,18 @@
 #import "MulleObjCExceptionHandler.h"
 
 #include "mulle-objc-exceptionhandlertable-private.h"
+#include "mulle-objc-universeconfiguration-private.h"
 #include "mulle-objc-universefoundationinfo-private.h"
 #include <stdarg.h>
 
+
+extern
+MULLE_C_NO_RETURN void
+   _mulle_objc_vprintf_abort( char *format, va_list args);
+
+extern
+MULLE_C_NO_RETURN
+void   perror_abort( char *s);
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
@@ -174,7 +183,9 @@ void   _MulleObjCThrowInvalidArgumentExceptionUTF8String( mulle_objc_universeid_
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    va_start( args, format);
-   string     = (*rootconfig->string.objectfromchars)( format);
+   if( *rootconfig->exception.vectors.invalid_argument == NSStringVPrintfAbort)
+      _mulle_objc_vprintf_abort( format, args);
+   string = (*rootconfig->string.objectfromchars)( format);
    (*rootconfig->exception.vectors.invalid_argument)( string, args);
    va_end( args);
 }
@@ -182,7 +193,8 @@ void   _MulleObjCThrowInvalidArgumentExceptionUTF8String( mulle_objc_universeid_
 
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowInternalInconsistencyExceptionUTF8String( mulle_objc_universeid_t universeid,
-                                                             char *format, ...)
+                                                                char *format,
+                                                                ...)
 {
    struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_universefoundationinfo   *rootconfig;
@@ -193,7 +205,9 @@ void   _MulleObjCThrowInternalInconsistencyExceptionUTF8String( mulle_objc_unive
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    va_start( args, format);
-   string     = (*rootconfig->string.objectfromchars)( format);
+   if( *rootconfig->exception.vectors.invalid_argument == NSStringVPrintfAbort)
+      _mulle_objc_vprintf_abort( format, args);
+   string = (*rootconfig->string.objectfromchars)( format);
    (*rootconfig->exception.vectors.internal_inconsistency)( string, args);
    va_end( args);
 }
@@ -201,7 +215,7 @@ void   _MulleObjCThrowInternalInconsistencyExceptionUTF8String( mulle_objc_unive
 
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowErrnoExceptionUTF8String( mulle_objc_universeid_t universeid,
-                                             char *format, ...)
+                                                char *format, ...)
 {
    struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_universefoundationinfo   *rootconfig;
@@ -212,6 +226,9 @@ void   _MulleObjCThrowErrnoExceptionUTF8String( mulle_objc_universeid_t universe
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    va_start( args, format);
+   if( (void (*)( void)) *rootconfig->exception.vectors.invalid_argument == (void (*)( void)) perror_abort)
+      perror_abort( format);
+
    string     = (*rootconfig->string.objectfromchars)( format);
    (*rootconfig->exception.vectors.errno_error)( string, args);
    va_end( args);

@@ -110,6 +110,7 @@ struct _mulle_autoreleasepointerarray
    struct _mulle_autoreleasepointerarray   *previous;
 
    NSUInteger   used;
+   NSUInteger   count;
    id           objects[ MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS];
 };
 
@@ -128,9 +129,27 @@ static inline struct _mulle_autoreleasepointerarray *
 #endif
 
    array->used     = 0;
+   array->count    = 0;
    array->previous = previous;
 
    return( array);
+}
+
+
+static inline void
+   _mulle_object_map_release_and_free( struct mulle_map *object_map,
+                                       void *opfer)
+{
+   NSUInteger   value;
+
+   value = (NSUInteger) mulle_map_get( object_map, opfer);
+   assert( value && "object appeared in pool out of nowhere");
+   --value;
+
+   if( ! value)
+      mulle_map_remove( object_map, opfer);
+   else
+      mulle_map_set( object_map, opfer, (void *) value);
 }
 
 
@@ -143,7 +162,6 @@ static inline void
    struct _mulle_autoreleasepointerarray   *p, *q;
    id                                      *objects;
    id                                      *sentinel;
-   NSUInteger                              value;
    id                                      opfer;
 
    for( p = end; p; p = q)
@@ -156,25 +174,28 @@ static inline void
       objects  = &p->objects[ p->used];
       sentinel = p->objects;
 
+      // We could avoid the if opfer check, if we precheck that count == used
+      // if( p->count == p->used), meaning there are no holes
       if( object_map)
       {
          while( objects > sentinel)
          {
             opfer = *--objects;
-            value = (NSUInteger) mulle_map_get( object_map, opfer);
-            assert( value && "object appeared in pool out of nowhere");
-            --value;
-
-            if( ! value)
-               mulle_map_remove( object_map, opfer);
-            else
-               mulle_map_set( object_map, opfer, (void *) value);
-            _mulle_objc_object_release_inline( opfer);
+            if( opfer)
+            {
+               _mulle_object_map_release_and_free( object_map, opfer);
+               _mulle_objc_object_release_inline( opfer);
+            }
          }
       }
       else
+      {
          while( objects > sentinel)
-            _mulle_objc_object_release_inline( *--objects);
+         {
+            opfer = *--objects;
+            mulle_objc_object_release_inline( opfer);
+         }
+      }
 
       if( p != staticStorage)
       {
@@ -198,6 +219,7 @@ static inline void
    id                                      *objects;
    id                                      *sentinel;
    struct _mulle_autoreleasepointerarray   *p, *q;
+   id                                      obj;
 
    for( p = end; p; p = q)
    {
@@ -207,11 +229,14 @@ static inline void
       sentinel = &p->objects[ p->used];
       while( objects < sentinel)
       {
-         fprintf( stderr, "[pool] %p %p (RC: %ld)\n",
-                              *objects,
-                              verb,
-                              (long) mulle_objc_object_get_retaincount( *objects));
-         objects++;
+         obj = *objects++;
+         if( obj)
+         {
+            fprintf( stderr, "[pool] %p %p (RC: %ld)\n",
+                                 obj,
+                                 verb,
+                                 (long) mulle_objc_object_get_retaincount( obj));
+         }
       }
    }
 }
@@ -247,8 +272,8 @@ static inline void
    assert( array->used < MULLE_AUTORELEASEPOINTERARRRAY_N_OBJECTS);
 
    array->objects[ array->used++] = p;
+   array->count++;
 }
-
 
 
 static inline int
@@ -294,16 +319,60 @@ static inline unsigned int
    return( count);
 }
 
+
+
+static inline void
+   _mulle_autoreleasepointerarray_release_objects( struct _mulle_autoreleasepointerarray *array,
+                                                   id *objects,
+                                                   NSUInteger  count,
+                                                   struct mulle_map *object_map)
+
+{
+   id   *q;
+   id   *q_sentinel;
+   id   *p;
+   id   *p_sentinel;
+   id   obj;
+
+   // this doesn't change over the course of the loops
+   p_sentinel = &objects[ count];
+
+   do
+   {
+      q_sentinel = array->objects;
+      q          = &array->objects[ array->used];
+
+      while( q > q_sentinel)
+      {
+         obj = *--q;
+
+         for( p = objects; p < p_sentinel; ++p)
+         {
+            if( *p == obj)
+            {
+               *q = NULL;
+               array->count--;
+               if( object_map)
+                  _mulle_object_map_release_and_free( object_map, obj);
+               _mulle_objc_object_release_inline( obj);
+               break;
+            }
+         }
+      }
+   }
+   while( array = array->previous);
+}
+
+
 static inline unsigned int
    _mulle_autoreleasepointerarray_count( struct _mulle_autoreleasepointerarray *array)
 {
    unsigned int   count;
 
    for( count = 0; array; array = array->previous)
-      count += array->used;
+      count += array->count;
 
    return( count);
 }
-
 
 #endif
