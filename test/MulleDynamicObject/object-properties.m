@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 
-@interface Foo : MulleObject
+@interface Foo : MulleDynamicObject
 @end
 
 
@@ -29,7 +29,7 @@
 @end
 
 
-@interface Value : MulleObject <NSCopying>
+@interface Value : MulleDynamicObject <NSCopying>
 
 @property( dynamic) char  *nameUTF8String;
 

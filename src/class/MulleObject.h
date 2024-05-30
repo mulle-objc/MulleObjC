@@ -1,99 +1,95 @@
-//
-//  MulleObject.m
-//  MulleObjC
-//
-//  Copyright (c) 2020 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2020 Codeon GmbH.
-//  All rights reserved.
-//
-//
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//  Redistributions of source code must retain the above copyright notice, this
-//  list of conditions and the following disclaimer.
-//
-//  Redistributions in binary form must reproduce the above copyright notice,
-//  this list of conditions and the following disclaimer in the documentation
-//  and/or other materials provided with the distribution.
-//
-//  Neither the name of Mulle kybernetiK nor the names of its contributors
-//  may be used to endorse or promote products derived from this software
-//  without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-//  POSSIBILITY OF SUCH DAMAGE.
-//
-#import "NSObject.h"
+#ifdef __has_include
+# if __has_include( "MulleDynamicObject.h")
+#  import "MulleDynamicObject.h"
+# endif
+#endif
 
-#import "NSMutableCopying.h"
+#import "import.h"
 
+#import "NSLocking.h"
+#import "NSRecursiveLock.h"
+
+
+// Assume obj is of a subclass of MulleObject, which implements the
+// method `-call:`
 //
-// The convenient superclass of all "non-value" and "non-container" objects.
+// When you execute [obj call:foo], the method will be found in the subclass
+// and since its not a NSObject method, it will automagically lock the 
+// instance with a NSRecursiveLock and unlock on exit. It is bad for -call to
+// not catch exceptions, because then the unlock code is not executed. 
 //
-// This allows us to add properties via categories.
-// You declare them with @property( dynamic) int foo; in the @interface
-// and @dynamic foo; in the @implementation of a category on MulleObject.
+// [obj call:foo] 
 //
-// For this scheme to work, there must be NSValue and NSNumber classes present
-// in the runtime. Otherwise you can only store NSInteger, NSUInteger, char *
-// and any object (but not NSRange or floating point values or any integer
-// exceeding the sizeof( void *)
+// [obj]--isa-->[class]---->[array of methods]
+//                 |
+//                 v
+//              [cache] --> callback
 //
-@interface MulleObject : NSObject < NSMutableCopying>
+// [NSLock lock]
+// <magie> (aufruf der Methode)  --> [cache] 
+// [NSLock unlock]
+//
+
+// this method user bit is taken by this class
+// same as _mulle_objc_method_user_attribute_4
+#define MULLE_OBJC_METHOD_USER_BIT_NOT_LOCKING   _mulle_objc_method_user_attribute_4
+
+// to make a subclass actually use the locking code, adorn it with
+// MulleAutolockingObjectProtocols. This way you can use MulleObject
+// as a base class for classes that do not aspire to be thread safe.
+//
+// All instance methods will be thread-safe, due to the whole class being
+// marked MulleObjCThreadSafe. Special methods, that don't need (want) the
+// locking should be marked as MULLE_OBJC_THREADSAFE_METHOD.
+//
+// To search for methods in a subclass of MulleObject, you will need to
+// specify the desired inheritance value manually. The cls->inheritance value
+// of MulleObject will appear to be broken. This is basically the main
+// trick MulleAutolockingObject uses and it can't be avoided.
+//
+@protocol MulleAutolockingObject
+@end
+
+#define MulleAutolockingObjectProtocols   MulleObjCThreadSafe, MulleAutolockingObject
+
+
+@interface MulleObject : MulleDynamicObject < NSLocking>
 {
-   struct mulle__pointermap   __ivars;      // use __ to "hide" it
+   NSRecursiveLock   *__lock;        // use __ to "hide" it
 }
 
-//
-// You MUST NOT call [super forward:] to inherit this. See NSObject
-// forward: for more details
-//
-- (void *) forward:(void *) args;
+- (BOOL) tryLock                                         MULLE_OBJC_THREADSAFE_METHOD;
 
-
-//
-// -isFullyDynamic set to YES creates descriptors on the fly
-// and guesses their type to be id.
-// The created descriptors are global and will affect everything. If your
-// registration of -myIntValue comes later in a NSBundle, it's tough luck.
-// The signature is already set to '@'.
-//
-// -isFullyDynamic is a non-thread safe global for performance reasons.
-//
-// Only override with a category!, don't override in a subclass! (As this
-// would obscure the actual extent of what this does). The idea is that
-// this is a global switch, that will affect all objects in the program.
-// It's supposed to be a "design" decision.
-//
-+ (BOOL) isFullyDynamic;
+// we don't want to access this locked
+- (void) shareLockOfObject:(MulleObject *) other  MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
 
 
-MULLE_C_NONNULL_FIRST_FOURTH
-void   _MulleObjectValueSetter( MulleObject *self, SEL _cmd, void *_param, char *objcType);
+//
+// Declare your subclass like so:
+//
+// @interface Foo : MulleObject < MulleAutolockingObjectProtocols>
+//
+// In subclasses of Foo that are then **not threadsafe** put this in
+//
+// @interface Bar : Foo < MulleObjCThreadUnsafe>
+//
+// + (void) initialize
+// {
+//    MulleLockingObjectSetAutolockingEnabled( self, NO);
+// }
+//
+// This is a bit clumsy, but we want to inherit from MulleObject,
+// in MulleDynamicObject, but we don't want threadSafety always. We could use a
+// protocolclass but in this special case, speed is really important as it
+// hits most method calls. With the subclass we get the recursive lock
+// location for free..
+//
+void   MulleLockingObjectSetAutolockingEnabled( Class self, BOOL flag);
 
-MULLE_C_NONNULL_FIRST_FOURTH
-void   _MulleObjectNumberSetter( MulleObject *self, mulle_objc_methodid_t _cmd, void *_param, char *objcType);
 
-MULLE_C_NONNULL_FIRST
-void   _MulleObjectValueGetter( MulleObject *self, SEL _cmd, void *_param);
-
-
-@interface MulleObject( NSMutableCopying)< NSMutableCopying>
-
-// we can't do NSCopying, because we are mutable, but mutableCopy is sorta
-// outlawed (I am so conflicted)
-- (id) mutableCopy;
-
-@end
+void   MulleLockingObjectFillCache( MulleObject *self,
+                                    SEL sel,
+                                    IMP imp,
+                                    BOOL isThreadAffine);

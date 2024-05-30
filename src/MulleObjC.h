@@ -44,14 +44,22 @@
 
 // classes
 #import "MulleObjCLoader.h"
+
+#import "MulleDynamicObject.h"
 #import "MulleObject.h"
+
 #import "NSAutoreleasePool.h"
+#import "NSCondition.h"
+#import "NSConditionLock.h"
 #import "NSInvocation.h"
+#import "NSLock.h"
 #import "NSMethodSignature.h"
 #import "NSNull.h"
 #import "NSObject.h"
 #import "NSProxy.h"
+#import "NSRecursiveLock.h"
 #import "NSThread.h"
+
 
 // protocols and protocolclasses
 #import "MulleObjCClassCluster.h"
@@ -66,6 +74,7 @@
 #import "NSCopying.h"
 #import "NSCopyingWithAllocator.h"
 #import "NSFastEnumeration.h"
+#import "NSLocking.h"
 #import "NSMutableCopying.h"
 #import "NSObjectProtocol.h"
 

@@ -4,7 +4,7 @@
 
 
 
-@interface Foo : MulleObject
+@interface Foo : MulleDynamicObject
 
 @property( dynamic, retain) id   myValue;
 
@@ -49,11 +49,11 @@
 @end
 
 
-@interface MulleObject( FullyDynamic)
+@interface MulleDynamicObject( FullyDynamic)
 @end
 
 
-@implementation MulleObject( FullyDynamic)
+@implementation MulleDynamicObject( FullyDynamic)
 
 + (BOOL) isFullyDynamic
 {

@@ -4,9 +4,8 @@
 
 
 //
-// This test shows how we can add a dynamic property via a protocol class.
-// The protocol class can then provide further methods that operate on 
-// the comment property...
+// This test shows how we can add properties via protocol classes.
+// Here we actually use an instance variable again, for improved speed.
 //
 PROTOCOLCLASS_INTERFACE0( Comment)
 
@@ -19,17 +18,30 @@ PROTOCOLCLASS_IMPLEMENTATION( Comment)
 PROTOCOLCLASS_END()
 
 
-@interface Foo : MulleObject < Comment>
+@interface Foo : MulleDynamicObject < Comment>
+{
+   id   _comment;   
+}
+
+@property( retain) id  comment; 
+
 @end
 
 
 @implementation Foo
+
+- (void) finalize 
+{
+   mulle_fprintf( stderr, "%@\n", _comment);
+   [super finalize];
+}
+
 @end
 
 
 // because we don't have NSString, fake up a small class to serve as an
 // UTF8 container
-@interface Value : MulleObject <NSCopying>
+@interface Value : MulleDynamicObject <NSCopying>
 
 @property( dynamic) char  *nameUTF8String;
 
