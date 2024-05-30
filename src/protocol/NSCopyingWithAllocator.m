@@ -83,7 +83,7 @@ int   _MulleObjCInstanceCopyWithAllocatorProperty( struct _mulle_objc_property *
    if( ! value)
       return( 0);
    value = [value copyWithAllocator:info->allocator];
-   mulle_objc_object_set_property_value( info->obj, 0, offset, NULL, 0, 0);
+   mulle_objc_object_set_property_value( info->obj, 0, offset, NULL, 0);
 
    //
    // This happens for readonly properties, which have no setter.
@@ -107,7 +107,7 @@ int   _MulleObjCInstanceCopyWithAllocatorProperty( struct _mulle_objc_property *
       ivarid = _mulle_objc_property_get_ivarid( property);
       ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
       offset = _mulle_objc_ivar_get_offset( ivar);
-      mulle_objc_object_set_property_value( info->obj, 0, offset, NULL, 0, 0);
+      mulle_objc_object_set_property_value( info->obj, 0, offset, NULL, 0);
    }
    return( 0);
 }

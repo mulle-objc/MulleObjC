@@ -70,6 +70,18 @@ static void   mulle_objc_make_class_boring( Class self)
 }
 
 
+void   *_mulle_objc_autorelease_object( void *obj)
+{
+   struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
+
+   universe = _mulle_objc_object_get_universe( obj);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
+   (*config->autoreleaseObject)( config, obj);
+   return( obj);
+}
+
+
 @implementation NSAutoreleasePool
 
 + (void) load 

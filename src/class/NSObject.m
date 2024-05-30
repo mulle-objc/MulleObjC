@@ -123,8 +123,8 @@
 
    obj = [_cls alloc];
    obj = mulle_objc_object_call_variable_inline( obj,
-                                                         (mulle_objc_methodid_t) _cmd, 
-                                                         _param);
+                                                 (mulle_objc_methodid_t) _cmd, 
+                                                 _param);
    [obj autorelease];
    return( obj);
 }

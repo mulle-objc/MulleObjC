@@ -140,6 +140,9 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    char                               *adr;
    size_t                             size;
 
+   if( ! self->_methodSignature)
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                         "methodSignature not found on target");
    p    = [self->_methodSignature mulleSignatureTypeInfoAtIndex:i];
    adr  = &((char *) self->_storage)[ p->invocation_offset];
    size = p->natural_size;
@@ -250,7 +253,6 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
 + (NSInvocation *) mulleInvocationWithTarget:(id) target
                                     selector:(SEL) sel
                                       object:(id) object
-
 {
    NSInvocation        *invocation;
    NSMethodSignature   *signature;
@@ -292,6 +294,7 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
 
 - (void) finalize
 {
+   // wird wohl seinen grund haben
 }
 
 
@@ -354,6 +357,10 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
    char   *s;
 
    type = [_methodSignature methodReturnType];
+   // can happen, if we just have an empty invocation
+   if( ! type)
+      return;
+
    switch( *type)
    {
    case _C_COPY_ID   :
@@ -370,13 +377,19 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
 }
 
 
-static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self, SEL sel, id arg)
+static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self,
+                                                              SEL sel)
 {
    NSInteger   i, n;
    char        *type;
    id          obj;
 
    type = [self->_methodSignature methodReturnType];
+
+   // can happen, if we just have an empty invocation
+   if( ! type)
+      return;
+
    switch( *type)
    {
    case _C_CLASS     :
@@ -384,8 +397,7 @@ static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self
    case _C_RETAIN_ID :
    case _C_COPY_ID   :
       [self getReturnValue:&obj];
-      [obj performSelector:sel
-                withObject:arg];
+      [obj performSelector:sel];
    }
 
    n = [self->_methodSignature numberOfArguments];
@@ -400,8 +412,7 @@ static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self
       case _C_RETAIN_ID :
          [self getArgument:&obj
                   atIndex:i];
-         [obj performSelector:sel
-                   withObject:arg];
+         [obj performSelector:sel];
          break;
       }
    }
@@ -411,15 +422,15 @@ static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self
 - (id) mulleGainAccess
 {
    self = [super mulleGainAccess];
-   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd, self);
+   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd);
    return( self);
 }
 
 
-- (void) mulleRelinquishAccessWithTAOStrategy:(NSUInteger) strategy
+- (void) mulleRelinquishAccess
 {
-   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd, (id) strategy);
-   [super mulleRelinquishAccessWithTAOStrategy:strategy];
+   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd);
+   [super mulleRelinquishAccess];
 }
 
 
@@ -663,7 +674,10 @@ static void   invocation_with_nil_target_warning( NSInvocation *self)
    sel = [self selector];
    if( ! sel)
       __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                      "NSInvocation: selector has not been set yet");
+                                                         "NSInvocation: selector has not been set yet");
+   if( ! _methodSignature)
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                         "NSInvocation: methodSignature has not been set yet");
 
    pType = [_methodSignature _methodMetaABIParameterType];
    rType = [_methodSignature _methodMetaABIReturnType];

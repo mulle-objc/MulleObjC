@@ -55,6 +55,11 @@ static inline id   _MulleObjCAutoreleaseObject( id obj)
 }
 
 
+// need this for property accessors
+MULLE_OBJC_GLOBAL
+void   *_mulle_objc_autorelease_object( void *obj);
+
+
 static inline void
    _MulleObjCAutoreleaseObjects( id *objects,
                                  NSUInteger count,

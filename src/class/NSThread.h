@@ -143,8 +143,7 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 
 // the thread is started and starts running, but still should be joined or
 // detached
-- (void) mulleStartUndetached;  // uses -mulleTAOStrategy of the NSInvocation
-- (void) mulleStartUndetachedWithTAOStrategy:(MulleObjCTAOStrategy) strategy;
+- (void) mulleStartUndetached;
 
 // do this only once, the runloop will be retained by NSThread
 // do not use the passed in runLoop, instead use the return value
@@ -278,7 +277,33 @@ static inline mulle_thread_t  _NSThreadGetCurrentOSThread( void)
 
 
 
+typedef void   MulleObjCTAOFailureHandler( void *obj, mulle_thread_t osThread, struct _mulle_objc_descriptor *des) MULLE_C_NO_RETURN;
 
+// no coming back from this, just print nicely and abort
+#pragma mark - TAO Wrong Thread Failure
+
+static inline MulleObjCTAOFailureHandler   *MulleObjCGetTAOFailureHandler( void)
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = mulle_objc_global_get_defaultuniverse();
+   return( (MulleObjCTAOFailureHandler *) universe->failures.wrongthread);
+}
+
+
+static inline void   MulleObjCSetTAOFailureHandler( MulleObjCTAOFailureHandler *handler)
+{
+   struct _mulle_objc_universe      *universe;
+
+   universe = mulle_objc_global_get_defaultuniverse();
+   universe->failures.wrongthread = (void (*)()) handler;
+}
+
+
+MULLE_OBJC_GLOBAL
+void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
+                              mulle_thread_t osThread,
+                              struct _mulle_objc_descriptor *desc) MULLE_C_NO_RETURN;
 
 
 //
@@ -316,3 +341,23 @@ static inline void  MulleObjCTAOTest( Class cls, id arg)
       [thread mulleJoin];
    }
 }
+
+
+// An alternative way to have a threadsafe method or property is to declare
+// that it will only be accessed by the main thread. This is just a declaration
+// no one is going to verify it. For methods, you should code it like this:
+//
+// - (void) myMethod  MULLE_OBJC_MAINTHREAD_METHOD;
+//
+// - (void) myMethod  MULLE_OBJC_MAINTHREAD_METHOD
+// {
+//    assert( [NSThread mulleIsMainThread]);
+// }
+//
+// You should do this for properties too, but its less convenient, since you
+// now have to write two accessors manually. So this should be done by the
+// compiler some of these days. We then need would likely use
+// _MULLE_OBJC_METHOD_USER_ATTRIBUTE_3 instead.
+//
+#define MULLE_OBJC_MAINTHREAD_PROPERTY   MULLE_OBJC_THREADSAFE_PROPERTY
+#define MULLE_OBJC_MAINTHREAD_METHOD     MULLE_OBJC_THREADSAFE_METHOD

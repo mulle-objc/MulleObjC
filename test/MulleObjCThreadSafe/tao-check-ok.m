@@ -37,7 +37,7 @@ static int  thread_main( NSThread *thread, void *arg)
    id      obj = arg;
 
    cls = [obj class];
-   mulle_printf( "-[NSThread currentThread] %@\n", [NSThread currentThread]);
+   mulle_printf( "-[NSThread currentThread] %@\n",   [NSThread currentThread]);
    mulle_printf( "-[%@ mulleIsThreadSafe] %btd\n",   cls, [obj mulleIsThreadSafe]);
    mulle_printf( "-[%@ threadAffinity] %@\n",        cls, NSThread_for_OSthread( _mulle_objc_object_get_thread( (struct _mulle_objc_object *) obj)));
    mulle_printf( "-[%@ mulleIsAccessible] %btd\n",   cls, [obj mulleIsAccessible]);

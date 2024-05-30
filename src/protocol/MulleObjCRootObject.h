@@ -73,9 +73,10 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 // the TAO strategy is important, when you are passing objects that are
 // not threadsafe and which may lead directly or indirectly to calling not
 // threadsafe object methods in -finalize and/or -dealloc. When you use
-// -mulleRelinquishAccess, it will call mulleRelinquishAccessWithTAOStrategy: with
-// the value from -mulleTAOStrategy
-//
+// -mulleRelinquishAccess, it will use the value from -mulleTAOStrategy
+// and then call -mulleRelinquishAccessWithTAOStrategy:.
+// Your subclasses should override -mulleRelinquishAccess and -mulleGainAccess,
+// calling super.
 - (void) mulleRelinquishAccess                                                 MULLE_OBJC_THREADSAFE_METHOD;
 - (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy  MULLE_OBJC_THREADSAFE_METHOD;
 - (MulleObjCTAOStrategy) mulleTAOStrategy                                      MULLE_OBJC_THREADSAFE_METHOD;

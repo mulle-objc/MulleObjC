@@ -64,10 +64,31 @@ void  mulle_objc_break_exception( void);
 
 typedef void   NSUncaughtExceptionHandler( MULLE_OBJC_EXCEPTION_CLASS_P exception);
 
-MULLE_OBJC_GLOBAL
-NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void);
+// not really sure, why this simple ones aren't inlined
+// MULLE_OBJC_GLOBAL
+// NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler( void);
+//
+// MULLE_OBJC_GLOBAL
+// void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler);
+//
 
-MULLE_OBJC_GLOBAL
-void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler);
+#pragma mark - Uncaught Exceptions
+
+static inline NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler()
+{
+   struct _mulle_objc_universe   *universe;
+
+   universe = mulle_objc_global_get_defaultuniverse();
+   return( (NSUncaughtExceptionHandler *) universe->failures.uncaughtexception);
+}
+
+
+static inline void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler)
+{
+   struct _mulle_objc_universe      *universe;
+
+   universe = mulle_objc_global_get_defaultuniverse();
+   universe->failures.uncaughtexception = (void (*)()) handler;
+}
 
 #endif
