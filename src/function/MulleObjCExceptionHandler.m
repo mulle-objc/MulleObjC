@@ -52,6 +52,7 @@ MULLE_C_NO_RETURN void
 extern
 MULLE_C_NO_RETURN void
    _mulle_objc_printf_abort( char *format, ...);
+
 #pragma mark - C
 
 
@@ -176,23 +177,3 @@ MULLE_C_NO_RETURN void
    _mulle_objc_universe_throw( universe, exception);
 }
 
-
-#pragma mark -
-#pragma mark Uncaught Exceptions
-
-NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler()
-{
-   struct _mulle_objc_universe   *universe;
-
-   universe = mulle_objc_global_get_defaultuniverse();
-   return( (NSUncaughtExceptionHandler *) universe->failures.uncaughtexception);
-}
-
-
-void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler)
-{
-   struct _mulle_objc_universe      *universe;
-
-   universe = mulle_objc_global_get_defaultuniverse();
-   universe->failures.uncaughtexception = (void (*)()) handler;
-}

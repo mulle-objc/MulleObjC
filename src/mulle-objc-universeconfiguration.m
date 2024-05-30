@@ -210,7 +210,9 @@ struct _mulle_objc_universefoundationinfo  *
 
    universe->classdefaults.inheritance   = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES;
    universe->classdefaults.forwardmethod = config->universe.forward;
-   universe->failures.uncaughtexception  = (void (*)()) config->universe.uncaughtexception;
+   universe->failures.uncaughtexception  = config->universe.uncaughtexception;
+   if( config->universe.wrongthread)
+      universe->failures.wrongthread = config->universe.wrongthread;
 
    neededsize = config->foundation.configurationsize;
    if( ! neededsize)
@@ -385,16 +387,12 @@ const struct _mulle_objc_universeconfiguration   *
    static const struct _mulle_objc_universeconfiguration   setup =
    {
       {
-         NULL,
-         versionassert,
-         &NSObject_msgForward_method,
-         NULL,       // static string class
-         NULL,
-         NULL
+         .versionassert = versionassert,
+         .forward       = &NSObject_msgForward_method,
+         .wrongthread   = &MulleObjCTAOLogAndFail
       },
       {
          .configurationsize = sizeof( struct _mulle_objc_universeconfiguration),
-         .objectallocator   = NULL,
          .exceptiontable    =
          { // exception vectors
            .errno_error            = (void (*)()) perror_abort,

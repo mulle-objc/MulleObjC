@@ -251,12 +251,13 @@
 // Use the tool mulle-objc-uniqueid with '<yourclassname>;forward:' to create
 // a superid. Use this to lookup the implementation of super. Call it.
 // Don't forget to register the corresponding _mulle_objc_super in the universe.
-// You can dos this with:
+// You can do this with:
 //
 // + (void) dontevercallme
 // {
 //    [super forward:];  // compiler will create the _mulle_objc_super.
 // }
+//
 // - (void *) forward:(void *) param
 // {
 // #define MYID  0x????????

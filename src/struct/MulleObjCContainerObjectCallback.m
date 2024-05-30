@@ -361,6 +361,14 @@ const struct mulle_container_keyvaluecallback
 };
 
 
+const struct mulle_container_keyvaluecallback
+   _MulleObjCContainerPointerKeyAssignValueCallback =
+{
+   POINTER_KEY_CALLBACK,
+   ASSIGN_VALUE_CALLBACK
+};
+
+
 
 //extern struct mulle_container_keyvaluecallback   MulleObjCContainerRetainKeyCopyValueCallback;
 //extern struct mulle_container_keyvaluecallback   MulleObjCContainerCopyKeyRetainValueCallback;

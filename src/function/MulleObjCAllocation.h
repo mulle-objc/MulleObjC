@@ -301,7 +301,7 @@ static inline id   MulleObjCClassConstructInstance( Class infra,
 
    assert( length >= _mulle_objc_infraclass_get_allocationsize( infra));
 
-   cls = _mulle_objc_infraclass_as_class( infra);
+   cls    = _mulle_objc_infraclass_as_class( infra);
    header = _mulle_objc_alloc_get_objectheader( bytes, cls->headerextrasize);
    _mulle_objc_objectheader_init( header, cls, cls->headerextrasize, isZeroed);
    obj    = _mulle_objc_objectheader_get_object( header);

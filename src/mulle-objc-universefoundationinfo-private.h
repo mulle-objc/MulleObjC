@@ -48,8 +48,9 @@
 struct _mulle_objc_universefoundationinfo_object
 {
    struct mulle_set    *roots;
-   // single out thread into their own set
-   struct mulle_set    *threads;
+   // single out thread into their own map, where we can map OSThread to
+   // thread object
+   struct mulle_map    *threads;
 
    unsigned char       debugenabled;
    unsigned char       zombieenabled;
@@ -186,19 +187,28 @@ void _mulle_objc_universefoundationinfo_done( struct _mulle_objc_universefoundat
 // Currently these functions use locking, that could change in the future
 //
 MULLE_OBJC_GLOBAL
-void _mulle_objc_universefoundationinfo_add_rootobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
+void _mulle_objc_universefoundationinfo_add_rootobject( struct _mulle_objc_universefoundationinfo *config,
+                                                        void *obj);
 
 MULLE_OBJC_GLOBAL
-void _mulle_objc_universefoundationinfo_remove_rootobject(  struct _mulle_objc_universefoundationinfo *config, void *obj);
+void _mulle_objc_universefoundationinfo_remove_rootobject( struct _mulle_objc_universefoundationinfo *config,
+                                                           void *obj);
 
 MULLE_OBJC_GLOBAL
-void _mulle_objc_universefoundationinfo_release_rootobjects(  struct _mulle_objc_universefoundationinfo *config);
+void _mulle_objc_universefoundationinfo_release_rootobjects( struct _mulle_objc_universefoundationinfo *config);
 
 MULLE_OBJC_GLOBAL
-void _mulle_objc_universefoundationinfo_add_threadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
-
+void _mulle_objc_universefoundationinfo_set_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *config,
+                                                                     mulle_thread_t thread,
+                                                                     void *obj);
 MULLE_OBJC_GLOBAL
-void _mulle_objc_universefoundationinfo_remove_threadobject( struct _mulle_objc_universefoundationinfo *config, void *obj);
+void _mulle_objc_universefoundationinfo_remove_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *config,
+                                                       mulle_thread_t thread,
+                                                       void *obj);
+MULLE_OBJC_GLOBAL
+void *_mulle_objc_universefoundationinfo_lookup_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *config,
+                                                                         mulle_thread_t thread);
+
 
 MULLE_OBJC_GLOBAL
 void _mulle_objc_universefoundationinfo_set_mainthreadobject( struct _mulle_objc_universefoundationinfo *info,
@@ -213,7 +223,15 @@ MULLE_OBJC_GLOBAL
 void _mulle_objc_universe_lockedcall1_universefoundationinfo( struct _mulle_objc_universe *universe,
                                                               void (*f)(struct _mulle_objc_universefoundationinfo *, void *),
                                                               void *obj);
+MULLE_OBJC_GLOBAL
+void _mulle_objc_universe_lockedcall2_universefoundationinfo( struct _mulle_objc_universe *universe,
+         void (*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_t, void *),
+         mulle_thread_t thread,
+         void *obj);
 
+void  *_mulle_objc_universe_lockedgetcall1_universefoundationinfo( struct _mulle_objc_universe *universe,
+         void *(*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_t),
+         mulle_thread_t thread);
 
 # pragma mark - root object conveniences
 
@@ -246,27 +264,41 @@ static inline void
 
 
 static inline void
-	_mulle_objc_universe_add_threadobject( struct _mulle_objc_universe *universe,
-														void *obj)
+	_mulle_objc_universe_set_threadobject_for_thread( struct _mulle_objc_universe *universe,
+                                    mulle_thread_t thread,
+												void *obj)
 {
    if( universe->debug.trace.thread)
-      mulle_objc_universe_trace( universe, "add threadObject %p", obj);
+      mulle_objc_universe_trace( universe, "add threadObject %p for thread %p", obj, thread);
 
-   _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
-   		_mulle_objc_universefoundationinfo_add_threadobject,
+   _mulle_objc_universe_lockedcall2_universefoundationinfo( universe,
+   		_mulle_objc_universefoundationinfo_set_threadobject_for_thread,
+         thread,
    		obj);
 }
 
 
+static inline void *
+   _mulle_objc_universe_lookup_threadobject_for_thread( struct _mulle_objc_universe *universe,
+                                       mulle_thread_t thread)
+{
+   return( _mulle_objc_universe_lockedgetcall1_universefoundationinfo( universe,
+              _mulle_objc_universefoundationinfo_lookup_threadobject_for_thread,
+              thread));
+}
+
+
 static inline void
-	_mulle_objc_universe_remove_threadobject( struct _mulle_objc_universe *universe,
-															void *obj)
+	_mulle_objc_universe_remove_threadobject_for_thread( struct _mulle_objc_universe *universe,
+                                       mulle_thread_t thread,
+                                       void *obj)
 {
    if( universe->debug.trace.thread)
-      mulle_objc_universe_trace( universe, "remove threadObject %p", obj);
+      mulle_objc_universe_trace( universe, "remove threadObject %p for thread %p", obj, thread);
 
-   _mulle_objc_universe_lockedcall1_universefoundationinfo( universe,
-   	 _mulle_objc_universefoundationinfo_remove_threadobject,
+   _mulle_objc_universe_lockedcall2_universefoundationinfo( universe,
+   	 _mulle_objc_universefoundationinfo_remove_threadobject_for_thread,
+       thread,
    	 obj);
 }
 

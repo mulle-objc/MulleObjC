@@ -40,9 +40,15 @@ struct NSZone;
 
 
 //
-// This an ill-conceived legacy protocol. It breaks the possibilty of
-// returning nil for empty containers. (-copy is fine though).
+// Using -mutableCopy breaks the possibilty of returning nil for empty mutable 
+// containers. 
 //
+//  NSMutableArray   *array;
+//  array = [foo mutableArray];
+//  [array addObject:@"foo"];
+//  assert( [array count] >= 1);  // BOOM
+//
+
 @protocol NSMutableCopying
 
 //

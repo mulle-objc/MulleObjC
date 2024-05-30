@@ -272,7 +272,7 @@ static void
 static void   _MulleThreadRegisterInUniverse( NSThread *threadObject,
                                               struct _mulle_objc_universe *universe)
 {
-   _mulle_objc_universe_add_threadobject( universe, threadObject); // does not retain
+   _mulle_objc_universe_set_threadobject_for_thread( universe, mulle_thread_self(), threadObject); // does not retain
    _mulle_objc_thread_set_threadobject( universe, threadObject);   // this owns it!
 }
 
@@ -282,7 +282,7 @@ static void   _MulleThreadDeregisterInUniverse( NSThread *threadObject,
 {
    assert( _NSThreadGetOSThread( threadObject) == mulle_thread_self());
 
-   _mulle_objc_universe_remove_threadobject( universe, threadObject); // does not retain
+   _mulle_objc_universe_remove_threadobject_for_thread( universe, mulle_thread_self(), threadObject); // does not retain
    _mulle_objc_thread_set_threadobject( universe, NULL);   // this owns it!
 }
 
@@ -361,10 +361,11 @@ NSThread   *_MulleThreadCreateMainThreadObjectInUniverse( struct _mulle_objc_uni
       __mulle_objc_universe_raise_internalinconsistency( universe, \
          "Universe %p is still or already multithreaded", universe);
 
-   // universe thread is already existant, so just put up NSThread
+   // universe thread is already existent, so just put up NSThread
    // and NSAutoreleasePool
 
    threadObject = __MulleThreadCreateThreadObjectInUniverse( universe);
+   [threadObject mulleSetNameUTF8String:"NSMainThread"];
    _mulle_objc_universefoundationinfo_set_mainthreadobject( info, threadObject); // does not retain
 
    return( threadObject);
@@ -497,7 +498,7 @@ void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
 }
 
 
-// called via -mulleStartUndetachedWithTAOStrategy:
+// called via -mulleStartUndetached
 static mulle_thread_rval_t   bouncyBounce( void *arg)
 {
    NSThread                      *self = arg;
@@ -550,7 +551,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 }
 
 
-- (void) mulleStartUndetachedWithTAOStrategy:(MulleObjCTAOStrategy) strategy
+- (void) mulleStartUndetached
 {
    struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_universefoundationinfo   *info;
@@ -594,14 +595,6 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
       mulle_objc_universe_trace( universe, "%p started thread %p", mulle_thread_self(), thread);
 }
 
-
-- (void) mulleStartUndetached
-{
-   MulleObjCTAOStrategy   strategy;
-
-   strategy = [MulleObjCObjectGetClass( self) mulleTAOStrategy];
-   [self mulleStartUndetachedWithTAOStrategy:strategy];
-}
 
 
 - (void) start
@@ -909,7 +902,7 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    {
       universe = _mulle_objc_object_get_universe( self),
       __mulle_objc_universe_raise_internalinconsistency( universe,
-                        "can't join a detached thread. Use -mulleStartUndetachedWithTAOStrategy:");
+                        "can't join a detached thread. Use -mulleStartUndetached");
    }
    mulle_thread_join( _NSThreadGetOSThread( self));
 }
@@ -1031,5 +1024,74 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 }
 #endif
 
+
+extern MULLE_C_NO_RETURN void   _mulle_objc_printf_abort( char *format, ...);
+
+//
+// Print more nicey, nicey, than what the runtime can do. If the runtime were
+// to have a list of running threads, we could be searching for it and print
+// the name of the owning thread. Alas we can't do this at the moment.
+//
+// Avoid any method calls as not to trigger another recursive
+// MulleObjCTAOLogAndFail or some other failure...
+//
+void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
+                              mulle_thread_t osThread,
+                              struct _mulle_objc_descriptor *desc)
+{
+   struct _mulle_objc_class      *cls;
+   struct _mulle_objc_universe   *universe;
+   int                           ismeta;
+   NSThread                      *currentThreadObject;
+   NSThread                      *osThreadObject;
+   char                          *s;
+
+   cls           = _mulle_objc_object_get_isa( obj);
+   ismeta        = _mulle_objc_class_is_metaclass( cls);
+   universe      = _mulle_objc_class_get_universe( cls);
+
+   currentThreadObject = MulleThreadGetCurrentThread();
+   osThreadObject      = _mulle_objc_universe_lookup_threadobject_for_thread( universe, osThread);   // try to retri
+
+   mulle_buffer_do( buffer)
+   {
+      mulle_buffer_sprintf( buffer, "%s <%s %p> with affinity to thread ",
+                                    ismeta ? "Class" : "Instance",
+                                    MulleObjCObjectGetClassNameUTF8String( (id) obj),
+                                    obj);
+      if( osThreadObject)
+      {
+         mulle_buffer_sprintf( buffer, "<%s %p",
+                                    MulleObjCInstanceGetClassNameUTF8String( osThreadObject),
+                                    osThreadObject);
+         s = _mulle_atomic_pointer_read( &osThreadObject->_nameUTF8String);
+         if( s)
+            mulle_buffer_sprintf( buffer, " \"%s\"", s);
+         mulle_buffer_add_string( buffer, "> ");
+      }
+      else
+         mulle_buffer_sprintf( buffer, "%p ", osThread);
+
+      mulle_buffer_sprintf( buffer, "gets a %c%s call from thread ",
+                                    ismeta ? '+' : '-',
+                                    _mulle_objc_descriptor_get_name( desc));
+
+      if( currentThreadObject)
+      {
+         mulle_buffer_sprintf( buffer, "<%s %p",
+                                    MulleObjCInstanceGetClassNameUTF8String( currentThreadObject),
+                                    currentThreadObject);
+         s = _mulle_atomic_pointer_read( &currentThreadObject->_nameUTF8String);
+         if( s)
+            mulle_buffer_sprintf( buffer, " \"%s\"", s);
+         mulle_buffer_add_string( buffer, "> ");
+      }
+      else
+         mulle_buffer_sprintf( buffer, "%p ", mulle_thread_self());
+
+      s = mulle_buffer_extract_string( buffer);
+   }
+   _mulle_objc_printf_abort( s);
+}
 
 @end

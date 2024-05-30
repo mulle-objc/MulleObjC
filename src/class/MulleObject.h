@@ -42,7 +42,7 @@
 //
 // This allows us to add properties via categories.
 // You declare them with @property( dynamic) int foo; in the @interface
-// and @dynamic foo; in the @implemenation of a category on MulleObject.
+// and @dynamic foo; in the @implementation of a category on MulleObject.
 //
 // For this scheme to work, there must be NSValue and NSNumber classes present
 // in the runtime. Otherwise you can only store NSInteger, NSUInteger, char *
@@ -78,29 +78,6 @@
 + (BOOL) isFullyDynamic;
 
 @end
-
-
-//
-// If MulleObjectIsStrict is set, you have to place the @property into the proper
-// subclass and not just "anywhere": Checking for this takes a little time
-// but can possibly catch problems of typos and misplaced values.
-// Patch with subclass or category.
-//
-// default YES
-// static inline BOOL   MulleObjectIsStrict( void)
-// {
-//    MULLE_C_EXTERN_GLOBAL BOOL   MulleObjectStrict;
-//
-//    return( MulleObjectStrict);
-// }
-//
-//
-// static inline void   MulleObjectSetStrict( BOOL flag)
-// {
-//    MULLE_C_EXTERN_GLOBAL BOOL   MulleObjectStrict;
-//
-//    MulleObjectStrict = flag;
-// }
 
 
 MULLE_C_NONNULL_FIRST_FOURTH

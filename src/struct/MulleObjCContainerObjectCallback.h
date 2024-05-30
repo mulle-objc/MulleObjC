@@ -179,4 +179,7 @@ const struct mulle_container_keyvaluecallback   _MulleObjCContainerPointerKeyInt
 MULLE_OBJC_GLOBAL
 const struct mulle_container_keyvaluecallback   _MulleObjCContainerIntegerKeyPointerValueCallback;
 
+MULLE_OBJC_GLOBAL
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerPointerKeyAssignValueCallback;
+
 #endif

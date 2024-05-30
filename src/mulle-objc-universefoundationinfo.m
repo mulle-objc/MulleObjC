@@ -42,21 +42,6 @@
 #import "NSAutoreleasePool.h"
 
 
-// TODO: MulleObjCContainer.h ??
-
-static const struct mulle_container_keycallback
-   object_container_keycallback =
-{
-   mulle_container_keycallback_pointer_hash,
-   mulle_container_keycallback_pointer_is_equal,
-   mulle_container_keycallback_self,
-   mulle_container_keycallback_nop,
-   mulle_container_keycallback_no_description,
-
-   NULL,
-   NULL
-};
-
 
 //
 // this is unfortunately linkorder and platform dependent
@@ -98,11 +83,11 @@ void
    info->exception.vectors   = *exceptiontable;
 
    info->object.roots        = mulle_set_create( 32,
-                                                 (void *) &object_container_keycallback,
+                                                 (void *) &_MulleObjCContainerAssignKeyCallback,
                                                  allocator);
-   info->object.threads      = mulle_set_create( 4,
-                                                  (void *) &object_container_keycallback,
-                                                  allocator);
+   info->object.threads      = mulle_map_create( 32,
+                                                 (void *) &_MulleObjCContainerPointerKeyAssignValueCallback,
+                                                 allocator);
 
    info->object.debugenabled      = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEBUG_ENABLED") ||
          mulle_objc_environment_get_yes_no( "NSDebugEnabled");
@@ -305,8 +290,8 @@ void
    if( info->debug.symbolizer.universe)
       mulle_objc_symbolizer_done( &info->debug.symbolizer);
    // threads should be gone by now
-   assert( mulle_set_get_count( info->object.threads) == 0);
-   mulle_set_destroy( info->object.threads);
+   assert( mulle_map_get_count( info->object.threads) == 0);
+   mulle_map_destroy( info->object.threads);
 }
 
 
@@ -316,7 +301,7 @@ void   _mulle_objc_universefoundationinfo_add_rootobject( struct _mulle_objc_uni
                                                           void *obj)
 {
    assert( mulle_set_get( info->object.roots, obj) == NULL);
-   assert( mulle_set_get( info->object.threads, obj) == NULL);
+   assert( mulle_map_get( info->object.threads, obj) == NULL);
 
    // no constant strings or tagged pointers
    assert( ! _mulle_objc_object_is_constant( obj));
@@ -352,22 +337,31 @@ void   _mulle_objc_universefoundationinfo_release_rootobjects( struct _mulle_obj
 
 # pragma mark - thread storage
 
-void   _mulle_objc_universefoundationinfo_add_threadobject( struct _mulle_objc_universefoundationinfo *info,
-                                                            void *obj)
+void   _mulle_objc_universefoundationinfo_set_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *info,
+                                                                       mulle_thread_t thread,
+                                                                       void *obj)
 {
    assert( mulle_set_get( info->object.roots, obj) == NULL);
-   assert( mulle_set_get( info->object.threads, obj) == NULL);
+   assert( mulle_map_get( info->object.threads, (void *)  thread) == NULL);
 
-   mulle_set_set( info->object.threads, obj);
+   mulle_map_set( info->object.threads, (void *) thread, obj);
 }
 
 
-void   _mulle_objc_universefoundationinfo_remove_threadobject( struct _mulle_objc_universefoundationinfo *info,
-                                                               void *obj)
+void   _mulle_objc_universefoundationinfo_remove_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *info,
+                                                                          mulle_thread_t thread,
+                                                                          void *obj)
 {
-   assert( mulle_set_get( info->object.threads, obj) != NULL);
+   assert( mulle_map_get( info->object.threads, (void *) thread) != NULL);
 
-   mulle_set_remove( info->object.threads, obj);
+   mulle_map_remove( info->object.threads, (void *) thread);
+}
+
+
+void  *_mulle_objc_universefoundationinfo_lookup_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *info,
+                                                                          mulle_thread_t thread)
+{
+   return( mulle_map_get( info->object.threads, (void *) thread));
 }
 
 
@@ -375,7 +369,7 @@ void   _mulle_objc_universefoundationinfo_remove_threadobject( struct _mulle_obj
 // mainthread doesn't need to be accessed locked, since it doesn't change
 //
 void   _mulle_objc_universefoundationinfo_set_mainthreadobject( struct _mulle_objc_universefoundationinfo *info,
-                                                                 void *obj)
+                                                                void *obj)
 {
    info->thread.mainthread = obj;  // don't retain
 }
@@ -391,7 +385,7 @@ void   *_mulle_objc_universefoundationinfo_get_mainthreadobject( struct _mulle_o
 # pragma mark - locking wrapper for above
 
 void  _mulle_objc_universe_lockedcall_universefoundationinfo( struct _mulle_objc_universe *universe,
-                                                              void (*f)( struct _mulle_objc_universefoundationinfo *))
+         void (*f)( struct _mulle_objc_universefoundationinfo *))
 {
    // get foundation add to roots
    struct _mulle_objc_universefoundationinfo   *info;
@@ -406,8 +400,8 @@ void  _mulle_objc_universe_lockedcall_universefoundationinfo( struct _mulle_objc
 
 
 void  _mulle_objc_universe_lockedcall1_universefoundationinfo( struct _mulle_objc_universe *universe,
-                                                               void (*f)( struct _mulle_objc_universefoundationinfo *, void *),
-                                                               void *obj)
+         void (*f)( struct _mulle_objc_universefoundationinfo *, void *),
+         void *obj)
 {
    struct _mulle_objc_universefoundationinfo   *info;
 
@@ -419,4 +413,40 @@ void  _mulle_objc_universe_lockedcall1_universefoundationinfo( struct _mulle_obj
       (*f)( info, obj);
    }
    _mulle_objc_universe_unlock( universe);
+}
+
+
+void  _mulle_objc_universe_lockedcall2_universefoundationinfo( struct _mulle_objc_universe *universe,
+         void (*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_t, void *),
+         mulle_thread_t thread,
+         void *obj)
+{
+   struct _mulle_objc_universefoundationinfo   *info;
+
+   assert( obj);
+
+   _mulle_objc_universe_lock( universe);
+   {
+      info = _mulle_objc_universe_get_foundationdata( universe);
+      (*f)( info, thread, obj);
+   }
+   _mulle_objc_universe_unlock( universe);
+}
+
+
+void  *_mulle_objc_universe_lockedgetcall1_universefoundationinfo( struct _mulle_objc_universe *universe,
+         void *(*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_t),
+         mulle_thread_t thread)
+{
+   struct _mulle_objc_universefoundationinfo   *info;
+   void                                        *obj;
+
+   _mulle_objc_universe_lock( universe);
+   {
+      info = _mulle_objc_universe_get_foundationdata( universe);
+      obj  = (*f)( info, thread);
+      obj  = [[(id) obj retain] autorelease];
+   }
+   _mulle_objc_universe_unlock( universe);
+   return( obj);
 }
