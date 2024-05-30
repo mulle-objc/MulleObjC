@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 
-@interface Foo : MulleObject
+@interface Foo : MulleDynamicObject
 
 @property( assign, dynamic) long  myLongValue00;
 @property( assign, dynamic) long  myLongValue01;

@@ -1,9 +1,9 @@
 //
-//  MulleObjC.h
+//  NSLock.m
 //  MulleObjC
 //
-//  Copyright (c) 2015 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2015 Codeon GmbH.
+//  Copyright (c) 2011 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2011 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -33,67 +33,71 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#define _GNU_SOURCE
 
-// because standalone versions must define FASTIDs
-
-//#ifdef MULLE_OBJC_RUNTIME_VERSION
-//# error "do not include the mulle-objc-runtime before MulleObjC.h"
-//#endif
-
-#import "import.h"
-
-// classes
-#import "MulleObjCLoader.h"
-
-#import "MulleDynamicObject.h"
-#import "MulleObject.h"
-
-#import "NSAutoreleasePool.h"
-#import "NSCondition.h"
-#import "NSConditionLock.h"
-#import "NSInvocation.h"
 #import "NSLock.h"
-#import "NSMethodSignature.h"
-#import "NSNull.h"
-#import "NSObject.h"
-#import "NSProxy.h"
-#import "NSRecursiveLock.h"
-#import "NSThread.h"
+#import "NSLock-Private.h"
+
+// other files in this library
+
+// std-c and dependencies
 
 
-// protocols and protocolclasses
-#import "MulleObjCClassCluster.h"
-#import "MulleObjCException.h"
-#import "MulleObjCProtocol.h"
-#import "MulleObjCRootObject.h"
-#import "MulleObjCRuntimeObject.h"
-#import "MulleObjCSingleton.h"
-#import "MulleObjCTaggedPointer.h"
-#import "NSCoding.h"
-#import "NSContainer.h"
-#import "NSCopying.h"
-#import "NSCopyingWithAllocator.h"
-#import "NSFastEnumeration.h"
-#import "NSLocking.h"
-#import "NSMutableCopying.h"
-#import "NSObjectProtocol.h"
+// TODO: look at rval and abort ?
 
-// categories
-#import "NSObject+NSCodingSupport.h"
+@implementation NSLock
 
-// structs
-// otherwise none.. all C
+- (instancetype) init
+{
+   return( MulleObjCLockInit( self));
+}
 
-// functions
-#import "MulleObjCAllocation.h"
-#import "MulleObjCAutoreleasePool.h"
-#import "MulleObjCExceptionHandler.h"
-#import "MulleObjCFunctions.h"
-#import "MulleObjCHashFunctions.h"
-#import "MulleObjCIvar.h"
-#import "MulleObjCProperty.h"
-#import "MulleObjCPrinting.h"
-#import "MulleObjCStackFrame.h"
-#import "MulleObjCUniverse.h"
-#import "NSByteOrder.h"
+// TODO: check if we this is really needed on a per platform basis
+//       mulle_thread should know this...
+//
+#if MULLE_THREAD_MUTEX_NEEDS_DONE
+- (void) dealloc
+{
+   MulleObjCLockDone( self);
+   [super dealloc];
+}
+#endif
 
+
+- (void) lock
+{
+   return( MulleObjCLockLock( self));
+}
+
+
+- (void) unlock
+{
+   return( MulleObjCLockUnlock( self));
+}
+
+
+- (BOOL) tryLock
+{
+   return( MulleObjCLockTryLock( self));
+}
+
+
+- (BOOL) lockBeforeTimeInterval:(mulle_timeinterval_t) timeInterval
+{
+   for(;;)
+   {
+      if( mulle_timeinterval_now() >= timeInterval)
+         return( NO);
+
+      if( [self tryLock])
+         return( YES);
+
+      // TODO: why not use nanosleep or select and move this
+      //       to OS ? Because there is no "good" nanosleep value
+      //       in my opinion. What is too small, what is too large ?
+      mulle_thread_yield();
+   }
+}
+
+
+@end

@@ -5,12 +5,12 @@
 #define VALUE_HAS_NAME
 #define DO_COPY
 
-@interface Foo : MulleObject
+@interface Foo : MulleDynamicObject
 @end
 
 @interface Foo( MoarValues)
 
-@property( dynamic, copy) id  copyValue;
+@property( dynamic, assign) id  assignValue;
 
 @end
 
@@ -21,12 +21,12 @@
 
 @implementation Foo( MoarValues)
 
-@dynamic copyValue;
+@dynamic assignValue;
 
 @end
 
 
-@interface Value : MulleObject <NSCopying>
+@interface Value : MulleDynamicObject <NSCopying>
 
 @property( dynamic) char  *nameUTF8String;
 
@@ -54,7 +54,7 @@
 #ifdef VALUE_HAS_NAME
    return( [self nameUTF8String]);
 #else
-   return( "copy");
+   return( "assign");
 #endif
 }
 
@@ -77,15 +77,15 @@ int  main()
    @autoreleasepool
    {
       obj = [Foo object];
-      [obj setCopyValue:[Value objectWithNameUTF8String:"copy"]];
+      [obj setAssignValue:[Value objectWithNameUTF8String:"assign"]];
 
 #ifdef DO_COPY
       copy = [[obj mutableCopy] autorelease];
 
-      mulle_printf( "%@\n", [copy copyValue]);
+      mulle_printf( "%@\n", [copy assignValue]);
       [copy mullePerformFinalize];
 #else
-      mulle_printf( "%@\n", [obj copyValue]);
+      mulle_printf( "%@\n", [obj assignValue]);
 #endif
       [obj mullePerformFinalize];
    }

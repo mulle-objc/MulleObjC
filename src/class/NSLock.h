@@ -1,9 +1,9 @@
 //
-//  MulleObjC.h
+//  NSLock.h
 //  MulleObjC
 //
-//  Copyright (c) 2015 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2015 Codeon GmbH.
+//  Copyright (c) 2011 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2011 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -33,67 +33,27 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
-// because standalone versions must define FASTIDs
-
-//#ifdef MULLE_OBJC_RUNTIME_VERSION
-//# error "do not include the mulle-objc-runtime before MulleObjC.h"
-//#endif
-
 #import "import.h"
 
-// classes
-#import "MulleObjCLoader.h"
-
-#import "MulleDynamicObject.h"
-#import "MulleObject.h"
-
-#import "NSAutoreleasePool.h"
-#import "NSCondition.h"
-#import "NSConditionLock.h"
-#import "NSInvocation.h"
-#import "NSLock.h"
-#import "NSMethodSignature.h"
-#import "NSNull.h"
 #import "NSObject.h"
-#import "NSProxy.h"
-#import "NSRecursiveLock.h"
-#import "NSThread.h"
-
-
-// protocols and protocolclasses
-#import "MulleObjCClassCluster.h"
-#import "MulleObjCException.h"
-#import "MulleObjCProtocol.h"
-#import "MulleObjCRootObject.h"
-#import "MulleObjCRuntimeObject.h"
-#import "MulleObjCSingleton.h"
-#import "MulleObjCTaggedPointer.h"
-#import "NSCoding.h"
-#import "NSContainer.h"
-#import "NSCopying.h"
-#import "NSCopyingWithAllocator.h"
-#import "NSFastEnumeration.h"
 #import "NSLocking.h"
-#import "NSMutableCopying.h"
-#import "NSObjectProtocol.h"
+#import "MulleObjCProtocol.h"
 
-// categories
-#import "NSObject+NSCodingSupport.h"
+//
+// using a NSLock object is possibly too heavyweight for very contested locks.
+// Consider using mulle_thread_mutex_t directly
+//
+@interface NSLock : NSObject < NSLocking, MulleObjCThreadSafe>
+{
+   mulle_thread_mutex_t    _lock;
+}
 
-// structs
-// otherwise none.. all C
+- (void) lock;
+- (void) unlock;
+- (BOOL) tryLock;
 
-// functions
-#import "MulleObjCAllocation.h"
-#import "MulleObjCAutoreleasePool.h"
-#import "MulleObjCExceptionHandler.h"
-#import "MulleObjCFunctions.h"
-#import "MulleObjCHashFunctions.h"
-#import "MulleObjCIvar.h"
-#import "MulleObjCProperty.h"
-#import "MulleObjCPrinting.h"
-#import "MulleObjCStackFrame.h"
-#import "MulleObjCUniverse.h"
-#import "NSByteOrder.h"
+- (BOOL) lockBeforeTimeInterval:(mulle_timeinterval_t) timeInterval;
+
+@end
+
 

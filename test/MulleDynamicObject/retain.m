@@ -5,7 +5,7 @@
 #define VALUE_HAS_NAME
 #define DO_COPY
 
-@interface Foo : MulleObject
+@interface Foo : MulleDynamicObject
 @end
 
 @interface Foo( MoarValues)
@@ -26,7 +26,7 @@
 @end
 
 
-@interface Value : MulleObject <NSCopying>
+@interface Value : MulleDynamicObject <NSCopying>
 
 @property( dynamic) char  *nameUTF8String;
 

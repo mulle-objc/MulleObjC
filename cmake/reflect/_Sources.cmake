@@ -11,14 +11,19 @@ endif()
 # contents selected with patternfile ??-source--sources
 #
 set( SOURCES
+src/class/MulleDynamicObject.m
 src/class/MulleObject.m
 src/class/NSAutoreleasePool.m
+src/class/NSConditionLock.m
+src/class/NSCondition.m
 src/class/NSInvocation.m
+src/class/NSLock.m
 src/class/NSMethodSignature.m
 src/class/NSNull.m
 src/class/NSObject+NSCodingSupport.m
 src/class/NSObject.m
 src/class/NSProxy.m
+src/class/NSRecursiveLock.m
 src/class/NSThread.m
 src/function/MulleObjCAllocation.m
 src/function/MulleObjCDebug.m

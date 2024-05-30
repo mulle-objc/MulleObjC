@@ -4,7 +4,7 @@
 
 
 
-@interface Foo : MulleObject
+@interface Foo : MulleDynamicObject
 
 @property( dynamic, retain) id   myValue;
 

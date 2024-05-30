@@ -3,9 +3,11 @@
 #include <stdio.h>
 
 
-@interface Foo : MulleObject
+@interface Foo : MulleDynamicObject
 
-@property( dynamic, assign) int  myIntValue;
+@property( dynamic, assign, observable) int  myIntValue;
+
+- (void) willChange;
 
 @end
 
@@ -14,7 +16,14 @@
 
 @dynamic myIntValue;
 
+- (void) willChange
+{
+   printf( "%s\n", __PRETTY_FUNCTION__);
+}
+
 @end
+
+
 
 
 int  main()
@@ -27,6 +36,5 @@ int  main()
    printf( "%d\n", [obj myIntValue]);
    return( 0);
 }
-
 
 

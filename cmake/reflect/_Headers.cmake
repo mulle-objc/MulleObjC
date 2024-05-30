@@ -32,7 +32,10 @@ src/generic/include-private.h
 # contents selected with patternfile ??-header--private-headers
 #
 set( PRIVATE_HEADERS
+src/class/MulleObject-Private.h
+src/class/NSLock-Private.h
 src/class/NSMethodSignature-Private.h
+src/class/NSRecursiveLock-Private.h
 src/function/MulleObjCExceptionHandler-Private.h
 src/mulle-objc-autoreleasepointerarray-private.h
 src/mulle-objc-exceptionhandlertable-private.h
@@ -65,16 +68,22 @@ src/MulleObjCIntegralType.h
 src/MulleObjCUniverse.h
 src/MulleObjCVersion.h
 src/MulleObjC.h
+src/class/MulleDynamicObject.h
 src/class/MulleObjCAutoreleasePool.h
 src/class/MulleObjCLoader.h
+src/class/MulleObjCLockFoundation.h
 src/class/MulleObject.h
 src/class/NSAutoreleasePool.h
+src/class/NSConditionLock.h
+src/class/NSCondition.h
 src/class/NSInvocation.h
+src/class/NSLock.h
 src/class/NSMethodSignature.h
 src/class/NSNull.h
 src/class/NSObject+NSCodingSupport.h
 src/class/NSObject.h
 src/class/NSProxy.h
+src/class/NSRecursiveLock.h
 src/class/NSThread.h
 src/function/MulleObjCAllocation.h
 src/function/MulleObjCDebug.h
@@ -107,6 +116,7 @@ src/protocol/NSContainer.h
 src/protocol/NSCopyingWithAllocator.h
 src/protocol/NSCopying.h
 src/protocol/NSFastEnumeration.h
+src/protocol/NSLocking.h
 src/protocol/NSMutableCopying.h
 src/protocol/NSObjectProtocol.h
 src/reflect/_MulleObjC-versioncheck.h
