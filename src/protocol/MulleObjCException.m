@@ -205,7 +205,7 @@ void   _MulleObjCThrowInternalInconsistencyExceptionUTF8String( mulle_objc_unive
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    va_start( args, format);
-   if( *rootconfig->exception.vectors.invalid_argument == NSStringVPrintfAbort)
+   if( *rootconfig->exception.vectors.internal_inconsistency == NSStringVPrintfAbort)
       _mulle_objc_vprintf_abort( format, args);
    string = (*rootconfig->string.objectfromchars)( format);
    (*rootconfig->exception.vectors.internal_inconsistency)( string, args);
@@ -226,7 +226,7 @@ void   _MulleObjCThrowErrnoExceptionUTF8String( mulle_objc_universeid_t universe
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    va_start( args, format);
-   if( (void (*)( void)) *rootconfig->exception.vectors.invalid_argument == (void (*)( void)) perror_abort)
+   if( (void (*)( void)) *rootconfig->exception.vectors.errno_error == (void (*)( void)) perror_abort)
       perror_abort( format);
 
    string     = (*rootconfig->string.objectfromchars)( format);

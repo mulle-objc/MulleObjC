@@ -51,10 +51,10 @@ struct _mulle_objc_universeconfiguration_defaults
    struct mulle_allocator                     *allocator;
 
    mulle_objc_universefriend_versionassert_t  *versionassert;
-   struct _mulle_objc_method                  *forward;
    struct _mulle_objc_infraclass              *staticstringclass;
+   struct _mulle_objc_method                  *forward;
 
-
+   void   *(*retain_autorelease)( void *);
    void   (*uncaughtexception)( void *exception) _MULLE_C_NO_RETURN;
    void   (*wrongthread)( struct _mulle_objc_object *obj,
                           mulle_thread_t affinity_thread,

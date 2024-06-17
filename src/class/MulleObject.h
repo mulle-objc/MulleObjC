@@ -58,10 +58,19 @@
    NSRecursiveLock   *__lock;        // use __ to "hide" it
 }
 
-- (BOOL) tryLock                                         MULLE_OBJC_THREADSAFE_METHOD;
 
-// we don't want to access this locked
-- (void) shareLockOfObject:(MulleObject *) other  MULLE_OBJC_THREADSAFE_METHOD;
+// for objects (like UIView) that share locks with other objects
+// (via addSubview:), its clumsy to have a lock initially. These objects
+// are non-threadsafe until they share a lock with another MulleObject
+//
++ (instancetype) locklessObject;
+- (instancetype) initNoLock;
+
+- (BOOL) tryLock                                            MULLE_OBJC_THREADSAFE_METHOD;
+
+- (void) didShareRecursiveLock:(NSRecursiveLock *) lock     MULLE_OBJC_THREADSAFE_METHOD;
+- (void) shareRecursiveLock:(NSRecursiveLock *) other       MULLE_OBJC_THREADSAFE_METHOD;
+- (void) shareRecursiveLockWithObject:(MulleObject *) other   MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
 

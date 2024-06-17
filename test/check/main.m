@@ -184,7 +184,7 @@ int   main( int argc, char  *argv[])
       [foo doTwoParam:nil :nil];
       [foo doThreeParam:nil :nil :nil];
 
-      cache = _mulle_objc_class_get_impcache_cache( _mulle_objc_object_get_isa( foo));
+      cache = _mulle_objc_class_get_impcache_cache_atomic( _mulle_objc_object_get_isa( foo));
 
       fprintf( stderr, "doNoParam = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doNoParam)));
       fprintf( stderr, "doOneParam = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doOneParam:)));

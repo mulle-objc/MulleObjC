@@ -136,112 +136,6 @@ static inline struct _mulle_autoreleasepointerarray *
 }
 
 
-static inline void
-   _mulle_object_map_release_and_free( struct mulle_map *object_map,
-                                       void *opfer)
-{
-   NSUInteger   value;
-
-   value = (NSUInteger) mulle_map_get( object_map, opfer);
-   assert( value && "object appeared in pool out of nowhere");
-   --value;
-
-   if( ! value)
-      mulle_map_remove( object_map, opfer);
-   else
-      mulle_map_set( object_map, opfer, (void *) value);
-}
-
-
-static inline void
-   _mulle_autoreleasepointerarray_release_and_free(
-                               struct _mulle_autoreleasepointerarray *end,
-                               struct _mulle_autoreleasepointerarray *staticStorage,
-                               struct mulle_map *object_map)
-{
-   struct _mulle_autoreleasepointerarray   *p, *q;
-   id                                      *objects;
-   id                                      *sentinel;
-   id                                      opfer;
-
-   for( p = end; p; p = q)
-   {
-      q            = p->previous;
-      p->previous = NULL;
-
-      // release in reverse fashion, because that should be better for the
-      // memory manager
-      objects  = &p->objects[ p->used];
-      sentinel = p->objects;
-
-      // We could avoid the if opfer check, if we precheck that count == used
-      // if( p->count == p->used), meaning there are no holes
-      if( object_map)
-      {
-         while( objects > sentinel)
-         {
-            opfer = *--objects;
-            if( opfer)
-            {
-               _mulle_object_map_release_and_free( object_map, opfer);
-               _mulle_objc_object_release_inline( opfer);
-            }
-         }
-      }
-      else
-      {
-         while( objects > sentinel)
-         {
-            opfer = *--objects;
-            mulle_objc_object_release_inline( opfer);
-         }
-      }
-
-      if( p != staticStorage)
-      {
-#if AUTORELEASEPOOL_DEBUG
-         fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p deallocated (previous = %p)\n",
-                          p,
-                          q);
-#endif
-         mulle_free( p);
-      }
-   }
-}
-
-
-static inline void
-   _mulle_autoreleasepointerarray_dump_objects(
-                               struct _mulle_autoreleasepointerarray *end,
-                               char *verb,
-                               struct _mulle_autoreleasepointerarray *staticStorage)
-{
-   id                                      *objects;
-   id                                      *sentinel;
-   struct _mulle_autoreleasepointerarray   *p, *q;
-   id                                      obj;
-
-   for( p = end; p; p = q)
-   {
-      q = p->previous;
-
-      objects  = p->objects;
-      sentinel = &p->objects[ p->used];
-      while( objects < sentinel)
-      {
-         obj = *objects++;
-         if( obj)
-         {
-            fprintf( stderr, "[pool] %p %p (RC: %ld)\n",
-                                 obj,
-                                 verb,
-                                 (long) mulle_objc_object_get_retaincount( obj));
-         }
-      }
-   }
-}
-
-
 
 static inline BOOL
    _mulle_autoreleasepointerarray_is_full( struct _mulle_autoreleasepointerarray *array)
@@ -297,30 +191,87 @@ static inline int
 }
 
 
-static inline unsigned int
-   _mulle_autoreleasepointerarray_count_object( struct _mulle_autoreleasepointerarray *array,
-                                                id p)
+static inline void
+   _mulle_object_map_release_and_free( struct mulle_map *object_map,
+                                       void *opfer)
 {
-   id             *q;
-   id             *sentinel;
-   unsigned int   count;
+   NSUInteger   value;
 
-   count = 0;
-   do
-   {
-      sentinel = array->objects;
-      q        = &array->objects[ array->used];
-      while( q > sentinel)
-         if( *--q == p)
-            ++count;
-   }
-   while( array = array->previous);
+   value = (NSUInteger) mulle_map_get( object_map, opfer);
+   assert( value && "object appeared in pool out of nowhere");
+   --value;
 
-   return( count);
+   if( ! value)
+      mulle_map_remove( object_map, opfer);
+   else
+      mulle_map_set( object_map, opfer, (void *) value);
 }
 
 
 
+//
+// this is the standard function that wipes a NSAutoreleasePool
+//
+static inline void
+   _mulle_autoreleasepointerarray_release_and_free(
+                               struct _mulle_autoreleasepointerarray *end,
+                               struct _mulle_autoreleasepointerarray *staticStorage,
+                               struct mulle_map *object_map)
+{
+   struct _mulle_autoreleasepointerarray   *p, *q;
+   id                                      *objects;
+   id                                      *sentinel;
+   id                                      opfer;
+
+   for( p = end; p; p = q)
+   {
+      q            = p->previous;
+      p->previous = NULL;
+
+      // release in reverse fashion, because that should be better for the
+      // memory manager
+      objects  = &p->objects[ p->used];
+      sentinel = p->objects;
+
+      // We could avoid the if opfer check, if we precheck that count == used
+      // if( p->count == p->used), meaning there are no holes
+      if( object_map)
+      {
+         while( objects > sentinel)
+         {
+            opfer = *--objects;
+            if( opfer)
+            {
+               _mulle_object_map_release_and_free( object_map, opfer);
+               _mulle_objc_object_call_release( opfer);
+            }
+         }
+      }
+      else
+      {
+         while( objects > sentinel)
+         {
+            opfer = *--objects;
+            _mulle_objc_object_call_release( opfer);
+         }
+      }
+
+      if( p != staticStorage)
+      {
+#if AUTORELEASEPOOL_DEBUG
+         fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p deallocated (previous = %p)\n",
+                          p,
+                          q);
+#endif
+         mulle_free( p);
+      }
+   }
+}
+
+
+//
+// Specialized code for mulleReleasePoolObjects:
+//
 static inline void
    _mulle_autoreleasepointerarray_release_objects( struct _mulle_autoreleasepointerarray *array,
                                                    id *objects,
@@ -364,6 +315,9 @@ static inline void
 }
 
 
+//
+// Debug helpers
+//
 static inline unsigned int
    _mulle_autoreleasepointerarray_count( struct _mulle_autoreleasepointerarray *array)
 {
@@ -374,5 +328,62 @@ static inline unsigned int
 
    return( count);
 }
+
+
+
+static inline unsigned int
+   _mulle_autoreleasepointerarray_count_object( struct _mulle_autoreleasepointerarray *array,
+                                                id p)
+{
+   id             *q;
+   id             *sentinel;
+   unsigned int   count;
+
+   count = 0;
+   do
+   {
+      sentinel = array->objects;
+      q        = &array->objects[ array->used];
+      while( q > sentinel)
+         if( *--q == p)
+            ++count;
+   }
+   while( array = array->previous);
+
+   return( count);
+}
+
+
+static inline void
+   _mulle_autoreleasepointerarray_dump_objects(
+                               struct _mulle_autoreleasepointerarray *end,
+                               char *verb,
+                               struct _mulle_autoreleasepointerarray *staticStorage)
+{
+   id                                      *objects;
+   id                                      *sentinel;
+   struct _mulle_autoreleasepointerarray   *p, *q;
+   id                                      obj;
+
+   for( p = end; p; p = q)
+   {
+      q = p->previous;
+
+      objects  = p->objects;
+      sentinel = &p->objects[ p->used];
+      while( objects < sentinel)
+      {
+         obj = *objects++;
+         if( obj)
+         {
+            fprintf( stderr, "[pool] %p %p (RC: %ld)\n",
+                                 obj,
+                                 verb,
+                                 (long) mulle_objc_object_get_retaincount( obj));
+         }
+      }
+   }
+}
+
 
 #endif

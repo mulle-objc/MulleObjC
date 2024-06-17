@@ -478,7 +478,7 @@ retry:
    osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
    if( ! osThread)
       return( YES);
-   return( osThread == _NSThreadGetCurrentOSThread());
+   return( osThread == MulleThreadGetCurrentOSThread());
 }
 
 
@@ -492,7 +492,7 @@ retry:
 
    if( ! threadObject)
       threadObject = [NSThread currentThread];
-   return( osThread == _NSThreadGetOSThread( threadObject));
+   return( osThread == MulleThreadObjectGetOSThread( threadObject));
 }
 
 
@@ -505,7 +505,7 @@ retry:
    if( ! osThread)
       return;
 
-   currentOSThread = _NSThreadGetCurrentOSThread();
+   currentOSThread = MulleThreadGetCurrentOSThread();
    if( currentOSThread != osThread && osThread != (mulle_thread_t) -1)
       MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p can not gain access to this object %p\n",
                                                       currentOSThread, self);
@@ -522,7 +522,7 @@ retry:
    if( ! osThread)
       return;
 
-   currentOSThread = _NSThreadGetCurrentOSThread();
+   currentOSThread = MulleThreadGetCurrentOSThread();
    if( currentOSThread != osThread && osThread != (mulle_thread_t) -1)
       MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p does not have access to this object %p\n",
                                                       currentOSThread, self);

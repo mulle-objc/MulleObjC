@@ -136,8 +136,26 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 {
    checkAutoreleaseRelease( self);
 
+   // only place in mulle-objc where _mulle_objc_object_release_inline should
+   // be called and not _mulle_objc_object_call_release
    _mulle_objc_object_release_inline( self);
 }
+
+
+- (instancetype) retain
+{
+   // only place in mulle-objc where _mulle_objc_object_retain_inline should
+   // be called and not _mulle_objc_object_call_retain
+   _mulle_objc_object_retain_inline( (struct _mulle_objc_object *) self);
+   return( self);
+}
+
+
+- (NSUInteger) retainCount
+{
+   return( (NSUInteger) _mulle_objc_object_get_retaincount_notps_noslow( self));
+}
+
 
 
 - (instancetype) autorelease
@@ -148,17 +166,6 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
    return( self);
 }
 
-
-- (instancetype) retain
-{
-   return( (id) mulle_objc_object_retain( (struct _mulle_objc_object *) self));
-}
-
-
-- (NSUInteger) retainCount
-{
-   return( (NSUInteger) _mulle_objc_object_get_retaincount_notps_noslow( self));
-}
 
 
 
@@ -188,7 +195,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
    osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
    if( ! osThread)
       return( YES);
-   currentOSThread = _NSThreadGetCurrentOSThread();
+   currentOSThread = MulleThreadGetCurrentOSThread();
    return( osThread == currentOSThread);
 }
 
@@ -203,7 +210,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 
    if( ! threadObject)
       threadObject = [NSThread currentThread];
-   return( osThread == _NSThreadGetOSThread( threadObject));
+   return( osThread == MulleThreadObjectGetOSThread( threadObject));
 }
 
 
@@ -216,7 +223,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 //
 // There are three kinds of TAO states:
 //
-//   1. Object belongs to no  threads (osThread == -1) lives in no autoreleasepool
+//   1. Object belongs to no  threads (osThread == -1) lives in no autoreleasepool (mulle_objc_object_has_no_thread == -1)
 //   2. Object belongs to one thread  (osThread == x)  lives in x's autoreleaspool
 //   3. Object belongs to all threads (osThread == 0)  lives in all autoreleasepools (!)
 //
@@ -242,8 +249,8 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
    if( osThread)
    {
 #ifdef DEBUG
-      currentOSThread = _NSThreadGetCurrentOSThread();
-      if( osThread != (mulle_thread_t) -1)
+      currentOSThread = MulleThreadGetCurrentOSThread();
+      if( osThread != mulle_objc_object_has_no_thread)
       {
          // This can happen if you gain an [NSArray arrayWithObjets:foo, foo, nil];
          // So an object could have been already gainedAccess to. This is no
@@ -258,7 +265,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
                                                                     osThread);
       }
 #else
-      assert( osThread == -1 || currentOSThread == osThread);
+      assert( osThread == mulle_objc_object_has_no_thread || currentOSThread == osThread);
 #endif
       _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, currentOSThread);
    }
@@ -283,13 +290,13 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
    // MEMO: we don't need to make this check in Release
    //       as this is an error that appears during development quickly
 #ifdef DEBUG
-   currentOSThread = _NSThreadGetCurrentOSThread();
+   currentOSThread = MulleThreadGetCurrentOSThread();
    if( currentOSThread != osThread)
    {
       // This can happen if you relinquish [NSArray arrayWithObjets:foo, foo, nil];
       // So an object could have been already relinquished. This is no problem
       // as the gain will also autorelease it twice
-      if( osThread == (mulle_thread_t) -1)
+      if( osThread == (mulle_thread_t) mulle_objc_object_has_no_thread)
          return;
 
       MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p "
@@ -301,7 +308,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
                                                               osThread);
    }
 #else
-   assert( osThread != -1 || currentOSThread == osThread);
+   assert( osThread != mulle_objc_object_has_no_thread || currentOSThread == osThread);
 #endif
    //
    // add this now, before the object might get removed from current thread
@@ -327,12 +334,12 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
    // fail in the future
    //
    case MulleObjCTAOCallerRemovesFromAllPools :
-      [NSAutoreleasePool mulleReleaseObjects:&self
+      [NSAutoreleasePool mulleReleasePoolObjects:&self
                                        count:1];
       break;
 
    case MulleObjCTAOCallerRemovesFromCurrentPool :
-      [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleaseObjects:&self
+      [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleasePoolObjects:&self
                                                                      count:1];
 #ifdef DEBUG
       if( [NSAutoreleasePool mulleContainsObject:self])
@@ -343,10 +350,19 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
       break;
    }
 
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, (mulle_thread_t) -1);
+   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self,
+                                  mulle_objc_object_has_no_thread);
 }
 
-
+// For a completely thread unsafe object, the strategy must be to remove
+// it from the sending thread and move it wholesale to the new thread.
+// BUT! A partially threadsafe object, meaning it has some methods that
+// are threadsafe and can be called from another thread, can and should
+// remain in the senders pool. It's too expensive for the runtime to
+// check this here, so its left to the implementers. It would be easy
+// to write a checker that compares the mulleTaoStrategy of classes with the
+// provided methods and check if its consistent (IMO)
+//
 - (MulleObjCTAOStrategy) mulleTAOStrategy
 {
    return( MulleObjCTAOCallerRemovesFromCurrentPool);

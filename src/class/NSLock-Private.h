@@ -2,7 +2,7 @@
 // this is a semi-private interface so that NSRecursiveLock and NSLockedObject
 // have a somewhat simpler time
 //
-static inline NSLock   *MulleObjCLockInit( NSLock *self)
+static inline NSLock   *_MulleObjCLockInit( NSLock *self)
 {
    if( mulle_thread_mutex_init( &((struct { @defs( NSLock); } *) self)->_lock))
    {
@@ -14,13 +14,13 @@ static inline NSLock   *MulleObjCLockInit( NSLock *self)
 }
 
 
-static inline void   MulleObjCLockDone( NSLock *self)
+static inline void   _MulleObjCLockDone( NSLock *self)
 {
    mulle_thread_mutex_done( &((struct { @defs( NSLock); } *) self)->_lock);
 }
 
 
-static inline void  MulleObjCLockLock( NSLock *self)
+static inline void  _MulleObjCLockLock( NSLock *self)
 {
    int   rval;
 
@@ -30,7 +30,7 @@ static inline void  MulleObjCLockLock( NSLock *self)
 }
 
 
-static inline void  MulleObjCLockUnlock( NSLock *self)
+static inline void  _MulleObjCLockUnlock( NSLock *self)
 {
    int   rval;
 
@@ -40,7 +40,7 @@ static inline void  MulleObjCLockUnlock( NSLock *self)
 }
 
 
-static inline BOOL  MulleObjCLockTryLock( NSLock *self)
+static inline BOOL  _MulleObjCLockTryLock( NSLock *self)
 {
    int   rval;
 

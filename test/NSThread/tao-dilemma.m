@@ -55,8 +55,8 @@
 {
    Bar   *bar;
 
-   mulle_fprintf( stderr, "finalize:  %p\n", mulle_thread_self());
-   mulle_fprintf( stderr, "affinity:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self));
+   mulle_fprintf( stderr, "finalize foo:  %p\n", mulle_thread_self());
+   mulle_fprintf( stderr, "affinity of foo:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self));
 
    // finalize will remove itself from bar setBar: this will crash with TAO,
    // since bar will still be retained by self (should do it the other way
@@ -69,6 +69,7 @@
    // this with a late setBar:nil), so the TAO check will complain
    //
    bar = [self bar];
+   mulle_fprintf( stderr, "affinity of bar:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) bar));
    [bar setFoo:nil];
    [self setBar:nil];
 
@@ -82,10 +83,11 @@
    Bar   *bar;
 
    mulle_fprintf( stderr, "thread:  %p\n", mulle_thread_self());
-   mulle_fprintf( stderr, "affinity:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self));
+   mulle_fprintf( stderr, "affinity of foo:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self));
 
    // bar will have thread affinity to "thread",
    bar = [Bar object];
+   mulle_fprintf( stderr, "affinity of bar:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) bar));
    [self setBar:bar];
 }
 
@@ -97,12 +99,12 @@ int   main( void)
    NSThread    *thread;
    Foo         *foo;
 
-   mulle_fprintf( stderr, "main:  %p\n", mulle_thread_self());
+   mulle_fprintf( stderr, "main start:  %p\n", mulle_thread_self());
 
    @autoreleasepool
    {
       foo    = [Foo object];
-      mulle_fprintf( stderr, "affinity:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) foo));
+      mulle_fprintf( stderr, "affinity of foo:  %p\n\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) foo));
       // foo thread affinity will also move to "thread"
       thread = [[[NSThread alloc] initWithTarget:foo
                                         selector:@selector( function:)
@@ -112,8 +114,8 @@ int   main( void)
       [thread mulleJoin];
 
       // foo will get final release in this thread though
-      mulle_fprintf( stderr, "main:  %p\n", mulle_thread_self());
-      mulle_fprintf( stderr, "affinity:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) foo));
+      mulle_fprintf( stderr, "\nmain after:  %p\n", mulle_thread_self());
+      mulle_fprintf( stderr, "affinity of foo:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) foo));
    }
 
    return( 0);

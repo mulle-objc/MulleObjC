@@ -22,12 +22,13 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadSafe)
    return( YES);
 }
 
+
 - (id) mulleThreadSafeCopy
 {
    return( MulleObjCObjectRetain( self)); // is a little unclean
 }
 
-// no need for mulleTAOStrategy as it doesn't appy to threadSafe objects
+// no need for mulleTAOStrategy as it doesn't apply to threadSafe objects
 
 PROTOCOLCLASS_END()
 
@@ -124,7 +125,6 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCPlaceboRetainCount)
 {
    return( MULLE_OBJC_NEVER_RELEASE);
 }
-
 
 PROTOCOLCLASS_END()
 

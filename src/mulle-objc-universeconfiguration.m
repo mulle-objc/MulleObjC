@@ -44,6 +44,7 @@
 
 #import "mulle-objc-type.h"
 #import "MulleObjCIntegralType.h"
+#import "MulleObjCAutoreleasePool.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
 #import "NSRange.h"
@@ -229,6 +230,7 @@ struct _mulle_objc_universefoundationinfo  *
 
    roots->teardown_callback                        = config->callbacks.teardown;
    foundation.universefriend.data                  = roots;
+   foundation.retain_autorelease                   = config->universe.retain_autorelease;
    foundation.staticstringclass                    = config->universe.staticstringclass;
    foundation.universefriend.finalizer             = foundationinfo_finalize;
    foundation.universefriend.destructor            = foundationinfo_done;
@@ -379,6 +381,11 @@ static void   invalid_range( NSRange range)
    _mulle_objc_printf_abort( "invalid range { %td, %td }", range.location, range.length);
 }
 
+void  *_mulle_objc_object_retain_autorelease( void *self)
+{
+   _mulle_objc_object_retain_inline( self);
+   return( _mulle_objc_object_autorelease( self));
+}
 
 // a rare case of const use :)
 const struct _mulle_objc_universeconfiguration   *
@@ -387,9 +394,10 @@ const struct _mulle_objc_universeconfiguration   *
    static const struct _mulle_objc_universeconfiguration   setup =
    {
       {
-         .versionassert = versionassert,
-         .forward       = &NSObject_msgForward_method,
-         .wrongthread   = &MulleObjCTAOLogAndFail
+         .versionassert      = versionassert,
+         .forward            = &NSObject_msgForward_method,
+         .wrongthread        = &MulleObjCTAOLogAndFail,
+         .retain_autorelease = _mulle_objc_object_retain_autorelease
       },
       {
          .configurationsize = sizeof( struct _mulle_objc_universeconfiguration),

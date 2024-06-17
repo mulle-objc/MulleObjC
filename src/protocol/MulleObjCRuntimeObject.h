@@ -112,10 +112,15 @@ extern void   NSDeallocateObject( id obj)
 
 /*
  * Helper macros to declare protocol classes.
+ *
  * They always implement NSObject. This should be harmless and reduces
  * warnings.y By default all methods are declared optional, since the
  * protocolclass usually implements them (so they are optional for the
- * consumer)
+ * consumer).
+ *
+ * MEMO: want to call super ? Check out MulleObjCObjectSearchSuperIMP.
+ * TODO: can we put this manually into the instruction cache (like other
+ *       superids ?)
  */
 #define _PROTOCOLCLASS_INTERFACE0( name) \
 _Pragma("clang diagnostic push")         \
@@ -197,13 +202,13 @@ _Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
 
 static inline id   MulleObjCObjectRetain( id obj)
 {
-   return( mulle_objc_object_retain_inline( obj));
+   return( mulle_objc_object_call_retain( obj));
 }
 
 
 static inline void   MulleObjCObjectRelease( id obj)
 {
-   mulle_objc_object_release_inline( obj);
+   mulle_objc_object_call_release( obj);
 }
 
 

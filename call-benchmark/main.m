@@ -631,7 +631,7 @@ int   main( int argc, char  *argv[])
       [foo doNo];
       [foo doSuperNo];
 
-      cache = _mulle_objc_class_get_impcache_cache( _mulle_objc_object_get_isa( foo));
+      cache = _mulle_objc_class_get_impcache_cache_atomic( _mulle_objc_object_get_isa( foo));
 
       fprintf( stderr, "doNo          = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doNo)));
       fprintf( stderr, "doOne:        = %d\n", _mulle_objc_cache_probe_entryindex( cache, @selector( doOne:)));

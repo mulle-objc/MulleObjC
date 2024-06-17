@@ -86,6 +86,25 @@ static void   recycle_ivar_object( mulle_atomic_pointer_t *p, id obj)
 @class Foo;
 
 
+// use different class to detect leak more easily
+@interface Bar : NSObject < MulleObjCThreadSafe>
+
+- (void) work;
+
+@end
+
+
+@implementation Bar
+
+- (void) work
+{
+   mulle_relativetime_sleep( 0.00001);
+}
+
+@end
+
+
+
 @interface Foo : NSObject < MulleObjCThreadSafe>
 {
    mulle_atomic_pointer_t   _available;
@@ -126,22 +145,18 @@ static void   recycle_ivar_object( mulle_atomic_pointer_t *p, id obj)
 }
 
 
-- (void) work
-{
-   mulle_relativetime_sleep( 0.00001);
-}
-
 
 - (void) doOne
 {
-   Foo  *foo;
+   Bar  *bar;
 
-   foo = acquire_ivar_object( &self->_available);
-   if( ! foo)
-      foo = [Foo object];
-   [foo work];
-   recycle_ivar_object( &self->_available, foo);
+   bar = acquire_ivar_object( &self->_available);
+   if( ! bar)
+      bar = [Bar object];
+   [bar work];
+   recycle_ivar_object( &self->_available, bar);
 }
+
 
 - (void) function:(id) arg
 {
@@ -167,6 +182,7 @@ int   main( void)
       // the NSThread will create an NSInvocation which will retain the
       // target and the argument
       // so [foo retainCount] will increase to 2
+#if 0
       aThread = [[[NSThread alloc] initWithTarget:foo
                                          selector:@selector( function:)
                                            object:foo] autorelease];
@@ -178,6 +194,21 @@ int   main( void)
 
       [bThread mulleJoin];
       [aThread mulleJoin];
+#else
+      aThread = [[[NSThread alloc] initWithTarget:foo
+                                         selector:@selector( function:)
+                                           object:foo] autorelease];
+
+      [aThread mulleStartUndetached];
+      [aThread mulleJoin];
+
+//      bThread = [[[NSThread alloc] initWithTarget:foo
+//                                         selector:@selector( function:)
+//                                           object:foo] autorelease];
+//      [bThread mulleStartUndetached];
+//      [bThread mulleJoin];
+
+#endif
    }
 
    return( 0);

@@ -188,8 +188,19 @@ static struct
    [self->_userInfo autorelease];
    self->_userInfo = nil;
 
-   [self->_invocation autorelease];
-   self->_invocation = nil;
+   // Do a -mulleRelinquishAccess: for a scenario where someone is waiting on a
+   // thread to finish and then wants to continue to use an invocation parameter:
+   //
+   // e.g.
+   //   [invocation setArgument:&context
+   //                   atIndex:2];
+   //   [thread mulleStartUndetached];
+   //   [thread mulleJoin];
+   //   context = [context mulleGainAccess];
+   //
+
+   if( self->_invocationGainedAccess)
+      [self->_invocation mulleRelinquishAccess];
 
    [super finalize];
 }
@@ -199,6 +210,15 @@ static struct
 {
    assert( ! [self mulleRunLoop]);
    assert( ! self->_userInfo);
+
+   // need to do this "deeply" to autorelease all we have
+   // the -autorelease is unwanted though or ? would prefer -release
+   // but can't have it. NSAutoreleasepool should immediately release 
+   // during pool cleaning though...
+   if( self->_invocationGainedAccess)
+      [self->_invocation mulleGainAccess]; // or gainAccess again ???
+
+   [self->_invocation release];
 
    MulleObjCInstanceDeallocateMemory( self, _nameUTF8String);
    _MulleObjCInstanceFree( self);
@@ -280,7 +300,7 @@ static void   _MulleThreadRegisterInUniverse( NSThread *threadObject,
 static void   _MulleThreadDeregisterInUniverse( NSThread *threadObject,
                                                 struct _mulle_objc_universe *universe)
 {
-   assert( _NSThreadGetOSThread( threadObject) == mulle_thread_self());
+   assert( MulleThreadObjectGetOSThread( threadObject) == mulle_thread_self());
 
    _mulle_objc_universe_remove_threadobject_for_thread( universe, mulle_thread_self(), threadObject); // does not retain
    _mulle_objc_thread_set_threadobject( universe, NULL);   // this owns it!
@@ -335,7 +355,7 @@ void   _MulleThreadRemoveThreadObjectFromUniverse( NSThread *threadObject,
 #ifndef NDEBUG
    mulle_thread_t   thread;
 
-   thread = _NSThreadGetOSThread( threadObject);
+   thread = MulleThreadObjectGetOSThread( threadObject);
    assert( thread == mulle_thread_self());
    assert( thread != _mulle_objc_universe_get_thread( universe));
 #endif
@@ -399,8 +419,8 @@ void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_univer
       mulle_objc_universe_fail_inconsistency( universe,
          "_MulleThreadResignAsMainThreadObjectInUniverse can only be called inside the crunch");
 
-   assert( _NSThreadGetOSThread( threadObject) == mulle_thread_self());
-   assert( _NSThreadGetOSThread( threadObject) == _mulle_objc_universe_get_thread( universe));
+   assert( MulleThreadObjectGetOSThread( threadObject) == mulle_thread_self());
+   assert( MulleThreadObjectGetOSThread( threadObject) == _mulle_objc_universe_get_thread( universe));
    assert( [threadObject retainCount] == 1);
 
    _MulleThreadDeregisterInUniverse( threadObject, universe);
@@ -493,7 +513,8 @@ void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
       return;
    }
 
-   // bouncyBounce has made _invocation accessible
+   // bouncyBounce has made _invocation accessible, should we zero it now
+   // and make sure that the arguments are reaped here ?
    [self->_invocation invoke];
 }
 
@@ -541,10 +562,13 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    // start
    //
    assert( ! self->_userInfo);
+   assert( ! self->_invocationGainedAccess);
 
    [self->_invocation mulleGainAccess];
+   self->_invocationGainedAccess = YES;
    [self main];
 
+   // this will call -finalize on us, which will release the invocation
    [NSThread exit];
 
    mulle_thread_return();
@@ -559,7 +583,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    intptr_t                                    n_threads;
 
    universe = _mulle_objc_object_get_universe( self);
-   if( _NSThreadGetOSThread( self))
+   if( MulleThreadObjectGetOSThread( self))
       __mulle_objc_universe_raise_internalinconsistency( universe, "thread already running");
 
    //
@@ -575,7 +599,6 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    //
    [self retain];
    _mulle_objc_universe_retain( universe);
-
    [self->_invocation mulleRelinquishAccess];
 
    if( mulle_thread_create( bouncyBounce, self, &thread))
@@ -885,7 +908,7 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 - (void) mulleDetach
 {
    self->_isDetached = YES;
-   mulle_thread_detach( _NSThreadGetOSThread( self));
+   mulle_thread_detach( MulleThreadObjectGetOSThread( self));
 }
 
 
@@ -904,7 +927,16 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
       __mulle_objc_universe_raise_internalinconsistency( universe,
                         "can't join a detached thread. Use -mulleStartUndetached");
    }
-   mulle_thread_join( _NSThreadGetOSThread( self));
+   mulle_thread_join( MulleThreadObjectGetOSThread( self));
+
+   // could regain invocation here, but how many threads will actually
+   // be joined ? And what does this do to ownership and autorelease ?
+   if( self->_invocationGainedAccess)
+   {
+      [self->_invocation mulleGainAccess]; 
+      self->_invocationGainedAccess = NO;
+   }
+
 }
 
 

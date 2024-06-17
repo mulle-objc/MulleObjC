@@ -70,7 +70,7 @@ static void   mulle_objc_make_class_boring( Class self)
 }
 
 
-void   *_mulle_objc_autorelease_object( void *obj)
+void   *_mulle_objc_object_autorelease( void *obj)
 {
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;
@@ -179,8 +179,6 @@ void   _mulle_objc_poolconfiguration_done( struct _mulle_objc_poolconfiguration 
       config->object_map = NULL;
    }
 }
-
-
 
 
 static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_universe *universe,
@@ -758,15 +756,15 @@ static inline unsigned int   mulleCount( NSAutoreleasePool *self)
 }
 
 
-
-
 //
-// release
+// Release is taking objects out of the NSAutoreleasePool and destroying
+// them "early". This should only be done via -mulleRelinquishAccess.
+// It leaves holes in the NSAutoreleasePool.
 //
 static inline void   releaseObjects( NSAutoreleasePool *self,
-                                    id *p,
-                                    NSUInteger n,
-                                    struct mulle_map *object_map)
+                                     id *p,
+                                     NSUInteger n,
+                                     struct mulle_map *object_map)
 {
    struct _mulle_autoreleasepointerarray   *array;
 
@@ -781,7 +779,8 @@ static inline void   releaseObjects( NSAutoreleasePool *self,
 }
 
 
-- (void) mulleReleaseObjects:(id *) p
+
+- (void) mulleReleasePoolObjects:(id *) p
                        count:(NSUInteger) count
 {
    struct _mulle_objc_poolconfiguration   *config;
@@ -793,7 +792,7 @@ static inline void   releaseObjects( NSAutoreleasePool *self,
 }
 
 
-+ (void) mulleReleaseObjects:(id *) p
++ (void) mulleReleasePoolObjects:(id *) p
                        count:(NSUInteger) count
 {
    NSAutoreleasePool                      *pool;
@@ -949,7 +948,7 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 
 
 // untested!
-- (void) mulleReleaseAllObjects
+- (void) mulleReleaseAllPoolObjects
 {
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;

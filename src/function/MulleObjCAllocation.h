@@ -403,3 +403,16 @@ static inline NSUInteger   MulleObjCCopyObjectArray( id *objects,
    return( n);
 }
 
+
+// MEMO: only use in your root class -retain method
+static inline id   _MulleObjCRetainObject( id obj)
+{
+   _mulle_objc_object_retain_inline( obj);
+   return( obj);
+}
+
+// MEMO: only use in your root class -release method
+static inline void   _MulleObjCReleaseObject( id obj)
+{
+   _mulle_objc_object_release_inline( obj);
+}

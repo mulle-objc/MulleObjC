@@ -85,7 +85,7 @@ int   main( void)
       if( i == next)
       {
          next += next;
-         [pool mulleReleaseAllObjects];
+         [pool mulleReleaseAllPoolObjects];
       }
    }
    [pool release];

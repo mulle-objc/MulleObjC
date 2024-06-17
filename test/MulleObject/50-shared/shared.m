@@ -31,9 +31,9 @@ int  main( int argc, char *argv[])
    c = [Foo object];
    d = [Foo object];
 
-   [b shareLockOfObject:a];
-   [c shareLockOfObject:b];
-   [d shareLockOfObject:b];
+   [b shareRecursiveLockWithObject:a];
+   [c shareRecursiveLockWithObject:b];
+   [d shareRecursiveLockWithObject:b];
 
    if( [a sharedLock] != [b sharedLock] ||
        [b sharedLock] != [c sharedLock] ||

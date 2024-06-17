@@ -96,7 +96,7 @@
 //
 //    NSPopAutoreleasePool( pool);
 //    pool = NSPushAutoreleasePool();
-- (void) mulleReleaseAllObjects;
+- (void) mulleReleaseAllPoolObjects;
 
 
 //
@@ -104,10 +104,10 @@
 // and immediately release them. Of course your thread must not touch any
 // of these objects thereafter
 //
-+ (void) mulleReleaseObjects:(id *) p
-                       count:(NSUInteger) count;
-- (void) mulleReleaseObjects:(id *) p
-                       count:(NSUInteger) count;
++ (void) mulleReleasePoolObjects:(id *) p
+                           count:(NSUInteger) count;
+- (void) mulleReleasePoolObjects:(id *) p
+                           count:(NSUInteger) count;
 
 //
 // Returns YES, if 'p' has autoreleases

@@ -102,9 +102,9 @@ static inline void   *_MulleObjCAcquirePointerAtomically( mulle_atomic_pointer_t
 
    for(;;)
    {
-      // zero out _drawnLayer if its contents are "layer"
+      // zero out p, if its contents are "value"
       // don't zero on mismatch
-      // return the actual contents of _drawnLayer (before zeroing)
+      // return the actual contents of p (before zeroing)
       actual = __mulle_atomic_pointer_cas( p, NULL, value);
       if( ! actual || actual == value)
          return( actual);
@@ -146,12 +146,14 @@ static inline BOOL   _MulleObjCRecycleObjectAtomically( mulle_atomic_pointer_t *
    // this will remove the object from our autorelease pools
    // and its now retained
    [obj mulleRelinquishAccess];
+
    rval = _MulleObjRecyclePointerAtomically( p, obj);
    if( ! rval)
    {
       //MulleUICLog( "Failed to store %#@ into pointer %p", obj, p);
       [obj mulleGainAccess];  // if recycling, fails plop it back into our thread
-                              // and let autoreleasepool reap it
+                              // and let autoreleasepool reap it.
+                              // This may not be wanted though!!
       return( NO);
    }
    return( YES);

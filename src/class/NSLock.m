@@ -49,7 +49,7 @@
 
 - (instancetype) init
 {
-   return( MulleObjCLockInit( self));
+   return( _MulleObjCLockInit( self));
 }
 
 // TODO: check if we this is really needed on a per platform basis
@@ -58,7 +58,7 @@
 #if MULLE_THREAD_MUTEX_NEEDS_DONE
 - (void) dealloc
 {
-   MulleObjCLockDone( self);
+   _MulleObjCLockDone( self);
    [super dealloc];
 }
 #endif
@@ -66,19 +66,19 @@
 
 - (void) lock
 {
-   return( MulleObjCLockLock( self));
+   return( _MulleObjCLockLock( self));
 }
 
 
 - (void) unlock
 {
-   return( MulleObjCLockUnlock( self));
+   return( _MulleObjCLockUnlock( self));
 }
 
 
 - (BOOL) tryLock
 {
-   return( MulleObjCLockTryLock( self));
+   return( _MulleObjCLockTryLock( self));
 }
 
 

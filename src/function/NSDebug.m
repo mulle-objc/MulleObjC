@@ -404,6 +404,8 @@ char   *MulleObjCStacktraceSymbolize( void *address,
    assert( userinfo);
 
    symbolizer = *userinfo;
+
+   // lazy init symbolizer (?)
    if( address == NULL)
    {
       if( symbolizer)
