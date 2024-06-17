@@ -8,6 +8,7 @@
 
 #ifdef __MULLE_OBJC__
 # import <MulleObjC/MulleObjC.h>
+# import <MulleObjC/MulleObjCDebug.h>
 #else
 # import <Foundation/Foundation.h>
 # pragma message( "Apple Foundation")
@@ -62,6 +63,12 @@ int   main( int argc, const char * argv[])
 #endif
 
    lock = [[[NSConditionLock alloc] initWithCondition:1848] autorelease];
+
+
+#ifdef __MULLE_OBJC__
+   MulleObjCDotdumpClass( "NSConditionLock");
+#endif
+
    printf( "0. %ld\n", [lock condition]);
 
    [NSThread detachNewThreadSelector:@selector( runServer:)

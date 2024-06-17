@@ -91,6 +91,22 @@
    [self setBar:bar];
 }
 
+// >> **FIX** >>
+- (id) mulleGainAccess
+{
+   self = [super mulleGainAccess];
+   [_bar mulleGainAccess];
+   return( self);
+}
+
+
+- (void) mulleRelinquishAccess
+{
+   [_bar mulleRelinquishAccess];
+   [super mulleRelinquishAccess];
+}
+// << **FIX** <<
+
 @end
 
 

@@ -21,7 +21,7 @@
 
 - (void) raise
 {
-   @throw( nil);
+   @throw( self);
 }
 
 
@@ -48,7 +48,6 @@ int  main( int argc, char *argv[])
    }
    @catch( id whatever)
    {
-
    }
 
    return( 0);

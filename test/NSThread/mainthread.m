@@ -34,10 +34,16 @@ int  main( void)
    // thread must be a rootthreadobject
    //
    if( mulle_set_get( info->object.roots, thread))
-      printf( "is mistakingly root object\n");
-   if( ! mulle_set_get( info->object.threads, thread))
-      printf( "is mistakingly not a root thread object\n");
+   {
+      printf( "is mistakingly a root object\n");
+      return( 1);
+   }
 
+   if( ! mulle_map_get( info->object.threads, (void *) MulleThreadObjectGetOSThread( thread)))
+   {
+      printf( "is mistakingly not a root thread object\n");
+      return( 1);
+   }
    fprintf( stderr, "2\n");
    _mulle_objc_universe_release( universe);
    fprintf( stderr, "3\n");

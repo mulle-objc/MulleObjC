@@ -66,9 +66,11 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
    MulleThreadFunction_t    *_function;          // unmanaged
    void                     *_functionArgument;  // unmanaged
 
-   char                     _isDetached;
    struct mulle_map         _map;  // not the -threadDictionary !
    int                      _rval;
+
+   char                     _isDetached;
+   char                     _invocationGainedAccess;
 }
 
 // this property can only be set by the caller, before the thread is
@@ -264,13 +266,13 @@ static inline id   MulleThreadObjectForKeyUTF8String( char *key)
 
 
 
-static inline mulle_thread_t  _NSThreadGetOSThread( NSThread *threadObject)
+static inline mulle_thread_t  MulleThreadObjectGetOSThread( NSThread *threadObject)
 {
    return( (mulle_thread_t) _mulle_atomic_pointer_read( &((struct { @defs( NSThread); } *) threadObject)->_osThread));
 }
 
 
-static inline mulle_thread_t  _NSThreadGetCurrentOSThread( void)
+static inline mulle_thread_t  MulleThreadGetCurrentOSThread( void)
 {
    return( (mulle_thread_t) mulle_thread_self());
 }
@@ -335,7 +337,7 @@ static inline void  MulleObjCTAOTest( Class cls, id arg)
    {
       obj    = [cls object];
       thread = [[[NSThread alloc] initWithTarget:obj
-                                        selector:@selector( mulleTAOTestSetup)
+                                        selector:@selector( mulleTAOTestSetup:)
                                           object:arg] autorelease];
       [thread mulleStartUndetached];
       [thread mulleJoin];
@@ -361,3 +363,4 @@ static inline void  MulleObjCTAOTest( Class cls, id arg)
 //
 #define MULLE_OBJC_MAINTHREAD_PROPERTY   MULLE_OBJC_THREADSAFE_PROPERTY
 #define MULLE_OBJC_MAINTHREAD_METHOD     MULLE_OBJC_THREADSAFE_METHOD
+

@@ -50,19 +50,19 @@
 
 - (void) lock
 {
-   return( MulleObjCRecursiveLockLock( self));
+   return( _MulleObjCRecursiveLockLock( self));
 }
 
 
 - (void) unlock
 {
-   MulleObjCRecursiveLockUnlock( self);
+   _MulleObjCRecursiveLockUnlock( self);
 }
 
 
 - (BOOL) tryLock
 {
-   return( MulleObjCRecursiveLockTryLock( self));
+   return( _MulleObjCRecursiveLockTryLock( self));
 }
 
 

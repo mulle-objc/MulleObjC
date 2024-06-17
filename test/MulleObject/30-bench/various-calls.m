@@ -109,12 +109,12 @@
 // (just to make this equivalent to A)
 - (void) unsafeCall:(NSUInteger) n
 {
-   MulleLockingObjectLock( self);
+   _MulleObjectLock( self);
 
    if( n)
       [self unsafeCall:n - 1];
 
-   MulleLockingObjectUnlock( self);
+   _MulleObjectUnlock( self);
 }
 
 - (void) safeCall:(NSUInteger) n
@@ -152,7 +152,7 @@
 
 - (instancetype) init
 {
-   return( MulleObjCLockInit( self));
+   return( _MulleObjCLockInit( self));
 }
 
 // TODO: check if we this is really needed on a per platform basis
@@ -160,7 +160,7 @@
 //
 - (void) dealloc
 {
-   MulleObjCLockDone( self);
+   _MulleObjCLockDone( self);
    [super dealloc];
 }
 
@@ -168,10 +168,10 @@
 // (just to make this equivalent to A)
 - (void) unsafeCall:(NSUInteger) n
 {
-   MulleObjCLockLock( self);
+   _MulleObjCLockLock( self);
    if( n)
       [self unsafeCall:n - 1];
-   MulleObjCLockUnlock( self);
+   _MulleObjCLockUnlock( self);
 }
 
 - (void) safeCall:(NSUInteger) n

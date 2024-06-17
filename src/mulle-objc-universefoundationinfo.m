@@ -322,16 +322,15 @@ void   _mulle_objc_universefoundationinfo_remove_rootobject( struct _mulle_objc_
 
 void   _mulle_objc_universefoundationinfo_release_rootobjects( struct _mulle_objc_universefoundationinfo *info)
 {
-   struct mulle_setenumerator   rover;
-   void                         *obj;
+   void   *obj;
 
    /* remove all root objects: need to have an enclosing
     * autoreleasepool here
     */
-   rover = mulle_set_enumerate( info->object.roots);
-   while( mulle_setenumerator_next( &rover, &obj))
-      mulle_objc_object_release( obj);
-   mulle_setenumerator_done( &rover);
+   mulle_set_for( info->object.roots, obj)
+   {
+      _mulle_objc_object_call_release( obj);
+   }
 }
 
 

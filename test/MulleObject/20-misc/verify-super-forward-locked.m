@@ -6,19 +6,13 @@
 @interface A : MulleObject < MulleAutolockingObjectProtocols>
 @end
 
-@interface B : A 
-
-- (void) verify;
-
-@end
-
 
 @implementation A
 
-+ (void) test:(id) a
++ (void) test:(id) obj
 {
-   if( [a tryLock])
-      mulle_printf( "`a` could be locked from a different thread. Dis bad!\n");
+   if( [obj tryLock])
+      mulle_printf( "Object should have been locked by a different thread. Iz not. Dis bad!\n");
    else
       mulle_printf( "OK\n");
 }
@@ -37,6 +31,14 @@
 }
 
 @end
+
+
+@interface B : A 
+
+- (void) verify;
+
+@end
+
 
 
 @implementation B

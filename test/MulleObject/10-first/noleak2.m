@@ -3,41 +3,21 @@
 #import <MulleObjC/MulleObjCDebug.h>
 
 
-@interface A : MulleObject < MulleAutolockingObjectProtocols>
+@interface Foo : MulleObject < MulleAutolockingObjectProtocols>
 @end
 
+@implementation Foo
 
-@implementation A
-@end
-
-
-@interface A( Dynamic)
-
-@property( dynamic) char *   name;
-
-@end
-
-
-@implementation A( Dynamic)
-
-@dynamic name;
-
-- (void) print
+- (void) doNothing
 {
-   mulle_printf( "%s\n", [self name]);
 }
 
 @end
 
 
-
 int  main( int argc, char *argv[])
 {
-   A   *a;
-
-   a = [A object];
-   [a setName:"VfL Bochum 1848"];
-   [a print];
+   [[Foo object] doNothing];
 
    return( 0);
 }

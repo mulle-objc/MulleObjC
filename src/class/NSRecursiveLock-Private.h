@@ -1,16 +1,16 @@
-static inline NSRecursiveLock  *MulleObjCRecursiveLockInit( NSRecursiveLock *self)
+static inline NSRecursiveLock  *_MulleObjCRecursiveLockInit( NSRecursiveLock *self)
 {
-   return( (NSRecursiveLock *) MulleObjCLockInit( self));
+   return( (NSRecursiveLock *) _MulleObjCLockInit( self));
 }
 
 
-static inline void  MulleObjCRecursiveLockDone( NSRecursiveLock *self)
+static inline void  _MulleObjCRecursiveLockDone( NSRecursiveLock *self)
 {
-   MulleObjCLockDone( self);
+   _MulleObjCLockDone( self);
 }
 
 
-static inline void  MulleObjCRecursiveLockLock( NSRecursiveLock *_self)
+static inline void  _MulleObjCRecursiveLockLock( NSRecursiveLock *_self)
 {
    mulle_thread_t                      this_thread;
    mulle_thread_t                      thread;
@@ -32,7 +32,7 @@ static inline void  MulleObjCRecursiveLockLock( NSRecursiveLock *_self)
    {
       // otherwise this thread locks for the first time (blocks to wait for
       // other thread to finish)
-      MulleObjCLockLock( _self);
+      _MulleObjCLockLock( _self);
       assert( NULL == _mulle_atomic_pointer_read( &self->_thread));
       _mulle_atomic_pointer_write( &self->_thread, (void *) this_thread);
    }
@@ -42,7 +42,7 @@ static inline void  MulleObjCRecursiveLockLock( NSRecursiveLock *_self)
 }
 
 
-static inline void  MulleObjCRecursiveLockUnlock( NSRecursiveLock *_self)
+static inline void  _MulleObjCRecursiveLockUnlock( NSRecursiveLock *_self)
 {
    struct { @defs( NSRecursiveLock); } *self = (void *) _self;
 
@@ -56,11 +56,11 @@ static inline void  MulleObjCRecursiveLockUnlock( NSRecursiveLock *_self)
       return;
 
    _mulle_atomic_pointer_write( &self->_thread, NULL);
-   MulleObjCLockUnlock( _self);
+   _MulleObjCLockUnlock( _self);
 }
 
 
-static inline BOOL  MulleObjCRecursiveLockTryLock( NSRecursiveLock *_self)
+static inline BOOL  _MulleObjCRecursiveLockTryLock( NSRecursiveLock *_self)
 {
    mulle_thread_t                      this_thread;
    mulle_thread_t                      thread;
@@ -82,7 +82,7 @@ static inline BOOL  MulleObjCRecursiveLockTryLock( NSRecursiveLock *_self)
    {
       // otherwise this thread locks for the first time (blocks to wait for
       // other thread to finish)
-      if( ! MulleObjCLockTryLock( _self))
+      if( ! _MulleObjCLockTryLock( _self))
          return( NO);
       assert( NULL == _mulle_atomic_pointer_read( &self->_thread));
       _mulle_atomic_pointer_write( &self->_thread, (void *) this_thread);

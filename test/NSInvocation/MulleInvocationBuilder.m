@@ -56,6 +56,17 @@
 }
 
 
+- (void) release
+{
+   _MulleObjCReleaseObject( self);
+}
+
+- (instancetype) retain
+{
+   return( _MulleObjCRetainObject( self));
+}
+
+
 - (instancetype) autorelease
 {
    _MulleObjCAutoreleaseObject( self);

@@ -7,10 +7,12 @@ In 2015 my assumption is, that almost all existing ObjC code is NSObject based
 else than NS is highly impractical and impedes code reuse.
 
 
-## Why the MulleObjC prefix ?
+## Why the mulle / MulleObjC prefix ?
 
-NS prefixed stuff should be compatible. Stuff that is prefixed with MulleObJC
-is not known on Mac OS X.
+NS prefixed stuff should be compatible. Stuff that is prefixed with MulleObjC
+is not known on Mac OS X. Non-standard classes are free to introduce
+their own selectors (e.g.) But new selectors on standard classed have the
+mulle prefix.
 
 
 ## Why the `ns_` prefix ?
@@ -32,14 +34,3 @@ Any C function prefixed with '`_`' is not checking it's arguments and is free to
 crash. Everything else should check it's arguments and return an error or raise
 and must not crash (within reason).
 
-
-## What about the methods ?
-
-Prefixing all methods with "mulle" would be tedious and produce ungainly code.
-Instead methods, that are not defined in OS X are prefixed with a '`_`'.
-
-And possibly adorned with
-
-`__attribute__((availability(macosx,unavailable)))`
-
-This could be useful with a future compiler flag (-objc-crossplatform-warn).

@@ -24,7 +24,7 @@ static NSThread  *NSThread_for_OSthread( mulle_thread_t arg)
 {
    if( ! arg)
       return( nil);
-   if( arg == _NSThreadGetOSThread( [NSThread mainThread]))
+   if( arg == MulleThreadObjectGetOSThread( [NSThread mainThread]))
       return( [NSThread mainThread]);
    return( [NSThread currentThread]);
 }

@@ -41,7 +41,7 @@ int  main()
    {
       foo = [[Foo new] autorelease];
       printf( "%d\n", n_instances);
-      [pool mulleReleaseAllObjects];
+      [pool mulleReleaseAllPoolObjects];
       printf( "%d\n", n_instances);
    }
    [pool release];

@@ -84,13 +84,13 @@ int  main()
             // everything is setup: now remove objects from the
             // autoreleasepool stack
             previous = [NSAutoreleasePool mulleCount];
-            [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleaseObjects:foo
+            [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleasePoolObjects:foo
                                                                            count:8];
             count = [NSAutoreleasePool mulleCount];
             printf( "%td -> %td\n", previous, count);
             previous = count;
 
-            [NSAutoreleasePool mulleReleaseObjects:foo
+            [NSAutoreleasePool mulleReleasePoolObjects:foo
                                              count:8];
             count = [NSAutoreleasePool mulleCount];
 
