@@ -2109,7 +2109,7 @@ int main( void)
    thread = [[[NSThread alloc] initWithTarget:[Foo class]
                                      selector:@selector( run:)
                                        object:nil] autorelease];
-   [thread mulleStartUndetached];
+   [thread mulleStart];
    [Foo run:nil];
    [thread mulleJoin];
 

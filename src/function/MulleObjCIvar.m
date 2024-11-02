@@ -227,3 +227,53 @@ void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s)
    *ivar = s;
 }
 
+
+
+//
+// MulleObjC : value added code for mulle_atomic_id_t
+//
+id   _MulleObjCAtomicIdGetLazy( mulle_atomic_id_t *ivar,
+                                char ivarType,
+                                id obj,
+                                SEL lazyLoader,
+                                char lazyLoaderReturnType)
+{
+   id   value;
+
+   for(;;)
+   {
+      value = (id) _mulle_atomic_id_get( ivar);
+      if( value)
+         return( value);
+
+      value = [obj performSelector:lazyLoader];
+      if( ! value)
+         return( value);
+
+      if( ivarType != lazyLoaderReturnType)
+      {
+         if( lazyLoaderReturnType != _C_ASSIGN_ID)
+         {
+            [value autorelease];
+            MulleObjCThrowInvalidArgumentExceptionUTF8String( "selector -%s on %s must return an autoreleased value",
+                                                                  MulleObjCSelectorUTF8String( lazyLoader),
+                                                                  MulleObjCInstanceGetClassNameUTF8String( obj));
+         }
+
+         if( ivarType == _C_COPY_ID)
+            value = [value copy];
+         else
+            if( ivarType == _C_RETAIN_ID)
+            {
+               if( lazyLoaderReturnType == _C_ASSIGN_ID)
+                  value = [value retain];
+            }
+      }
+
+      if( _mulle_atomic_pointer_cas( &ivar->pointer, value, NULL))
+         return( value);
+
+      if( ivarType != _C_ASSIGN_ID)
+         [value release];
+   }
+}

@@ -43,7 +43,7 @@ static struct _mulle_objc_method   *
    struct _mulle_objc_searcharguments   search;
    struct _mulle_objc_searchresult      result;
 
-   _mulle_objc_searcharguments_init_default( &search, methodid);
+   search      = mulle_objc_searcharguments_make_default( methodid);
    inheritance = _mulle_objc_class_get_inheritance( cls);
    method      = mulle_objc_class_search_method( cls,
                                                  &search,
@@ -69,7 +69,7 @@ struct _mulle_objc_method *
    if( ! method)
       method = mulle_objc_class_defaultsearch_method( cls, @selector( __lockingForward:));
    assert( method);
-   _mulle_objc_class_fill_impcache_method( cls, NULL, method, methodid);
+   _mulle_objc_class_fill_impcache_method( cls, method, methodid);
    return( method);
 }
 
@@ -103,8 +103,10 @@ struct _mulle_objc_method *
          _mulle_atomic_pointer_write( &icache->callback.userinfo, method);
       }
    }
+
+   // fill actual class imp cache
    assert( method);
-   _mulle_objc_class_fill_impcache_method( cls, NULL, method, superid);
+   _mulle_objc_class_fill_impcache_method( cls, method, superid);
    return( method);
 }
 
@@ -152,7 +154,9 @@ void   MulleObjectSwapInFreshSecondLevelCache( struct _mulle_objc_class *cls,
    assert( _mulle_atomic_pointer_read_nonatomic( &cachepivot->pivot.entries)
             != universe->initial_impcache.cache.entries);
 
-   if( _mulle_objc_impcachepivot_swap( cachepivot, icache, old_cache, allocator))
+   // swaps out current old cache, do we need to ensure that the oldcache is
+   // really the one we CAS ? i don't see why
+   if( _mulle_objc_impcachepivot_convenient_swap( cachepivot, icache, universe))
    {
       if( universe->debug.trace.method_cache)
          mulle_objc_universe_trace( universe,
@@ -238,9 +242,9 @@ void  MulleObjectInvalidateSecondLevelCache( struct _mulle_objc_class *cls,
 //       level ?
 //
 static void   MulleObjectInvalidateCaches( struct _mulle_objc_class *cls,
-                                          struct _mulle_objc_methodlist *list)
+                                           struct _mulle_objc_methodlist *list)
 {
-   _mulle_objc_class_invalidate_caches( cls, list);
+   _mulle_objc_class_invalidate_caches_default( cls, list);
 
    MulleObjectInvalidateSecondLevelCache( cls, list);
 }
@@ -318,7 +322,7 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    fcache    = mulle_objc_impcache_new( 128, NULL, allocator);
 
    cachepivot = (struct _mulle_objc_impcachepivot *) &cls->userinfo;
-   _mulle_objc_impcachepivot_swap( cachepivot, fcache, NULL, allocator);
+   _mulle_objc_impcachepivot_convenient_swap( cachepivot, fcache, universe);
 
    //
    // DO the cache change at the very last moment, so that no Objective-C
@@ -333,6 +337,26 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 }
 
 
++ (void) deinitialize
+{
+   struct _mulle_objc_impcachepivot   *cachepivot;
+   struct _mulle_objc_class           *cls;
+   struct _mulle_objc_infraclass      *infra;
+   struct _mulle_objc_universe        *universe;
+
+   infra = (struct _mulle_objc_infraclass *) self;
+   cls   = _mulle_objc_infraclass_as_class( infra);
+   if( ! _mulle_objc_class_get_userinfo( cls))
+      return;
+
+   universe   = _mulle_objc_class_get_universe( cls);
+   cachepivot = (struct _mulle_objc_impcachepivot *) &cls->userinfo;
+   _mulle_objc_impcachepivot_convenient_swap( cachepivot, NULL, universe);
+
+   // memo, how does that get rid of the icache though ?
+}
+
+
 - (void *) __lockingForward:(void *) parameter
 {
    mulle_functionpointer_t            p;
@@ -344,7 +368,6 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    struct _mulle_objc_class           *cls;
    struct _mulle_objc_method          *method;
    struct _mulle_objc_universe        *universe;
-   struct mulle_allocator             *allocator;
    void                               *rval;
    NSRecursiveLock                    *lock;
 
@@ -365,12 +388,11 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
       method    = mulle_objc_class_search_method_nofail( cls, methodid);
       imp       = _mulle_objc_method_get_implementation( method);
       universe  = _mulle_objc_class_get_universe( cls);
-      allocator = _mulle_objc_universe_get_allocator( universe);
-      _mulle_objc_impcachepivot_fill_functionpointer( cachepivot,
-                                                      (mulle_functionpointer_t) imp,
-                                                      methodid,
-                                                      60,
-                                                      allocator);
+      _mulle_objc_impcachepivot_fill( cachepivot,
+                                      imp,
+                                      methodid,
+                                      MULLE_OBJC_CACHESIZE_GROW,
+                                      universe);
    }
 
    lock = self->__lock; // can be NULL
@@ -415,7 +437,6 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    struct _mulle_objc_impcache        *icache;
    struct _mulle_objc_class           *cls;
    struct _mulle_objc_method          *forward;
-   struct _mulle_objc_universe        *universe;
 
    methodid   = _cmd;
    cls        = _mulle_objc_object_get_non_tps_isa( self);
@@ -446,6 +467,8 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    }
    @catch( id exception)
    {
+      struct _mulle_objc_universe   *universe;
+
       universe = _mulle_objc_object_get_universe( self);
       __mulle_objc_universe_raise_internalinconsistency( universe,
                                "An exception %@ is passing thru a -[%@ %s] "
@@ -500,30 +523,6 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    [super dealloc];
 }
 
-
-+ (void) deinitialize
-{
-   struct _mulle_objc_impcache        *icache;
-   struct _mulle_objc_impcachepivot   *cachepivot;
-   struct _mulle_objc_class           *cls;
-   struct _mulle_objc_infraclass      *infra;
-   struct _mulle_objc_universe        *universe;
-   struct mulle_allocator             *allocator;
-
-   infra = (struct _mulle_objc_infraclass *) self;
-   cls   = _mulle_objc_infraclass_as_class( infra);
-   if( ! _mulle_objc_class_get_userinfo( cls))
-      return;
-
-   universe  = _mulle_objc_class_get_universe( cls);
-   allocator = _mulle_objc_universe_get_allocator( universe);
-
-   cachepivot = (struct _mulle_objc_impcachepivot *) &cls->userinfo;
-   icache     = _mulle_objc_impcachepivot_get_impcache_atomic( cachepivot);
-   _mulle_objc_impcachepivot_swap( cachepivot, NULL, icache, allocator);
-
-   // memo, how does that get rid of the icache though ?
-}
 
 
 - (void) lock

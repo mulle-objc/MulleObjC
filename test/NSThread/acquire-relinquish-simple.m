@@ -56,7 +56,8 @@ static id   acquire_ivar_object( mulle_atomic_pointer_t *p)
    id    obj;
 
    obj = acquire_ivar_pointer( p);
-   return( [obj mulleGainAccess]);
+   [obj mulleGainAccess];
+   return( obj);
 }
 
 

@@ -109,7 +109,7 @@ int   main( void)
       thread = [[[NSThread alloc] initWithTarget:foo
                                         selector:@selector( function:)
                                           object:nil] autorelease];
-      [thread mulleStartUndetached];
+      [thread mulleStart];
       // mulle_relativetime_sleep( 1.0);
       [thread mulleJoin];
 

@@ -26,7 +26,7 @@
    thread = [[NSThread instantiate] initWithTarget:[A class]
                                           selector:@selector( test:)
                                             object:self];
-   [thread mulleStartUndetached];
+   [thread mulleStart];
    [thread mulleJoin];
    return( NULL);
 }

@@ -208,7 +208,7 @@ id   MulleObjCSingletonCreate( Class self)
       singleton = _mulle_concurrent_hashmap_lookup( &Self._ephemeralSingletonInstances,
                                                    (intptr_t) self);
       if( singleton)
-         return( singleton);
+         return( [[singleton retain] autorelease]); // place into current thread autorelease pool
 
       singleton = [MulleObjCSingletonNew( self) autorelease];
       dup       = _mulle_concurrent_hashmap_register( &Self._ephemeralSingletonInstances,
@@ -218,7 +218,6 @@ id   MulleObjCSingletonCreate( Class self)
          abort();
       return( dup ? dup : singleton);
    }
-
 
    for(;;)
    {
@@ -244,7 +243,13 @@ id   MulleObjCSingletonCreate( Class self)
 }
 
 
-- (void) dealloc
+//
+// we do this in finalize ahead of dealloc, so NSNotificationCenter for example
+// does not in its dealloc, destroy itself ahead of being removed from the
+// instances table. The -finalize patch is only for ephemeral singletons,
+// which is a debugging feature.
+//
+- (void) finalize
 {
    IMP   imp;
 
@@ -252,14 +257,13 @@ id   MulleObjCSingletonCreate( Class self)
       _mulle_concurrent_hashmap_remove( &Self._ephemeralSingletonInstances,
                                        (intptr_t) _mulle_objc_object_get_isa( self),
                                        self);
-
    imp = MulleObjCObjectSearchOverriddenIMP( self,
-                                             @selector( dealloc),
+                                             _cmd,
                                              @selector( MulleObjCSingleton),
                                              0);
    assert( imp != (IMP) _mulle_objc_class_lookup_implementation( _mulle_objc_object_get_isa( self),
-                                                                 @selector( dealloc)));
-   (*imp)( self, @selector( dealloc), self);
+                                                                 _cmd));
+   (*imp)( self, _cmd, self);
 }
 
 

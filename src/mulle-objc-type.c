@@ -48,13 +48,13 @@ void   *MulleObjCAutoreleaseAllocation( void *pointer,
                                         struct mulle_allocator *allocator);
 
 char   *_NS_table_search_UTF8String( void *table,
-                                     size_t len,
+                                     unsigned int len,
                                      size_t line_size,
                                      size_t offset,
                                      size_t item_len,
                                      unsigned long long bit)
 {
-   size_t                 i;
+   unsigned int           i;
    void                   *line;
    unsigned long long     value;
 
@@ -81,14 +81,14 @@ char   *_NS_table_search_UTF8String( void *table,
 
 
 char   *_NS_OPTIONS_UTF8String( void *table,
-                                size_t len,
+                                unsigned int len,
                                 size_t line_size,
                                 size_t offset,
                                 size_t item_len,
                                 unsigned long long bits)
 {
    char                   *s;
-   size_t                  i;
+   unsigned int           i;
    void                   *line;
    unsigned long long     value;
    char                   *empty;
@@ -137,9 +137,50 @@ char   *_NS_OPTIONS_UTF8String( void *table,
 }
 
 
+// TODO: adapt this to our table, then figure out common prefix for those
+//       string entries. This can then be used either for parsing shortened
+//       strings or to output shortened strings.
+//
+// thx AI
+size_t   _NS_OPTIONS_prefix_length( void *table,
+                                    unsigned int len,
+                                    size_t line_size)
+{
+   void           *line;
+   char           *first;
+   char           *s;
+   size_t         max_len;
+   size_t         j;
+   unsigned int   i;
+   char           c;
+
+   if( ! len)
+      return( 0);
+   
+   line    = table;
+   first   = *(char **) line;
+   max_len = strlen( first);
+
+   for( j = 0; j < max_len; j++) 
+   {
+      c    = first[ j];
+      line = table;
+      for( i = 1; i < len; i++) 
+      {
+         line = &((char *) line)[ line_size];
+         s    = *(char **) line;
+         if( ! s[ j] || s[ j] != c) 
+            return( j);
+      }
+   }
+   
+   return( max_len);
+}
+
+
 
 char   *_NS_ENUM_UTF8String( void *table,
-                             size_t len,
+                             unsigned int len,
                              size_t line_size,
                              size_t offset,
                              size_t item_len,
@@ -159,13 +200,13 @@ char   *_NS_ENUM_UTF8String( void *table,
 
 
 unsigned long long   _NS_OPTIONS_ParseUTF8String( void *table,
-                                                  size_t len,
+                                                  unsigned int len,
                                                   size_t line_size,
                                                   size_t offset,
                                                   size_t item_len,
                                                   char *s)
 {
-   size_t               i;
+   unsigned int         i;
    void                 *line;
    unsigned long long   value;
    char                 *key;
@@ -212,13 +253,13 @@ next:
 
 
 unsigned long long   _NS_ENUM_ParseUTF8String( void *table,
-                                               size_t len,
+                                               unsigned int len,
                                                size_t line_size,
                                                size_t offset,
                                                size_t item_len,
                                                char *s)
 {
-   size_t               i;
+   unsigned int         i;
    void                 *line;
    unsigned long long   value;
    char                 *key;

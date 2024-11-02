@@ -62,8 +62,8 @@ int   main( void)
          aThread = [[[NSThread alloc] initWithTarget:foo
                                             selector:@selector( function:)
                                               object:foo] autorelease];
-         [aThread mulleStartUndetached];
-         [aThread mulleJoin];  // this does no owner transfership
+         [aThread mulleStart];
+         [aThread mulleJoin];
       }
    }
 

@@ -59,8 +59,8 @@
 }
 
 
-// for objects (like UIView) that share locks with other objects
-// (via addSubview:), its clumsy to have a lock initially. These objects
+// for instances (like UIView) that share locks with other instances
+// (via addSubview:), its clumsy to have a lock initially. These instances
 // are non-threadsafe until they share a lock with another MulleObject
 //
 + (instancetype) locklessObject;
@@ -68,11 +68,14 @@
 
 - (BOOL) tryLock                                            MULLE_OBJC_THREADSAFE_METHOD;
 
+// if you override -didShareRecursiveLock: you must call super
 - (void) didShareRecursiveLock:(NSRecursiveLock *) lock     MULLE_OBJC_THREADSAFE_METHOD;
 - (void) shareRecursiveLock:(NSRecursiveLock *) other       MULLE_OBJC_THREADSAFE_METHOD;
-- (void) shareRecursiveLockWithObject:(MulleObject *) other   MULLE_OBJC_THREADSAFE_METHOD;
+- (void) shareRecursiveLockWithObject:(MulleObject *) other MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
+
+#define MULLE_OBJECT_FORWARD_SUPERID   ((mulle_objc_superid_t) 0x53d27672)  // 'MulleObject;forward:'
 
 
 //
@@ -102,3 +105,32 @@ void   MulleLockingObjectFillCache( MulleObject *self,
                                     SEL sel,
                                     IMP imp,
                                     BOOL isThreadAffine);
+
+
+
+static inline void   _MulleObjectValueSetter( MulleObject *self,
+                                              SEL _cmd,
+                                              void *_param,
+                                              char *objcType)
+{
+   _MulleDynamicObjectValueSetter( self, _cmd, _param, objcType);
+}
+
+
+
+static inline void   _MulleObjectNumberSetter( MulleObject *self,
+                                               SEL _cmd,
+                                               void *_param,
+                                               char *objcType)
+{
+   _MulleDynamicObjectNumberSetter( self, _cmd, _param, objcType);
+}
+
+
+static inline void   _MulleObjectValueGetter( MulleObject *self,
+                                              SEL _cmd,
+                                              void *_param)
+{
+   _MulleDynamicObjectValueGetter( self, _cmd, _param);
+}
+

@@ -75,9 +75,14 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 
 // this property can only be set by the caller, before the thread is
 // actually executed
-@property( dynamic, assign) char  *mulleNameUTF8String  MULLE_OBJC_THREADSAFE_PROPERTY;
+@property( dynamic, assign) char   *mulleNameUTF8String  MULLE_OBJC_THREADSAFE_PROPERTY;
 
 + (NSThread *) mainThread;
+
+// this oughta crash for a thread that is not a MulleObjC thread, because 
+// Objective-C method sending in non MulleObjC thread is not allowed.
+// To check if a thread is properly setup use C functions below
+// use MulleThreadGetCurrentThread to check
 + (NSThread *) currentThread;
 
 + (BOOL) mulleIsMainThread;
@@ -123,7 +128,6 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
                          object:(id) argument;
 
 
-- (void) start;
 - (void) main;
 
 
@@ -137,15 +141,22 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 + (BOOL) mulleMainThreadWaitsAtExit;
 + (void) mulleSetMainThreadWaitsAtExit:(BOOL) flag;
 
-// mulle additons for tests
-
-// don't call join on a detached thread
-- (void) mulleJoin;              // __attribute__((availability(mulleobjc,introduced=0.2)));
-- (void) mulleDetach;            // __attribute__((availability(mulleobjc,introduced=0.2)));
-
 // the thread is started and starts running, but still should be joined or
 // detached
-- (void) mulleStartUndetached;
+- (void) mulleStart;
+//
+// don't call mulleJoin on a detached thread.
+// Returns the thread invocation, and after that it's no longer available
+// from the NSThread
+//
+- (NSInvocation *) mulleJoin;    // __attribute__((availability(mulleobjc,introduced=0.2)));
+- (void) mulleDetach;            // __attribute__((availability(mulleobjc,introduced=0.2)));
+
+// This is legacy interface, which runs the thread in a detached state.
+// Prefer mulleStart and then keep the NSThread object around for later.
+// Then mulleJoin on it when it has been finished.
+//
+- (void) start;
 
 // do this only once, the runloop will be retained by NSThread
 // do not use the passed in runLoop, instead use the return value
@@ -164,6 +175,7 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 #pragma mark - Internal
 
 // don't call these functions yourself
+
 MULLE_OBJC_GLOBAL
 NSThread   *_MulleThreadGetCurrentThreadObjectInUniverse( struct _mulle_objc_universe *universe);
 
@@ -210,6 +222,8 @@ static inline NSThread   *MulleThreadGetCurrentThread( void)
    return( threadObject);
 }
 
+MULLE_OBJC_GLOBAL
+NSThread   *MulleThreadGetOrCreateCurrentThread( void);
 
 //
 // This is the preferred way to retrieve the threadDictionary
@@ -339,7 +353,7 @@ static inline void  MulleObjCTAOTest( Class cls, id arg)
       thread = [[[NSThread alloc] initWithTarget:obj
                                         selector:@selector( mulleTAOTestSetup:)
                                           object:arg] autorelease];
-      [thread mulleStartUndetached];
+      [thread mulleStart];
       [thread mulleJoin];
    }
 }

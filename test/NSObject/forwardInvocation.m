@@ -15,7 +15,7 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 - (void) noReturnIntParam:(int) param          { printf( "%s\n", param == 1848 ? "passed" : "failed"); }
 - (void) noReturnPointerParam:(void *) param   { printf( "%s\n", param == (void *) 1848 ? "passed" : "failed"); }
 - (void) noReturnDoubleParam:(double) param    { printf( "%s\n", param == 1848.0 ? "passed" : "failed"); }
-- (void) noReturnStructParam:(NSRange) param   { printf( "%s\n", NSEqualRanges( param, NSMakeRange( 18, 48)) ? "passed" : "failed"); }
+- (void) noReturnStructParam:(NSRange) param   { printf( "%s\n", NSEqualRanges( param, NSRangeMake( 18, 48)) ? "passed" : "failed"); }
 
 - (BOOL) boolReturnNoParam                       { return( YES); }
 - (BOOL) boolReturnIntParam:(int) param          { return( param + 1 == 1848); }
@@ -47,11 +47,11 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 - (double) doubleReturnDoubleParam:(double) param    { return( param + 1); }
 - (double) doubleReturnStructParam:(NSRange) param   { return( (double) ((param.location + 1) * 100 + param.length + 1)); }
 
-- (NSRange) structReturnNoParam                      { return( NSMakeRange( 18, 48)); }
-- (NSRange) structReturnIntParam:(int) param         { return( NSMakeRange( param + 1, param - 1)); }
-- (NSRange) structReturnPointerParam:(void *) param  { return( NSMakeRange( (NSUInteger) param + 1, (NSUInteger) param - 1)); }
-- (NSRange) structReturnDoubleParam:(double) param   { return( NSMakeRange( (NSUInteger) param + 1, (NSUInteger) param - 1)); }
-- (NSRange) structReturnStructParam:(NSRange) param  { return( NSMakeRange( param.location + 1, param.length - 1)); }
+- (NSRange) structReturnNoParam                      { return( NSRangeMake( 18, 48)); }
+- (NSRange) structReturnIntParam:(int) param         { return( NSRangeMake( param + 1, param - 1)); }
+- (NSRange) structReturnPointerParam:(void *) param  { return( NSRangeMake( (NSUInteger) param + 1, (NSUInteger) param - 1)); }
+- (NSRange) structReturnDoubleParam:(double) param   { return( NSRangeMake( (NSUInteger) param + 1, (NSUInteger) param - 1)); }
+- (NSRange) structReturnStructParam:(NSRange) param  { return( NSRangeMake( param.location + 1, param.length - 1)); }
 
 @end
 
@@ -130,7 +130,7 @@ static void  test_no_return( void)
    [foo noReturnIntParam:1848];
    [foo noReturnPointerParam:(void *) 1848];
    [foo noReturnDoubleParam:1848.0];
-   [foo noReturnStructParam:NSMakeRange( 18, 48)];
+   [foo noReturnStructParam:NSRangeMake( 18, 48)];
 }
 
 
@@ -143,7 +143,7 @@ static void  test_bool_return( void)
    printf( "%d\n", [foo boolReturnIntParam:1847]);
    printf( "%d\n", [foo boolReturnPointerParam:(void *) 1847]);
    printf( "%d\n", [foo boolReturnDoubleParam:1847.0]);
-   printf( "%d\n", [foo boolReturnStructParam:NSMakeRange( 17, 49)]);
+   printf( "%d\n", [foo boolReturnStructParam:NSRangeMake( 17, 49)]);
 }
 
 
@@ -156,7 +156,7 @@ static void  test_int_return( void)
    printf( "%d\n", [foo intReturnIntParam:1847]);
    printf( "%d\n", [foo intReturnPointerParam:(void *) 1847]);
    printf( "%d\n", [foo intReturnDoubleParam:1847.0]);
-   printf( "%d\n", [foo intReturnStructParam:NSMakeRange( 17, 47)]);
+   printf( "%d\n", [foo intReturnStructParam:NSRangeMake( 17, 47)]);
 }
 
 
@@ -180,7 +180,7 @@ static void  test_float_return( void)
 
    printf( "%.2f\n", [foo floatReturnNoParam]);
    printf( "%.2f\n", [foo floatReturnPointerParam:(void *) 1847]);
-   printf( "%.2f\n", [foo floatReturnStructParam:NSMakeRange( 17, 47)]);
+   printf( "%.2f\n", [foo floatReturnStructParam:NSRangeMake( 17, 47)]);
 }
 
 
@@ -194,7 +194,7 @@ static void  test_double_return( void)
 
    printf( "%.2f\n", [foo doubleReturnNoParam]);
    printf( "%.2f\n", [foo doubleReturnPointerParam:(void *) 1847]);
-   printf( "%.2f\n", [foo doubleReturnStructParam:NSMakeRange( 17, 47)]);
+   printf( "%.2f\n", [foo doubleReturnStructParam:NSRangeMake( 17, 47)]);
 }
 
 
@@ -208,7 +208,7 @@ static void  test_struct_return( void)
    value = [foo structReturnNoParam];
    printf( "%ld.%ld\n", (long) value.location, (long) value.length);
 
-   value = [foo structReturnStructParam:NSMakeRange( 17, 49)];
+   value = [foo structReturnStructParam:NSRangeMake( 17, 49)];
    printf( "%ld.%ld\n", (long) value.location, (long) value.length);
 }
 

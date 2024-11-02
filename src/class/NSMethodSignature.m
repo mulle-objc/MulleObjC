@@ -261,6 +261,8 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
       assert( p < &self->_infos[ 1 + self->_count]);  // sentinel
       assert( (p == &self->_infos[ 0] || p[ -1].type != p->pure_type_end) && \
               "need fix for incompatible runtime");
+
+      // the signature enumerator actually aligns the metaABI block
       ++p;
    }
 
@@ -342,6 +344,30 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
    length = info->invocation_offset + info->natural_size;
    return( length);
 }
+
+
+- (NSUInteger) mulleMetaABIFrameLength
+{
+   MulleObjCMethodSignatureTypeInfo   *info;
+   NSUInteger                         i;
+   NSUInteger                         length;
+   NSUInteger                         rval_size;
+   NSUInteger                         arg_size;
+   NSUInteger                         frame_length;
+
+   info         = &get_infos( self)[ 0];
+   rval_size    = info->natural_size;     // methodReturnLength
+
+   i            = _count - 1;
+   info         = &get_infos( self)[ i];    // get last argument
+   arg_size     = info->invocation_offset + info->natural_size;
+
+   length       = rval_size > arg_size ? rval_size : arg_size;
+   frame_length = mulle_metaabi_sizeof_union( length);
+
+   return( frame_length);
+}
+
 
 
 // used by NSInvocation

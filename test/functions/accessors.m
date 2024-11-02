@@ -93,8 +93,8 @@ int   main( int argc, char *argv[])
       return( 1);
    }
 
-   MulleObjCObjectSetRange( foo, @selector( setV_range:), NSMakeRange( 18, 48));
-   if( ! NSEqualRanges( MulleObjCObjectGetRange( foo, @selector( v_range)), NSMakeRange( 18, 48)))
+   MulleObjCObjectSetRange( foo, @selector( setV_range:), NSRangeMake( 18, 48));
+   if( ! NSEqualRanges( MulleObjCObjectGetRange( foo, @selector( v_range)), NSRangeMake( 18, 48)))
    {
       printf( "range fail\n");
       return( 1);

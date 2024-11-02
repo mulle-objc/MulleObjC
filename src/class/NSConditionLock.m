@@ -23,7 +23,7 @@
 
 
 #ifdef MULLE_TEST
-# define LOCK_DEBUG
+//# define LOCK_DEBUG
 #endif
 
 

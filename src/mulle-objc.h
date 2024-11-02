@@ -21,6 +21,7 @@
 #include "minimal.h"
 
 // additional stuff requiring the runtime
+#include "mulle-objc-atomicid.h"
 #include "mulle-objc-classbit.h"
 #include "mulle-objc-threadfoundationinfo.h"
 #include "MulleObjCAllocation.h"

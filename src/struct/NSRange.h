@@ -68,7 +68,7 @@ static inline NSRange   MulleMakeFullRange( void)
 }
 
 
-static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
+static inline NSRange   NSRangeMake( NSUInteger location, NSUInteger length)
 {
    NSRange    range;
 
@@ -79,35 +79,49 @@ static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
 }
 
 
-static inline NSUInteger   NSMaxRange( NSRange range)
+static inline NSUInteger   NSRangeGetLocation( NSRange range)
+{
+  return( range.location);
+}
+
+
+static inline NSUInteger   NSRangeGetLength( NSRange range)
+{
+  return( range.length);
+}
+
+
+static inline NSUInteger   NSRangeGetMax( NSRange range)
 {
   return( mulle_range_get_max( range));
 }
+
 
 
 // use enum here instead of BOOL, because windows
 // will define BOOL in <windows.h>, but when compiling
 // MulleObjC.h it won't be there
 //
-static inline enum _MulleBool   NSLocationInRange( NSUInteger location, NSRange range)
+static inline enum _MulleBool   NSRangeContainsLocation( NSRange range, 
+                                                         NSUInteger location)
 {
    return( mulle_range_contains_location( range, location));
 }
 
 
-static inline enum _MulleBool   NSEqualRanges( NSRange range1, NSRange range2)
+static inline enum _MulleBool   NSRangeEqualToRange( NSRange range1, NSRange range2)
 {
     return( range1.location == range2.location && range1.length == range2.length);
 }
 
 
-static inline NSRange   NSUnionRange( NSRange range1, NSRange range2)
+static inline NSRange   NSRangeUnion( NSRange range1, NSRange range2)
 {
    return( mulle_range_union( range1, range2));
 }
 
 
-static inline NSRange   NSIntersectionRange( NSRange range1, NSRange range2)
+static inline NSRange   NSRangeIntersect( NSRange range1, NSRange range2)
 {
    return( mulle_range_intersect( range1, range2));
 }
@@ -131,6 +145,46 @@ static inline NSUInteger   MulleObjCRangeInsert( NSRange range1,
                                                  NSRange result[ 2])
 {
    return( mulle_range_insert( range1, range2, result));
+}
+
+
+// "legacy" support
+// the old naming scheme was more readable but it didn't "complete" as well
+// 
+
+static inline NSRange   NSMakeRange( NSUInteger location, NSUInteger length)
+{
+   return( NSRangeMake( location, length));
+}
+
+
+static inline NSUInteger   NSMaxRange( NSRange range)
+{
+   return( NSRangeGetMax( range));
+}
+
+
+static inline enum _MulleBool   NSLocationInRange( NSUInteger location, NSRange range)
+{
+   return( NSRangeContainsLocation( range, location));
+}
+
+
+static inline enum _MulleBool   NSEqualRanges( NSRange range1, NSRange range2)
+{
+    return( NSRangeEqualToRange( range1, range2));
+}
+
+
+static inline NSRange   NSUnionRange( NSRange range1, NSRange range2)
+{
+   return( NSRangeUnion( range1, range2));
+}
+
+
+static inline NSRange   NSIntersectionRange( NSRange range1, NSRange range2)
+{
+   return( NSRangeIntersect( range1, range2));
 }
 
 
@@ -175,7 +229,7 @@ static inline enum _MulleBool   MulleObjCRangeIsCombinableRange( NSRange a, NSRa
 
 static inline enum _MulleBool   MulleObjCRangeIntersectsRange( NSRange a, NSRange b)
 {
-   return( NSIntersectionRange( a, b).length ? YES : NO);
+   return( NSRangeIntersect( a, b).length ? YES : NO);
 }
 
 

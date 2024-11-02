@@ -68,6 +68,10 @@
                                     selector:(SEL) sel
                                       object:(id) object;
 
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel
+                                metaABIFrame:(void *) frame;                                      
+
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature;
 
 - (void) getReturnValue:(void *) value_p;
@@ -95,6 +99,9 @@
 - (void) _setMetaABIFrame:(void *) frame;
 - (void) mulleRetainReturnValue;
 - (BOOL) mulleReturnValueRetained;
+
+// used by NSThread to fill _rval (when called by -main)
+- (int) mulleIntReturnValue;
 
 @end
 

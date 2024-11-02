@@ -82,7 +82,7 @@
    Class   _cls;
 }
 
-+ (Class) class   MULLE_OBJC_THREADSAFE_METHOD;
++ (Class) class;
 
 @end
 
@@ -91,13 +91,13 @@
 
 @implementation _MulleObjCInstantiatePlaceholder
 
-+ (Class) class
++ (Class) class                        MULLE_OBJC_THREADSAFE_METHOD
 {
    return( self);
 }
 
 
-- (void *) forward:(void *) _param
+- (void *) forward:(void *) _param     MULLE_OBJC_THREADSAFE_METHOD
 {
    id  obj;
 
@@ -201,143 +201,6 @@ static id
 #pragma mark - ### NSObject ###
 
 @implementation NSObject
-
-#if 0
-+ (instancetype) alloc
-{
-   return( _MulleObjCClassAllocateInstance( self, 0));
-}
-
-
-+ (instancetype) allocWithZone:(NSZone *) zone
-{
-   return( _MulleObjCClassAllocateInstance( self, 0));
-}
-
-
-+ (instancetype) new
-{
-   return( [_MulleObjCClassAllocateInstance( self, 0) init]);
-}
-
-
-- (NSZone *) zone  // always NULL
-{
-   return( (NSZone *) 0);
-}
-
-
-- (struct mulle_allocator *) mulleAllocator
-{
-   return( MulleObjCInstanceGetAllocator( self));
-}
-
-
-- (void) mullePerformFinalize
-{
-   _mulle_objc_object_perform_finalize( self);
-}
-
-
-- (BOOL) mulleIsFinalized
-{
-   return( _mulle_objc_object_is_finalized( self));
-}
-
-
-- (void) finalize
-{
-   _MulleObjCInstanceClearProperties( self);
-}
-
-
-- (void) dealloc
-{
-#if DEBUG
-   struct _mulle_objc_universe                 *universe;
-   struct _mulle_objc_universefoundationinfo   *config;
-
-   universe = _mulle_objc_object_get_universe( self);
-   config   = _mulle_objc_universe_get_universefoundationinfo( universe);
-
-   if( config->object.zombieenabled)
-   {
-      if( [NSAutoreleasePool mulleCountObject:self] )
-         __mulle_objc_universe_raise_internalinconsistency( universe,
-         					"deallocing object %p still in autoreleasepool", self);
-   }
-#endif
-   _MulleObjCInstanceFree( self);
-}
-
-
-#pragma mark - lifetime management
-
-
-//
-// this "facility" catches release/autorelease mistakes, but only for
-// single threaded programs. For multithreaded one would need to suspend all
-// other threads and inspect their autorelease pools as well
-//
-#ifdef DEBUG
-static void   checkAutoreleaseRelease( NSObject *self)
-{
-   struct _mulle_objc_universe                  *universe;
-   struct _mulle_objc_universefoundationinfo   *config;
-
-   universe = _mulle_objc_object_get_universe( self);
-   config   = _mulle_objc_universe_get_universefoundationinfo( universe);
-
-   if( config->object.zombieenabled)
-   {
-      NSUInteger   autoreleaseCount;
-      NSUInteger   retainCount;
-
-      autoreleaseCount = [NSAutoreleasePool mulleCountObject:self];
-      retainCount      = [self retainCount];
-      if( autoreleaseCount >= retainCount)
-      {
-         __mulle_objc_universe_raise_internalinconsistency( universe,
-               "object <%s %p> would be autoreleased too often",
-                     MulleObjCInstanceGetClassNameUTF8String( self), self);
-   	}
-   }
-}
-#else
-static inline void   checkAutoreleaseRelease( NSObject *self)
-{
-}
-#endif
-
-
-- (void) release
-{
-   checkAutoreleaseRelease( self);
-
-   _mulle_objc_object_release_inline( self);
-}
-
-
-- (instancetype) autorelease
-{
-   checkAutoreleaseRelease( self);
-
-   _MulleObjCAutoreleaseObject( self);
-   return( self);
-}
-
-
-- (instancetype) retain
-{
-   return( (id) mulle_objc_object_retain( (struct _mulle_objc_object *) self));
-}
-
-
-- (NSUInteger) retainCount
-{
-   return( (NSUInteger) _mulle_objc_object_get_retaincount( self));
-}
-#endif
 
 
 - (instancetype) self
@@ -450,86 +313,6 @@ retry:
    assert( [obj mulleIsThreadSafe]);
    return( obj);
 }
-
-
-#if 0
-//
-// do not override these, inherit MulleObjCThreadSafe or optionally
-// MulleObjCThreadUnsafe
-//
-- (BOOL) mulleIsThreadSafe    MULLE_OBJC_THREADSAFE_METHOD
-{
-   return( NO);  // this is the default, so NSObject itself technically is thread safe
-}
-
-
-// class methods are deemed to be inherently thread safe, because there are
-// no variables involved. If you do have state you gotta lock it.
-+ (BOOL) mulleIsThreadSafe
-{
-   return( YES);
-}
-
-
-- (BOOL) mulleIsAccessible
-{
-   mulle_thread_t   osThread;
-
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( ! osThread)
-      return( YES);
-   return( osThread == MulleThreadGetCurrentOSThread());
-}
-
-
-- (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject
-{
-   mulle_thread_t   osThread;
-
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( ! osThread)
-      return( YES);
-
-   if( ! threadObject)
-      threadObject = [NSThread currentThread];
-   return( osThread == MulleThreadObjectGetOSThread( threadObject));
-}
-
-
-- (void) mulleGainAccess
-{
-   mulle_thread_t   osThread;
-   mulle_thread_t   currentOSThread;
-
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( ! osThread)
-      return;
-
-   currentOSThread = MulleThreadGetCurrentOSThread();
-   if( currentOSThread != osThread && osThread != (mulle_thread_t) -1)
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p can not gain access to this object %p\n",
-                                                      currentOSThread, self);
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, currentOSThread);
-}
-
-
-- (void) mulleRelinquishAccess
-{
-   mulle_thread_t   osThread;
-   mulle_thread_t   currentOSThread;
-
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( ! osThread)
-      return;
-
-   currentOSThread = MulleThreadGetCurrentOSThread();
-   if( currentOSThread != osThread && osThread != (mulle_thread_t) -1)
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p does not have access to this object %p\n",
-                                                      currentOSThread, self);
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, (mulle_thread_t) -1);
-}
-
-#endif
 
 
 #if HAVE_CLASS_VALUE
@@ -691,74 +474,6 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-#if 0
-#pragma mark - class introspection
-
-- (Class) superclass
-{
-   return( _mulle_objc_infraclass_get_superclass( _mulle_objc_object_get_infraclass( self)));
-}
-
-
-//
-// +class loops around to - class
-//
-- (Class) class
-{
-   Class  cls;
-
-   cls = _mulle_objc_object_get_infraclass( self);
-   return( cls);
-}
-
-
-+ (Class) class
-{
-   return( self);
-//   Class  cls;
-//
-//   cls = _mulle_objc_object_get_infraclass( self);
-//   return( cls);
-}
-
-
-+ (BOOL) isSubclassOfClass:(Class) otherClass
-{
-   Class   cls;
-
-   cls = self;
-   do
-   {
-      if( cls == otherClass)
-         return( YES);
-   }
-   while( cls = _mulle_objc_infraclass_get_superclass( cls));
-   return( NO);
-}
-
-
-- (BOOL) isKindOfClass:(Class) otherClass
-{
-   struct _mulle_objc_class   *cls;
-
-   cls = _mulle_objc_object_get_isa( self);
-   do
-   {
-      if( cls == _mulle_objc_infraclass_as_class( otherClass))
-         return( YES);
-   }
-   while( cls = _mulle_objc_class_get_superclass( cls));
-   return( NO);
-}
-
-
-- (BOOL) isMemberOfClass:(Class) otherClass
-{
-   return( _mulle_objc_object_get_isa( self) == _mulle_objc_infraclass_as_class( otherClass));
-}
-
-#endif
-
 + (char *) UTF8String
 {
    char                       *s;
@@ -770,7 +485,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-- (char *) UTF8String
+static char   *NSObjectUTF8String( NSObject *self)
 {
    char                       *result;
    char                       *s;
@@ -779,28 +494,28 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    cls = _mulle_objc_object_get_isa( self);
    s   = _mulle_objc_class_get_name( cls);
 
-   mulle_asprintf( &result, "<%s %p>", s, self);
-   MulleObjCAutoreleaseAllocation( result, NULL);
+   mulle_buffer_do_autoreleased_string( buffer, NULL, result)
+   {
+      if( MulleObjCDebugElideAddressOutput)
+         mulle_buffer_sprintf( buffer, "<%s>", s);
+      else
+         mulle_buffer_sprintf( buffer, "<%s %p>", s, self);
+   }
 
    return( result);
+}
+
+
+- (char *) UTF8String
+{
+   return( NSObjectUTF8String( self));
 }
 
 
 - (char *) threadSafeUTF8String
 {
-   char                       *result;
-   char                       *s;
-   struct _mulle_objc_class   *cls;
-
-   cls = _mulle_objc_object_get_isa( self);
-   s   = _mulle_objc_class_get_name( cls);
-
-   mulle_asprintf( &result, "<%s %p>", s, self);
-   MulleObjCAutoreleaseAllocation( result, NULL);
-
-   return( result);
+   return( NSObjectUTF8String( self));
 }
-
 
 
 - (char *) colorizerPrefixUTF8String
@@ -835,183 +550,6 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    return( result);
 }
 
-#if 0
-#pragma mark - protocol introspection
-
-- (BOOL) mulleContainsProtocol:(PROTOCOL) protocol
-{
-   struct _mulle_objc_class       *cls;
-   struct _mulle_objc_classpair   *pair;
-
-   cls  = _mulle_objc_object_get_isa( self);
-   pair = _mulle_objc_class_get_classpair( cls);
-   return( (BOOL) _mulle_objc_classpair_has_protocolid( pair,
-                                                        (mulle_objc_protocolid_t) protocol));
-}
-
-
-- (BOOL) conformsToProtocol:(PROTOCOL) protocol
-{
-   struct _mulle_objc_class       *cls;
-   struct _mulle_objc_classpair   *pair;
-
-   // we know that these calls are meaningless,
-#ifndef NDEBUG
-   if( protocol == @protocol( MulleObjCThreadSafe) ||
-       protocol == @protocol( MulleObjCThreadUnsafe))
-   {
-      fprintf( stderr, "-conformsToProtocol:@protocol( MulleObjCThreadSafe) (or MulleObjCThreadUnsafe) is not doing what you want\n");
-   }
-#endif
-
-   cls  = _mulle_objc_object_get_isa( self);
-   pair = _mulle_objc_class_get_classpair( cls);
-   return( (BOOL) _mulle_objc_classpair_conformsto_protocolid( pair,
-                                                              (mulle_objc_protocolid_t) protocol));
-}
-
-
-#pragma mark - method introspection
-
-- (id) performSelector:(SEL) sel
-{
-   return( mulle_objc_object_call_variable_inline( self,
-                                                           (mulle_objc_methodid_t) sel,
-                                                           (void *) self));
-}
-
-
-- (id) performSelector:(SEL) sel
-            withObject:(id) obj
-{
-   return( mulle_objc_object_call_variable_inline( self,
-                                                           (mulle_objc_methodid_t) sel,
-                                                           (void *) obj));
-}
-
-
-/* this is pretty much the worst case for the META-ABI,
-   since we need to extract sel from _param and have to alloca and reshuffle
-   everything
- */
-- (id) performSelector:(SEL) sel
-            withObject:(id) obj1
-            withObject:(id) obj2
-{
-   mulle_metaabi_union( id,
-                         struct
-                         {
-                             id   obj1;
-                             id   obj2;
-                         }) param;
-
-   param.p.obj1 = obj1;
-   param.p.obj2 = obj2;
-
-   return( mulle_objc_object_call_variable_inline( self,
-                                                           (mulle_objc_methodid_t) sel,
-                                                           &param));
-}
-
-
-- (BOOL) respondsToSelector:(SEL) sel
-{
-   struct _mulle_objc_class   *cls;
-   IMP                        imp;
-
-   // OS X compatible
-   if( ! sel)
-      return( NO);
-
-   cls = _mulle_objc_object_get_isa( self);
-   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward( cls,
-                                                                  (mulle_objc_methodid_t) sel);
-   return( imp ? YES : NO);
-}
-
-
-- (IMP) methodForSelector:(SEL) sel
-{
-   // this produces NSInvalidArgumentException on OS X for (SEL) 0
-   return( (IMP) _mulle_objc_object_lookup_implementation( (void *) self,
-                                                           (mulle_objc_methodid_t) sel));
-}
-
-
-+ (BOOL) instancesRespondToSelector:(SEL) sel
-{
-   struct _mulle_objc_class   *cls;
-   IMP                        imp;
-
-   // OS X compatible
-   if( ! sel)
-      return( NO);
-
-   //
-   // must be non caching for technical reasons (them being)
-   // that the infraclass cache may not be ready yet
-   //
-   cls = _mulle_objc_infraclass_as_class( self);
-   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls,
-                                                                          (mulle_objc_methodid_t) sel);
-   return( imp ? YES : NO);
-}
-
-
-+ (IMP) instanceMethodForSelector:(SEL) sel
-{
-   struct _mulle_objc_class   *cls;
-
-   // this produces NSInvalidArgumentException on OS X for (SEL) 0
-
-   //
-   // must be non refreshing for technical reasons (them being,
-   // that the infraclass cache may not be ready yet)
-   //
-   cls = _mulle_objc_infraclass_as_class( self);
-   return( (IMP) _mulle_objc_class_lookup_implementation_nofill( cls,
-                                                                  (mulle_objc_methodid_t) sel));
-}
-
-
-- (NSMethodSignature *) methodSignatureForSelector:(SEL) sel
-{
-   struct _mulle_objc_class    *cls;
-   struct _mulle_objc_method   *method;
-
-   // OS X compatible
-   if( ! sel)
-      return( nil);
-
-   cls    = _mulle_objc_object_get_isa( self);
-   method = mulle_objc_class_defaultsearch_method( cls,
-                                                  (mulle_objc_methodid_t) sel);
-   if( ! method)
-      return( nil);
-
-   return( [NSMethodSignature _signatureWithObjCTypes:method->descriptor.signature
-                                       descriptorBits:method->descriptor.bits]);
-}
-
-
-+ (NSMethodSignature *) instanceMethodSignatureForSelector:(SEL) sel
-{
-   struct _mulle_objc_method   *method;
-
-   // OS X compatible
-   if( ! sel)
-      return( nil);
-
-   assert( _mulle_objc_class_is_infraclass( (void *)  self));
-   method = mulle_objc_class_defaultsearch_method( _mulle_objc_infraclass_as_class( self),
-                                                   (mulle_objc_methodid_t) sel);
-   if( ! method)
-      return( nil);
-
-   return( [NSMethodSignature signatureWithObjCTypes:method->descriptor.signature]);
-}
-
-#endif
 
 #pragma mark - forwarding
 
@@ -1023,7 +561,11 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 
 - (void) doesNotForwardVariadicSelector:(SEL) sel
 {
-   __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self), "variadic methods can not be forwarded using invocations");
+   struct _mulle_objc_universe   *universe;
+
+   universe = _mulle_objc_object_get_universe( self);
+   __mulle_objc_universe_raise_internalinconsistency( universe,
+                     "variadic methods can not be forwarded using invocations");
 }
 
 
@@ -1101,5 +643,104 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
    [self doesNotRecognizeSelector:[anInvocation selector]];
 }
 
+
+#pragma mark interposing
+
+// change Subclass : Superclass to Subclass : InterposingClass
+// where InterposingClass : Superclass
+struct interpose_before_ctxt
+{
+   struct _mulle_objc_infraclass   *subclass;
+};
+
+
+static mulle_objc_walkcommand_t
+   interpose_callback( struct _mulle_objc_universe *universe,
+                       void *p,
+                       enum mulle_objc_walkpointertype_t type,
+                       char *key,
+                       void *parent,
+                       void *userinfo)
+{
+   struct interpose_before_ctxt    *ctxt = userinfo;
+   struct _mulle_objc_infraclass   *infra = p;
+   struct _mulle_objc_metaclass    *meta;
+
+   if( mulle_objc_infraclass_is_subclass( infra, ctxt->subclass))
+   {
+      meta = _mulle_objc_infraclass_get_metaclass( infra);
+      mulle_objc_class_invalidate_caches( _mulle_objc_infraclass_as_class( infra), NULL);
+      mulle_objc_class_invalidate_caches( _mulle_objc_metaclass_as_class( meta), NULL);
+   }
+   return( mulle_objc_walk_ok);
+}
+
+
+void  MulleObjCClassInterposeBeforeClass( Class self, Class other)
+{
+   struct _mulle_objc_infraclass   *infra;
+   struct _mulle_objc_infraclass   *super_infra;
+   struct _mulle_objc_infraclass   *sub_infra;
+   struct _mulle_objc_metaclass    *sub_meta;
+   struct _mulle_objc_metaclass    *super_meta;
+   struct _mulle_objc_class        *super_meta_superclass;
+   struct _mulle_objc_universe     *universe;
+   struct interpose_before_ctxt    ctxt;
+
+   if( ! self || ! other)
+      return;
+
+   infra       = (struct _mulle_objc_infraclass *) self;
+   sub_infra   = (struct _mulle_objc_infraclass *) other;
+   super_infra = _mulle_objc_infraclass_get_superclass( sub_infra);
+
+   // we don't do that, its not interposing is it ?
+   if( ! super_infra)
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "the class \"%s\" to interpose is a root class",
+               _mulle_objc_infraclass_get_name( sub_infra));
+
+   if( super_infra != _mulle_objc_infraclass_get_superclass( infra))
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "the class \"%s\" to interpose has a different superclass",
+               _mulle_objc_infraclass_get_name( sub_infra));
+
+   // ensure that we don't have any ivars, else this can't work,
+   // the base class can have some no problems
+   if( _mulle_objc_infraclass_has_ivars( infra))
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "your interposing class \"%s\" has instance variables",
+               _mulle_objc_infraclass_get_name( infra));
+
+   universe = _mulle_objc_infraclass_get_universe( infra);
+   _mulle_objc_universe_lock( universe);
+   {
+      _mulle_objc_class_set_superclass( (struct _mulle_objc_class *) sub_infra,
+                                        (struct _mulle_objc_class *) infra);
+      _mulle_objc_class_set_superclassid( (struct _mulle_objc_class *) sub_infra,
+                                          infra->base.classid);
+
+      sub_meta              = _mulle_objc_infraclass_get_metaclass( sub_infra);
+      super_meta            = _mulle_objc_infraclass_get_metaclass( infra);
+      super_meta_superclass =  super_meta ? &super_meta->base : &infra->base,
+
+      _mulle_objc_class_set_superclass( (struct _mulle_objc_class *) sub_meta,
+                                        (struct _mulle_objc_class *) super_meta_superclass);
+      _mulle_objc_class_set_superclassid( (struct _mulle_objc_class *) infra,
+                                          super_meta_superclass->classid);
+
+      //
+      // all direct subclasses os subClass must invalidate
+      //
+      ctxt.subclass = sub_infra;
+      _mulle_objc_universe_walk_classes( universe, 0, interpose_callback, &ctxt);
+   }
+   _mulle_objc_universe_unlock( universe);
+}
+
+//
+// this should be fairly harmless
+//
++ (void) mulleInterposeBeforeClass:(Class) subClass
+{
+   MulleObjCClassInterposeBeforeClass( self, subClass);
+}
 
 @end

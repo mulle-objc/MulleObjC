@@ -9,6 +9,7 @@
 
 #import "NSZone.h"
 #import "mulle-objc-type.h"
+#import "mulle-objc-atomicid.h"
 #import "MulleObjCIntegralType.h"
 
 
@@ -21,10 +22,15 @@ typedef NS_ENUM( NSUInteger, MulleObjCTAOStrategy)
 {
    MulleObjCTAOCallerRemovesFromCurrentPool, // use this, if you just created the object to pass
    MulleObjCTAOCallerRemovesFromAllPools,    // try to avoid this
-   MulleObjCTAOReceiverPerformsFinalize,     // for special setups
+   MulleObjCTAOReceiverPerformsFinalize,     // for very special setups (*)
    MulleObjCTAOKnownThreadSafeMethods,       // aspire to use this (-finalize/-dealloc only do threadsafe stuff)
-   MulleObjCTAOKnownThreadSafe               // or this (only threadsafe objects are involved)
+   MulleObjCTAOKnownThreadSafe               // most preferable though is this (only threadsafe objects are involved)
 };
+
+// (*) this means an instance is created and then presented to a thread in a one
+//     directional fashion. It won't work, if the instance is created in the
+//     thread and then acquired by the thread maker. I.e. hardly ever useful.
+//
 
 extern NS_ENUM_TABLE( MulleObjCTAOStrategy, 5);
 
@@ -191,7 +197,13 @@ _Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
 // if you pass an object from one thread to another the sender does
 // a relinquish and the receiver does a gain. For objects that are threadsafe
 // already, this does nothing. -mulleGainAccess returnValue is that of -autorelease
-- (id) mulleGainAccess              MULLE_OBJC_THREADSAFE_METHOD;
+//
+// You must implement this on MulleObjCThreadUnsafe (the default) classes,
+// with properties or ivars that reference (retain) other objects, to also
+// let the therad gain access to them. You do not implement this on
+// a class, that is MulleObjCThreadSafe.
+//
+- (void) mulleGainAccess            MULLE_OBJC_THREADSAFE_METHOD;
 - (void) mulleRelinquishAccess      MULLE_OBJC_THREADSAFE_METHOD;
 - (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy MULLE_OBJC_THREADSAFE_METHOD;
 - (MulleObjCTAOStrategy) mulleTAOStrategy MULLE_OBJC_THREADSAFE_METHOD;

@@ -98,6 +98,7 @@ src/function/NSByteOrder.h
 src/function/NSDebug.h
 src/function/mulle-sprintf-object.h
 src/minimal.h
+src/mulle-objc-atomicid.h
 src/mulle-objc-classbit.h
 src/mulle-objc-fastclassid.h
 src/mulle-objc-fastmethodid.h

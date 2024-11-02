@@ -251,9 +251,9 @@ SEL   MulleObjCCreateSelectorUTF8String( char *name)
 
    desc = mulle_objc_universe_calloc( universe, 1, sizeof( struct _mulle_objc_descriptor));
 
-   desc->methodid  = methodid;
-   desc->bits      = _mulle_objc_method_guessed_signature;
-   desc->name      = mulle_objc_universe_strdup( universe, name);
+   desc->methodid = methodid;
+   desc->bits     = _mulle_objc_method_guessed_signature;
+   desc->name     = mulle_objc_universe_strdup( universe, name);
 
    n = count_params( name);
    if( n < 16)
@@ -267,7 +267,7 @@ SEL   MulleObjCCreateSelectorUTF8String( char *name)
       desc->signature[ 2] = ':';
    }
 
-   mulle_objc_universe_register_descriptor_nofail( universe, desc);
+   mulle_objc_universe_register_descriptor_nofail( universe, desc, NULL, NULL);
    return( (SEL) (uintptr_t) methodid);
 }
 
@@ -361,8 +361,7 @@ IMP   MulleObjCObjectSearchSuperIMP( id obj,
    if( ! obj)
       return( (IMP) 0);
 
-   _mulle_objc_searcharguments_init_super( &search, sel, classid);
-
+   search = mulle_objc_searcharguments_make_super( sel, classid);
    cls    = _mulle_objc_object_get_isa( obj);
    method = mulle_objc_class_search_method( cls,
                                            &search,
@@ -390,8 +389,7 @@ IMP   MulleObjCObjectSearchOverriddenIMP( id obj,
    if( ! obj)
       return( (IMP) 0);
 
-   _mulle_objc_searcharguments_init_overridden( &search, sel, classid, categoryid);
-
+   search      = mulle_objc_searcharguments_make_overridden( sel, classid, categoryid);
    cls         = _mulle_objc_object_get_isa( obj);
    inheritance =  _mulle_objc_class_get_inheritance( cls);
 
@@ -419,8 +417,7 @@ IMP   MulleObjCObjectSearchClobberedIMP( id obj,
    if( ! obj)
       return( (IMP) 0);
 
-   _mulle_objc_searcharguments_init_overridden( &search, sel, classid, categoryid);
-
+   search      = mulle_objc_searcharguments_make_overridden( sel, classid, categoryid);
    cls         = _mulle_objc_object_get_isa( obj);
    inheritance = _mulle_objc_class_get_inheritance( cls)
                  | MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS
@@ -454,8 +451,7 @@ IMP   MulleObjCObjectSearchSpecificIMP( id obj,
    if( ! obj)
       return( (IMP) 0);
 
-   _mulle_objc_searcharguments_init_specific( &search, sel, classid, categoryid);
-
+   search      = mulle_objc_searcharguments_make_specific( sel, classid, categoryid);
    cls         = _mulle_objc_object_get_isa( obj);
    inheritance = _mulle_objc_class_get_inheritance( cls);
    method      = mulle_objc_class_search_method( cls, &search, inheritance, NULL);
@@ -485,7 +481,7 @@ unsigned int   _mulle_objc_class_search_clobber_chain( struct _mulle_objc_class 
    p        = array;
    sentinel = &p[ n];
 
-   _mulle_objc_searcharguments_init_default( &args, sel);
+   args        = mulle_objc_searcharguments_make_default( sel);
    inheritance = _mulle_objc_class_get_inheritance( cls)
                  | MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS
                  | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
@@ -501,10 +497,9 @@ unsigned int   _mulle_objc_class_search_clobber_chain( struct _mulle_objc_class 
          *p = (IMP) _mulle_objc_method_get_implementation( method);
       ++p;
 
-      _mulle_objc_searcharguments_init_overridden( &args,
-                                                  sel,
-                                                  mulle_objc_searchresult_get_classid( &result),
-                                                  mulle_objc_searchresult_get_categoryid( &result));
+      args = mulle_objc_searcharguments_make_overridden( sel,
+                                                         mulle_objc_searchresult_get_classid( &result),
+                                                         mulle_objc_searchresult_get_categoryid( &result));
    }
 }
 
@@ -812,7 +807,7 @@ BOOL  MulleObjCDescribeMemory( struct mulle_buffer *buffer,
    if( _MulleObjCDescribeMemory( buffer, data, &type, ""))
       return( YES);
 
-   mulle_buffer_set_length( buffer, memo);
+   mulle_buffer_set_length( buffer, memo, 0);
    mulle_buffer_add_string( buffer, "<broken type>");
    return( NO);
 }
@@ -935,3 +930,110 @@ void  MulleObjCDescribeIvars( struct mulle_buffer *buffer, id obj)
       mulle_buffer_add_string( buffer, "\n");
    mulle_buffer_add_string( buffer, "}");
 }
+
+
+/*
+ *
+ */
+
+struct call_info
+{
+   id    obj;
+   SEL   methodsel;
+   id    parameter;
+};
+
+
+static int   method_caller( struct _mulle_objc_class *cls,
+                            struct _mulle_objc_searcharguments *search,
+                            unsigned int inheritance,
+                            struct _mulle_objc_searchresult *result)
+{
+   struct call_info              *p;
+   mulle_objc_implementation_t   imp;
+
+   p    = search->userinfo;
+   imp  = _mulle_objc_method_get_implementation( result->method);
+   mulle_objc_implementation_invoke( imp, p->obj, p->methodsel, p->parameter);
+   return( mulle_objc_walk_ok);
+}
+
+
+void    MulleObjCObjectSpamInheritorToAncestor( id obj, SEL sel, id parameter, Class stopClass)
+{
+   struct _mulle_objc_searcharguments   args;
+   struct _mulle_objc_searchresult      result;
+   struct _mulle_objc_class             *cls;
+   struct call_info                     info;
+   mulle_objc_classid_t                 stop_classid;
+   unsigned int                         inheritance;
+
+   info.obj       = obj;
+   info.methodsel = sel;
+   info.parameter = parameter;
+
+   // find the first method, if we find none we are done
+   args         = mulle_objc_searcharguments_make_default( sel);
+   stop_classid = mulle_objc_infraclass_get_classid( stopClass);
+   _mulle_objc_searcharguments_set_stop_classid( &args, stop_classid);
+   _mulle_objc_searcharguments_set_callback( &args, method_caller);
+   _mulle_objc_searcharguments_set_userinfo( &args, &info);
+
+   cls         = _mulle_objc_object_get_isa( obj);
+   inheritance = _mulle_objc_class_get_inheritance( cls);
+   mulle_objc_class_search_method( cls,
+                                   &args,
+                                   inheritance,
+                                   &result);
+}
+
+
+static int   method_collector( struct _mulle_objc_class *cls,
+                               struct _mulle_objc_searcharguments *search,
+                               unsigned int inheritance,
+                               struct _mulle_objc_searchresult *result)
+{
+   struct mulle_pointerarray *methods;
+
+   methods = _mulle_objc_searcharguments_get_userinfo( search);
+   mulle_pointerarray_add( methods, result->method);
+   return( mulle_objc_walk_ok);
+}
+
+
+void    MulleObjCObjectSpamAncestorToInheritor( id obj, SEL sel, id parameter, Class startClass)
+{
+   struct _mulle_objc_searcharguments   args;
+   struct _mulle_objc_searchresult      result;
+   struct _mulle_objc_method            *method;
+   struct _mulle_objc_class             *cls;
+   mulle_objc_implementation_t          imp;
+   mulle_objc_classid_t                 stop_classid;
+   unsigned int                         inheritance;
+
+   mulle_pointerarray_do_flexible( methods, 32)
+   {
+      // find the first method, if we find none we are done
+      args         = mulle_objc_searcharguments_make_default( sel);
+      stop_classid = mulle_objc_infraclass_get_classid( startClass);
+      _mulle_objc_searcharguments_set_stop_classid( &args, stop_classid);
+      _mulle_objc_searcharguments_set_callback( &args, method_collector);
+      _mulle_objc_searcharguments_set_userinfo( &args, methods);
+
+      cls         = _mulle_objc_object_get_isa( obj);
+      inheritance = _mulle_objc_class_get_inheritance( cls);
+      mulle_objc_class_search_method( cls,
+                                      &args,
+                                      inheritance,
+                                      &result);
+
+      // now we have all the methods collected and can call them in reverse
+      // order
+      mulle_pointerarray_for_reverse( methods, method)
+      {
+         imp = _mulle_objc_method_get_implementation( method);
+         mulle_objc_implementation_invoke( imp, obj, sel, parameter);
+      }
+   }
+}
+

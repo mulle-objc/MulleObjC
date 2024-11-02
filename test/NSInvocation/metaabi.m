@@ -15,7 +15,7 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 - (void) noReturnIntParam:(int) param          { printf( "%s\n", param == 1848 ? "passed" : "failed"); }
 - (void) noReturnPointerParam:(void *) param   { printf( "%s\n", param == (void *) 1848 ? "passed" : "failed"); }
 - (void) noReturnDoubleParam:(double) param    { printf( "%s\n", param == 1848.0 ? "passed" : "failed"); }
-- (void) noReturnStructParam:(NSRange) param   { printf( "%s\n", NSEqualRanges( param, NSMakeRange( 18, 48)) ? "passed" : "failed"); }
+- (void) noReturnStructParam:(NSRange) param   { printf( "%s\n", NSEqualRanges( param, NSRangeMake( 18, 48)) ? "passed" : "failed"); }
 
 - (int) intReturnNoParam                       { return( 1848); }
 - (int) intReturnIntParam:(int) param          { return( param + 1); }
@@ -35,11 +35,11 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 - (double) doubleReturnDoubleParam:(double) param    { return( param + 1); }
 - (double) doubleReturnStructParam:(NSRange) param   { return( (double) ((param.location + 1) * 100 + param.length + 1)); }
 
-- (NSRange) structReturnNoParam                      { return( NSMakeRange( 18, 48)); }
-- (NSRange) structReturnIntParam:(int) param         { return( NSMakeRange( param + 1, param - 1)); }
-- (NSRange) structReturnPointerParam:(void *) param  { return( NSMakeRange( (NSUInteger) param + 1, (NSUInteger) param - 1)); }
-- (NSRange) structReturnDoubleParam:(double) param   { return( NSMakeRange( (NSUInteger) param + 1, (NSUInteger) param - 1)); }
-- (NSRange) structReturnStructParam:(NSRange) param  { return( NSMakeRange( param.location + 1, param.location - 1)); }
+- (NSRange) structReturnNoParam                      { return( NSRangeMake( 18, 48)); }
+- (NSRange) structReturnIntParam:(int) param         { return( NSRangeMake( param + 1, param - 1)); }
+- (NSRange) structReturnPointerParam:(void *) param  { return( NSRangeMake( (NSUInteger) param + 1, (NSUInteger) param - 1)); }
+- (NSRange) structReturnDoubleParam:(double) param   { return( NSRangeMake( (NSUInteger) param + 1, (NSUInteger) param - 1)); }
+- (NSRange) structReturnStructParam:(NSRange) param  { return( NSRangeMake( param.location + 1, param.location - 1)); }
 
 @end
 
@@ -135,7 +135,7 @@ static void  test_void_param_range_rval( SEL sel)
    [invocation invokeWithTarget:foo];
    [invocation getReturnValue:&range];
 
-   if( NSEqualRanges( range, NSMakeRange( 18, 48)))
+   if( NSEqualRanges( range, NSRangeMake( 18, 48)))
       printf( "passed\n");
    else
       printf( "failed\n");
@@ -207,7 +207,7 @@ static void  test_range_param_void_rval( SEL sel)
    Foo                      *foo;
    NSRange                  value;
 
-   value = NSMakeRange( 18, 48);
+   value = NSRangeMake( 18, 48);
 
    foo        = [[Foo new] autorelease];
    signature  = [foo methodSignatureForSelector:sel];
@@ -304,7 +304,7 @@ static void  test_range_param_int_rval( SEL sel)
    int                      rval;
    NSRange                  value;
 
-   value = NSMakeRange( 17, 47);
+   value = NSRangeMake( 17, 47);
 
    foo        = [[Foo new] autorelease];
    signature  = [foo methodSignatureForSelector:sel];
@@ -356,7 +356,7 @@ static void  test_range_param_double_rval( SEL sel)
    double                   rval;
    NSRange                  value;
 
-   value = NSMakeRange( 17, 47);
+   value = NSRangeMake( 17, 47);
 
    foo        = [[Foo new] autorelease];
    signature  = [foo methodSignatureForSelector:sel];

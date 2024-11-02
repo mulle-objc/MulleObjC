@@ -1,8 +1,9 @@
+B:
 +[A initialize]
-+[B initialize]
++[A initialize]
 +[P initialize]
 +[Q initialize]
-
-+[A initialize]
+C:
++[C initialize]
 +[P initialize]
 +[Q initialize]

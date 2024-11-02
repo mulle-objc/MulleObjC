@@ -145,7 +145,7 @@ static inline NSRange   MulleObjCValidateRangeAgainstLength( NSRange range,
    // later call -length again to validate the range...
    //
    if( range.length == -1)
-      range = NSMakeRange( range.location, length - range.location);
+      range = NSRangeMake( range.location, length - range.location);
 
    //
    // assume NSUInteger is 8 bit, then we need to check for also for a
@@ -172,7 +172,7 @@ static inline NSRange   MulleObjCAdjustRangeForLength( NSRange range,
    // later call -length again to validate the range...
    //
    if( range.length == -1)
-      range = NSMakeRange( range.location, length - range.location);
+      range = NSRangeMake( range.location, length - range.location);
 
    //
    // assume NSUInteger is 8 bit, then we need to check for also for a
@@ -185,4 +185,80 @@ static inline NSRange   MulleObjCAdjustRangeForLength( NSRange range,
    return( range);
 }
 
+
+//
+// When casting from id or some other base class to "cls", this code will
+// assert that the class is as intended. When not running with asserts this
+// code will evaporate within the compiler
+//
+// e.g.
+// - (void) callback:(id) userInfo
+// {
+//    NSString *s = MULLE_OBJC_CLASS_CAST( NSString, userInfo);
+// }
+//
+static inline id  _MULLE_OBJC_CLASS_CAST( Class cls, id x)
+{
+   assert( ! x || [x isKindOfClass:cls]);
+   return( x);
+}
+
+#define MULLE_OBJC_CLASS_CAST( className, x)  \
+   (className *) _MULLE_OBJC_CLASS_CAST( [className class], (x))
+
+static inline id  _MULLE_OBJC_CLASS_CAST_OR_NIL( Class cls, id x)
+{
+   return( [x isKindOfClass:cls] ? x : nil);
+}
+
+#define MULLE_OBJC_CLASS_CAST_OR_NIL( className, x)  \
+   (className *) _MULLE_OBJC_CLASS_CAST_OR_NIL( [className class], (x))
+
+
+static inline id  _MULLE_OBJC_CLASS_CAST_NON_NIL( Class cls, id x)
+{
+   assert( [x isKindOfClass:cls]);
+   return( x);
+}
+
+#define MULLE_OBJC_CLASS_CAST_NON_NIL( className, x)  \
+   (className *) _MULLE_OBJC_CLASS_CAST_NON_NIL( [className class], (x))
+
+
+//
+// You can do the same for a protocol, not sure how useful this is though
+// Probably it would be necessary to do multiple protocol conformance tests
+//
+static inline id  _MULLE_OBJC_PROTOCOL_CAST( PROTOCOL protocolName, id x)
+{
+   assert( ! x || [x conformsToProtocol:protocolName]);
+   return( x);
+}
+
+// as receiver may have multiple protocols, just cast to id for now
+#define MULLE_OBJC_PROTOCOL_CAST( protocolName, x)  \
+   (id) _MULLE_OBJC_PROTOCOL_CAST( @protocol( protocolName), (x))
+
+
+
+static inline id  _MULLE_OBJC_PROTOCOL_CAST_OR_NIL( PROTOCOL protocolName, id x)
+{
+   return( [x conformsToProtocol:protocolName] ? x : nil);
+}
+
+// as receiver may have multiple protocols, just cast to id for now
+#define MULLE_OBJC_PROTOCOL_CAST_OR_NIL( protocolName, x)  \
+   (id) _MULLE_OBJC_PROTOCOL_CAST_OR_NIL( @protocol( protocolName), (x))
+
+
+
+static inline id  _MULLE_OBJC_PROTOCOL_CAST_NON_NIL( PROTOCOL protocolName, id x)
+{
+   assert( [x conformsToProtocol:protocolName]);
+   return( x);
+}
+
+// as receiver may have multiple protocols, just cast to id for now
+#define MULLE_OBJC_PROTOCOL_CAST_NON_NIL( protocolName, x)  \
+   (id) _MULLE_OBJC_PROTOCOL_CAST_NON_NIL( @protocol( protocolName), (x))
 

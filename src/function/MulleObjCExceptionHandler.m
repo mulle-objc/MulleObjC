@@ -51,6 +51,10 @@ MULLE_C_NO_RETURN void
 
 extern
 MULLE_C_NO_RETURN void
+   _mulle_objc_vperror_abort( char *format, va_list args);
+
+extern
+MULLE_C_NO_RETURN void
    _mulle_objc_printf_abort( char *format, ...);
 
 #pragma mark - C
@@ -134,7 +138,7 @@ MULLE_C_NO_RETURN void
       vectors->errno_error( s, args);
    }
    else
-      _mulle_objc_vprintf_abort( format, args);
+      _mulle_objc_vperror_abort( format, args);
    abort();
 }
 

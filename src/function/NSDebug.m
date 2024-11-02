@@ -62,6 +62,14 @@
 // unused symbols kept for compatibility
 BOOL   NSKeepAllocationStatistics;
 
+// useful to set to 1 for tests, since it suppresses the varying pointer value
+#ifdef MULLE_TEST
+BOOL   MulleObjCDebugElideAddressOutput = YES;
+#else
+BOOL   MulleObjCDebugElideAddressOutput = NO;
+#endif
+
+
 
 MULLE_C_CONST_RETURN
 BOOL   MulleObjCIsDebugEnabled( void)
@@ -73,64 +81,84 @@ BOOL   MulleObjCIsDebugEnabled( void)
 }
 
 
-static char   *__MullePrintForDebugger( id a, char *buf)
+static int   mulle_buffer_print_trash_object( struct mulle_buffer *buffer, id a)
 {
    struct _mulle_objc_class   *cls;
 
    if( ! a)
-      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*nil*"));
+   {
+      mulle_buffer_strcpy( buffer, "*nil*");
+      return( 1);
+   }
 
    cls = _mulle_objc_object_get_isa( a);
    if( ! cls)
-      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*not an object (anymore ?)*"));
+   {
+      mulle_buffer_strcpy( buffer, "*not an object (anymore ?)*");
+      return( 1);
+   }
 
    // typical "released" isa values
    if( cls == (void *) (intptr_t) 0xDEADDEADDEADDEAD || // our scribble
        cls == (void *) (intptr_t) 0xAAAAAAAAAAAAAAAA)   // malloc scribble
    {
-      sprintf( buf, "<%p dealloced,(%p)>", a, cls);
-      return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
+      if( MulleObjCDebugElideAddressOutput)
+         mulle_buffer_sprintf( buffer, "*obj dealloced*");
+      else
+         mulle_buffer_sprintf( buffer, "<%p dealloced,(%p)>", a, cls);
+
+      return( 1);  // hmm hmm, what's the interface here anyway ?
    }
 
    cls = _mulle_objc_object_get_isa( a);
    if( ! cls)
-      return( mulle_allocator_strdup( &mulle_stdlib_allocator, "*not an object (anymore ?)*"));
+   {
+      mulle_buffer_strcpy( buffer, "*not an object (anymore ?)*");
+      return( 1);
+   }
 
-   return( NULL);
+   return( 0);
 }
 
 
-// this is useful, if you have a breakpoint in description
+//
+// this can be is useful, if you have a breakpoint in description
 //
 char   *_MullePrintForDebugger( id a)
 {
-   char                          buf[ 256];
-   struct _mulle_objc_class      *cls;
-   void                          *s;
+   struct _mulle_objc_class   *cls;
+   void                       *s;
 
-   s = __MullePrintForDebugger( a, buf);
-   if( s)
-      return( s);
-
-   cls = _mulle_objc_object_get_isa( a);
-   sprintf( buf, "<%.200s %p>", _mulle_objc_class_get_name( cls), a);
-   return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
+   mulle_buffer_do_autoreleased_string( buffer, &mulle_stdlib_allocator, s)
+   {
+      if( ! mulle_buffer_print_trash_object( buffer, a))
+      {
+         cls = _mulle_objc_object_get_isa( a);
+         if( MulleObjCDebugElideAddressOutput)
+            mulle_buffer_sprintf( buffer, "<%s>", _mulle_objc_class_get_name( cls));
+         else
+            mulle_buffer_sprintf( buffer, "<%s %p>", _mulle_objc_class_get_name( cls), a);
+      }
+   }
+   return( s);
 }
 
 
-char   *_NSPrintForDebugger( id a)
+// static inline, coz noone else uses it anyway
+static inline void   __NSPrintToBufferForDebugger( struct mulle_buffer *buffer, id a)
 {
    IMP                           imp;
    char                          *aux;
    char                          *spacer;
-   char                          buf[ 256];
    struct _mulle_objc_class      *cls;
    struct _mulle_objc_universe   *universe;
-   void                          *s;
+   void                          *string;
+   char                          *s;
+   mulle_thread_t                thread;
 
-   s = __MullePrintForDebugger( a, buf);
-   if( s)
-      return( s);
+   // print description for "crap", 'a' usually returns NULL
+   if( mulle_buffer_print_trash_object( buffer, a))
+      return;
 
    cls      = _mulle_objc_object_get_isa( a);
    universe = _mulle_objc_class_get_universe( cls);
@@ -138,15 +166,18 @@ char   *_NSPrintForDebugger( id a)
    imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( debugDescription));
    if( imp)
    {
-      s = (*imp)( a, @selector( debugDescription), NULL);
-      return( _mulle_objc_universe_characters( universe, s));
+      string = (*imp)( a, @selector( debugDescription), NULL);
+      s      = _mulle_objc_universe_characters( universe, string);
+      mulle_buffer_strcpy( buffer, s);
+      goto finish;
    }
 
-   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( UTF8String));
+   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( threadSafeUTF8String));
    if( imp)
    {
-      s = (*imp)( a, @selector( UTF8String), NULL);
-      return( s);
+      s = (char *) (*imp)( a, @selector( threadSafeUTF8String), NULL);
+      mulle_buffer_strcpy( buffer, s);
+      goto finish;
    }
 
    spacer = "";
@@ -154,17 +185,74 @@ char   *_NSPrintForDebugger( id a)
    imp    = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( description));
    if( imp)
    {
-      s = (*imp)( a, @selector( description), NULL);
-      if( s)
+      string = (*imp)( a, @selector( description), NULL);
+      if( string)
       {
-         aux      = _mulle_objc_universe_characters( universe, s);
+         aux = _mulle_objc_universe_characters( universe, string);
          if( aux && strlen( aux))
-            spacer=" ";
+            spacer =" ";
       }
    }
 
-   sprintf( buf, "<%.100s %p%s%.100s>", _mulle_objc_class_get_name( cls), a, spacer, aux ? aux : "");
-   return( mulle_allocator_strdup( &mulle_stdlib_allocator, buf));  // hmm hmm, what's the interface here anyway ?
+   if( MulleObjCDebugElideAddressOutput)
+      mulle_buffer_sprintf( buffer,
+                            "<%s %s%.100s>",
+                            _mulle_objc_class_get_name( cls),
+                            spacer,
+                            aux ? aux : "");
+   else
+      mulle_buffer_sprintf( buffer,
+                            "<%s %p%s%.100s>",
+                            _mulle_objc_class_get_name( cls),
+                            a,
+                            spacer,
+                            aux ? aux : "");
+
+finish:
+   thread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) a);
+   if( thread)
+   {
+      if( thread == (mulle_thread_t) -1)
+         mulle_buffer_strcat( buffer, "(R)");
+      else
+         if( MulleObjCDebugElideAddressOutput)
+            mulle_buffer_sprintf( buffer, "(%c)",
+                                           (thread == mulle_thread_self() ? 'A' : 'G'));
+         else
+            mulle_buffer_sprintf( buffer, "(%c:%p)",
+                                           (thread == mulle_thread_self() ? 'A' : 'G'), thread); // affine
+   }
+}
+
+
+char   *_NSPrintForDebugger( id a)
+{
+   char                         *s;
+   unsigned int                 old;
+   struct _mulle_objc_universe  *universe;
+
+
+   //
+   // assume we are in the debugger and we are single threaded, turn off
+   // TAO checks and tracing for now
+   //
+   if( a)
+   {
+      universe = _mulle_objc_object_get_universe( a);
+      old      = universe->debug.method_call;
+
+      universe->debug.method_call = 0;
+   }
+
+   mulle_buffer_do_autoreleased_string( buffer, &mulle_stdlib_allocator, s)
+   {
+      __NSPrintToBufferForDebugger( buffer, a);
+   }
+
+   if( a)
+      universe->debug.method_call = old;
+
+   return( s);
 }
 
 
@@ -180,13 +268,18 @@ char   *_NSPrintForDebugger( id a)
 static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was "
 										  "sent a %x message (\"%s\")\n";
 
+static char   zombie_prefix[] = "_MulleObjCZombieOf";
+
 - (char *) _originalClassName
 {
-   return( _mulle_objc_class_get_name( _mulle_objc_object_get_isa( self)) + 11);
+   char   *s;
+
+   s = _mulle_objc_class_get_name( _mulle_objc_object_get_isa( self));
+   return( s + sizeof( zombie_prefix) - 1);
 }
 
 
-- (void) forward:(void *) _param
+- (void) forward:(void *) _param       MULLE_OBJC_THREADSAFE_METHOD
 {
    int                          isMeta;
    struct _mulle_objc_universe  *universe;
@@ -237,6 +330,9 @@ static char   zombie_format[] = "A deallocated object %p of %sclass \"%s\" was "
 @end
 
 
+//
+// for any class that has at least sizeof( Class) ivar space
+//
 @interface _MulleObjCLargeZombie : _MulleObjCZombie
 {
    Class   _originalClass;
@@ -282,6 +378,7 @@ static void   zombifyObject( id obj, int shred)
 {
    mulle_objc_classid_t            zombieClassid;
    char                            buf[ 256];
+   char                            *name;
    struct _mulle_objc_classpair    *pair;
    struct _mulle_objc_class        *cls;
    struct _mulle_objc_infraclass   *zombieCls;
@@ -302,7 +399,8 @@ static void   zombifyObject( id obj, int shred)
 
    universe = _mulle_objc_class_get_universe( cls);
 
-   sprintf( buf, "_MulleObjCZombieOf%.200s", _mulle_objc_class_get_name( cls));
+   // conceivably avoid a MulleObjC_asprintf here or just old code ?
+   sprintf( buf, "%s%.200s", zombie_prefix, _mulle_objc_class_get_name( cls));
 
    zombieClassid = mulle_objc_classid_from_string( buf);
    zombieCls     = _mulle_objc_universe_lookup_infraclass( universe, zombieClassid);
@@ -310,8 +408,8 @@ static void   zombifyObject( id obj, int shred)
    if( ! zombieCls)
    {
       super_class = _mulle_objc_universe_lookup_infraclass( universe, @selector( _MulleObjCZombie));
-
-      pair  = mulle_objc_universe_new_classpair( universe, zombieClassid, buf, sizeof( id), 0, super_class);
+      name        = mulle_objc_universe_strdup( universe, buf);
+      pair = mulle_objc_universe_new_classpair( universe, zombieClassid, name, sizeof( id), 0, super_class);
       if( ! pair)
          mulle_objc_universe_fail_errno( universe);  // unfailing vectors through there
 
@@ -321,9 +419,12 @@ static void   zombifyObject( id obj, int shred)
       mulle_objc_metaclass_add_methodlist_nofail( meta, NULL);
       mulle_objc_infraclass_add_ivarlist_nofail( infra, NULL);
       mulle_objc_infraclass_add_propertylist_nofail( infra, NULL);
-      mulle_objc_universe_add_infraclass_nofail( universe, infra);
+      mulle_objc_universe_register_infraclass_nofail( universe, infra);
+
+      zombieCls = infra;
    }
 
+   assert( zombieCls);
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( zombieCls));
    if( shred)
       memset( obj, 0xad, _mulle_objc_class_get_instancesize( cls));

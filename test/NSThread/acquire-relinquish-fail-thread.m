@@ -5,7 +5,10 @@
 # import <MulleObjC/MulleObjC.h>
 #endif
 
-
+//
+// This tests, that foo can not be shared to multiple thread, though
+// the function being used is marked a threadsafe
+//
 @interface Foo : NSObject
 
 - (void) function:(id) arg    MULLE_OBJC_THREADSAFE_METHOD;
@@ -43,14 +46,14 @@ int   main( void)
 
       //
       // doing initWithTarget:foo again is already a mistake. foo no longer
-      // belongs to the current thread if [aThread mulleStartUndetached]
+      // belongs to the current thread if [aThread mulleStart]
       // was moved above bThread = [[[NSThread alloc] initWithTarget:
       //
       bThread = [[[NSThread alloc] initWithTarget:foo
                                          selector:@selector( function:)
                                            object:nil] autorelease];
-      [aThread mulleStartUndetached];
-      [bThread mulleStartUndetached];
+      [aThread mulleStart];
+      [bThread mulleStart];
 
       [bThread mulleJoin];
       [aThread mulleJoin];

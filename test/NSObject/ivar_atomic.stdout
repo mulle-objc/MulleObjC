@@ -1,0 +1,31 @@
+-[Foo retainedObject]: -[Foo lazyAssign]
+Assign
+-[Foo copiedObject]: -[Foo lazyAssign]
+Assign
+-[Foo assignedObject]: -[Foo lazyAssign]
+Assign
+-[Foo retainedObject]: Assign
+-[Foo copiedObject]: Assign
+-[Foo assignedObject]: Assign
+-[Bar retainedObject]: -[Foo lazyCopy]
+**failed**
+-[Bar copiedObject]: -[Foo lazyCopy]
+Copy
+-[Bar assignedObject]: -[Foo lazyCopy]
+**failed**
+-[Bar retainedObject]: -[Foo lazyCopy]
+**failed**
+-[Bar copiedObject]: Copy
+-[Bar assignedObject]: -[Foo lazyCopy]
+**failed**
+-[Baz retainedObject]: -[Foo lazyRetain]
+Retain
+-[Baz copiedObject]: -[Foo lazyRetain]
+**failed**
+-[Baz assignedObject]: -[Foo lazyRetain]
+**failed**
+-[Baz retainedObject]: Retain
+-[Baz copiedObject]: -[Foo lazyRetain]
+**failed**
+-[Baz assignedObject]: -[Foo lazyRetain]
+**failed**

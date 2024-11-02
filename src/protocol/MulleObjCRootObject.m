@@ -126,7 +126,7 @@ static void   checkAutoreleaseRelease( id self)
    }
 }
 #else
-static inline void   checkAutoreleaseRelease( NSObject *self)
+static inline void   checkAutoreleaseRelease( id self)
 {
 }
 #endif
@@ -157,7 +157,6 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-
 - (instancetype) autorelease
 {
    checkAutoreleaseRelease( self);
@@ -167,15 +166,18 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-
-
 //
 // do not override these, inherit MulleObjCThreadSafe or optionally
 // MulleObjCThreadUnsafe
 //
-- (BOOL) mulleIsThreadSafe    MULLE_OBJC_THREADSAFE_METHOD
+- (BOOL) mulleIsThreadSafe
 {
-   return( NO);  // this is the default, so NSObject itself technically is thread safe
+   mulle_thread_t   osThread;
+
+   // TODO: ponder if we need atomics for this as the method can
+   //       be accessed by multiple threads
+   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
+   return( ! osThread);
 }
 
 
@@ -184,6 +186,20 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 + (BOOL) mulleIsThreadSafe
 {
    return( YES);
+}
+
+
+- (void) mulleSetThreadSafe:(BOOL) flag
+{
+   mulle_thread_t   osThread;
+
+   osThread = flag ? 0 : MulleThreadGetCurrentOSThread();
+
+   // Runtime says:
+   // this need not be atomic, it would be one object setting the affinity
+   // and then handing it over to another thread
+   //
+   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, osThread);
 }
 
 
@@ -240,28 +256,44 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 // of the receiving thread. mulleRelinquishAccess retains the object
 //
 
-- (id) mulleGainAccess
+- (void) mulleGainAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy
 {
    mulle_thread_t   osThread;
    mulle_thread_t   currentOSThread;
 
+   switch( strategy)
+   {
+   case MulleObjCTAOKnownThreadSafe :
+      assert( ! _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self));
+      goto autorelease;
+
+      // the differentations are just for self commenting code
+   case MulleObjCTAOKnownThreadSafeMethods :
+      // no way to check this, TAO will catch it
+      // but don't change affinity
+      goto autorelease;
+
+   default :
+      break;
+   }
+
    osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
    if( osThread)
    {
-#ifdef DEBUG
       currentOSThread = MulleThreadGetCurrentOSThread();
+#ifdef DEBUG
       if( osThread != mulle_objc_object_has_no_thread)
       {
          // This can happen if you gain an [NSArray arrayWithObjets:foo, foo, nil];
          // So an object could have been already gainedAccess to. This is no
-         // problem as the relinquish will have retaied twice also
+         // problem as the relinquish will have retained twice also
          if( currentOSThread != osThread)
-            MulleObjCThrowInternalInconsistencyExceptionUTF8String( "your thread %p "
+            MulleObjCThrowInternalInconsistencyExceptionUTF8String( "your thread %@ "
                                                                     "can not gain access "
-                                                                    "to object %p "
+                                                                    "to object %p of class %s "
                                                                     "still owned by thread %p",
-                                                                    currentOSThread,
-                                                                    self,
+                                                                    MulleThreadGetCurrentThread(),
+                                                                    self, MulleObjCObjectGetClassNameUTF8String( self),
                                                                     osThread);
       }
 #else
@@ -270,25 +302,50 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
       _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, currentOSThread);
    }
 
+autorelease:
    // the relinquish will have added a -retain
-   return( [self autorelease]);
+   [self autorelease];
 }
 
 
 - (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy
 {
    mulle_thread_t   osThread;
+#ifdef DEBUG
    mulle_thread_t   currentOSThread;
+#endif
 
    [self retain];
-
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( ! osThread)
-      return;
 
    //
    // MEMO: we don't need to make this check in Release
    //       as this is an error that appears during development quickly
+   //       If we use MulleObjCTAOKnownThreadSafeMethods, then the object
+   //       actually has a different thread affinity, but its been promised
+   //       that only thread safe methods will be called. In effect the thread
+   //       affinity is really meaningless...
+   //
+   switch( strategy)
+   {
+   case MulleObjCTAOKnownThreadSafe          :
+      assert( ! _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self));
+      return;
+
+      // the differentations are just for self commenting code
+   case MulleObjCTAOKnownThreadSafeMethods   :
+      // no way to check this, TAO will catch it
+      // but don't change affinity
+      return;
+
+   default :
+      break;
+   }
+
+   // actually threads safe ?
+   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
+   if( ! osThread)
+      return;
+
 #ifdef DEBUG
    currentOSThread = MulleThreadGetCurrentOSThread();
    if( currentOSThread != osThread)
@@ -299,35 +356,25 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
       if( osThread == (mulle_thread_t) mulle_objc_object_has_no_thread)
          return;
 
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're thread %p "
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "your thread %@ "
                                                               "does not have access "
-                                                              "to this object %p "
+                                                              "to object %p of class %s "
                                                               "owned by thread %p",
-                                                              currentOSThread,
-                                                              self,
+                                                              MulleThreadGetCurrentThread(),
+                                                              self, MulleObjCObjectGetClassNameUTF8String( self),
                                                               osThread);
    }
 #else
    assert( osThread != mulle_objc_object_has_no_thread || currentOSThread == osThread);
+   MULLE_C_UNUSED( osThread);
 #endif
+
    //
    // add this now, before the object might get removed from current thread
    // autoreleasepool
    //
    switch( strategy)
    {
-   case MulleObjCTAOKnownThreadSafe          :
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "you're assuming object %p "
-                                                              "is threadsafe but it has an "
-                                                              "affinity to thread %p (indicating it is not)",
-                                                              self,
-                                                              osThread);
-      // the differentations are just for self commenting code
-   case MulleObjCTAOKnownThreadSafeMethods   :
-      // no way to check this, TAO will catch it
-   case MulleObjCTAOReceiverPerformsFinalize :
-      break;
-
    //
    // This should generally not be used over MulleObjCForceAutoreleaseCurrentPool.
    // It indicates that someone is still holding a reference and is likely to
@@ -340,13 +387,16 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 
    case MulleObjCTAOCallerRemovesFromCurrentPool :
       [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleasePoolObjects:&self
-                                                                     count:1];
+                                                                         count:1];
 #ifdef DEBUG
       if( [NSAutoreleasePool mulleContainsObject:self])
-         MulleObjCThrowInternalInconsistencyExceptionUTF8String( "a parent autoreleasepool is still holding "
-                                                                 "a reference to object %p ",
-                                                                 self);
+         MulleObjCThrowInternalInconsistencyExceptionUTF8String( "A parent autoreleasepool is still holding "
+                                                                 "a reference to object %p of class %s",
+                                                                 self, MulleObjCObjectGetClassNameUTF8String( self));
 #endif
+      break;
+
+   default :
       break;
    }
 
@@ -354,18 +404,28 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
                                   mulle_objc_object_has_no_thread);
 }
 
+
 // For a completely thread unsafe object, the strategy must be to remove
 // it from the sending thread and move it wholesale to the new thread.
 // BUT! A partially threadsafe object, meaning it has some methods that
 // are threadsafe and can be called from another thread, can and should
 // remain in the senders pool. It's too expensive for the runtime to
-// check this here, so its left to the implementers. It would be easy
+// check this here, so its left to the implementer. It would be easy
 // to write a checker that compares the mulleTaoStrategy of classes with the
 // provided methods and check if its consistent (IMO)
 //
 - (MulleObjCTAOStrategy) mulleTAOStrategy
 {
    return( MulleObjCTAOCallerRemovesFromCurrentPool);
+}
+
+
+- (void) mulleGainAccess
+{
+   MulleObjCTAOStrategy   strategy;
+
+   strategy = [self mulleTAOStrategy];
+   [self mulleGainAccessWithTAOStrategy:strategy];
 }
 
 
@@ -428,7 +488,7 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
 }
 
 
-+ (BOOL) isMemberOfClass:(Class) otherClass
++ (BOOL) isMemberOfClass:(Class) otherClass     MULLE_OBJC_THREADSAFE_METHOD
 {
    return( NO);  // seemingly the most compatible implementation...
 }
@@ -464,7 +524,8 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
    if( protocol == @protocol( MulleObjCThreadSafe) ||
        protocol == @protocol( MulleObjCThreadUnsafe))
    {
-      fprintf( stderr, "-conformsToProtocol:@protocol( MulleObjCThreadSafe) (or MulleObjCThreadUnsafe) is not doing what you want\n");
+      fprintf( stderr, "-conformsToProtocol:@protocol( MulleObjCThreadSafe) "
+                       "(or MulleObjCThreadUnsafe) is not doing what you want\n");
    }
 #endif
 
@@ -614,8 +675,8 @@ static inline void   checkAutoreleaseRelease( NSObject *self)
    param.p.obj2 = obj2;
 
    return( mulle_objc_object_call_variable_inline( self,
-                                                           (mulle_objc_methodid_t) sel,
-                                                           &param));
+                                                   (mulle_objc_methodid_t) sel,
+                                                   &param));
 }
 
 

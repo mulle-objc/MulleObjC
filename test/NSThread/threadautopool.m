@@ -56,7 +56,7 @@ int main( void)
                                           selector:@selector( test:)
                                             object:nil];
    printf( "startUndetached\n");
-   [thread mulleStartUndetached];
+   [thread mulleStart];
    [thread mulleJoin];
    printf( "joined\n");
    return( 0);

@@ -88,7 +88,7 @@ if( NOT MULLE__OBJC__RUNTIME_LIBRARY)
       endif()
    else()
       # Disable with: `mulle-sourcetree mark mulle-objc-runtime no-require-link`
-      message( FATAL_ERROR "MULLE__OBJC__RUNTIME_LIBRARY was not found")
+      message( SEND_ERROR "MULLE__OBJC__RUNTIME_LIBRARY was not found")
    endif()
 endif()
 

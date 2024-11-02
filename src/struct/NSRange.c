@@ -59,14 +59,14 @@ NSRange  MulleObjCRangeCombine( NSRange aRange, NSRange bRange)
    // { 0, 2 } ==  0 1
    // { 3, 4 } ==  3 4 5 6
    //
-   a_end = NSMaxRange( *a);
+   a_end = NSRangeGetMax( *a);
    if( a_end < b->location)
-      return( NSMakeRange( NSNotFound, 0));
+      return( NSRangeMake( NSNotFound, 0));
 
-   b_end = NSMaxRange( *b);
+   b_end = NSRangeGetMax( *b);
    if( b_end > a_end)
       a_end = b_end;
-   return( NSMakeRange( a->location, a_end - a->location));
+   return( NSRangeMake( a->location, a_end - a->location));
 }
 
 

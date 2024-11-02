@@ -186,9 +186,6 @@ static mulle_objc_implementation_t
 
 @implementation MulleDynamicObject
 
-#define MULLE_DYNAMIC_OBJECT_FORWARD_SUPERID   ((mulle_objc_superid_t) 0x4d6bf14f)  // 'MulleDynamicObject;forward:'
-
-
 static struct _mulle_objc_super   OBJECT_forward =
 {
    .superid  = MULLE_DYNAMIC_OBJECT_FORWARD_SUPERID,
@@ -222,7 +219,7 @@ static struct
    Self._initialized = 1;
 
    universe = _mulle_objc_infraclass_get_universe( self),
-   mulle_objc_universe_add_super_nofail( universe, &OBJECT_forward);
+   mulle_objc_universe_register_super_nofail( universe, &OBJECT_forward);
 
    //
    // can not use regular allocator, as it can be replaced with the
@@ -610,7 +607,7 @@ static void   *_MulleObjectRetainGetterWillReadRelationship( MulleDynamicObject 
    return( changed);
 }
 
-MULLE_C_NONNULL_FIRST
+
 void   _MulleDynamicObjectValueGetter( MulleDynamicObject *self,  mulle_objc_methodid_t _cmd,  void *_param)
 {
    id     value;
@@ -769,7 +766,10 @@ static void   _MulleObjectGenericValueSetterWillChange( MulleDynamicObject *self
 }
 
 
-void   _MulleDynamicObjectValueSetter( MulleDynamicObject *self, SEL _cmd, void *_param, char *objcType)
+void   _MulleDynamicObjectValueSetter( MulleDynamicObject *self,
+                                       SEL _cmd,
+                                       void *_param,
+                                       char *objcType)
 {
    void                     *key;
    struct mulle_allocator   *allocator;
@@ -785,8 +785,10 @@ void   _MulleDynamicObjectValueSetter( MulleDynamicObject *self, SEL _cmd, void 
 }
 
 
-MULLE_C_NONNULL_FIRST
-void   _MulleDynamicObjectNumberSetter( MulleDynamicObject *self, mulle_objc_methodid_t _cmd, void *_param, char *objcType)
+void   _MulleDynamicObjectNumberSetter( MulleDynamicObject *self,
+                                        SEL _cmd,
+                                        void *_param,
+                                        char *objcType)
 {
    void                     *key;
    struct mulle_allocator   *allocator;
@@ -1597,6 +1599,7 @@ static struct _mulle_objc_method *
    assert( neededSel);
 
    universe = _mulle_objc_infraclass_get_universe( infra);
+   cls      = _mulle_objc_infraclass_as_class( infra);
 
    desc = _mulle_objc_universe_lookup_descriptor( universe, neededSel);
    if( ! desc)
@@ -1614,7 +1617,7 @@ static struct _mulle_objc_method *
       if( ! desc)
          return( NULL);
 
-      desc = _mulle_objc_universe_register_descriptor_nofail( universe, desc);
+      desc = _mulle_objc_universe_register_descriptor_nofail( universe, desc, cls, NULL);
    }
 
 #if 0
@@ -1695,13 +1698,12 @@ static struct _mulle_objc_method *
       else
          return( NULL);
 
-   cls = _mulle_objc_infraclass_as_class( infra);
    // looks more like a bug, if we have any one already defined, so dont obscure it
    for( accessorType = mulle_objc_property_accessor_getter;
         accessorType <= mulle_objc_property_accessor_setter;
         accessorType++)
    {
-      _mulle_objc_searcharguments_init_default( &search, accessors[ accessorType]->methodid);
+      search = mulle_objc_searcharguments_make_default( accessors[ accessorType]->methodid);
       method = mulle_objc_class_search_method( cls,
                                                &search,
                                                _mulle_objc_class_get_inheritance( cls),
