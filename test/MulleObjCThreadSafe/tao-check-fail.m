@@ -63,7 +63,7 @@ void  test( Class cls)
    thread = [[[NSThread alloc] mulleInitWithFunction:thread_main
                                             argument:obj] autorelease];
    [thread mulleSetNameUTF8String:"NSThread"];
-   [thread mulleStartUndetached];
+   [thread mulleStart];
    [thread mulleJoin];
 }
 

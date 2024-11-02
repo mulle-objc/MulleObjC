@@ -51,7 +51,7 @@ static inline NSRange   MulleObjCGetHashBytesRange( NSUInteger length)
       offset = length - 64;
       length = 64;
    }
-   return( NSMakeRange( offset, length));
+   return( NSRangeMake( offset, length));
 }
 
 

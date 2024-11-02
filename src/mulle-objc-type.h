@@ -60,7 +60,6 @@ typedef void                            *id;
 typedef struct _mulle_objc_infraclass   *Class;  // the meta-class is not "visible" to Class users
 
 
-
 // returns `dst`
 MULLE_C_NONNULL_FIRST_SECOND
 static inline id   *mulle_id_copy( id *dst, id *src, size_t length)
@@ -157,26 +156,26 @@ enum name
 #define NS_ENUM_ITEM( name)            { #name, name  }
 #define NS_ENUM_ITEM_TYPE( name)       struct name ## __item
 #define NS_ENUM_TABLE( name, length)   NS_ENUM_ITEM_TYPE( name) name ## __table[ length]
-#define NS_ENUM_PRINT( name, item)                                               \
-   _NS_ENUM_UTF8String( name ## __table,                                         \
-                        sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
-                        sizeof( name ## __table[ 0]),                            \
-                        offsetof( NS_ENUM_ITEM_TYPE( name), value),              \
-                        sizeof( name ## __table[ 0].value),                      \
+#define NS_ENUM_PRINT( name, item)                                                                \
+   _NS_ENUM_UTF8String( name ## __table,                                                          \
+                        (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
+                        sizeof( name ## __table[ 0]),                                             \
+                        offsetof( NS_ENUM_ITEM_TYPE( name), value),                               \
+                        sizeof( name ## __table[ 0].value),                                       \
                         item)
-#define NS_ENUM_LOOKUP( name, item)                                              \
-   _NS_table_search_UTF8String( name ## __table,                                 \
-                        sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
-                        sizeof( name ## __table[ 0]),                            \
-                        offsetof( NS_ENUM_ITEM_TYPE( name), value),              \
-                        sizeof( name ## __table[ 0].value),                      \
-                        item)
-#define NS_ENUM_PARSE( name, string)                                                  \
-   _NS_ENUM_ParseUTF8String( name ## __table,                                         \
-                             sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
-                             sizeof( name ## __table[ 0]),                            \
-                             offsetof( NS_ENUM_ITEM_TYPE( name), value),              \
-                             sizeof( name ## __table[ 0].value),                      \
+#define NS_ENUM_LOOKUP( name, item)                                                                      \
+   _NS_table_search_UTF8String( name ## __table,                                                         \
+                               (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
+                               sizeof( name ## __table[ 0]),                                             \
+                               offsetof( NS_ENUM_ITEM_TYPE( name), value),                               \
+                               sizeof( name ## __table[ 0].value),                                       \
+                               item)
+#define NS_ENUM_PARSE( name, string)                                                                   \
+   _NS_ENUM_ParseUTF8String( name ## __table,                                                          \
+                             (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
+                             sizeof( name ## __table[ 0]),                                             \
+                             offsetof( NS_ENUM_ITEM_TYPE( name), value),                               \
+                             sizeof( name ## __table[ 0].value),                                       \
                              string)
 
 //
@@ -196,61 +195,94 @@ enum name
 #define NS_OPTIONS_TABLE( name, length)   NS_OPTIONS_ITEM_TYPE( name) name ## __table[ length]
 #define NS_OPTIONS_PRINT( name, options)                                            \
    _NS_OPTIONS_UTF8String( name ## __table,                                         \
-                           sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
+                           (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
                            sizeof( name ## __table[ 0]),                            \
                            offsetof( NS_OPTIONS_ITEM_TYPE( name), value),           \
                            sizeof( name ## __table[ 0].value),                      \
                            options)
 #define NS_OPTIONS_LOOKUP( name, item)                                           \
    _NS_table_search_UTF8String( name ## __table,                                 \
-                        sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
+                        (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
                         sizeof( name ## __table[ 0]),                            \
                         offsetof( NS_OPTIONS_ITEM_TYPE( name), value),           \
                         sizeof( name ## __table[ 0].value),                      \
                         item)
 #define NS_OPTIONS_PARSE( name, string)                                                  \
    _NS_OPTIONS_ParseUTF8String( name ## __table,                                         \
-                                sizeof( name ## __table) / sizeof( name ## __table[ 0]), \
+                                (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
                                 sizeof( name ## __table[ 0]),                            \
                                 offsetof( NS_OPTIONS_ITEM_TYPE( name), value),           \
                                 sizeof( name ## __table[ 0].value),                      \
                                 string)
 
+
 char   *_NS_table_search_UTF8String( void *table,
-                                     size_t len,
+                                     unsigned int len,
                                      size_t line_size,
                                      size_t offset,
                                      size_t item_len,
                                      unsigned long long bit);
 
 
+//MULLE_OBJC_GLOBAL (dont have it here, why ?)
 unsigned long long   _NS_ENUM_ParseUTF8String( void *table,
-                                               size_t len,
+                                               unsigned int len,
                                                size_t line_size,
                                                size_t offset,
                                                size_t item_len,
                                                char *s);
 
+//MULLE_OBJC_GLOBAL
 unsigned long long   _NS_OPTIONS_ParseUTF8String( void *table,
-                                                  size_t len,
+                                                  unsigned int len,
                                                   size_t line_size,
                                                   size_t offset,
                                                   size_t item_len,
                                                   char *s);
+//MULLE_OBJC_GLOBAL
+
 char   *_NS_ENUM_UTF8String( void *table,
-                             size_t len,
+                             unsigned int len,
                              size_t line_size,
                              size_t offset,
                              size_t item_len,
                              unsigned long long bits);
 
+//MULLE_OBJC_GLOBAL
+
 char   *_NS_OPTIONS_UTF8String( void *table,
-                                size_t len,
+                                unsigned int len,
                                 size_t line_size,
                                 size_t offset,
                                 size_t item_len,
                                 unsigned long long bits);
 
-#endif
+//MULLE_OBJC_GLOBAL
+
+size_t   _NS_OPTIONS_prefix_length( void *table,
+                                    unsigned int len,
+                                    size_t line_size);
+
+static inline size_t   _NS_ENUM_prefix_length( void *table,
+                                               unsigned int len,
+                                               size_t line_size)
+{
+   return( _NS_OPTIONS_prefix_length( table, len, line_size));
+}
+
+
+#define NS_OPTIONS_PREFIX_LEN( name)                                                                    \
+   _NS_OPTIONS_prefix_length( name ## __table,                                                          \
+                              (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
+                              sizeof( name ## __table[ 0]))
+
+#define NS_ENUM_PREFIX_LEN( name)                                                                       \
+   _NS_ENUM_prefix_length( name ## __table,                                                             \
+                              (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
+                              sizeof( name ## __table[ 0]))
+
+#endif // ifndef NSENUM
+
+
 
 #endif

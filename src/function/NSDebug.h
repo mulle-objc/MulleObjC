@@ -37,12 +37,19 @@
 
 #import "MulleObjCDebug.h"
 
-
+//
+// -debugDescription is marked as thread safe, it is assumed that ONLY
+// the debugger calls it and that therefore all other threads are stopped
+// We don't want a TAO check in the debugger.
+//
 @interface NSObject ( NSDebug)
 
-- (id) debugDescription;
+- (id) debugDescription    MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
+
+MULLE_OBJC_GLOBAL
+BOOL   MulleObjCDebugElideAddressOutput;
 
 // this is the method that is searched for by "gdb" when you do a `po obj`
 // in it

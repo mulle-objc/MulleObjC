@@ -118,7 +118,8 @@ static inline id   _MulleObjCAcquireObjectAtomically( mulle_atomic_pointer_t *p)
    id    obj;
 
    obj = _MulleObjCAcquirePointerAtomically( p);
-   return( [obj mulleGainAccess]);
+   [obj mulleGainAccess];
+   return( obj);
 }
 
 

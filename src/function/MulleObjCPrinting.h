@@ -50,10 +50,13 @@ char   *MulleObjC_mvasprintf( char *format, mulle_vararg_list args);
 MULLE_OBJC_GLOBAL
 char   *MulleObjC_asprintf( char *format, ...);
 
+MULLE_OBJC_GLOBAL
+char   *MulleObjC_strdup( char *s);
+
 
 
 #define mulle_buffer_do_autoreleased_string( name, allocator, s)               \
-   for( struct mulle_buffer name ## __storage = MULLE_BUFFER_INIT( allocator), \
+   for( struct mulle_buffer name ## __storage = MULLE_BUFFER_DATA( allocator), \
                             *name = &name ## __storage,                        \
                             name ## __i = { 0 };                               \
                                                                                \

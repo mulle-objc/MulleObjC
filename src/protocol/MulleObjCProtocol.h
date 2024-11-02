@@ -42,7 +42,7 @@
 // |-------------------------|------------------------------------
 // | `MulleObjCThreadUnsafe` | The default, only message from one thread concurrently. Protect code with an outside lock if needed.
 // | `MulleObjCThreadSafe`   | Can be messaged from multiple threads concurrently. Protected by an inside lock or has atomic code.
-// | `MulleObjCImmutable`    | Internal state does not change after -init. Can be messaged from multiple threads concurrently. No internal lock needed.
+// | `MulleObjCImmutable`    | Internal state does not change after -init. Can be messaged from multiple threads concurrently. No internal lock needed. Can return MulleObjCThreadUnsafe objects though.
 // | `MulleObjCValue`        | Does not return `MulleObjCThreadUnsafe` objects (or unsafe pointers) from methods. Can be messaged from multiple threads concurrently. No internal lock needed.
 //
 // To adopt MulleObjCValue say: @interface Foo < MulleObjCValue, MulleObjCImmutable, MulleObjCThreadSafe>

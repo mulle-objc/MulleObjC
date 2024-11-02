@@ -53,7 +53,7 @@ char   *MulleObjC_mvasprintf( char *format, mulle_vararg_list args)
       return( NULL);
    }
 
-   mulle_buffer_init( &buffer, NULL);
+   mulle_buffer_init_default( &buffer);
    mulle_buffer_mvsprintf( &buffer, format, args);
    mulle_buffer_make_string( &buffer);
    s = mulle_buffer_extract_string( &buffer);
@@ -76,7 +76,7 @@ char   *MulleObjC_vasprintf( char *format, va_list args)
       return( NULL);
    }
 
-   mulle_buffer_init( &buffer, NULL);
+   mulle_buffer_init_default( &buffer);
    mulle_buffer_vsprintf( &buffer, format, args);
    mulle_buffer_make_string( &buffer);
    s = mulle_buffer_extract_string( &buffer);
@@ -97,4 +97,20 @@ char   *MulleObjC_asprintf( char *format, ...)
    s = MulleObjC_vasprintf( format, args);
    va_end( args);
    return( s);
+}
+
+
+char   *MulleObjC_strdup( char *s)
+{
+   char                     *copy;
+   struct mulle_allocator   *allocator;
+
+   if( ! s)
+      return( NULL);
+
+   allocator = &mulle_default_allocator;
+   copy      = mulle_allocator_strdup( allocator, s);
+   MulleObjCAutoreleaseAllocation( copy, allocator);
+
+   return( copy);
 }

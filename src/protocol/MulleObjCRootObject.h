@@ -46,13 +46,20 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 #pragma mark - thread safety introspection
 
 - (BOOL) mulleIsThreadSafe          MULLE_OBJC_THREADSAFE_METHOD;
-+ (BOOL) mulleIsThreadSafe;
++ (BOOL) mulleIsThreadSafe          MULLE_OBJC_THREADSAFE_METHOD; // same name as - so adorn
+
+// if your object owns a non-threadsafe object (like NSMutable...) but
+// only provides locked access to it, you can declare the mutable object
+// to be threadsafe and TAO checks won't fail. This is a duality here,
+// thread-unsafe objects implement mulleGainAccess, where as thread safe
+// objects use mulleSetThreadSafe: on inferior (and private) mutable
+// objects (them being lock protected).
+- (void) mulleSetThreadSafe:(BOOL) flag;
 
 #pragma mark - thread affinity
 
 // check if an object can be safely accessed by a thread, use this for
 // validatation and debugging only
-- (BOOL) mulleIsThreadSafe          MULLE_OBJC_THREADSAFE_METHOD;
 - (BOOL) mulleIsAccessible          MULLE_OBJC_THREADSAFE_METHOD;
 - (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject   MULLE_OBJC_THREADSAFE_METHOD;
 
@@ -67,7 +74,8 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 // if you pass an object from one thread to another the sender does
 // a relinquish and the receiver does a gain. For objects that are threadsafe
 // already, this does nothing
-- (id) mulleGainAccess            MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleGainAccess                                                 MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleGainAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy  MULLE_OBJC_THREADSAFE_METHOD;
 
 //
 // the TAO strategy is important, when you are passing objects that are
@@ -85,7 +93,7 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 #pragma mark - class introspection
 
 - (Class) class                                MULLE_OBJC_THREADSAFE_METHOD;
-+ (Class) class;
++ (Class) class                                MULLE_OBJC_THREADSAFE_METHOD; // same name as - so adorn
 - (Class) superclass                           MULLE_OBJC_THREADSAFE_METHOD;
 + (BOOL) isSubclassOfClass:(Class) otherClass  MULLE_OBJC_THREADSAFE_METHOD;
 - (BOOL) isKindOfClass:(Class) otherClass      MULLE_OBJC_THREADSAFE_METHOD;

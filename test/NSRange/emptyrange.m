@@ -167,10 +167,10 @@ int main(int argc, const char * argv[])
    NSRange   full;
    NSRange   full2;
 
-   empty  = NSMakeRange( 0, 0);
-   empty2 = NSMakeRange( 1, 0);
-   full   = NSMakeRange( 0, 2);
-   full2  = NSMakeRange( 1, 2);
+   empty  = NSRangeMake( 0, 0);
+   empty2 = NSRangeMake( 1, 0);
+   full   = NSRangeMake( 0, 2);
+   full2  = NSRangeMake( 1, 2);
 
 
    test_intersection( empty, empty);

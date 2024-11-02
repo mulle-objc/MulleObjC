@@ -1,0 +1,133 @@
+before posing objects:
+   Foo class
+      +[NSObject(Trace) trace]: <Foo>
+      +[Foo trace]: <Foo>
+
+   Foo instance
+      -[NSObject(Trace) trace]: <Foo>
+      -[Foo trace]: <Foo>
+
+   Bar class
+      +[NSObject(Trace) trace]: <Bar>
+      +[Foo trace]: <Bar>
+      +[Bar trace]: <Bar>
+
+   Bar instance
+      -[NSObject(Trace) trace]: <Bar>
+      -[Foo trace]: <Bar>
+      -[Bar trace]: <Bar>
+
+   FooBar class
+      +[NSObject(Trace) trace]: <FooBar>
+      +[Foo trace]: <FooBar>
+      +[Bar trace]: <FooBar>
+      +[FooBar trace]: <FooBar>
+
+   FooBar instance
+      -[NSObject(Trace) trace]: <FooBar>
+      -[Foo trace]: <FooBar>
+      -[Bar trace]: <FooBar>
+      -[FooBar trace]: <FooBar>
+
+   Poser class
+      +[NSObject(Trace) trace]: <Poser>
+      +[Foo trace]: <Poser>
+      +[Bar trace]: <Poser>
+      +[Poser trace]: <Poser>
+
+   Poser instance
+      -[NSObject(Trace) trace]: <Poser>
+      -[Foo trace]: <Poser>
+      -[Bar trace]: <Poser>
+      -[Poser trace]: <Poser>
+
+after posing same objects:
+   Foo class
+      +[NSObject(Trace) trace]: <Foo>
+      +[Foo trace]: <Foo>
+
+   Foo instance
+      -[NSObject(Trace) trace]: <Foo>
+      -[Foo trace]: <Foo>
+
+   Bar class
+      +[NSObject(Trace) trace]: <Bar>
+      +[Foo trace]: <Bar>
+      +[Bar trace]: <Bar>
+
+   Bar instance
+      -[NSObject(Trace) trace]: <Bar>
+      -[Foo trace]: <Bar>
+      -[Bar trace]: <Bar>
+
+   FooBar class
+      +[NSObject(Trace) trace]: <FooBar>
+      +[Foo trace]: <FooBar>
+      +[Bar trace]: <FooBar>
+      +[Poser trace]: <FooBar>
+      +[FooBar trace]: <FooBar>
+
+   FooBar instance
+      -[NSObject(Trace) trace]: <FooBar>
+      -[Foo trace]: <FooBar>
+      -[Bar trace]: <FooBar>
+      -[Poser trace]: <FooBar>
+      -[FooBar trace]: <FooBar>
+
+   Poser class
+      +[NSObject(Trace) trace]: <Poser>
+      +[Foo trace]: <Poser>
+      +[Bar trace]: <Poser>
+      +[Poser trace]: <Poser>
+
+   Poser instance
+      -[NSObject(Trace) trace]: <Poser>
+      -[Foo trace]: <Poser>
+      -[Bar trace]: <Poser>
+      -[Poser trace]: <Poser>
+
+after posing new objects:
+   Foo class
+      +[NSObject(Trace) trace]: <Foo>
+      +[Foo trace]: <Foo>
+
+   Foo instance
+      -[NSObject(Trace) trace]: <Foo>
+      -[Foo trace]: <Foo>
+
+   Bar class
+      +[NSObject(Trace) trace]: <Bar>
+      +[Foo trace]: <Bar>
+      +[Bar trace]: <Bar>
+
+   Bar instance
+      -[NSObject(Trace) trace]: <Bar>
+      -[Foo trace]: <Bar>
+      -[Bar trace]: <Bar>
+
+   FooBar class
+      +[NSObject(Trace) trace]: <FooBar>
+      +[Foo trace]: <FooBar>
+      +[Bar trace]: <FooBar>
+      +[Poser trace]: <FooBar>
+      +[FooBar trace]: <FooBar>
+
+   FooBar instance
+      -[NSObject(Trace) trace]: <FooBar>
+      -[Foo trace]: <FooBar>
+      -[Bar trace]: <FooBar>
+      -[Poser trace]: <FooBar>
+      -[FooBar trace]: <FooBar>
+
+   Poser class
+      +[NSObject(Trace) trace]: <Poser>
+      +[Foo trace]: <Poser>
+      +[Bar trace]: <Poser>
+      +[Poser trace]: <Poser>
+
+   Poser instance
+      -[NSObject(Trace) trace]: <Poser>
+      -[Foo trace]: <Poser>
+      -[Bar trace]: <Poser>
+      -[Poser trace]: <Poser>
+

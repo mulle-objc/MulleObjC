@@ -891,16 +891,11 @@ MULLE_OBJC_GLOBAL
 void    MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n);
 
 
-static inline void    MulleObjCObjectSpamAncestorToInheritor( id obj, SEL sel, id argument)
-{
-   mulle_objc_object_call_chained_back( obj, sel, argument);
-}
+MULLE_OBJC_GLOBAL
+void    MulleObjCObjectSpamAncestorToInheritor( id obj, SEL sel, id argument, Class startClass);
 
-
-static inline void    MulleObjCObjectSpamInheritorToAncestor( id obj, SEL sel, id argument)
-{
-   mulle_objc_object_call_chained_forth( obj, sel, argument);
-}
+MULLE_OBJC_GLOBAL
+void    MulleObjCObjectSpamInheritorToAncestor( id obj, SEL sel, id argument, Class startClass);
 
 
 static inline Class   MulleObjCObjectGetClass( id obj)

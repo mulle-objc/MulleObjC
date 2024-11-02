@@ -13,7 +13,7 @@ typedef NS_OPTIONS( short, Foo)
 };
 
 
-extern NS_ENUM_TABLE( Foo, 3);
+extern NS_OPTIONS_TABLE( Foo, 3);
 
 
 NS_OPTIONS_TABLE( Foo, 3) =

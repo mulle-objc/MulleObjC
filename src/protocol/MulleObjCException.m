@@ -50,8 +50,8 @@ MULLE_C_NO_RETURN void
    _mulle_objc_vprintf_abort( char *format, va_list args);
 
 extern
-MULLE_C_NO_RETURN
-void   perror_abort( char *s);
+MULLE_C_NO_RETURN void
+   _mulle_objc_vperror_abort( char *format, va_list args);
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
@@ -178,7 +178,6 @@ void   _MulleObjCThrowInvalidArgumentExceptionUTF8String( mulle_objc_universeid_
    va_list                                     args;
    id                                          string;
 
-
    universe   = mulle_objc_global_get_universe( universeid);
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
@@ -226,8 +225,8 @@ void   _MulleObjCThrowErrnoExceptionUTF8String( mulle_objc_universeid_t universe
    rootconfig = _mulle_objc_universe_get_foundationdata( universe);
 
    va_start( args, format);
-   if( (void (*)( void)) *rootconfig->exception.vectors.errno_error == (void (*)( void)) perror_abort)
-      perror_abort( format);
+   if( (void (*)( void)) *rootconfig->exception.vectors.errno_error == (void (*)( void)) NSStringVPerrorAbort)
+      _mulle_objc_vperror_abort( format, args);
 
    string     = (*rootconfig->string.objectfromchars)( format);
    (*rootconfig->exception.vectors.errno_error)( string, args);

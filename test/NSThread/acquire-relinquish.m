@@ -56,7 +56,8 @@ static id   acquire_ivar_object( mulle_atomic_pointer_t *p)
    id    obj;
 
    obj = acquire_ivar_pointer( p);
-   return( [obj mulleGainAccess]);
+   [obj mulleGainAccess];
+   return( obj);
 }
 
 
@@ -189,8 +190,8 @@ int   main( void)
       bThread = [[[NSThread alloc] initWithTarget:foo
                                          selector:@selector( function:)
                                            object:foo] autorelease];
-      [bThread mulleStartUndetached];
-      [aThread mulleStartUndetached];
+      [bThread mulleStart];
+      [aThread mulleStart];
 
       [bThread mulleJoin];
       [aThread mulleJoin];
@@ -199,13 +200,13 @@ int   main( void)
                                          selector:@selector( function:)
                                            object:foo] autorelease];
 
-      [aThread mulleStartUndetached];
+      [aThread mulleStart];
       [aThread mulleJoin];
 
 //      bThread = [[[NSThread alloc] initWithTarget:foo
 //                                         selector:@selector( function:)
 //                                           object:foo] autorelease];
-//      [bThread mulleStartUndetached];
+//      [bThread mulleStart];
 //      [bThread mulleJoin];
 
 #endif

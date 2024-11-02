@@ -357,7 +357,7 @@ int main( void)
    thread = [[[NSThread alloc] initWithTarget:[Foo class]
                                      selector:@selector( run:)
                                        object:nil] autorelease];
-   [thread mulleStartUndetached];
+   [thread mulleStart];
 #endif
    [Foo run:nil];
 #ifdef MULTI_THREADED

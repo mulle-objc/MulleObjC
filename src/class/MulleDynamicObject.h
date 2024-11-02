@@ -79,15 +79,18 @@
 
 @end
 
+#define MULLE_DYNAMIC_OBJECT_FORWARD_SUPERID   ((mulle_objc_superid_t) 0x4d6bf14f)  // 'MulleDynamicObject;forward:'
+
+
 
 MULLE_C_NONNULL_FIRST_FOURTH
-void   _MulleDynamicObjectValueSetter( MulleDynamicObject *self, SEL _cmd, void *_param, char *objcType);
+void   _MulleDynamicObjectValueSetter( MulleDynamicObject *self, SEL selector, void *_param, char *objcType);
 
 MULLE_C_NONNULL_FIRST_FOURTH
-void   _MulleDynamicObjectNumberSetter( MulleDynamicObject *self, mulle_objc_methodid_t _cmd, void *_param, char *objcType);
+void   _MulleDynamicObjectNumberSetter( MulleDynamicObject *self, SEL selector, void *_param, char *objcType);
 
 MULLE_C_NONNULL_FIRST
-void   _MulleDynamicObjectValueGetter( MulleDynamicObject *self, SEL _cmd, void *_param);
+void   _MulleDynamicObjectValueGetter( MulleDynamicObject *self, SEL selector, void *_param);
 
 
 @interface MulleDynamicObject( NSMutableCopying)< NSMutableCopying>

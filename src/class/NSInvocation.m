@@ -40,9 +40,9 @@
 #import "MulleObjCAllocation.h"
 #import "NSAutoreleasePool.h"
 #import "NSCopying.h"
+#import "MulleObjCException.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
-
 
 #pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
 
@@ -57,6 +57,17 @@
 // NSMethodSignature) that "self" + "_cmd" are both pointersize.
 // So if we "long double" align the whole thing we assume we are fine.
 //
+
+@interface NSInvocation( Forward)
+
+- (void) _performArgumentMemberOperation:(SEL) sel
+                                    type:(char *) type
+                                 atIndex:(NSUInteger) i;
+
+- (void) _performReturnMemberOperation:(SEL) sel
+                                  type:(char *) type;
+
+@end
 
 
 @implementation NSInvocation
@@ -223,9 +234,9 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    [invocation setTarget:target];
    [invocation setSelector:sel];
 
-   // TODO: we should be able to do this significantly faster!!
-   // We can probably just memcpy the whole block over
-   // MEMO: Also check MulleInvocationBuilder in "tests"
+   //
+   // The incoming metaABI block is made up of mulle-vararg promoted values
+   // so we can not just memcpy them into the invocation metaABI block
    //
    mulle_vararg_start( arguments, sel);
    {
@@ -241,7 +252,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
             __mulle_objc_universe_raise_invalidindex( NULL, i);
 
          src = _mulle_vararg_aligned_struct( &arguments, size, p->natural_alignment);
-         memcpy( adr, src, size);
+         _mulle_objc_typeinfo_demote_value_to_natural( p, adr, src);
       }
    }
    mulle_vararg_end( arguments);
@@ -277,6 +288,51 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    return( invocation);
 }
 
+
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel
+                                metaABIFrame:(void *) param
+{
+   NSInvocation                       *invocation;
+   NSMethodSignature                  *signature;
+#if 0
+   NSUInteger                         length;
+   void                               *adr;
+   MulleObjCMethodSignatureTypeInfo   *p;
+#endif
+   signature = [target methodSignatureForSelector:sel];
+   if( ! signature)
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                         "method %x not found on target", sel);
+   if( [signature isVariadic])
+      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
+                                                         "method must not be variadic");
+
+   invocation = [self invocationWithMethodSignature:signature];
+   [invocation setTarget:target];
+   [invocation setSelector:sel];
+   [invocation _setMetaABIFrame:param];
+
+#if 0
+   switch( [signature _methodMetaABIParameterType])
+   {
+   case MulleObjCMetaABITypeVoidPointer    :
+      [invocation setArgument:&frame
+                      atIndex:2];
+      break;
+
+   case MulleObjCMetaABITypeParameterBlock :
+      length = [signature mulleMetaABIFrameLength];
+      p      = [signature mulleSignatureTypeInfoAtIndex:2 + 1];
+      adr    = &((char *) invocation->_storage)[ p->invocation_offset];
+      memcpy( adr, frame, length);
+
+   case MulleObjCMetaABITypeVoid           :
+      break;
+   }
+#endif
+   return( invocation);
+}
 
 
 static BOOL   _isStandardInvocation( NSInvocation *invocation)
@@ -322,17 +378,27 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
 
 - (void) _releaseArguments
 {
-   NSInteger   i, n;
-   char        *type;
-   id          obj;
-   char        *s;
+   NSInteger                          i, n;
+   id                                 obj;
+   char                               *s;
+   MulleObjCMethodSignatureTypeInfo   *info;
 
    n = [_methodSignature numberOfArguments];
    for( i = 0; i < n; ++i)
    {
-      type = [_methodSignature getArgumentTypeAtIndex:i];
-      switch( *type)
+      // this indexes with 0: rval
+      info = [_methodSignature mulleSignatureTypeInfoAtIndex:i + 1];
+      switch( *info->type)
       {
+      case _C_ARY_B     :
+      case _C_STRUCT_B  :
+      case _C_UNION_B   :
+         if( info->has_retainable_type)
+            [self _performArgumentMemberOperation:@selector( release)
+                                signatureTypeInfo:info
+                                          atIndex:i];
+         break;
+
       case _C_COPY_ID   :
       case _C_RETAIN_ID :
          [self getArgument:&obj
@@ -352,17 +418,25 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
 
 - (void) _releaseReturnValue
 {
-   char   *type;
-   id     obj;
-   char   *s;
+   id                                 obj;
+   char                               *s;
+   MulleObjCMethodSignatureTypeInfo   *info;
 
-   type = [_methodSignature methodReturnType];
+   info = [_methodSignature mulleSignatureTypeInfoAtIndex:0];
    // can happen, if we just have an empty invocation
-   if( ! type)
+   if( ! info)
       return;
 
-   switch( *type)
+   switch( *info->type)
    {
+   case _C_ARY_B     :
+   case _C_STRUCT_B  :
+   case _C_UNION_B   :
+      if( info->has_retainable_type)
+         [self _performReturnMemberOperation:@selector( release)
+                           signatureTypeInfo:info];
+      break;
+
    case _C_COPY_ID   :
    case _C_RETAIN_ID :
       [self getReturnValue:&obj];
@@ -380,18 +454,26 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
 static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self,
                                                               SEL sel)
 {
-   NSInteger   i, n;
-   char        *type;
-   id          obj;
+   NSInteger                          i, n;
+   id                                 obj;
+   MulleObjCMethodSignatureTypeInfo   *info;
 
-   type = [self->_methodSignature methodReturnType];
-
+   // first do return value
+   info = [self->_methodSignature mulleSignatureTypeInfoAtIndex:0];
    // can happen, if we just have an empty invocation
-   if( ! type)
+   if( ! info)
       return;
 
-   switch( *type)
+   switch( *info->type)
    {
+   case _C_ARY_B     :
+   case _C_STRUCT_B  :
+   case _C_UNION_B   :
+      if( info->has_retainable_type)
+         [self _performReturnMemberOperation:sel
+                           signatureTypeInfo:info];
+      break;
+
    case _C_CLASS     :
    case _C_ASSIGN_ID :
    case _C_RETAIN_ID :
@@ -400,12 +482,21 @@ static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self
       [obj performSelector:sel];
    }
 
+   //  now do arguments value
    n = [self->_methodSignature numberOfArguments];
    for( i = 0; i < n; ++i)
    {
-      type = [self->_methodSignature getArgumentTypeAtIndex:i];
-      switch( *type)
+      info = [self->_methodSignature mulleSignatureTypeInfoAtIndex:i + 1];
+      switch( *info->type)
       {
+      case _C_ARY_B     :
+      case _C_STRUCT_B  :
+      case _C_UNION_B   :
+         if( info->has_retainable_type)
+            [self _performArgumentMemberOperation:sel
+                                signatureTypeInfo:info
+                                          atIndex:i];
+         break;
       case _C_CLASS     :
       case _C_ASSIGN_ID :
       case _C_COPY_ID   :
@@ -419,11 +510,10 @@ static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self
 }
 
 
-- (id) mulleGainAccess
+- (void) mulleGainAccess
 {
-   self = [super mulleGainAccess];
+   [super mulleGainAccess];
    NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd);
-   return( self);
 }
 
 
@@ -495,11 +585,11 @@ static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self
 //
 - (void) retainArguments
 {
-   NSInteger   i, n;
-   char        *type;
-   id          obj;
-   char        *s;
-   char        *dup;
+   NSInteger                          i, n;
+   id                                 obj;
+   char                               *s;
+   char                               *dup;
+   MulleObjCMethodSignatureTypeInfo   *info;
 
    if( _argumentsRetained)
       return;
@@ -514,9 +604,18 @@ retain the arguments of variadic methods");
    n = [_methodSignature numberOfArguments];
    for( i = 0; i < n; ++i)
    {
-      type = [_methodSignature getArgumentTypeAtIndex:i];
-      switch( *type)
+      info = [_methodSignature mulleSignatureTypeInfoAtIndex:i + 1];
+      switch( *info->type)
       {
+      case _C_ARY_B     :
+      case _C_STRUCT_B  :
+      case _C_UNION_B   :
+         if( info->has_retainable_type)
+            [self _performArgumentMemberOperation:@selector( retain)
+                                signatureTypeInfo:info
+                                          atIndex:i];
+         break;
+
       case _C_RETAIN_ID :
          [self getArgument:&obj
                   atIndex:i];
@@ -552,10 +651,10 @@ retain the arguments of variadic methods");
 
 - (void) mulleRetainReturnValue
 {
-   char   *type;
-   id     obj;
-   char   *s;
-   char   *dup;
+   id                                 obj;
+   char                               *s;
+   char                               *dup;
+   MulleObjCMethodSignatureTypeInfo   *info;
 
    if( _returnValueRetained)
    {
@@ -567,9 +666,20 @@ retain the arguments of variadic methods");
 
    _returnValueRetained = YES;
 
-   type = [_methodSignature methodReturnType];
-   switch( *type)
+   info = [_methodSignature mulleSignatureTypeInfoAtIndex:0];
+   if( ! info)
+      return;
+
+   switch( *info->type)
    {
+   case _C_ARY_B     :
+   case _C_STRUCT_B  :
+   case _C_UNION_B   :
+      if( info->has_retainable_type)
+         [self _performReturnMemberOperation:@selector( retain)
+                           signatureTypeInfo:info];
+      break;
+
    case _C_RETAIN_ID :
       [self getReturnValue:&obj];
       [obj retain];
@@ -629,7 +739,6 @@ retain the arguments of variadic methods");
 
 - (void) setTarget:target
 {
-   assert( ! target || [target mulleIsAccessible]);
    [self setArgument:&target
              atIndex:0];
 }
@@ -639,6 +748,7 @@ retain the arguments of variadic methods");
 {
    [self invokeWithTarget:[self target]];
 }
+
 
 #ifdef DEBUG
 static void   invocation_with_nil_target_warning( NSInvocation *self)
@@ -656,12 +766,12 @@ static void   invocation_with_nil_target_warning( NSInvocation *self)
 
 - (void) invokeWithTarget:(id) target
 {
-   SEL                                sel;
-   MulleObjCMethodSignatureTypeInfo   *info;
-   void                               *param;
-   void                               *rval;
    MulleObjCMetaABIType               pType;
    MulleObjCMetaABIType               rType;
+   MulleObjCMethodSignatureTypeInfo   *info;
+   SEL                                sel;
+   void                               *param;
+   void                               *rval;
 
    if( ! target)
    {
@@ -757,9 +867,9 @@ static void   invocation_with_nil_target_warning( NSInvocation *self)
       // calculate amount we have to copy (how can frame be NULL ?)
       assert( frame);
 
-      frame_size  = [_methodSignature frameLength];
-      size        = mulle_metaabi_sizeof_union( frame_size);
-      size        -= sizeof( id) + sizeof( SEL); // _cmd is a pointer
+      frame_size = [_methodSignature frameLength];
+      size       = mulle_metaabi_sizeof_union( frame_size);
+      size      -= sizeof( id) + sizeof( SEL); // _cmd is a pointer
 
       // blow up to metaABI size
       assert( is_valid_frame_range( self, param, size));
@@ -767,6 +877,318 @@ static void   invocation_with_nil_target_warning( NSInvocation *self)
       memcpy( param, frame, size);
       break;
    }
+}
+
+
+- (int) mulleIntReturnValue
+{
+   char   *type;
+   int    value;
+
+   type = [_methodSignature methodReturnType];
+   if( type)
+      switch( *type)
+      {
+      case _C_INT       :
+         [self getReturnValue:&value];
+         return( value);
+      }
+
+   return( 0);
+}
+
+
+//
+// When you have by value parameters like: struct { id x; id y }, then we
+// would like to retain the id and strdup the char *. For that though we have
+// to actually parse the encoding and build up the metaabi frame, so we can
+// know where the information is.
+//
+// The perform_context is already written for the case that the type _C_PTR
+// sends callbacks for the pointed to type. THIS IS (0.24) NOT THE CASE.
+// If it doesn't send callbacks but swallows the pointed to type, then we
+// don't need a stack, and everything becomes much easier.
+//
+
+#ifndef _C_PTR_PARSE_SENDS_CALLBACKS
+# define _C_PTR_PARSE_SENDS_CALLBACKS  0
+#endif
+
+
+struct perform_context
+{
+   SEL                      operation;
+   void                     *start;
+   void                     *sentinel;
+   struct mulle_allocator   *allocator;
+
+   ptrdiff_t                offset;
+
+   unsigned int             skip;
+#if _C_PTR_PARSE_SENDS_CALLBACKS
+   char                     space[ 32];
+   struct mulle__buffer     stack;
+#endif
+};
+
+
+static inline void   _perform_context_init( struct perform_context *ctxt,
+                                            SEL operation,
+                                            void *start,
+                                            void *sentinel,
+                                            struct mulle_allocator *allocator)
+{
+   assert( start);
+
+   memset( ctxt, 0, sizeof( *ctxt));
+
+   ctxt->operation = operation;
+   ctxt->start     = start;
+   ctxt->sentinel  = sentinel;
+   ctxt->allocator = allocator;
+#if _C_PTR_PARSE_SENDS_CALLBACKS
+   _mulle__buffer_init_with_static_bytes( &ctxt->stack, ctxt->space, sizeof( ctxt->space));
+#endif
+}
+
+
+static inline void   _perform_context_done( struct perform_context *ctxt)
+{
+#if _C_PTR_PARSE_SENDS_CALLBACKS
+   _mulle__buffer_done( &ctxt->stack, ctxt->allocator);
+#endif
+}
+
+
+static void   perform_context_operation( struct perform_context *ctxt, int type_c)
+{
+   id    *obj_p;
+   char  **s_p;
+
+   switch( type_c)
+   {
+   case _C_RETAIN_ID :
+      obj_p = (id *) &((char *) ctxt->start)[ ctxt->offset];
+      [*obj_p performSelector:ctxt->operation];
+      break;
+
+   case _C_COPY_ID :
+      obj_p = (id *) &((char *) ctxt->start)[ ctxt->offset];
+      if( @selector( retain) == ctxt->operation)
+         *obj_p = [(id <NSCopying>) *obj_p copy];
+      else
+         [*obj_p performSelector:ctxt->operation];
+      break;
+
+   case _C_CHARPTR :
+      s_p = (char **) &((char *) ctxt->start)[ ctxt->offset];
+      if( @selector( retain) == ctxt->operation)
+         *s_p = mulle_allocator_strdup( ctxt->allocator, *s_p);
+      else
+         if( @selector( release) == ctxt->operation)
+            mulle_allocator_free( ctxt->allocator, *s_p);
+      break;
+   }
+}
+
+
+
+static inline void   _perform_context_push( struct perform_context *ctxt, int c)
+{
+#if _C_PTR_PARSE_SENDS_CALLBACKS
+   _mulle__buffer_add_byte( &ctxt->stack, c, ctxt->allocator);
+#endif
+}
+
+
+static inline void   _perform_context_pop( struct perform_context *ctxt, int expect)
+{
+#if _C_PTR_PARSE_SENDS_CALLBACKS
+   int  c;
+
+   c = _mulle__buffer_pop_byte( &ctxt->stack, ctxt->allocator);
+   assert( c == expect);
+
+   // remove pointers
+   while( _mulle__buffer_get_last_byte( &ctxt->stack) == _C_PTR)
+   {
+      --ctxt->skip;
+      _mulle__buffer_pop_byte( &ctxt->stack, ctxt->allocator);
+   }
+#endif
+}
+
+
+static void   perform_context_callback( char *type,
+                                        struct mulle_objc_typeinfo *info,
+                                        void *userinfo)
+{
+   struct perform_context   *ctxt = userinfo;
+   struct perform_context   inferior;
+   uint32_t                 i;
+   uint32_t                 n_members;
+   char                     *inferior_type;
+   int                      c;
+
+   assert( type);
+
+   c = *type;
+   switch( c)
+   {
+   case _C_STRUCT_B :
+      // need to remember this (for _C_PTR)
+      _perform_context_push( ctxt, c);
+      return;
+
+   case _C_STRUCT_E :
+      _perform_context_pop( ctxt, _C_STRUCT_B);
+      return;
+
+   case _C_UNION_B  :
+      if( info->has_retainable_type)
+         MulleObjCThrowInternalInconsistencyExceptionUTF8String( "You can't retain invocations with union arguments containing id or char *");
+      // start union
+      _perform_context_push( ctxt, c);
+      ++ctxt->skip;
+      break;
+
+   case _C_UNION_E  :
+      _perform_context_pop( ctxt, _C_UNION_B);
+      ctxt->skip--;
+      break;
+
+   case _C_ARY_B    :
+      // start array
+      _perform_context_push( ctxt, c);
+      ++ctxt->skip;
+      break;
+
+   case _C_ARY_E    :
+      _perform_context_pop( ctxt, _C_ARY_B);
+
+      if( ! --ctxt->skip && info->has_retainable_type)
+      {
+         // do something clever
+         //
+         // now, we loop over the member again, and do the callbacks for real
+         //
+         n_members     = info->n_members;
+         inferior_type = info->member_type_start;
+
+         _perform_context_init( &inferior,
+                                ctxt->operation,
+                                ctxt->start,
+                                ctxt->sentinel,
+                                ctxt->allocator);
+         inferior.offset = ctxt->offset;
+
+         // we do the calculation now so we can reuse info in the loop
+         ctxt->offset = (int32_t) mulle_address_align( ctxt->offset, info->bits_struct_alignment / 8);
+         ctxt->offset += info->natural_size;
+
+         for( i = 0; i < n_members; i++)
+         {
+            // just do the same type over and over again
+            _mulle_objc_type_parse( inferior_type,
+                                    0,
+                                    info,
+                                    _mulle_objc_signature_supply_scalar_typeinfo,
+                                    perform_context_callback,
+                                    &inferior);
+         }
+         _perform_context_done( &inferior);
+      }
+      return;
+
+#if _C_PTR_PARSE_SENDS_CALLBACKS
+   case _C_PTR :
+      // we ignore the next type wholesale
+      _perform_context_push( ctxt, c);
+      ++ctxt->skip;
+      return;
+
+   default :
+      if( _mulle__buffer_get_last_byte( &ctxt->stack) == _C_PTR)
+      {
+         _perform_context_pop( ctxt, _C_PTR);
+         --ctxt->skip;
+      }
+      break;
+#endif
+   }
+
+   if( ! ctxt->skip)
+   {
+      ctxt->offset = (int32_t) mulle_address_align( ctxt->offset, info->bits_struct_alignment / 8);
+
+      if( info->has_retainable_type)
+      {
+         perform_context_operation( ctxt, c);
+      }
+
+      ctxt->offset += info->natural_size;
+   }
+}
+
+
+- (void) _performArgumentMemberOperation:(SEL) sel
+                       signatureTypeInfo:(MulleObjCMethodSignatureTypeInfo *) info
+                                   bytes:(void *) start
+                                  length:(size_t) length
+{
+   struct perform_context       ctxt;
+   struct mulle_objc_typeinfo   type_info;
+
+   assert( start);
+
+   _perform_context_init( &ctxt,
+                          sel,
+                          start,
+                          &((char *) start)[ length],
+                          MulleObjCInstanceGetAllocator( self));
+
+   //
+   // this function will walk through the complete type and issue callbacks
+   // for arrays we will have to run inferior type parsers...
+   //
+   _mulle_objc_type_parse( info->type,
+                           0,
+                           &type_info,
+                           _mulle_objc_signature_supply_scalar_typeinfo,
+                           perform_context_callback,
+                           &ctxt);
+
+   _perform_context_done( &ctxt);
+}
+
+
+- (void) _performArgumentMemberOperation:(SEL) sel
+                       signatureTypeInfo:(MulleObjCMethodSignatureTypeInfo *) info
+                                 atIndex:(NSUInteger) i
+{
+   void     *adr;
+   size_t   size;
+
+   pointerAndSizeOfArgumentValue( self, i + 1, &adr, &size);
+   [self _performArgumentMemberOperation:sel
+                       signatureTypeInfo:info
+                                   bytes:adr
+                                  length:size];
+
+}
+
+
+- (void) _performReturnMemberOperation:(SEL) sel
+                     signatureTypeInfo:(MulleObjCMethodSignatureTypeInfo *) info
+{
+   void     *adr;
+   size_t   size;
+
+   pointerAndSizeOfArgumentValue( self, 0, &adr, &size);
+   [self _performArgumentMemberOperation:sel
+                       signatureTypeInfo:info
+                                   bytes:adr
+                                  length:size];
 }
 
 @end

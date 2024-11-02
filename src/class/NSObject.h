@@ -107,40 +107,6 @@
 
 @interface NSObject < MulleObjCRootObject, NSObject>
 
-#if 0
-// regular methods
-
-//
-// new does NOT call +alloc or +allocWithZone:
-// override new too, if you override alloc
-//
-
-+ (instancetype) new;
-+ (instancetype) alloc;
-+ (instancetype) allocWithZone:(NSZone *) zone  __attribute__((deprecated("zones have no meaning and will eventually disappear")));   // deprecated
-
-//
-// if you subclass NSObject and override init, don't bother calling [super init]
-//
-- (instancetype) init;
-- (void) dealloc;  /* ---> #2# */
-- (struct mulle_allocator *) mulleAllocator;
-
-// will autorelease properties, except readonly ones!
-
-+ (BOOL) isSubclassOfClass:(Class) cls;
-+ (BOOL) instancesRespondToSelector:(SEL) sel;
-
-+ (IMP) instanceMethodForSelector:(SEL) sel;
-- (IMP) methodForSelector:(SEL) sel               MULLE_OBJC_THREADSAFE_METHOD;
-
-#pragma mark mulle additions
-
-// does not search superclasses
-- (BOOL) mulleContainsProtocol:(PROTOCOL) protocol;
-
-#endif
-
 // Experimental
 #if 0
 + (void) removeClassValueForKey:(id) key;
@@ -156,49 +122,22 @@
 + (instancetype) instantiate;             // alloc + autorelease
 - (instancetype) immutableInstance;       // copy + autorelease
 
-// TODO: call this just `object`
+//
+// TODO: call this `instance` ?? We have class which is made up of
+// a metaclass and an infraclass, it produces instance of a class,
+// all of them are objects. But an instance is not a class. So the
+// "wrapping" name for all is probably still object. So why is the
+// method to produce instances called object ?
+//
 + (instancetype) object;      // alloc + autorelease + init -> new
 
 // old name
 + (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
 
-#if 0
-// advanced Autorelease and ObjectGraph support
-
-- (id) _becomeRootObject               MULLE_OBJC_THREADSAFE_METHOD;  // retains  #1#, returns self
-- (id) _resignAsRootObject             MULLE_OBJC_THREADSAFE_METHOD;   // autoreleases, returns self
-- (BOOL) _isRootObject                 MULLE_OBJC_THREADSAFE_METHOD;
-
-- (id) _pushToParentAutoreleasePool;  // returns self
-
-// not part of NSObject protocol
-
-/*
-   Return all instances retained by static variables managed by the class.
-   This is not deep!
-   This should also be part of a category that keeps static instances.
- */
-
-+ (NSUInteger) _getOwnedObjects:(id *) objects
-                       maxCount:(NSUInteger) maxCount;
-
-/*
-   Returns all objects, retained by this instance.
-   This is not deep!
-
-   Every class that stores objects in C-arrays, must
-   implement this. Otherwise the default implementation
-   is good enough.
-
-   Returns needed length if objects and length is NULL.
- */
-- (NSUInteger) _getOwnedObjects:(id *) objects
-                       maxCount:(NSUInteger) maxCount;
-
-#endif
-
-- (BOOL) __isSingletonObject;
+- (BOOL) __isSingletonObject;       // here object is a valid name as it fits instance and class
 - (BOOL) __isClassClusterObject;
+
++ (void) mulleInterposeBeforeClass:(Class) subClass;
 
 @end
 
@@ -234,10 +173,11 @@
 
 @interface NSObject ( Forwarding)
 
-- (id) forwardingTargetForSelector:(SEL) sel;
-- (void) doesNotRecognizeSelector:(SEL) sel;
-- (NSMethodSignature *) methodSignatureForSelector:(SEL) sel;
 + (NSMethodSignature *) instanceMethodSignatureForSelector:(SEL) sel;
+
+- (id) forwardingTargetForSelector:(SEL) sel                     MULLE_OBJC_THREADSAFE_METHOD;
+- (void) doesNotRecognizeSelector:(SEL) sel                      MULLE_OBJC_THREADSAFE_METHOD;
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) sel     MULLE_OBJC_THREADSAFE_METHOD;
 
 //
 // subclasses should override forward:, for best performance. But it can be
@@ -246,45 +186,54 @@
 // IMPORTANT!! Do not call [super forward:] as the forwarded selector
 // is contained in _cmd and would be clobbered by a regular method call
 // instead use _mulle_objc_object_lookup_superimplementation_inline_nofail and
-// them send _cmd and args as received.
+// them send _cmd and param as received.
+// TODO: the compilers should so this transparently IMO.
 //
 // Use the tool mulle-objc-uniqueid with '<yourclassname>;forward:' to create
-// a superid. Use this to lookup the implementation of super. Call it.
+// a superid. Use this to lookup the implementation of super then call it.
 // Don't forget to register the corresponding _mulle_objc_super in the universe.
-// You can do this with:
+// You can do this with a dummy method like `registerForwardSuper`:
 //
-// + (void) dontevercallme
+// ```
+// #define MYID   (mulle_objc_superid_t) 0x???????? // '<yourclassname>;forward:'
+//
+// + (void) registerForwardSuper  // do not call
 // {
-//    [super forward:];  // compiler will create the _mulle_objc_super.
+//    [super forward:NULL];  // compiler will create the _mulle_objc_super.
 // }
 //
 // - (void *) forward:(void *) param
 // {
-// #define MYID  0x????????
 //    IMP   imp;
+//
 //    imp = _mulle_objc_object_lookup_superimplementation_inline_nofail( self, MYID);
-//    return( (*imp)( self, _cmd, args));
+//    return( (*imp)( self, _cmd, param));
 // }
-
-
-- (void *) forward:(void *) param;
-
-- (void) forwardInvocation:(NSInvocation *) anInvocation;
+// ```
+//
+// forward itself is thread-safe, but the method that is called may not be
+// which is fine. That method is then supposed to fail and not forward:
+//
+- (void *) forward:(void *) param                           MULLE_OBJC_THREADSAFE_METHOD;
+- (void) forwardInvocation:(NSInvocation *) anInvocation    MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
+
+#define NS_OBJECT_FORWARD_SUPERID   ((mulle_objc_superid_t) 0x3ab7a97b)  // 'NSObject;forward:'
 
 
 @interface NSObject( UTF8String)
 
 //
 // why is this not mulle_utf8_t ? In mulle-objc char * in Objective-C is
-// defined to be UTF8.
+// defined to be UTF8. The returned string is either a static string or
+// autoreleased (!)
 //
 - (char *) UTF8String;  // used to be cStringDescription
 
 // you can use mulle_fprintf( "%#@") to trigger this colorization method
 // as this is used in debugging, the methods must be threadSafe (in contrast
-// to -UTF8String which is not neccesarily)
+// to -UTF8String)
 
 - (char *) threadSafeUTF8String        MULLE_OBJC_THREADSAFE_METHOD;  // used to be cStringDescription
 - (char *) colorizedUTF8String         MULLE_OBJC_THREADSAFE_METHOD;
@@ -327,6 +276,9 @@ id    MulleObjCObjectGetObjectIvar( id self, mulle_objc_ivarid_t ivarid);
 
 MULLE_OBJC_GLOBAL
 void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id value);
+
+MULLE_OBJC_GLOBAL
+void  MulleObjCClassInterposeBeforeClass( Class self, Class other);
 
 
 #pragma clang diagnostic pop

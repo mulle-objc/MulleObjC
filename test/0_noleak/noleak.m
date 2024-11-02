@@ -5,7 +5,7 @@
 #endif
 
 
-@implementation Foo
+@implementation Foo : MulleObject
 @end
 
 
@@ -26,6 +26,7 @@ int  main( void)
       return( 1);
    }
 #endif
+   [Foo object];
 
    return( 0);
 }

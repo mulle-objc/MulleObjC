@@ -57,7 +57,10 @@
    char                _mulleNameUTF8String[ 32];
 }
 
-@property( dynamic, assign) char  *mulleNameUTF8String;
+// MEMO: this is marked as threadsafe, but that's because its assumed
+//       you set it only during initialization. Its sort of a blemish
+//       (compare with NSThread: -mulleNameUTF8String)
+@property( dynamic, assign) char  *mulleNameUTF8String   MULLE_OBJC_THREADSAFE_PROPERTY;
 
 + (id) alloc;
 + (id) new;

@@ -43,7 +43,7 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 {
    [obj1 print];
    [obj2 print];
-   return( NSMakeRange( 1848, INT_MIN));
+   return( NSRangeMake( 1848, INT_MIN));
 }
 
 @end

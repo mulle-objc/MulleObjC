@@ -35,6 +35,7 @@ src/function/MulleObjCProperty.m
 src/function/MulleObjCStackFrame.m
 src/function/NSDebug.m
 src/function/mulle-sprintf-object.m
+src/mulle-objc-atomicid.m
 src/mulle-objc-breakpoint.c
 src/mulle-objc-threadfoundationinfo.m
 src/mulle-objc-type.c

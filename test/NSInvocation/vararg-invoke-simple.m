@@ -7,13 +7,6 @@
 
 @implementation Foo
 
-struct ab
-{
-   int     a;
-   double  b;
-};
-
-
 - (void) printUTF8String:(char *) s
 {
    printf( "%s\n", s);

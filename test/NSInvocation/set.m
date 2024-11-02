@@ -53,7 +53,7 @@ int   main( void)
    sel = @selector( self);
    [invocation setArgument:&sel
                    atIndex:3];
-   range = NSMakeRange( 18, 48);
+   range = NSRangeMake( 18, 48);
    [invocation setArgument:&range
                    atIndex:4];
    c = 'X';

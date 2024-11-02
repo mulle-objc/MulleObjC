@@ -172,7 +172,7 @@ char *
 // // struct mulle_container_valuecallback   MulleCopiedCStringMapValueCallBacks;
 
 
-
+// MEMO: add more combinations as the need arises
 MULLE_OBJC_GLOBAL
 const struct mulle_container_keyvaluecallback   _MulleObjCContainerPointerKeyIntegerValueCallback;
 
@@ -181,5 +181,17 @@ const struct mulle_container_keyvaluecallback   _MulleObjCContainerIntegerKeyPoi
 
 MULLE_OBJC_GLOBAL
 const struct mulle_container_keyvaluecallback   _MulleObjCContainerPointerKeyAssignValueCallback;
+
+MULLE_OBJC_GLOBAL
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerCopiedCStringIntegerValueCallback;
+
+MULLE_OBJC_GLOBAL
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerIntegerKeyCopiedCStringValueCallback;
+
+MULLE_OBJC_GLOBAL
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerCopiedCStringPointerValueCallback;
+
+MULLE_OBJC_GLOBAL
+const struct mulle_container_keyvaluecallback   _MulleObjCContainerPointerKeyCopiedCStringValueCallback;
 
 #endif

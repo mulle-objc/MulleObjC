@@ -38,8 +38,14 @@
 
 @protocol NSLocking
 
-- (void) lock;
-- (void) unlock;
+- (void) lock     MULLE_OBJC_THREADSAFE_METHOD;
+- (void) unlock   MULLE_OBJC_THREADSAFE_METHOD;
+
+// no default implementations for these, these just declare that if those
+// methods exist, their signatures and that they are threadsafe
+@optional
+- (BOOL) tryLock                                                     MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) lockBeforeTimeInterval:(mulle_timeinterval_t) timeInterval  MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
 

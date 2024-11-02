@@ -71,7 +71,7 @@ int   main( void)
       aThread = [[[NSThread alloc] initWithTarget:foo
                                          selector:@selector( function:)
                                            object:foo] autorelease];
-      [aThread mulleStartUndetached];
+      [aThread mulleStart];
       [aThread mulleJoin];
    }
 

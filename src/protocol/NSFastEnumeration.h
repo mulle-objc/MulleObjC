@@ -55,7 +55,7 @@ typedef struct
 //
 @protocol NSFastEnumeration
 
-- (NSUInteger) count;  // exerimentally added, this way
+- (NSUInteger) count;  // experimentally added: this way
                        // NSFastEnumeration is basically NSContainer (if it existed)
 - (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *) state
                                    objects:(id *) objects

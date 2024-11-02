@@ -64,10 +64,22 @@
 @end
 
 
+// HISTORY:
+// If there has no +initialize, we used to not wanna see A twice as +initialize
+// was only called once on a class. Nice feature, unfortunately not useful
+// in many scenarios (incompatible, with the way protocolclasses initialize)
+@implementation B
+@end
+
+
+@interface C : A < P, Q >
+@end
+
+
 //
 // this has a +initialize, we want to sees it
 //
-@implementation B
+@implementation C
 
 + (void) initialize
 {
@@ -77,25 +89,17 @@
 @end
 
 
-//
-// this has no +initialize, we don't wanna see A twice
-//
-@interface C : A < P, Q >
-@end
-
-
-@implementation C
-@end
-
-
 
 
 int   main( int argc, char *argv[])
 {
-//   MulleObjCDotdumpMetaHierarchy( "B");
+// mulle_objc_universe 0x7ffff7e61be0 warning: varying bits 0x200000 and registered 0x208000 for method b3e0bffa +[MulleObjCRootObject class] (Tip: MULLE_OBJC_TRACE_DESCRIPTOR_ADD=YES)
+// this will trigger all classes, and then initialize will run much sooner
 
+//   MulleObjCDotdumpMetaHierarchy( "B");
+   printf( "B:\n");
    [B class];
-   printf( "\n");
+   printf( "C:\n");
    [C class];
    return( 0);
 }

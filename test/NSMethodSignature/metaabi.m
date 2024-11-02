@@ -35,11 +35,11 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 - (double) doubleReturnDoubleParam:(double) param   { return( 0); }
 - (double) doubleReturnStructParam:(NSRange) param    { return( 0); }
 
-- (NSRange) structReturnNoParam                      { return( NSMakeRange( 0, 0)); }
-- (NSRange) structReturnIntParam:(int) param         { return( NSMakeRange( 0, 0)); }
-- (NSRange) structReturnPointerParam:(void *) param  { return( NSMakeRange( 0, 0)); }
-- (NSRange) structReturnDoubleParam:(double) param   { return( NSMakeRange( 0, 0)); }
-- (NSRange) structReturnStructParam:(NSRange) param  { return( NSMakeRange( 0, 0)); }
+- (NSRange) structReturnNoParam                      { return( NSRangeMake( 0, 0)); }
+- (NSRange) structReturnIntParam:(int) param         { return( NSRangeMake( 0, 0)); }
+- (NSRange) structReturnPointerParam:(void *) param  { return( NSRangeMake( 0, 0)); }
+- (NSRange) structReturnDoubleParam:(double) param   { return( NSRangeMake( 0, 0)); }
+- (NSRange) structReturnStructParam:(NSRange) param  { return( NSRangeMake( 0, 0)); }
 
 @end
 

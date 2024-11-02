@@ -34,6 +34,8 @@
 //
 #import "import.h"
 
+#include "mulle-objc-atomicid.h"
+
 
 MULLE_OBJC_GLOBAL
 int   _MulleObjCObjectSetIvar( id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size);
@@ -59,3 +61,123 @@ void   MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id val
 MULLE_OBJC_GLOBAL
 void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s);
 
+
+//
+// MulleObjC : value added code for mulle_atomic_id_t
+//             the lazy loader will call `lazyLoader` on `obj` to provide
+//             the value if needed.
+//
+// lazyLoaderReturnType:
+//     _C_ASSIGN_ID    returns autoreleased
+//     _C_COPY_ID      returns a copy (not autoreleased)
+//     _C_RETAIN_ID    returns already retained
+//
+MULLE_OBJC_GLOBAL
+id   _MulleObjCAtomicIdGetLazy( mulle_atomic_id_t *ivar,
+                                char ivarType,
+                                id obj,
+                                SEL lazyLoader,
+                                char lazyLoaderReturnType);
+
+
+static inline id   MulleObjCAtomicIdGetLazy( mulle_atomic_id_t *ivar,
+                                             id obj,
+                                             SEL lazyLoader)
+{
+   if( ! ivar)
+      return( nil);
+
+   return( _MulleObjCAtomicIdGetLazy( ivar,
+                                      _C_RETAIN_ID,
+                                      obj,
+                                      lazyLoader,
+                                      _C_ASSIGN_ID));
+}
+
+
+
+static inline id   MulleObjCAtomicIdGetLazyRetain( mulle_atomic_id_t *ivar,
+                                                   id obj,
+                                                   SEL lazyLoader)
+{
+   return( MulleObjCAtomicIdGetLazy( ivar, obj, lazyLoader));
+}
+
+
+
+static inline id   MulleObjCAtomicIdGetLazyCopy( mulle_atomic_id_t *ivar,
+                                                 id obj,
+                                                 SEL lazyLoader)
+{
+   if( ! ivar)
+      return( nil);
+
+   return( _MulleObjCAtomicIdGetLazy( ivar,
+                                      _C_COPY_ID,
+                                      obj,
+                                      lazyLoader,
+                                      _C_ASSIGN_ID));
+}
+
+static inline id   MulleObjCAtomicIdGetLazyAssign( mulle_atomic_id_t *ivar,
+                                                   id obj,
+                                                   SEL lazyLoader)
+{
+   if( ! ivar)
+      return( nil);
+
+   return( _MulleObjCAtomicIdGetLazy( ivar,
+                                      _C_ASSIGN_ID,
+                                      obj,
+                                      lazyLoader,
+                                      _C_ASSIGN_ID));
+}
+
+
+
+static inline id   MulleObjCAtomicIdGet( mulle_atomic_id_t *ivar)
+{
+   if( ! ivar)
+      return( nil);
+
+   return( _mulle_atomic_id_get( ivar));
+}
+
+
+static inline void   MulleObjCAtomicIdSet( mulle_atomic_id_t *ivar,
+                                           id value)
+{
+   if( ivar)
+      _mulle_atomic_id_update( ivar, _C_RETAIN_ID, value);
+}
+
+
+static inline void   MulleObjCAtomicIdSetRetain( mulle_atomic_id_t *ivar,
+                                                 id value)
+{
+   if( ivar)
+      _mulle_atomic_id_update( ivar, _C_RETAIN_ID, value);
+}
+
+
+static inline void   MulleObjCAtomicIdSetCopy( mulle_atomic_id_t *ivar,
+                                               id value)
+{
+   if( ivar)
+      _mulle_atomic_id_update( ivar, _C_COPY_ID, value);
+}
+
+
+static inline void   MulleObjCAtomicIdSetAssign( mulle_atomic_id_t *ivar,
+                                                 id value)
+{
+   if( ivar)
+      _mulle_atomic_id_update( ivar, _C_ASSIGN_ID, value);
+}
+
+
+static inline void   MulleObjCAtomicIdRelease( mulle_atomic_id_t *ivar)
+{
+   if( ivar)
+      _mulle_atomic_id_release( ivar);
+}

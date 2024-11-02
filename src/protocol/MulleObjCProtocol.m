@@ -65,7 +65,8 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadUnsafe)
 //
 // So ensure that the strategy is back to the default
 //
-- (MulleObjCTAOStrategy) mulleTAOStrategy
+
+- (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD
 {
    return( MulleObjCTAOCallerRemovesFromCurrentPool);
 }

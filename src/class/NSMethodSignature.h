@@ -85,9 +85,13 @@ typedef struct mulle_objc_typeinfo    MulleObjCMethodSignatureTypeInfo;
 
 - (NSUInteger) mulleInvocationSize;  // actual extra bytes to allocate for NSInvocation
 
-// trhere is no difference!
+// there is no difference!
 - (MulleObjCMetaABIType) _methodMetaABIReturnType;
 - (MulleObjCMetaABIType) _methodMetaABIParameterType;
+
+
+// the expected size of a call to a method
+- (NSUInteger) mulleMetaABIFrameLength;
 
 // This uses the internal index: use 0 to get rval, 1 for self etc.
 - (MulleObjCMethodSignatureTypeInfo *) mulleSignatureTypeInfoAtIndex:(NSUInteger) i;

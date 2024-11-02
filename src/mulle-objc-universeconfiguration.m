@@ -355,9 +355,15 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 #endif
 }
 
+extern
 MULLE_C_NO_RETURN void
    _mulle_objc_vprintf_abort( char *format, va_list args);
 
+extern
+MULLE_C_NO_RETURN void
+   _mulle_objc_vperror_abort( char *format, va_list args);
+
+extern
 MULLE_C_NO_RETURN MULLE_C_NEVER_INLINE void
    _mulle_objc_printf_abort( char *format, ...);
 
@@ -366,6 +372,12 @@ MULLE_C_NO_RETURN
 void   NSStringVPrintfAbort( id format, va_list args)
 {
    _mulle_objc_vprintf_abort( [format UTF8String], args);
+}
+
+MULLE_C_NO_RETURN
+void   NSStringVPerrorAbort( id format, va_list args)
+{
+   _mulle_objc_vperror_abort( [format UTF8String], args);
 }
 
 
@@ -403,7 +415,7 @@ const struct _mulle_objc_universeconfiguration   *
          .configurationsize = sizeof( struct _mulle_objc_universeconfiguration),
          .exceptiontable    =
          { // exception vectors
-           .errno_error            = (void (*)()) perror_abort,
+           .errno_error            = NSStringVPerrorAbort,
            .internal_inconsistency = NSStringVPrintfAbort,
            .invalid_argument       = NSStringVPrintfAbort,
            .invalid_index          = invalid_index,

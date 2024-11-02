@@ -1,0 +1,6 @@
+alloc=searched_and_found,alloc
+new=searched_and_found,new
+init=searched_and_found,init
+dealloc=searched_and_found,dealloc
+finalize=searched_and_found,finalize
+mulleTAOStrategy=searched_and_found,user_attribute_4(TAO),getter
