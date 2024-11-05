@@ -918,8 +918,12 @@ static inline void   MulleObjCObjectConstantify( id obj)
       _mulle_objc_object_constantify_noatomic( obj);
 }
 
-MULLE_OBJC_GLOBAL
-Class   NSClassFromObject( id object);
+
+static inline Class   NSClassFromObject( id object)
+{
+   return( MulleObjCObjectGetClass( object));
+}
+
 
 MULLE_OBJC_GLOBAL
 char    *MulleObjCClassGetNameUTF8String( Class cls);
@@ -1035,7 +1039,13 @@ static inline struct _mulle_objc_property  *MulleObjCInstanceSearchProperty( id 
 
 
 MULLE_OBJC_GLOBAL
-char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
+char    *MulleObjCGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment);
+
+static inline char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment)
+{
+   return( MulleObjCGetSizeAndAlignment( type, size, alignment));
+}
+
 
 
 // fill buffer with description of memory, that is defined by type which

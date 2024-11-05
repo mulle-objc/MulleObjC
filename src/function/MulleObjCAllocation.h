@@ -268,9 +268,13 @@ static inline id   NSAllocateObject( Class infra, NSUInteger extra, NSZone *zone
 }
 
 
-// legacy naming scheme, should be DeallocateInstance really
 MULLE_OBJC_GLOBAL
-void   NSDeallocateObject( id obj);
+void   MulleObjCInstanceDeallocate( id obj);
+
+static inline void   NSDeallocateObject( id obj)
+{
+   return( MulleObjCInstanceDeallocate( obj));
+}
 
 
 

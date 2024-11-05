@@ -66,7 +66,7 @@ typedef struct _mulle_objc_dependency     mulle_objc_dependency_t;
    return( dependencies);                                   \
 }                                                           \
 /* gobble up semicolon with known external definition */    \
-extern void   NSDeallocateObject( id obj)
+extern void   MulleObjCInstanceDeallocate( id obj)
 
 #define MULLE_OBJC_DEPENDS_ON_CATEGORY( classname, categoryname) \
                                                                  \
@@ -80,7 +80,7 @@ extern void   NSDeallocateObject( id obj)
    return( dependencies);                                        \
 }                                                                \
 /* gobble up semicolon with known external definition */         \
-extern void   NSDeallocateObject( id obj)
+extern void   MulleObjCInstanceDeallocate( id obj)
 
 
 #define MULLE_OBJC_DEPENDS_ON_LIBRARY( libname)             \
@@ -95,7 +95,7 @@ extern void   NSDeallocateObject( id obj)
    return( dependencies);                                   \
 }                                                           \
 /* gobble up semicolon with known external definition */    \
-extern void   NSDeallocateObject( id obj)
+extern void   MulleObjCInstanceDeallocate( id obj)
 
 
 #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_0   __attribute__((annotate("objc_user_0")))

@@ -74,4 +74,10 @@ struct NSZone;
 
 
 MULLE_OBJC_GLOBAL
-id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone);
+id   MulleObjCInstanceCopy( id object, NSUInteger extraBytes, NSZone *zone);
+
+static inline id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
+{
+    return( MulleObjCInstanceCopy( object, extraBytes, zone));
+}
+

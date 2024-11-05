@@ -45,12 +45,30 @@
 // this should move to OS Foundation!
 
 MULLE_OBJC_GLOBAL
-void         *NSFrameAddress( NSUInteger frame);
+void         *MulleObjCFrameAddress( NSUInteger frame);
 
 MULLE_OBJC_GLOBAL
-void         *NSReturnAddress( NSUInteger frame);
+void         *MulleObjCReturnAddress( NSUInteger frame);
 
 MULLE_OBJC_GLOBAL
-NSUInteger   NSCountFrames( void);
+NSUInteger   MulleObjCCountFrames( void);
+
+
+static inline void   *NSFrameAddress( NSUInteger frame)
+{ 
+   return( MulleObjCFrameAddress( frame));
+}
+
+
+static inline void   *NSReturnAddress( NSUInteger frame)
+{ 
+   return( MulleObjCReturnAddress( frame));
+}
+
+
+static inline NSUInteger   NSCountFrames( void)
+{ 
+   return( MulleObjCCountFrames());
+}
 
 #endif
