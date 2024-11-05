@@ -369,13 +369,13 @@ MULLE_C_NO_RETURN MULLE_C_NEVER_INLINE void
 
 
 MULLE_C_NO_RETURN
-void   NSStringVPrintfAbort( id format, va_list args)
+void   MulleObjCStringVPrintfAbort( id format, va_list args)
 {
    _mulle_objc_vprintf_abort( [format UTF8String], args);
 }
 
 MULLE_C_NO_RETURN
-void   NSStringVPerrorAbort( id format, va_list args)
+void   MulleObjCStringVPerrorAbort( id format, va_list args)
 {
    _mulle_objc_vperror_abort( [format UTF8String], args);
 }
@@ -415,9 +415,9 @@ const struct _mulle_objc_universeconfiguration   *
          .configurationsize = sizeof( struct _mulle_objc_universeconfiguration),
          .exceptiontable    =
          { // exception vectors
-           .errno_error            = NSStringVPerrorAbort,
-           .internal_inconsistency = NSStringVPrintfAbort,
-           .invalid_argument       = NSStringVPrintfAbort,
+           .errno_error            = MulleObjCStringVPerrorAbort,
+           .internal_inconsistency = MulleObjCStringVPrintfAbort,
+           .invalid_argument       = MulleObjCStringVPrintfAbort,
            .invalid_index          = invalid_index,
            .invalid_range          = invalid_range
          }

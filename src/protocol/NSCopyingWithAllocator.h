@@ -77,6 +77,7 @@
                                // protocol class
 
 MULLE_OBJC_GLOBAL
-id   NSCopyObjectWithAllocator( id object,
-                                NSUInteger extraBytes,
-                                struct mulle_allocator *allocator);
+id  MulleObjCInstanceCopyWithAllocator( id object,
+                                        NSUInteger extraBytes,
+                                        struct mulle_allocator *allocator);
+

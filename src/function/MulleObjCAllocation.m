@@ -81,13 +81,11 @@ void   _MulleObjCInstanceFree( id obj)
 }
 
 
-void   NSDeallocateObject( id self)
+void   MulleObjCInstanceFree( id self)
 {
    if( self)
       _MulleObjCInstanceFree( self);
 }
-
-
 
 
 

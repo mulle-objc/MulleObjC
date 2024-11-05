@@ -37,19 +37,19 @@
 #import "MulleObjCStackFrame.h"
 
 
-void   *NSFrameAddress( NSUInteger frame)
+void   *MulleObjCFrameAddress( NSUInteger frame)
 {
    return( NULL);
 }
 
 
-void   *NSReturnAddress( NSUInteger frame)
+void   *MulleObjCReturnAddress( NSUInteger frame)
 {
    return( NULL);
 }
 
 
-NSUInteger   NSCountFrames( void)
+NSUInteger   MulleObjCCountFrames( void)
 {
    return( 0);
 }

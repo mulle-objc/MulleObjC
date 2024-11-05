@@ -55,13 +55,7 @@
 #pragma clang diagnostic ignored "-Wparentheses"
 
 
-Class   NSClassFromObject( id object)
-{
-   return( [object class]);
-}
-
-
-char   *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment)
+char   *MulleObjCGetSizeAndAlignment( char *type, NSUInteger *size, NSUInteger *alignment)
 {
    struct mulle_objc_typeinfo   info;
    char                         *next;

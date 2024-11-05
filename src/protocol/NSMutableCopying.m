@@ -81,7 +81,7 @@ static mulle_objc_walkcommand_t
 }
 
 
-id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
+id   MulleObjCInstanceCopy( id object, NSUInteger extraBytes, NSZone *zone)
 {
    id      clone;
    Class   infraCls;
@@ -118,7 +118,7 @@ id   NSCopyObject( id object, NSUInteger extraBytes, NSZone *zone)
 
 - (id) mutableCopy
 {
-   return( NSCopyObject( self, 0, NULL));
+   return( MulleObjCInstanceCopy( self, 0, NULL));
 }
 
 
