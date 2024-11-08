@@ -146,7 +146,7 @@ int   _MulleObjCClassCopyWithAllocatorProperties( struct _mulle_objc_infraclass 
 
 
 
-id   NSCopyObjectWithAllocator( id obj,
+id   MulleObjCInstanceCopyWithAllocator( id obj,
                                 NSUInteger extraBytes,
                                 struct mulle_allocator *allocator)
 {
@@ -187,7 +187,7 @@ id   NSCopyObjectWithAllocator( id obj,
 
 - (id) copyWithAllocator:(struct mulle_allocator *) allocator
 {
-   return( NSCopyObjectWithAllocator( self, 0, allocator));
+   return( MulleObjCInstanceCopyWithAllocator( self, 0, allocator));
 }
 
 @end

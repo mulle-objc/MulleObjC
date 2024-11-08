@@ -226,10 +226,6 @@ static inline id    _MulleObjCClassAllocateNonZeroedObject( Class infraCls,
    return( (id) obj);
 }
 
-// this does not zero properties
-MULLE_OBJC_GLOBAL
-void   _MulleObjCInstanceFree( id obj);
-
 
 // resist the urge to add placeholder detection code here
 // resist the urge to add _mulle_objc_class_setup here
@@ -268,12 +264,16 @@ static inline id   NSAllocateObject( Class infra, NSUInteger extra, NSZone *zone
 }
 
 
+
+// this does not zero properties
 MULLE_OBJC_GLOBAL
-void   MulleObjCInstanceDeallocate( id obj);
+void   _MulleObjCInstanceFree( id obj);
+
 
 static inline void   NSDeallocateObject( id obj)
 {
-   return( MulleObjCInstanceDeallocate( obj));
+   if( obj)
+      _MulleObjCInstanceFree( obj);
 }
 
 
