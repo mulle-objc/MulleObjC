@@ -38,7 +38,7 @@ mulle-scan-build
 mulle-gdb
 mulle-match-to-cmake
 mulle-match-to-c
-cmake
+cmake;script
 clion
 subl
 subl.exe

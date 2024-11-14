@@ -3,6 +3,8 @@
    {
       description="💎 A collection of Objective-C root classes for mulle-objc";
       domain="github";
+      language="c";
+      dialect="objc";
       name="MulleObjC";
       user="mulle-objc";
       repo="MulleObjC";
