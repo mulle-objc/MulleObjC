@@ -14,18 +14,8 @@ endif()
 # this project is added to another with add_subdirectory
 #
 # In your library's main CMakeLists.txt
-if( APPLE)
-   target_link_options( ${LIBRARY_NAME} INTERFACE "-force_load")
-elseif(WIN32)
-   target_link_options( ${LIBRARY_NAME} INTERFACE "-WHOLEARCHIVE:")
-else()
-   target_link_options( ${LIBRARY_NAME} INTERFACE
-        "-Wl,--whole-archive"
-        "-Wl,--no-as-needed"
-        "$<LINK_ONLY:${CMAKE_CURRENT_BINARY_DIR}/lib${LIBRARY_NAME}.a>"
-        "-Wl,--as-needed"
-        "-Wl,--no-whole-archive"
-   )
+if( CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
+   target_link_options( ${LIBRARY_NAME} INTERFACE "$<LINK_LIBRARY:WHOLE_ARCHIVE,${LIBRARY_NAME}>")
 endif()
 
 include( LibraryAuxObjC OPTIONAL)

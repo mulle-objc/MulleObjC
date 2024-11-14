@@ -1,0 +1,15 @@
+[submodule "mulle-objc-runtime"]
+	path = stash/mulle-objc-runtime
+	url = https://github.com/mulle-objc/mulle-objc-runtime
+[submodule "mulle-core"]
+	path = stash/mulle-core
+	url = https://github.com/mulle-core/mulle-core
+[submodule "mulle-objc-debug"]
+	path = stash/mulle-objc-debug
+	url = https://github.com/mulle-objc/mulle-objc-debug
+[submodule "mulle-objc-cc"]
+	path = stash/mulle-objc-cc
+	url = https://github.com/mulle-cc/mulle-objc-cc
+[submodule "mulle-objc-list"]
+	path = stash/mulle-objc-list
+	url = https://github.com/mulle-objc/mulle-objc-list
