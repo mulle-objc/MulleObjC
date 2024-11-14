@@ -35,16 +35,16 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       #    NORMAL_LOAD_LIBRARY  # regular link this
       #
       if( NOT COVERAGE_DIR)
-        set( COVERAGE_DIR "${PROJECT_SOURCE_DIR}/coverage")
+        set( COVERAGE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/coverage")
       endif()
       if( NOT OPTIMIZE_DIR)
-        set( OPTIMIZE_DIR "${PROJECT_BINARY_DIR}/mulle-objc-optimize/optimize.d")
+        set( OPTIMIZE_DIR "${CMAKE_CURRENT_BINARY_DIR}/mulle-objc-optimize/optimize.d")
       endif()
       if( NOT OPTIMIZE_INFO_DIR)
-        set( OPTIMIZE_INFO_DIR "${PROJECT_SOURCE_DIR}/optimize")
+        set( OPTIMIZE_INFO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/optimize")
       endif()
       if( NOT UNARCHIVE_DIR)
-         set( UNARCHIVE_DIR "${PROJECT_BINARY_DIR}/mulle-objc-optimize/unarchive.d")
+         set( UNARCHIVE_DIR "${CMAKE_CURRENT_BINARY_DIR}/mulle-objc-optimize/unarchive.d")
       endif()
 
       if( NOT EXISTS "${COVERAGE_DIR}/method-coverage.csv")
@@ -65,11 +65,11 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       message( STATUS "OPTIMIZE_INFO_DIR is ${OPTIMIZE_INFO_DIR}")
       message( STATUS "UNARCHIVE_DIR is ${UNARCHIVE_DIR}")
       message( STATUS "DEPENDENCY_DIR is ${MULLE_SDK_DEPENDENCY_DIR}")
-      message( STATUS "PROJECT_BINARY_DIR is ${PROJECT_BINARY_DIR}")
+      message( STATUS "CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
 
       set( CUSTOM_OUTPUT
-         "${PROJECT_BINARY_DIR}/${OPTIMIZABLE_LOAD_NAME}"
-         "${PROJECT_BINARY_DIR}/${ALL_LOAD_NAME}"
+         "${CMAKE_CURRENT_BINARY_DIR}/${OPTIMIZABLE_LOAD_NAME}"
+         "${CMAKE_CURRENT_BINARY_DIR}/${ALL_LOAD_NAME}"
       )
 
       if( MSVC)
@@ -98,7 +98,7 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
                            --dependency-dir "${MULLE_SDK_DEPENDENCY_DIR}"
                            --optimize-info-dir "${OPTIMIZE_INFO_DIR}"
                            --optimize-dir "${OPTIMIZE_DIR}"
-                           --prefix "${PROJECT_BINARY_DIR}"
+                           --prefix "${CMAKE_CURRENT_BINARY_DIR}"
                            --unarchive-dir "${UNARCHIVE_DIR}"
                            ${ALL_LOAD_DEPENDENCY_LIBRARIES}
           DEPENDS ${ALL_LOAD_DEPENDENCY_LIBRARIES}
@@ -112,7 +112,7 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
 
       # replace ALL_LOAD_DEPENDENCY_LIBRARIES with the non-optimzable stuff
       set( ALL_LOAD_DEPENDENCY_LIBRARIES
-         "${PROJECT_BINARY_DIR}/${ALL_LOAD_NAME}"
+         "${CMAKE_CURRENT_BINARY_DIR}/${ALL_LOAD_NAME}"
       )
 
       #
@@ -120,9 +120,9 @@ if( NOT __OPTIMIZED_LINK_OBJC_CMAKE__)
       # to pick up regular C symbols
       #
       set( DEPENDENCY_LIBRARIES
-         "${PROJECT_BINARY_DIR}/${OPTIMIZABLE_LOAD_NAME}"
+         "${CMAKE_CURRENT_BINARY_DIR}/${OPTIMIZABLE_LOAD_NAME}"
          ${DEPENDENCY_LIBRARIES}
-         "${PROJECT_BINARY_DIR}/${OPTIMIZABLE_LOAD_NAME}"
+         "${CMAKE_CURRENT_BINARY_DIR}/${OPTIMIZABLE_LOAD_NAME}"
       )
 
       add_dependencies( ${LIBRARY_NAME} "_${LIBRARY_NAME}_optimized_libraries")

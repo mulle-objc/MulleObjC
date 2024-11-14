@@ -79,3 +79,5 @@ coverage*.html
 *.gcda
 *.gcno
 cola/wilted/
+.aider*
+.env

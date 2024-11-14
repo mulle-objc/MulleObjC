@@ -311,9 +311,7 @@ autorelease:
 - (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy
 {
    mulle_thread_t   osThread;
-#ifdef DEBUG
    mulle_thread_t   currentOSThread;
-#endif
 
    [self retain];
 
@@ -346,8 +344,8 @@ autorelease:
    if( ! osThread)
       return;
 
-#ifdef DEBUG
    currentOSThread = MulleThreadGetCurrentOSThread();
+#ifdef DEBUG
    if( currentOSThread != osThread)
    {
       // This can happen if you relinquish [NSArray arrayWithObjets:foo, foo, nil];
@@ -367,6 +365,7 @@ autorelease:
 #else
    assert( osThread != mulle_objc_object_has_no_thread || currentOSThread == osThread);
    MULLE_C_UNUSED( osThread);
+   MULLE_C_UNUSED( currentOSThread);
 #endif
 
    //

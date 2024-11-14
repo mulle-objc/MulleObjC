@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.18) # 3.15 fails on windows
 
-project( MulleObjC C)
+project( MulleObjC VERSION 0.23.0 LANGUAGES C)
 
 
 if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
@@ -12,9 +12,9 @@ endif()
 ### mulle-sde environment
 
 # add cmake module paths to search path
-list( INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake/share")
-list( INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake/reflect")
-list( INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake")
+list( INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake/share")
+list( INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake/reflect")
+list( INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include( Environment)
 
@@ -60,4 +60,10 @@ if( LINK_PHASE)
 endif()
 
 include( InstallLibrary)
+
+if( LINK_PHASE)
+   include( InstallCMakeInclude)
+   include( InstallCMakePackage)
+endif() 
+
 include( FinalOutput OPTIONAL)

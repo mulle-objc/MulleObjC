@@ -1,0 +1,78 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")
+
+#
+# Work in progress
+#
+
+if( CMAKE_BUILD_TYPE)
+   string( TOUPPER "${CMAKE_BUILD_TYPE}" TMP_CONFIGURATION_NAME)
+   if( NOT TMP_CONFIGURATION_NAME STREQUAL "DEBUG")
+      add_definitions( "-DNDEBUG" )
+      add_definitions( "-DNS_BLOCK_ASSERTIONS" )
+   endif()
+endif()
+
+if( BUILD_SHARED_LIBS)
+   add_definitions( "-DMULLE_INCLUDE_DYNAMIC=1")
+endif()
+
+
+if( NOT DEFINED CMAKE_C_LINK_GROUP_USING_WHOLE_ARCHIVE_SUPPORTED)
+   set(CMAKE_C_LINK_GROUP_USING_WHOLE_ARCHIVE_SUPPORTED ON)
+   set(CMAKE_CXX_LINK_GROUP_USING_WHOLE_ARCHIVE_SUPPORTED ON)
+
+   if(APPLE)
+       set(CMAKE_C_LINK_GROUP_USING_WHOLE_ARCHIVE 
+           "LINKER:-force_load"
+           ""
+       )
+       set(CMAKE_CXX_LINK_GROUP_USING_WHOLE_ARCHIVE 
+           "LINKER:-force_load"
+           ""
+       )
+   else()
+      if( WIN32)
+         set(CMAKE_C_LINK_GROUP_USING_WHOLE_ARCHIVE 
+              "LINKER:-WHOLEARCHIVE:"
+              ""
+         )
+         set(CMAKE_CXX_LINK_GROUP_USING_WHOLE_ARCHIVE 
+              "LINKER:-WHOLEARCHIVE:"
+              ""
+         )
+      else()
+          set(CMAKE_C_LINK_GROUP_USING_WHOLE_ARCHIVE 
+              "LINKER:--whole-archive;LINKER:--no-as-needed"
+              "LINKER:--as-needed;LINKER:--no-whole-archive"
+          )
+          set(CMAKE_CXX_LINK_GROUP_USING_WHOLE_ARCHIVE 
+              "LINKER:--whole-archive;LINKER:--no-as-needed"
+              "LINKER:--as-needed;LINKER:--no-whole-archive"
+          )
+      endif()
+   endif()
+endif()
+
+
+#
+# only for mulle-clang
+# consider: set_target_properties(your_target PROPERTIES ENABLE_EXPORTS ON)
+#
+if( UNIX AND NOT (APPLE OR COSMOPOLITAN OR MUSL_STATIC_ONLY))
+   add_link_options( "SHELL:LINKER:--export-dynamic")
+endif()
+
+if( APPLE)
+   add_link_options( "SHELL:LINKER:-exported_symbol,___register_mulle_objc_universe")
+   add_link_options( "SHELL:LINKER:-exported_symbol,__mulle_atinit")
+   add_link_options( "SHELL:LINKER:-exported_symbol,_mulle_atexit")
+endif()
+
+
+target_link_options( @PROJECT_NAME@ INTERFACE
+    "$<LINK_GROUP:WHOLE_ARCHIVE,@PROJECT_NAME@>"
+)
+
+check_required_components(@PROJECT_NAME@)

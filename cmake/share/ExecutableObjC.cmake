@@ -25,6 +25,7 @@ set_target_properties( "${EXECUTABLE_NAME}"
 
 #
 # only for mulle-clang
+# consider: set_target_properties(your_target PROPERTIES ENABLE_EXPORTS ON)
 #
 if( UNIX AND NOT (APPLE OR COSMOPOLITAN OR MUSL_STATIC_ONLY))
    if( LINK_PHASE)
