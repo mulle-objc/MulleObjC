@@ -12,7 +12,8 @@ if( NOT __COMPILER_DETECTION_AUX_C_CMAKE__)
    #
    # Detect if compiling with mulle-clang
    #
-   if( MULLE_C_COMPILER_ID MATCHES "MulleClang" OR "$ENV{CC}" MATCHES ".*mulle-cl.*")
+   if( MULLE_C_COMPILER_ID MATCHES "MULLECLANG" OR "$ENV{CC}" MATCHES ".*mulle-cl.*")
+      message( STATUS "MulleClang compiler detected")
       set( MULLE_OBJC ON)
    else()
       set( MULLE_OBJC OFF)
