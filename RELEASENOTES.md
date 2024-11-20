@@ -1,3 +1,82 @@
+## 0.24.0
+
+
+feat: improve thread safety and object lifecycle management
+
+* Enhance thread affinity (TAO) support
+  - Add mulleTAOStrategy parameter to mulleGainAccess for safer thread transfers
+  - Improve thread safety checks and validation
+  - Add documentation for TAO principles and testing
+
+* Refactor object lifecycle management
+  - Rename NSCopyObjectWithAllocator to MulleObjCInstanceCopyWithAllocator
+  - Change MulleObjCInstanceDeallocate to `_MulleObjCInstanceFree`
+  - Remove NS prefix from linkable symbols for better Darwin compatibility
+  - Add `mulle_atomic_id_t` for atomic ivar access
+
+* Improve thread and locking infrastructure
+  - Simplify MulleObject locking implementation
+  - Move MulleObjCLockFoundation into MulleObjC
+  - Rename MulleObject to MulleDynamicObject
+  - Update NSThread API for clearer thread lifecycle management
+  - Add MulleThreadGetOrCreateCurrentThread function
+
+* Other improvements
+  - Add support for C-array, struct and union handling in NSInvocation
+  - Add class interposing capability
+  - Improve byte swapping and endian handling
+  - Add new container key/value callbacks
+  - Fix NSRange accessor functions
+
+
+
+* **BREAKING** NSCopyObjectWithAllocator is now MulleObjCInstanceCopyWithAllocator
+* **BREAKING** MulleObjCInstanceDeallocate is now `_MulleObjCInstanceFree` for consistency
+
+* MulleObjC no longer defines any linkable symbols with `_NS` or NS prefix. All NS... functions are now static inline. This makes it easier on darwin to coexist with Apple Objective-C
+
+* adapt to changes in mulle-objc-runtime
+* improved NSInvocation retain/release of arguments, now can also do C-array, structs and unions
+* new feature "interposing" of a class between two other classes
+* new function `MulleThreadGetOrCreateCurrentThread`
+* NSThread mulleStartUndetached is now just mulleStart, but the old method still works
+* new type `mulle_atomic_id_t` for convenient atomic access to id ivars
+* new function `MulleObjC_strdup`
+* byte swapping and endian functions have been moved to mulle-c11
+* new global variable MulleObjCDebugElideAddressOutput for test output
+* new macros `MULLE_OBJC_CLASS_CAST` and `MULLE_OBJC_PROTOCOL_CAST` and related macros
+* new key/value callbacks `_MulleObjCContainerCopiedCStringIntegerValueCallback,` `_MulleObjCContainerIntegerKeyCopiedCStringValueCallback,` `_MulleObjCContainerCopiedCStringPointerValueCallback,` `_MulleObjCContainerPointerKeyCopiedCStringValueCallback`
+* new functions NSRangeGetLocation, NSRangeGetLength, NSRangeGetMax, ...
+
+* `mulleGainAccess` no longer returns self
+* the Spam functions that used to do call chains, now use `mulle_objc_class_search` and perform more sensibly
+* new method `mulleSetThredSafe:`, for private objects that are part of a locking object (e.g. NSMutableArray ivar)
+
+* renamed ``_mulle_objc_autorelease_object`` to ``_mulle_objc_autorelease_object`` for consistency
+* changed the locking code used by MulleObject to something simpler with the help of the new mulle-objc-runtime
+* renamed methods that operate on already autoreleased objects in a `NSAutoreleasePool` to "PoolObjects"
+* renamed some ``_NSThread`` functions to `MulleThread` for consistency
+
+* moved MulleObjCLockFoundation into MulleObjC
+* renamed MulleObject to MulleDynamicObject
+* renamed MulleLockingObject to... MulleObject (!) (by default it doesn't lock, unless your subclass adds protocols)
+
+
+* **BREAKING** renamed a lot of NSAutoreleasePool underscore methods to mulle, making them less private
+
+* added support for new double and float TPS
+* NSObject now gains a lot of functionality from protocolclass MulleObjCRuntimeObject
+* new protocol MulleObjCContainerProperty to match @property( container) expectations
+* NSThread is now NSInvocation based
+
+* MulleObjC has now a notion about threadsafe instances (`@protocol MulleObjcThreadSafe`) and how to transfer access to a not-threadsafe instance between threads (`-mulleGainAccess`...)
+* added a few more useful container callbacks
+* adapted to changes in the mulle-objc-runtime
+* made `NSThread` more threadsafe
+* **BREAKING** `-copy` is basically supposed to be used only by properties and ivar accessors now. `NSCopyObject` and the default -copy implementation is now aligned with `NSMutableCopying` where it makes more sense. Though `mutableCopy` is deprecated.
+* **BREAKING** remove `MulleObjCIMPTraceCall`
+
+
 ## 0.23.0
 
 * moved NSInteger and BOOL to mulle-c11, this only breaks stuff if you included the header directly
