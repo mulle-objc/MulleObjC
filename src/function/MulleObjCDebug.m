@@ -286,6 +286,12 @@ void   MulleObjCDumpObject( id obj)
 }
 
 
+char  *MulleObjCDebug = ""
+"x MulleObjCDumpObject( obj)   : dump current object to stderr\n"
+"x MulleObjCHTMLDumpUniverse() : dump default universe to PWD\n";
+
+
+
 #else
 
 void   MulleObjCHTMLDumpUniverseToDirectory( char *directory)

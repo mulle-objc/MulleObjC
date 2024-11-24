@@ -415,7 +415,14 @@ autorelease:
 //
 - (MulleObjCTAOStrategy) mulleTAOStrategy
 {
-   return( MulleObjCTAOCallerRemovesFromCurrentPool);
+   //
+   // So this default is MulleObjCTAOKnownThreadSafeMethods, because it doesn't
+   // break existing code. Known problematic subclasses like
+   // NSMutableDictionary then should actually reset this to some unsafe tag.
+   // In a future world where everything is a MulleObject, this would be unsafe
+   // and autolocking would promote this to ThreadSafe (?)
+   //
+   return( MulleObjCTAOKnownThreadSafeMethods);
 }
 
 

@@ -1,3 +1,4 @@
+      { @selector( MulleAutolockingObject), MULLE_OBJC_NO_CATEGORYID },      // 6eb2f41b;MulleAutolockingObject;;
       { @selector( MulleDynamicObject), @selector( NSMutableCopying) },      // d9918780;MulleDynamicObject;4aa86031;NSMutableCopying
       { @selector( MulleDynamicObject), MULLE_OBJC_NO_CATEGORYID },      // d9918780;MulleDynamicObject;;
       { @selector( MulleObjCClassCluster), MULLE_OBJC_NO_CATEGORYID },      // 6ed73da1;MulleObjCClassCluster;;
