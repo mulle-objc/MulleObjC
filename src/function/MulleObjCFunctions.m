@@ -884,7 +884,7 @@ static int   compare_ivar_by_name( void **p_a, void **p_b, void *userinfo)
 }
 
 
-void  MulleObjCDescribeIvars( struct mulle_buffer *buffer, id obj)
+void   MulleObjCDescribeIvars( struct mulle_buffer *buffer, id obj)
 {
    struct _mulle_objc_infraclass  *infra;
    struct _mulle_objc_ivar        *ivar;

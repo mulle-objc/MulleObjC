@@ -12,6 +12,9 @@
 #  -DMULLE_TECHNICAL_FLAGS=-vvv \
 #  -DCMAKE_RULE_MESSAGES=OFF \
 #  -DTEST_LIBRARIES='-L/home/nat/.mulle/var/MulleObjC-d1c1acfc730b/dependency/Debug/lib;-Wl,--no-as-needed;...' \
+cmake_minimum_required(VERSION 3.15)
+
+set( CMAKE_C_COMPILER_WORKS 1)
 
 project( tao-mix C)
 

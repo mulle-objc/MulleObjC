@@ -1094,18 +1094,21 @@ void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
                               mulle_thread_t osThread,
                               struct _mulle_objc_descriptor *desc)
 {
-   struct _mulle_objc_class      *cls;
-   struct _mulle_objc_universe   *universe;
-   int                           ismeta;
-   NSThread                      *currentThreadObject;
-   NSThread                      *osThreadObject;
-   char                          *s;
-   char                          *strategyName;
-   MulleObjCTAOStrategy          strategy;
+   struct _mulle_objc_class              *cls;
+   struct _mulle_objc_universe           *universe;
+   int                                   ismeta;
+   NSThread                              *currentThreadObject;
+   NSThread                              *osThreadObject;
+   char                                  *s;
+   char                                  *strategyName;
+   MulleObjCTAOStrategy                  strategy;
+   struct _mulle_objc_searcharguments    args;
+   struct _mulle_objc_method             *method;
+   mulle_objc_implementation_t           imp;
 
-   cls           = _mulle_objc_object_get_isa( obj);
-   ismeta        = _mulle_objc_class_is_metaclass( cls);
-   universe      = _mulle_objc_class_get_universe( cls);
+   cls      = _mulle_objc_object_get_isa( obj);
+   ismeta   = _mulle_objc_class_is_metaclass( cls);
+   universe = _mulle_objc_class_get_universe( cls);
 
    currentThreadObject = MulleThreadGetCurrentThread();
    osThreadObject      = _mulle_objc_universe_lookup_threadobject_for_thread( universe, osThread);   // try to retri
@@ -1129,13 +1132,17 @@ void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
       else
          mulle_buffer_sprintf( buffer, "%p ", osThread);
 
-
-      strategyName = NULL;
-      if( [(id) obj respondsToSelector:@selector( mulleTAOStrategy)])
+      if( ! ismeta)
       {
-         strategy     = [(id) obj mulleTAOStrategy];
-         strategyName = NS_ENUM_LOOKUP( MulleObjCTAOStrategy, strategy);
-         mulle_buffer_sprintf( buffer, "and TAO strategy %s ", strategyName ? strategyName : "None");
+         args   = mulle_objc_searcharguments_make_default( @selector( mulleTAOStrategy));
+         method = mulle_objc_class_search_method( cls, &args, 0, NULL);
+         if( method)
+         {
+            imp          = mulle_objc_method_get_implementation( method);
+            strategy     = (uintptr_t) _mulle_objc_implementation_invoke( imp, obj, @selector( mulleTAOStrategy), obj);
+            strategyName = NS_ENUM_LOOKUP( MulleObjCTAOStrategy, strategy);
+            mulle_buffer_sprintf( buffer, "and TAO strategy %s ", strategyName ? strategyName : "None");
+         }
       }
 
       mulle_buffer_sprintf( buffer, "gets a %c%s call from thread ",

@@ -47,8 +47,9 @@
 // of MulleObject will appear to be broken. This is basically the main
 // trick MulleAutolockingObject uses and it can't be avoided.
 //
-@protocol MulleAutolockingObject
-@end
+PROTOCOLCLASS_INTERFACE0( MulleAutolockingObject)
+PROTOCOLCLASS_END()
+
 
 #define MulleAutolockingObjectProtocols   MulleObjCThreadSafe, MulleAutolockingObject
 

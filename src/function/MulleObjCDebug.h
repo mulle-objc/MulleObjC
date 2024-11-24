@@ -85,3 +85,6 @@ void   MulleObjCDotdumpMetaHierarchy( char *classname);
 MULLE_OBJC_GLOBAL
 void   MulleObjCDumpObject( id object);
 
+// string as help for debuggin
+MULLE_OBJC_GLOBAL
+char  *MulleObjCDebugHelp;

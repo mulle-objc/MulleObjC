@@ -10,6 +10,17 @@
 #import "MulleObject-Private.h"
 
 
+PROTOCOLCLASS_IMPLEMENTATION( MulleAutolockingObject)
+
+- (MulleObjCTAOStrategy) mulleTAOStrategy
+{
+   return( MulleObjCTAOKnownThreadSafe);
+}
+
+PROTOCOLCLASS_END()
+
+
+
 @implementation MulleObject
 
 static BOOL  is_a_locking_descriptor( struct _mulle_objc_descriptor *desc,
