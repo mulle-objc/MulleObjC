@@ -17,19 +17,12 @@ project( tao-thread C)
 
 cmake_minimum_required( VERSION 3.11)
 
-set_source_files_properties( main.m PROPERTIES COMPILE_OPTIONS "-fno-objc-tao")
 
 add_executable( "${PROJECT_NAME}.exe"
    main.m
 )
 
-if( "${C_COMPILER_NAME}" MATCHES "mulle-cl*")
-   if( CMAKE_BUILD_TYPE MATCHES "^Debug|^Test")
-      target_compile_options( "${PROJECT_NAME}.exe" PRIVATE -fobjc-tao)
-      message( STATUS "TAO enabled via compiler flag")
-   endif()
-endif()
-
+set_source_files_properties( main.m PROPERTIES COMPILE_OPTIONS "-fno-objc-tao")
 
 target_link_libraries( "${PROJECT_NAME}.exe"
    ${TEST_LIBRARIES}
