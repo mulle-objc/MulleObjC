@@ -413,7 +413,7 @@ autorelease:
 // to write a checker that compares the mulleTaoStrategy of classes with the
 // provided methods and check if its consistent (IMO)
 //
-- (MulleObjCTAOStrategy) mulleTAOStrategy
+- (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD
 {
    return( MulleObjCTAOCallerRemovesFromCurrentPool);
 }

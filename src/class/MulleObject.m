@@ -12,7 +12,7 @@
 
 PROTOCOLCLASS_IMPLEMENTATION( MulleAutolockingObject)
 
-- (MulleObjCTAOStrategy) mulleTAOStrategy
+- (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD
 {
    return( MulleObjCTAOKnownThreadSafe);
 }
