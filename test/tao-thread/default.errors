@@ -1,1 +1,1 @@
-the runtime is configured for thread affine objects
+the runtime is compiled for thread affine objects
