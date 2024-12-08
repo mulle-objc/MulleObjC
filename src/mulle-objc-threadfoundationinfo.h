@@ -60,17 +60,17 @@ struct _mulle_objc_poolconfiguration
    struct _mulle_objc_infraclass   *poolClass;
 
 
-   void   *(*push)( struct _mulle_objc_poolconfiguration *);
-   void   (*pop)( struct _mulle_objc_poolconfiguration *, id pool);
+   void               *(*push)( struct _mulle_objc_poolconfiguration *);
+   void               (*pop)( struct _mulle_objc_poolconfiguration *, id pool);
 
-   int             releasing;
+   int                releasing;
    // debugging support
-   int             trace;
-   unsigned int    maxObjects;  // coarse
+   int                trace;
+   unsigned int       maxObjects;  // coarse
 
    // used for debugging when MULLE_OBJC_AUTORELEASEPOOL_MAP is YES
-   struct mulle_map                *object_map;
-   struct mulle_map                _object_map;
+   struct mulle_map   *object_map;
+   struct mulle_map   _object_map;
 };
 
 

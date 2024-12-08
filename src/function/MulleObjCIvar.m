@@ -43,6 +43,7 @@
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
 #import "MulleObjCIntegralType.h"
+#import "MulleObjCFunctions.h"
 #import "NSCopying.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"

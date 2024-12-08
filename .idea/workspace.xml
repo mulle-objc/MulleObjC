@@ -6,6 +6,9 @@
   <component name="CMakePresetLoader">{
   &quot;useNewFormat&quot;: true
 }</component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
   <component name="CMakeReloadState">
     <option name="reloaded" value="true" />
   </component>
@@ -13,7 +16,7 @@
     <generated>
       <config projectName="MulleObjC" targetName="_1_MulleObjC" />
       <config projectName="MulleObjC" targetName="_2_MulleObjC" />
-      <config projectName="MulleObjC" targetName="__objc_loader_inc__" />
+      <config projectName="MulleObjC" targetName="MulleObjC__objc_loader_inc__" />
       <config projectName="MulleObjC" targetName="_3_MulleObjC" />
       <config projectName="MulleObjC" targetName="MulleObjC" />
     </generated>
@@ -25,86 +28,49 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="556511f9-4131-46d8-8674-26219e17cebf" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/test/NSObject/ivar_atomic.m" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/NSObject/strategy.m" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/NSObject/strategy.stdout" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/functions/zombify-large.errors" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/functions/zombify-large.m" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/functions/zombify.errors" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/functions/zombify.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/MulleObjC.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/MulleObjC.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake/reflect/_Headers.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake/reflect/_Headers.cmake" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake/reflect/_Sources.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake/reflect/_Sources.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/class/MulleDynamicObject.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/MulleDynamicObject.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MulleObjCIntegralType.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/MulleObjCIntegralType.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/MulleDynamicObject.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/MulleDynamicObject.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/class/MulleObject.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/MulleObject.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/class/MulleObjCAutoreleasePool.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/MulleObjCAutoreleasePool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/class/MulleObject-Private.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/MulleObject-Private.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/MulleObject.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/MulleObject.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/NSAutoreleasePool.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSAutoreleasePool.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/class/NSConditionLock.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSConditionLock.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/class/NSInvocation.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSInvocation.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/class/NSAutoreleasePool.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSAutoreleasePool.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/NSInvocation.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSInvocation.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/class/NSMethodSignature.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSMethodSignature.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/class/NSMethodSignature.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSMethodSignature.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/class/NSObject.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSObject.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/class/NSNull.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSNull.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/NSObject.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSObject.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/NSProxy.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSProxy.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/NSThread.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSThread.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/class/NSThread.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/class/NSThread.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/function/MulleObjCAllocation.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCAllocation.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/function/MulleObjCAllocation.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCAllocation.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/function/MulleObjCDebug.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCDebug.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/function/MulleObjCFunctions.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCFunctions.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/function/MulleObjCFunctions.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCFunctions.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/function/MulleObjCIvar.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCIvar.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/function/MulleObjCHashFunctions.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCHashFunctions.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/function/MulleObjCIvar.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCIvar.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/function/MulleObjCPrinting.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCPrinting.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/function/MulleObjCPrinting.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCPrinting.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/function/MulleObjCProperty.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCProperty.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/function/NSByteOrder.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/NSByteOrder.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/function/NSDebug.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/NSDebug.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/function/NSDebug.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/NSDebug.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/generic/include.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/generic/include.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mulle-objc-type.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/mulle-objc-type.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mulle-objc-type.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/mulle-objc-type.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/function/MulleObjCProperty.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/MulleObjCProperty.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/function/mulle-sprintf-object.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/function/mulle-sprintf-object.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mulle-objc-atomicid.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/mulle-objc-atomicid.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mulle-objc-autoreleasepointerarray-private.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/mulle-objc-autoreleasepointerarray-private.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mulle-objc-threadfoundationinfo.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/mulle-objc-threadfoundationinfo.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mulle-objc-universefoundationinfo-private.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/mulle-objc-universefoundationinfo-private.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mulle-objc-universefoundationinfo.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/mulle-objc-universefoundationinfo.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/mulle-objc.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/mulle-objc.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/MulleObjCException.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/MulleObjCException.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/MulleObjCProtocol.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/MulleObjCProtocol.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol/MulleObjCException.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/MulleObjCException.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/protocol/MulleObjCProtocol.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/MulleObjCProtocol.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/MulleObjCRootObject.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/MulleObjCRootObject.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/protocol/MulleObjCRootObject.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/MulleObjCRootObject.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/protocol/MulleObjCRuntimeObject.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/MulleObjCRuntimeObject.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/MulleObjCSingleton.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/MulleObjCSingleton.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/protocol/MulleObjCSingleton.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/MulleObjCSingleton.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/NSFastEnumeration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/NSFastEnumeration.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/NSLocking.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/NSLocking.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reflect/_MulleObjC-provide.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/reflect/_MulleObjC-provide.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/0_noleak/noleak.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/0_noleak/noleak.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/MulleObjCThreadSafe/tao-check-fail.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/MulleObjCThreadSafe/tao-check-fail.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/MulleObjCThreadSafe/tao-check-ok.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/MulleObjCThreadSafe/tao-check-ok.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-forward-locked.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-forward-locked.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-locked.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-locked.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-super-forward-locked.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-super-forward-locked.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-unlocked.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-unlocked.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-unlocked2.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/MulleObject/20-misc/verify-unlocked2.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSAutoreleasePool/autopool.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSAutoreleasePool/autopool.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSInvocation/vararg-invoke-simple.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSInvocation/vararg-invoke-simple.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSInvocation/vararg-invoke.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSInvocation/vararg-invoke.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSInvocation/vararg-invoke.stdout" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSInvocation/vararg-invoke.stdout" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/a-one-thread-noleak.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/a-one-thread-noleak.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/a-one-thread-scenario.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/a-one-thread-scenario.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/a-two-thread-scenario.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/a-two-thread-scenario.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/acquire-relinquish-fail-thread.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/acquire-relinquish-fail-thread.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/acquire-relinquish-simple.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/acquire-relinquish-simple.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/acquire-relinquish.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/acquire-relinquish.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/cache-stress.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/cache-stress.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/call-stress.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/call-stress.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/lookup-stress.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/lookup-stress.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/simple.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/simple.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/tao-dilemma-fixed.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/tao-dilemma-fixed.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/tao-dilemma.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/tao-dilemma.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NSThread/threadautopool.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/threadautopool.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/NS_ENUM/options.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NS_ENUM/options.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/functions/inheritance/protocolclass-initialize.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/functions/inheritance/protocolclass-initialize.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/functions/inheritance/protocolclass-initialize.stdout" beforeDir="false" afterPath="$PROJECT_DIR$/test/functions/inheritance/protocolclass-initialize.stdout" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol/NSCopyingWithAllocator.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/NSCopyingWithAllocator.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol/NSCopyingWithAllocator.m" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/NSCopyingWithAllocator.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reflect/objc-loader.inc" beforeDir="false" afterPath="$PROJECT_DIR$/src/reflect/objc-loader.inc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/MulleObject/30-bench/various-calls.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/MulleObject/30-bench/various-calls.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/NSThread/detached.m" beforeDir="false" afterPath="$PROJECT_DIR$/test/NSThread/detached.m" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,25 +101,42 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.CodyAccountHistoryMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.CodyAccountsIdsRefresh&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.CodyAssignOrphanedChatsToActiveAccount&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.CodyConvertUrlToCodebaseName&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.CodyHistoryLlmMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.CodyMigrateChatHistory-v2&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.CodyProjectSettingsMigration&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ToggleCodyToolWindowAfterMigration&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/src/srcO/mulle-objc/MulleObjC/dox&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;structure.view.defaults.are.configured&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RunManager" selected="CMake Application._1_MulleObjC">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="MulleObjC" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="MulleObjC" TARGET_NAME="MulleObjC" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MulleObjC__objc_loader_inc__" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="MulleObjC" TARGET_NAME="MulleObjC__objc_loader_inc__" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -173,17 +156,12 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="__objc_loader_inc__" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="MulleObjC" TARGET_NAME="__objc_loader_inc__" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="CMake Application.MulleObjC" />
       <item itemvalue="CMake Application._1_MulleObjC" />
       <item itemvalue="CMake Application._2_MulleObjC" />
       <item itemvalue="CMake Application._3_MulleObjC" />
-      <item itemvalue="CMake Application.__objc_loader_inc__" />
+      <item itemvalue="CMake Application.MulleObjC__objc_loader_inc__" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -198,6 +176,7 @@
       <workItem from="1724939453407" duration="414000" />
       <workItem from="1726043501930" duration="1000" />
       <workItem from="1726043532122" duration="11000" />
+      <workItem from="1733486514464" duration="3015000" />
     </task>
     <servers />
   </component>

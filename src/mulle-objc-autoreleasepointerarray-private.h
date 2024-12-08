@@ -357,8 +357,7 @@ static inline unsigned int
 static inline void
    _mulle_autoreleasepointerarray_dump_objects(
                                struct _mulle_autoreleasepointerarray *end,
-                               char *verb,
-                               struct _mulle_autoreleasepointerarray *staticStorage)
+                               char *verb)
 {
    id                                      *objects;
    id                                      *sentinel;
@@ -380,6 +379,36 @@ static inline void
                                  obj,
                                  verb,
                                  (long) mulle_objc_object_get_retaincount( obj));
+         }
+      }
+   }
+}
+
+
+static inline
+void   _mulle_autoreleasepointerarray_walk_objects(
+                               struct _mulle_autoreleasepointerarray *end,
+                               mulle_objc_walkcommand_t (*callback)( id obj, void *userinfo),
+                               void *userinfo)
+{
+   id                                      *objects;
+   id                                      *sentinel;
+   struct _mulle_autoreleasepointerarray   *p, *q;
+   id                                      obj;
+
+   for( p = end; p; p = q)
+   {
+      q = p->previous;
+
+      objects  = p->objects;
+      sentinel = &p->objects[ p->used];
+      while( objects < sentinel)
+      {
+         obj = *objects++;
+         if( obj)
+         {
+            if( (*callback)( obj, userinfo) != mulle_objc_walk_ok)
+               break;
          }
       }
    }

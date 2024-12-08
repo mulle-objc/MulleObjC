@@ -49,7 +49,7 @@
 
 @implementation NSProxy
 
-+ (BOOL) isProxy        MULLE_OBJC_THREADSAFE_METHOD
++ (BOOL) isProxy        MULLE_OBJC_THREADSAFE_METHOD  // sic
 {
    return( NO);
 }

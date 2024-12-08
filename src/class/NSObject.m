@@ -743,4 +743,16 @@ void  MulleObjCClassInterposeBeforeClass( Class self, Class other)
    MulleObjCClassInterposeBeforeClass( self, subClass);
 }
 
+
+
+//
+// as a class method, prevent [Foo autorelease] to end up in the autorelease
+// pool (at least when running -O0)
+//
++ (instancetype) autorelease
+{
+   return( (id) self);
+}
+
+
 @end

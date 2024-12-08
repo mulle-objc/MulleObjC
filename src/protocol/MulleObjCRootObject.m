@@ -5,6 +5,7 @@
 #import "MulleObjCException.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
+#import "MulleObjCFunctions.h"
 #import "MulleObjCProperty.h"
 #import "NSAutoreleasePool.h"
 #import "NSMethodSignature.h"
@@ -82,7 +83,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCRootObject)
    universe = _mulle_objc_object_get_universe( self);
    config   = _mulle_objc_universe_get_universefoundationinfo( universe);
 
-   if( config->object.zombieenabled)
+   if( config->object.singlethreadautoreleasecheckerenabled)
    {
       if( [NSAutoreleasePool mulleCountObject:self] )
          __mulle_objc_universe_raise_internalinconsistency( universe,
@@ -104,13 +105,13 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCRootObject)
 #ifdef DEBUG
 static void   checkAutoreleaseRelease( id self)
 {
-   struct _mulle_objc_universe                  *universe;
+   struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_universefoundationinfo   *config;
 
    universe = _mulle_objc_object_get_universe( self);
    config   = _mulle_objc_universe_get_universefoundationinfo( universe);
 
-   if( config->object.zombieenabled)
+   if( config->object.singlethreadautoreleasecheckerenabled)
    {
       NSUInteger   autoreleaseCount;
       NSUInteger   retainCount;
@@ -264,7 +265,7 @@ static inline void   checkAutoreleaseRelease( id self)
    switch( strategy)
    {
    case MulleObjCTAOKnownThreadSafe :
-      assert( ! _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self));
+      assert( ! _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self) && "MulleObjCTAOKnownThreadSafe should only be set by @protocol MulleObjCThreadSafe");
       goto autorelease;
 
       // the differentations are just for self commenting code
@@ -326,10 +327,10 @@ autorelease:
    switch( strategy)
    {
    case MulleObjCTAOKnownThreadSafe          :
-      assert( ! _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self));
+      assert( ! _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self) && "MulleObjCTAOKnownThreadSafe should only be set by @protocol MulleObjCThreadSafe");
       return;
 
-      // the differentations are just for self commenting code
+      // the differentiations are just for self commenting code
    case MulleObjCTAOKnownThreadSafeMethods   :
       // no way to check this, TAO will catch it
       // but don't change affinity

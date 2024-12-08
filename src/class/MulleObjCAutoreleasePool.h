@@ -99,7 +99,8 @@ void   _mulle_objc_poolconfiguration_done( struct _mulle_objc_poolconfiguration 
 
 // for NSThread
 MULLE_OBJC_GLOBAL
-void   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe);
+struct _mulle_objc_poolconfiguration  *
+   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe);
 
 MULLE_OBJC_GLOBAL
 void   mulle_objc_thread_reset_poolconfiguration( struct _mulle_objc_universe *universe);

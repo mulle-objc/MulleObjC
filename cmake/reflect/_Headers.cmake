@@ -73,6 +73,7 @@ src/class/MulleObjCAutoreleasePool.h
 src/class/MulleObjCLoader.h
 src/class/MulleObjCLockFoundation.h
 src/class/MulleObject.h
+src/class/MulleProxy.h
 src/class/NSAutoreleasePool.h
 src/class/NSConditionLock.h
 src/class/NSCondition.h

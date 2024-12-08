@@ -59,6 +59,8 @@ void   _MulleObjCInstanceFree( id obj)
    struct _mulle_objc_class                    *cls;
    struct mulle_allocator                      *allocator;
 
+   assert( MulleObjCObjectIsInstance( obj));
+
    cls      = _mulle_objc_object_get_isa( obj);
    universe = _mulle_objc_class_get_universe( cls);
    config   = _mulle_objc_universe_get_universefoundationinfo( universe);

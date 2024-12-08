@@ -43,13 +43,23 @@
 #import "MulleObjCAutoreleasePool.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
+#import "MulleObjCFunctions.h"
 #import "NSDebug.h"
+#import "NSThread.h"
 #import "NSZone.h"
 #import "mulle-objc-autoreleasepointerarray-private.h"
+#import "mulle-objc-universefoundationinfo-private.h"
 
 // other libraries of MulleObjCFoundation
 
 // std-c and dependencies
+
+@interface NSThread( Private)
+
+// hidden for debug only
+- (void *) _poolconfiguration;
+
+@end
 
 
 #ifdef DEBUG
@@ -193,11 +203,16 @@ static void   _mulle_objc_thread_set_poolconfiguration( struct _mulle_objc_unive
 }
 
 
-void   mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe)
+struct _mulle_objc_poolconfiguration  *mulle_objc_thread_new_poolconfiguration( struct _mulle_objc_universe *universe)
 {
-   if( universe)
-      _mulle_objc_thread_set_poolconfiguration( universe,
-                                                mulle_objc_thread_get_poolconfiguration( universe));
+   struct _mulle_objc_poolconfiguration   *config;
+
+   if( ! universe)
+      return( NULL);
+
+   config = mulle_objc_thread_get_poolconfiguration( universe);
+   _mulle_objc_thread_set_poolconfiguration( universe, config);
+   return( config);
 }
 
 
@@ -225,7 +240,9 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
 
 - (char *) mulleNameUTF8String
 {
-   return( _mulleNameUTF8String[ 0] ? &_mulleNameUTF8String[ 0] : "unnamed");
+   if( ! _mulleNameUTF8String[ 0])
+      mulle_snprintf( _mulleNameUTF8String, sizeof( _mulleNameUTF8String), "%p", self);
+   return( &_mulleNameUTF8String[ 0]);
 }
 
 
@@ -234,6 +251,20 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
    strncpy( _mulleNameUTF8String, s ? s : "", sizeof( _mulleNameUTF8String) - 1);
 }
 
+
+// boobytrappe accidental wrap-around calls for debugging
+#ifdef DEBUG
++ (char *) mulleNameUTF8String
+{
+   abort();
+}
+
+
++ (void) mulleSetNameUTF8String:(char *) s
+{
+   abort();
+}
+#endif
 
 //
 // Apparently not used anymore
@@ -284,15 +315,21 @@ static inline void   addObject( struct _mulle_objc_poolconfiguration *config, id
    pool = config->tail;
 
 #ifndef NDEBUG
-   struct _mulle_objc_universe *universe;
+   struct _mulle_objc_universe   *object_universe;
+   struct _mulle_objc_universe   *pool_universe;
 
-   assert( pool != nil);
-   assert( p != nil);
-   universe = _mulle_objc_object_get_universe( p);
-   assert( _mulle_objc_object_get_isa( p));
-   assert( _mulle_objc_class_get_universe( _mulle_objc_object_get_isa( p)) ==
-           _mulle_objc_infraclass_get_universe( _mulle_objc_thread_get_autoreleasepoolclass( universe))) ;
-   assert( _mulle_objc_object_get_infraclass( p) != _mulle_objc_thread_get_autoreleasepoolclass( universe));
+   assert( pool != nil);      // empty pool ? something has been clobbered
+   assert( p != nil);         // shouls have been caught earlier
+
+   assert( _mulle_objc_object_get_isa( p));  // not really an object is it ?
+
+   // object and pool must be of the same universe
+   object_universe = _mulle_objc_object_get_universe( p);
+   pool_universe   = _mulle_objc_infraclass_get_universe( config->poolClass);
+   assert( object_universe == pool_universe);
+
+   // can't autorelease an autoreleasepool
+   assert( _mulle_objc_object_get_infraclass( p) != config->poolClass);
 // this messages ObjC too much, which gets boring in traces
 //   assert( [p isProxy] || [p respondsToSelector:@selector( release)]);
 #endif
@@ -602,14 +639,14 @@ static inline void   autoreleaseObjects( id *objects,
 
 
 - (void) mulleAddObjects:(id *) objects
-               count:(NSUInteger) count
+                   count:(NSUInteger) count
 {
    autoreleaseObjects( objects, count, _mulle_objc_object_get_universe( self));
 }
 
 
 + (void) mulleAddObjects:(id *) objects
-               count:(NSUInteger) count
+                   count:(NSUInteger) count
 {
    autoreleaseObjects( objects, count, _mulle_objc_object_get_universe( self));
 }
@@ -781,7 +818,7 @@ static inline void   releaseObjects( NSAutoreleasePool *self,
 
 
 - (void) mulleReleasePoolObjects:(id *) p
-                       count:(NSUInteger) count
+                           count:(NSUInteger) count
 {
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;
@@ -793,7 +830,7 @@ static inline void   releaseObjects( NSAutoreleasePool *self,
 
 
 + (void) mulleReleasePoolObjects:(id *) p
-                       count:(NSUInteger) count
+                           count:(NSUInteger) count
 {
    NSAutoreleasePool                      *pool;
    struct _mulle_objc_poolconfiguration   *config;
@@ -852,9 +889,7 @@ static void   releaseAllObjectsInPool( struct _mulle_objc_poolconfiguration *con
       {
          fprintf( stderr, "[pool] %p releases objects of storage %p\n", pool, storage);
 
-         _mulle_autoreleasepointerarray_dump_objects( storage,
-                                                      "releases",
-                                                      static_storage( config, pool));
+         _mulle_autoreleasepointerarray_dump_objects( storage, "releases");
       }
       _mulle_autoreleasepointerarray_release_and_free( storage,
                                                        static_storage( config, pool),
@@ -1007,6 +1042,284 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 }
 
 
+struct dump_info
+{
+   struct _mulle_objc_universefoundationinfo    *info;
+
+   FILE                       *fp;
+   mulle_objc_walkcommand_t   (*dumper)( id obj, void *userinfo);
+
+   void                       *thread_adr;
+   void                       *pool_adr;
+
+   int                        thread_index;
+   int                        pool_index;
+
+   char                       *thread_name;
+   char                       *pool_name;
+   int                        options;
+
+   struct mulle__pointermap   object_index_map;
+   struct mulle__pointermap   thread_index_map;
+};
+
+
+static void   dump_object( id obj, struct dump_info *info)
+{
+   uintptr_t        rc;
+   char             *name;
+   mulle_thread_t   osThread;
+   NSThread         *thread;
+   NSUInteger       thread_index;
+
+   if( [obj respondsToSelector:@selector( mulleNameUTF8String)])
+   {
+      name = [obj mulleNameUTF8String];
+      mulle_fprintf( info->fp, "\"%s\"", name);
+   }
+   else
+      mulle_fprintf( info->fp, "\"%p\"", obj);
+
+   mulle_fprintf( info->fp, ",\"%s\"", MulleObjCObjectGetClassNameUTF8String( obj));
+   rc = _mulle_objc_object_get_retaincount_notps_noslow( obj);
+   if( rc == MULLE_OBJC_NEVER_RELEASE)
+      mulle_fprintf( info->fp, ",constant");
+   else
+      mulle_fprintf( info->fp, ",%td", rc);
+
+   if( info->options & 0x2)
+   {
+      osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) obj);
+      if( osThread == mulle_objc_object_is_threadsafe)
+         mulle_fprintf( info->fp, ",NULL,\"threadsafe\"");
+      else
+         if( osThread == mulle_objc_object_has_no_thread)
+            mulle_fprintf( info->fp, ",-1,\"unowned\"");
+         else
+         {
+            thread = mulle_map_get( info->info->object.threads, (void *) osThread);
+            name   = [thread mulleNameUTF8String];
+            if( info->options & 0x1)
+            {
+               thread_index = (NSUInteger) _mulle__pointermap_get( &info->thread_index_map, thread);
+               mulle_fprintf( info->fp, ",%td,\"%s\"", thread_index, name);
+            }
+            else
+            {
+               mulle_fprintf( info->fp, ",%td,\"%s\"", (intptr_t) thread, name);
+            }
+         }
+   }
+
+   mulle_fprintf( info->fp, "\n");
+}
+
+
+static mulle_objc_walkcommand_t   dump_object_indexed( id obj, void *userinfo)
+{
+   struct dump_info   *info = userinfo;
+   intptr_t           object_index;
+
+   object_index = mulle__pointermap_get_count( &info->object_index_map);
+   object_index = (intptr_t) mulle__pointermap_register( &info->object_index_map,
+                                                         obj,
+                                                         (void *) object_index,
+                                                         NULL);
+   mulle_fprintf( info->fp, "%d,\"%s\",%d,\"%s\",%td,",
+                            info->thread_index,
+                            info->thread_name,
+                            info->pool_index,
+                            info->pool_name,
+                            object_index);
+
+   dump_object( obj, info);
+
+   return( mulle_objc_walk_ok);
+}
+
+
+static mulle_objc_walkcommand_t   dump_object_addressed( id obj, void *userinfo)
+{
+   struct dump_info   *info = userinfo;
+
+   mulle_fprintf( info->fp, "%td,\"%s\",%td,\"%s\",%td,",
+                            (intptr_t) info->thread_adr,
+                            info->thread_name,
+                            (intptr_t) info->pool_adr,
+                            info->pool_name,
+                            (intptr_t) obj);
+
+   dump_object( obj, info);
+
+   return( mulle_objc_walk_ok);
+}
+
+
+static inline void   _dump_info_init( struct dump_info *p,
+                                      FILE *fp,
+                                      struct _mulle_objc_universefoundationinfo *info,
+                                      int options)
+{
+   NSThread         *thread;
+   NSUInteger       thread_index;
+   mulle_thread_t   osThread;
+
+   memset( p, 0, sizeof( *p));
+
+   p->fp      = fp;
+   p->info    = info;
+   p->dumper  = (options & 0x1) ? dump_object_indexed : dump_object_addressed;
+   p->options = options;
+
+   _mulle__pointermap_init( &p->object_index_map, 1024, NULL);
+   _mulle__pointermap_init( &p->thread_index_map, 8, NULL);
+
+   mulle__pointermap_set( &p->thread_index_map, info->thread.mainthread, (void *) 0, NULL);
+
+   thread_index = 1;
+   mulle_map_for( info->object.threads, osThread, thread)
+   {
+      if( thread != info->thread.mainthread)
+      {
+         mulle__pointermap_set( &p->thread_index_map, thread, (void *) (intptr_t) thread_index, NULL);
+         ++thread_index;
+      }
+   }
+}
+
+
+static inline void   _dump_info_done( struct dump_info *p)
+{
+   _mulle__pointermap_done( &p->thread_index_map, NULL);
+   _mulle__pointermap_done( &p->object_index_map, NULL);
+}
+
+
+static void   _dumpinfo_dump_thread( struct dump_info *info,
+                                     NSThread *thread,
+                                     NSUInteger index,
+                                     FILE *fp)
+{
+   NSAutoreleasePool                      *pool;
+   struct _mulle_objc_poolconfiguration   *config;
+
+   info->thread_adr   = thread;
+   info->thread_name  = [thread mulleNameUTF8String];
+   info->thread_index = (int) index;
+   info->pool_index   = 0;
+
+   config = [thread _poolconfiguration];
+   for( pool = config->tail; pool; pool = pool->_owner)
+      info->pool_index++;
+
+   for( pool = config->tail; pool; pool = pool->_owner)
+   {
+      info->pool_name = [pool mulleNameUTF8String];
+      info->pool_adr  = pool;
+
+      --info->pool_index;
+      _mulle_autoreleasepointerarray_walk_objects( pool->_storage, info->dumper, info);
+   }
+}
+
+
+static void
+   _mulle_objc_universefoundationinfo_dump_autoreleasepools( struct _mulle_objc_universefoundationinfo *info,
+                                                             FILE *fp,
+                                                             int indexed)
+{
+   NSThread           *thread;
+   void               *osThread;
+   NSUInteger         thread_index;
+   struct dump_info   dump_info;
+
+   _dump_info_init( &dump_info, fp, info, indexed);
+
+   thread = info->thread.mainthread;
+   _dumpinfo_dump_thread( &dump_info, thread, 0, fp);
+
+   mulle_map_for( info->object.threads, osThread, thread)
+   {
+      thread_index = (NSUInteger) _mulle__pointermap_get( &dump_info.thread_index_map, thread);
+      if( thread_index)
+      {
+         _dumpinfo_dump_thread( &dump_info, thread, thread_index, fp);
+      }
+   }
+
+   _dump_info_done( &dump_info);
+}
+
+
+void   MulleObjCDumpAutoreleasePoolsToFILEWithOptions( FILE *fp, int options)
+{
+   struct _mulle_objc_universe                 *universe;
+   struct _mulle_objc_universefoundationinfo   *info;
+
+   if( ! fp)
+      fp = stdout;
+
+   universe = MulleObjCGetUniverse();
+   if( universe)
+   {
+      mulle_fprintf( fp, "thread_id,thread,pool_id,pool,object_id,object,class,rc");
+      if( options & 0x2)
+         mulle_fprintf( fp, ",owner_id,owner");
+      mulle_fprintf( fp, "\n");
+
+      _mulle_objc_universe_lock( universe);
+      {
+         info = _mulle_objc_universe_get_foundationdata( universe);
+         _mulle_objc_universefoundationinfo_dump_autoreleasepools( info, fp, options);
+      }
+      _mulle_objc_universe_unlock( universe);
+   }
+}
+
+
+void  MulleObjCDumpAutoreleasePoolsToFileIndexed( char *filename)
+{
+   FILE   *fp;
+
+   fp = fopen( filename, "w");
+   if( ! fp)
+   {
+      perror( "fopen:");
+      return;
+   }
+   MulleObjCDumpAutoreleasePoolsToFILEWithOptions( fp, 0x3);
+   fclose( fp);
+}
+
+
+void  MulleObjCDumpAutoreleasePoolsToFile( char *filename)
+{
+   FILE   *fp;
+
+   fp = fopen( filename, "w");
+   if( ! fp)
+   {
+      perror( "fopen:");
+      return;
+   }
+   MulleObjCDumpAutoreleasePoolsToFILEWithOptions( fp, 0x2);
+   fclose( fp);
+}
+
+
+unsigned long   MulleObjCDumpAutoreleasePoolsFrame( void)
+{
+   static mulle_atomic_pointer_t   counter;
+   auto char                       buf[ 19 + 32 + 4 + 1];
+   unsigned long                   nr;
+
+   nr = (unsigned long) (uintptr_t) _mulle_atomic_pointer_increment( &counter);
+   mulle_snprintf( buf, sizeof( buf), "NSAutoreleasePools_%06d.csv", nr);
+   MulleObjCDumpAutoreleasePoolsToFile( buf);
+
+   return( nr);
+}
+
 @end
 
 
@@ -1056,6 +1369,12 @@ static void   dealloc( _MulleObjCAutoreleaseAllocation *self)
 }
 
 
+- (Class) class
+{
+   return( MulleObjCInstanceGetClass( self));
+}
+
+
 - (void) dealloc
 {
    dealloc( self);
@@ -1066,6 +1385,7 @@ static void   dealloc( _MulleObjCAutoreleaseAllocation *self)
 - (void) finalize
 {
 }
+
 
 // we are just in an autoreleasepool and don't retaincount
 - (void) release
@@ -1086,7 +1406,6 @@ static void   dealloc( _MulleObjCAutoreleaseAllocation *self)
 }
 
 @end
-
 
 
 void   *MulleObjCAutoreleaseAllocation( void *pointer, struct mulle_allocator *allocator)

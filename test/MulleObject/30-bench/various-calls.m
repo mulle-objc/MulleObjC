@@ -1,4 +1,5 @@
 #import <MulleObjC/MulleObjC.h>
+#import <MulleObjC/MulleObjCExceptionHandler-Private.h>
 #import <MulleObjC/NSLock-Private.h>
 #import <MulleObjC/NSRecursiveLock-Private.h>
 #import <MulleObjC/MulleObject-Private.h>
@@ -33,7 +34,7 @@
 
 @interface B : NSObject
 {
-   NSRecursiveLock  *_lock;
+   NSLock  *_lock;
 
 }
 - (void) safeCall:(NSUInteger) n     MULLE_OBJC_THREADSAFE_METHOD;

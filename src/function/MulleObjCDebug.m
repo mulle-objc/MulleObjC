@@ -46,6 +46,8 @@
 #include <string.h>
 
 
+#import "MulleObjCFunctions.h"
+
 
 
 static struct _mulle_objc_infraclass   *infraclass_from_string( char *classname)
@@ -428,3 +430,4 @@ void   MulleObjCDumpObject( id obj)
 }
 
 #endif
+

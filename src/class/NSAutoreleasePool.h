@@ -49,7 +49,9 @@
 // This is not a subclass of NSObject, because it really is different
 //
 // A NSAutoreleasePool is not even a MulleObjCRuntimeObject, you can't do
-// much with it
+// much with it. As a consequence of it being a root object, instance methods
+// like -init or -mulleNameUTF8String will wrap around, so be careful.
+//
 @interface NSAutoreleasePool
 {
    NSAutoreleasePool   *_owner;
@@ -60,6 +62,7 @@
 // MEMO: this is marked as threadsafe, but that's because its assumed
 //       you set it only during initialization. Its sort of a blemish
 //       (compare with NSThread: -mulleNameUTF8String)
+//       returns address of pool if uninitialized
 @property( dynamic, assign) char  *mulleNameUTF8String   MULLE_OBJC_THREADSAFE_PROPERTY;
 
 + (id) alloc;
@@ -211,3 +214,56 @@ static inline id   NSAutoreleaseObject( id obj)
       _MulleObjCAutoreleaseObject( obj);
    return( obj);
 }
+
+
+
+//
+// Use this in the debugger in a breakpoint, then all threads are stopped
+// and the output should be meaningful. You get a CSV file, which you can
+// then import into sqlite and then post-process, like this for example:
+//
+// .mode csv
+// .import 'pooldump.stdout' data
+// .headers on
+//
+// CREATE TABLE NSThread AS
+// SELECT DISTINCT thread_id, thread AS thread_name
+// FROM data;
+//
+// CREATE TABLE NSAutoreleasePool AS
+// SELECT DISTINCT pool_id, pool AS pool_name, thread_id
+// FROM data;
+//
+// CREATE TABLE pool_objects AS
+// SELECT DISTINCT pool_id, thread_id, object_id
+// FROM data;
+//
+// CREATE TABLE objects AS
+// SELECT
+//     object_id,
+//     object AS object_name,
+//     class AS class_name,
+//     rc AS retain_count,
+//     (SELECT COUNT(*) FROM data AS d WHERE d.object_id = data.object_id) AS pool_count
+// FROM
+//     data
+// GROUP BY
+//     object_id, object, class, rc;
+//
+// Remember that objects that are "roots", which are also autoreleased
+// somewhere will have diverging pool_count and retain_count.
+//
+// Next escalation would be to have SQL on our objects live...
+//
+
+MULLE_OBJC_GLOBAL
+void   MulleObjCDumpAutoreleasePoolsToFile( char *filename);
+
+MULLE_OBJC_GLOBAL
+void   MulleObjCDumpAutoreleasePoolsToFileIndexed( char *filename);
+
+MULLE_OBJC_GLOBAL
+void   MulleObjCDumpAutoreleasePoolsToFILEWithOptions( FILE *fp, int indexed);
+
+MULLE_OBJC_GLOBAL
+unsigned long   MulleObjCDumpAutoreleasePoolsFrame( void);

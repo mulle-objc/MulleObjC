@@ -44,6 +44,7 @@
 #import "MulleObjCException.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
+#import "MulleObjCFunctions.h"
 #import "NSAutoreleasePool.h"
 #import "NSInvocation.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
@@ -174,9 +175,41 @@ static struct
 }
 
 
+- (instancetype) mulleInitWithObjectFunction:(MulleThreadObjectFunction_t) f
+                                      object:(id) obj
+{
+   if( ! f)
+      __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
+                                                   "function must not be nil");
+
+   // for subclasses
+   self = [self init];
+
+   self->_function                 = (MulleThreadFunction_t *) f;
+   self->_functionArgument         = [obj retain];
+   self->_isObjectFunctionArgument = 1;
+
+   return( self);
+}
+
+
+//
+// there are two threads that can run -finalize, it's expected that its
+// the "osTread" of the NSThread (i.e. we ran through bouncy bounce, and
+// now are in [NSThread exit] which does a performFinalize). But you can
+// also have a NSThread that was never invoked.
+//
 - (void) finalize
 {
    id   runLoop;
+
+   //
+   // it's an error to call mullePerformFinalize from the main thread. From
+   // the the actual thread, you should use +[NSThread exit];
+   //
+   assert( (! MulleThreadObjectGetOSThread( self)
+           || MulleThreadGetCurrentOSThread() == MulleThreadObjectGetOSThread( self))
+           && "Do not call mullePerformFinalize on NSThread");
 
    runLoop = [self mulleRunLoop];
    _mulle_atomic_pointer_write_nonatomic( &self->_runLoop, nil);
@@ -200,8 +233,29 @@ static struct
    //   context = [context mulleGainAccess];
    //
 
-   if( self->_invocationGainedAccess)
-      [self->_invocation mulleRelinquishAccess];
+   if( self->_isDetached)
+   {
+      [self->_invocation autorelease];
+      self->_invocation = nil;
+
+      if( _isObjectFunctionArgument)
+      {
+         [(id) self->_functionArgument autorelease];
+         self->_functionArgument = NULL;
+      }
+   }
+   else
+      if( self->_threadDidGainAccess)
+      {
+         if( _isObjectFunctionArgument)
+         {
+            [(id) self->_functionArgument mulleRelinquishAccess];
+         }
+         else
+         {
+            [self->_invocation mulleRelinquishAccess];
+         }
+      }
 
    [super finalize];
 }
@@ -212,15 +266,29 @@ static struct
    assert( ! [self mulleRunLoop]);
    assert( ! self->_userInfo);
 
-   // need to do this "deeply" to autorelease all we have
-   // the -autorelease is unwanted though or ? would prefer -release
-   // but can't have it. NSAutoreleasepool should immediately release 
-   // during pool cleaning though...
-   if( self->_invocationGainedAccess)
-      [self->_invocation mulleGainAccess]; // or gainAccess again ???
-   [self->_invocation release];
+   //
+   // in the detached case, invocation and functionArgument are
+   // already niled away
+   //
+   if( self->_threadDidGainAccess)
+   {
+      if( _isObjectFunctionArgument)
+         [(id) self->_functionArgument mulleGainAccess];
+      else
+         [self->_invocation mulleGainAccess];
+   }
 
-   MulleObjCInstanceDeallocateMemory( self, _nameUTF8String);
+   [self->_invocation release];
+   self->_invocation = nil;
+
+   if( _isObjectFunctionArgument)
+   {
+      [(id) self->_functionArgument release];
+      self->_functionArgument = NULL;
+   }
+
+   // need to free it like this
+   [self mulleSetNameUTF8String:NULL];
    _MulleObjCInstanceFree( self);
 }
 
@@ -289,20 +357,20 @@ static void
 
 // this is used by mulle_objc_thread_get_threadfoundationinfo to create
 // a new NSThread on demand if needed
-static void   _MulleThreadRegisterInUniverse( NSThread *threadObject,
+static void   _MulleThreadRegisterInUniverse( NSThread *self,
                                               struct _mulle_objc_universe *universe)
 {
-   _mulle_objc_universe_set_threadobject_for_thread( universe, mulle_thread_self(), threadObject); // does not retain
-   _mulle_objc_thread_set_threadobject( universe, threadObject);   // this owns it!
+   _mulle_objc_universe_set_threadobject_for_thread( universe, mulle_thread_self(), self); // does not retain
+   _mulle_objc_thread_set_threadobject( universe, self);   // this owns it!
 }
 
 
-static void   _MulleThreadDeregisterInUniverse( NSThread *threadObject,
+static void   _MulleThreadDeregisterInUniverse( NSThread *self,
                                                 struct _mulle_objc_universe *universe)
 {
-   assert( MulleThreadObjectGetOSThread( threadObject) == mulle_thread_self());
+   assert( MulleThreadObjectGetOSThread( self) == mulle_thread_self());
 
-   _mulle_objc_universe_remove_threadobject_for_thread( universe, mulle_thread_self(), threadObject); // does not retain
+   _mulle_objc_universe_remove_threadobject_for_thread( universe, mulle_thread_self(), self); // does not retain
    _mulle_objc_thread_set_threadobject( universe, NULL);   // this owns it!
 }
 
@@ -312,21 +380,21 @@ static void   _MulleThreadDeregisterInUniverse( NSThread *threadObject,
  */
 NSThread   *_MulleThreadGetCurrentThreadObjectInUniverse( struct _mulle_objc_universe *universe)
 {
-   NSThread                                    *threadObject;
+   NSThread                                    *self;
    struct _mulle_objc_universefoundationinfo   *info;
 
-   info          = _mulle_objc_universe_get_universefoundationinfo( universe);
-   threadObject  = _mulle_objc_universefoundationinfo_get_mainthreadobject( info);
-   return( threadObject);
+   info  = _mulle_objc_universe_get_universefoundationinfo( universe);
+   self  = _mulle_objc_universefoundationinfo_get_mainthreadobject( info);
+   return( self);
 }
 
 
 static NSThread   *__MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc_universe *universe)
 {
-   NSThread   *threadObject;
+   NSThread   *self;
 
-   threadObject = [NSThread new];
-   _mulle_atomic_pointer_write_nonatomic( &threadObject->_osThread, (void *) mulle_thread_self());
+   self = [NSThread new];
+   _mulle_atomic_pointer_write_nonatomic( &self->_osThread, (void *) mulle_thread_self());
 
    //
    // create pool configuration, ahead of register so it can
@@ -334,11 +402,11 @@ static NSThread   *__MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc
    //
    [NSAutoreleasePool class];
 //   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
-   mulle_objc_thread_new_poolconfiguration( universe);
+   self->_poolconfiguration = mulle_objc_thread_new_poolconfiguration( universe);
 
-   _MulleThreadRegisterInUniverse( threadObject, universe);
+   _MulleThreadRegisterInUniverse( self, universe);
 
-   return( threadObject);
+   return( self);
 }
 
 
@@ -362,6 +430,21 @@ NSThread   *MulleThreadGetOrCreateCurrentThread( void)
 }
 
 
+
+static void   _MulleThreadTakedownPoolAndRelease( NSThread *threadObject,
+                                                  struct _mulle_objc_universe *universe)
+{
+   [threadObject mullePerformFinalize];
+
+   mulle_objc_thread_reset_poolconfiguration( universe);
+
+   _MulleThreadDeregisterInUniverse( threadObject, universe);
+   [threadObject release];
+
+   mulle_objc_thread_done_poolconfiguration( universe);
+}
+
+
 void   _MulleThreadRemoveThreadObjectFromUniverse( NSThread *threadObject,
                                                    struct _mulle_objc_universe *universe)
 {
@@ -372,10 +455,13 @@ void   _MulleThreadRemoveThreadObjectFromUniverse( NSThread *threadObject,
    assert( thread == mulle_thread_self());
    assert( thread != _mulle_objc_universe_get_thread( universe));
 #endif
-   _MulleThreadDeregisterInUniverse( threadObject, universe);
-   [threadObject release];
 
-   mulle_objc_thread_done_poolconfiguration( universe);
+
+   // MEMO: used to be above mulle_objc_thread_done_poolconfigurationm but
+   //       then -dealloc code could not find the current thread
+   //       disadvantage now: no enveloping autorelasepool!
+
+   _MulleThreadTakedownPoolAndRelease( threadObject, universe);
 
    _mulle_objc_thread_resignas_universethread( universe, YES);
 }
@@ -436,11 +522,8 @@ void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_univer
    assert( MulleThreadObjectGetOSThread( threadObject) == _mulle_objc_universe_get_thread( universe));
    assert( [threadObject retainCount] == 1);
 
-   _MulleThreadDeregisterInUniverse( threadObject, universe);
-   [threadObject release];
-
    // we don't resign as universe thread, just pop the pools
-   mulle_objc_thread_done_poolconfiguration( universe);
+   _MulleThreadTakedownPoolAndRelease( threadObject, universe);
 
    info = _mulle_objc_universe_get_universefoundationinfo( universe);
    _mulle_objc_universefoundationinfo_set_mainthreadobject( info, NULL);
@@ -503,10 +586,7 @@ void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
    threadkey = _mulle_objc_universe_get_threadkey( universe);
    mulle_thread_tss_set( threadkey, info);
 
-   _MulleThreadDeregisterInUniverse( threadObject, universe);
-   [threadObject release];
-
-   mulle_objc_thread_done_poolconfiguration( universe);
+   _MulleThreadTakedownPoolAndRelease( threadObject, universe);
 
    _mulle_objc_thread_resignas_universethread( universe, NO);
 
@@ -555,7 +635,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    [NSAutoreleasePool class];
 
 //   assert( mulle_objc_universe_lookup_infraclass_nofail( universe, @selector( NSAutoreleasePool)));
-   mulle_objc_thread_new_poolconfiguration( universe);
+   self->_poolconfiguration = mulle_objc_thread_new_poolconfiguration( universe);
 
    // make threadObject known to universe and thread
    _MulleThreadRegisterInUniverse( self, universe);
@@ -575,10 +655,14 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    // start
    //
    assert( ! self->_userInfo);
-   assert( ! self->_invocationGainedAccess);
+   assert( ! self->_threadDidGainAccess);
 
-   [self->_invocation mulleGainAccess];
-   self->_invocationGainedAccess = YES;
+   if( self->_isObjectFunctionArgument)
+      [(id) self->_functionArgument mulleGainAccess];
+   else
+      [self->_invocation mulleGainAccess];
+   self->_threadDidGainAccess = YES;
+
    [self main];
 
    // this will call -finalize on us, which will release the invocation
@@ -612,18 +696,23 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    //
    [self retain];
    _mulle_objc_universe_retain( universe);
-   [self->_invocation mulleRelinquishAccess];
+
+   if( self->_isObjectFunctionArgument)
+      [(id) self->_functionArgument mulleRelinquishAccess];
+   else
+      [self->_invocation mulleRelinquishAccess];
 
    if( mulle_thread_create( bouncyBounce, self, &thread))
    {
       // undo this
+      self->_isDetached = NO;
       _mulle_objc_universe_release( universe);
       [self release];
 
       __mulle_objc_universe_raise_errno( universe, "thread creation");
    }
 
-   // we can not be sure thread has done this already, but we want to
+   // we can not be sure, that the thread has done this already, but we want to
    // be up-to-date
    _NSThreadSetOSThread( self, thread);
 
@@ -635,21 +724,6 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 - (void) mulleStartUndetached
 {
    [self mulleStart];
-}
-
-
-/*
-   The pthread_detach() function marks the thread identified by thread as
-   detached.  When a detached thread terminates, its resources are
-   automatically released back to the system without the need for another
-   thread to join with the terminated thread.
-   Once a thread has been detached, it can't be joined with pthread_join(3) or
-   be made joinable again.
-*/
-- (void) mulleDetach
-{
-   self->_isDetached = YES;
-   mulle_thread_detach( MulleThreadObjectGetOSThread( self));
 }
 
 
@@ -671,13 +745,25 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    }
    mulle_thread_join( MulleThreadObjectGetOSThread( self));
 
-   // could regain invocation here, but how many threads will actually
-   // be joined ? And what does this do to ownership and autorelease ?
-   if( self->_invocationGainedAccess)
-      [self->_invocation mulleGainAccess];
+   invocation = nil;
 
-   invocation = [self->_invocation autorelease];
-   self->_invocation = nil;
+   if( self->_isObjectFunctionArgument)
+   {
+      // now mainThread (or caller thread) will get access back
+      if( self->_threadDidGainAccess)
+         [(id) self->_functionArgument mulleGainAccess];
+
+      [(id) self->_functionArgument autorelease];
+      self->_functionArgument = NULL;
+   }
+   else
+   {
+      // now mainThread (or caller thread) will get access back
+      if( self->_threadDidGainAccess)
+         [self->_invocation mulleGainAccess];
+      invocation = [self->_invocation autorelease];
+      self->_invocation = nil;
+   }
 
    return( invocation);
 }
@@ -705,8 +791,24 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 
 - (void) start
 {
+   mulle_thread_t   os_thread;
+
+   // we set this early, otherwise things could get racy
+   // in case we don't really detach, we set this back to NO
+   self->_isDetached = YES;
    [self mulleStartUndetached];
-   [self mulleDetach];
+
+   /*
+      The pthread_detach() function marks the thread identified by thread as
+      detached.  When a detached thread terminates, its resources are
+      automatically released back to the system without the need for another
+      thread to join with the terminated thread.
+      Once a thread has been detached, it can't be joined with pthread_join(3)
+      or be made joinable again.
+   */
+
+   os_thread = MulleThreadObjectGetOSThread( self);
+   mulle_thread_detach( os_thread);
 }
 
 
@@ -750,6 +852,12 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
 }
 
 
+// hidden for debug only
+- (void *) _poolconfiguration
+{
+   return( _poolconfiguration);
+}
+
 //
 // not 100% compatible to Apple, where this flag is "sticky"
 //
@@ -757,11 +865,10 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
 {
    BOOL   flag;
 
-   mulle_thread_mutex_lock( &Self._lock);
+   mulle_thread_mutex_do( Self._lock)
    {
       flag = Self._isMultiThreaded;
    }
-   mulle_thread_mutex_unlock( &Self._lock);
    return( flag);
 }
 
@@ -778,7 +885,7 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
    // another thread could be starting up right now from the main thread
    // also some thread destructors might be running
    //
-   mulle_thread_mutex_lock( &Self._lock);
+   mulle_thread_mutex_do( Self._lock)
    {
       if( Self._isMultiThreaded)
       {
@@ -786,7 +893,6 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
          [self _isProbablyGoingSingleThreaded];
       }
    }
-   mulle_thread_mutex_unlock( &Self._lock);
 }
 
 
@@ -803,7 +909,7 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
    // single threaded. We serialize here, so that other threads don't
    // overtake us.
    //
-   mulle_thread_mutex_lock( &Self._lock);
+   mulle_thread_mutex_do( Self._lock)
    {
       if( ! Self._isMultiThreaded)
       {
@@ -811,7 +917,6 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
          [self _isGoingMultiThreaded];
       }
    }
-   mulle_thread_mutex_unlock( &Self._lock);
 }
 
 
@@ -897,7 +1002,8 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
    struct _mulle_objc_universe   *universe;
 
    universe = _mulle_objc_infraclass_get_universe( self);
-   return( universe->config.wait_threads_on_exit);
+   // both will wait, so for introspection check both flags
+   return( universe->config.wait_threads_on_exit || universe->config.pedantic_exit);
 }
 
 
@@ -931,7 +1037,6 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    [threadObject->_userInfo autorelease];
    threadObject->_userInfo = [info retain];
 }
-
 
 
 
@@ -1001,7 +1106,9 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    char  *s;
 
    s = _mulle_atomic_pointer_read( &_nameUTF8String);
-   return( s ? s : "unnamed");
+   if( ! s)
+      s = MulleObjC_asprintf( "%p", self);
+   return( s);
 }
 
 

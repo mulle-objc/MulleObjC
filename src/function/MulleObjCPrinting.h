@@ -33,6 +33,9 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#ifndef MulleObjCPrinting_h__
+#define MulleObjCPrinting_h__
+
 #include "mulle-objc.h"
 
 #include <stdarg.h>
@@ -74,3 +77,4 @@ char   *MulleObjC_strdup( char *s);
            name ## __j < 1;                                                    \
            name ## __j++)
 
+#endif

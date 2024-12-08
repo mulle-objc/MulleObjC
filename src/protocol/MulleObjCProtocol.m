@@ -17,7 +17,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadSafe)
    _mulle_objc_class_set_state_bit( cls, MULLE_OBJC_CLASS_IS_NOT_THREAD_AFFINE);
 }
 
-- (BOOL) mulleIsThreadSafe
+- (BOOL) mulleIsThreadSafe                MULLE_OBJC_THREADSAFE_METHOD
 {
    return( YES);
 }
@@ -28,7 +28,15 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadSafe)
    return( MulleObjCObjectRetain( self)); // is a little unclean
 }
 
+
+//
 // no need for mulleTAOStrategy as it doesn't apply to threadSafe objects
+// but still nicer for introspection
+//
+- (MulleObjCTAOStrategy) mulleTAOStrategy  MULLE_OBJC_THREADSAFE_METHOD
+{
+   return( MulleObjCTAOKnownThreadSafe);
+}
 
 PROTOCOLCLASS_END()
 
@@ -44,7 +52,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadUnsafe)
    _mulle_objc_class_clear_state_bit( cls, MULLE_OBJC_CLASS_IS_NOT_THREAD_AFFINE);
 }
 
-- (BOOL) mulleIsThreadSafe
+- (BOOL) mulleIsThreadSafe                MULLE_OBJC_THREADSAFE_METHOD
 {
    return( NO);
 }

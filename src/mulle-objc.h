@@ -20,10 +20,57 @@
 
 #include "minimal.h"
 
+
 // additional stuff requiring the runtime
 #include "mulle-objc-atomicid.h"
 #include "mulle-objc-classbit.h"
 #include "mulle-objc-threadfoundationinfo.h"
+
+//
+// useful for asserts.. here for reasons...
+//
+static inline BOOL   MulleObjCClassMetaClass( Class cls)
+{
+   return( mulle_objc_class_is_metaclass( (struct _mulle_objc_class *) cls));
+}
+
+
+static inline BOOL   MulleObjCObjectIsClass( id obj)
+{
+   struct _mulle_objc_class  *cls;
+
+   cls =  mulle_objc_object_get_isa( obj);
+   return( mulle_objc_class_is_metaclass( cls));
+}
+
+
+static inline BOOL   MulleObjCObjectIsClassOrNil( id obj)
+{
+   struct _mulle_objc_class  *cls;
+
+   cls =  mulle_objc_object_get_isa( obj);
+   return( ! mulle_objc_class_is_infraclass( cls));
+}
+
+
+static inline BOOL   MulleObjCObjectIsInstance( id obj)
+{
+   struct _mulle_objc_class  *cls;
+
+   cls = mulle_objc_object_get_isa( obj);
+   return( mulle_objc_class_is_infraclass( cls));
+}
+
+
+static inline BOOL   MulleObjCObjectIsInstanceOrNil( id obj)
+{
+   struct _mulle_objc_class  *cls;
+
+   cls =  mulle_objc_object_get_isa( obj);
+   return( ! mulle_objc_class_is_metaclass( cls));
+}
+
+
 #include "MulleObjCAllocation.h"
 #include "MulleObjCAutoreleasePool.h"
 #include "MulleObjCExceptionHandler.h"
@@ -31,7 +78,6 @@
 #include "MulleObjCContainerObjectCallback.h"
 #include "MulleObjCPrinting.h"
 #include "MulleObjCUniverse.h"
-
 
 
 #ifdef __has_include

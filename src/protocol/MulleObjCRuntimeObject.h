@@ -29,7 +29,7 @@ typedef NS_ENUM( NSUInteger, MulleObjCTAOStrategy)
 
 // (*) this means an instance is created and then presented to a thread in a one
 //     directional fashion. It won't work, if the instance is created in the
-//     thread and then acquired by the thread maker. I.e. hardly ever useful.
+//     thread and then acquired by the thread maker.
 //
 
 extern NS_ENUM_TABLE( MulleObjCTAOStrategy, 5);
@@ -204,6 +204,8 @@ _Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
 // a class, that is MulleObjCThreadSafe.
 //
 - (void) mulleGainAccess            MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleGainAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy MULLE_OBJC_THREADSAFE_METHOD;
+
 - (void) mulleRelinquishAccess      MULLE_OBJC_THREADSAFE_METHOD;
 - (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy MULLE_OBJC_THREADSAFE_METHOD;
 - (MulleObjCTAOStrategy) mulleTAOStrategy MULLE_OBJC_THREADSAFE_METHOD;

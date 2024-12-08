@@ -44,6 +44,7 @@ struct MulleObjCAutoreleasePoolConfiguration;
 
 
 typedef int   MulleThreadFunction_t( NSThread *, void *);
+typedef int   MulleThreadObjectFunction_t( NSThread *, id);
 
 //
 // A NSThread is a 1:1 relationship to a mulle_thread, if the mulle_thread dies
@@ -51,7 +52,7 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 // If you pass non-threadsafe objects to the NSThread via the NSInvocation,
 // these objects will be unusable in the caller thread once the thread is
 // started. You must not access them anymore. This includes the target.
-// The default strategy even removes not-threadsafe objects from the active
+// The default strategy may even remove not-threadsafe objects from the active
 // NSAutoreleasePool of the caller thread.
 //
 @interface NSThread : NSObject < MulleObjCThreadSafe>
@@ -64,18 +65,17 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
    NSInvocation             *_invocation;
    id                       _userInfo;           // only valid in thread
    MulleThreadFunction_t    *_function;          // unmanaged
-   void                     *_functionArgument;  // unmanaged
+   void                     *_functionArgument;  // unmanaged (unless _isObjectFunctionArgument is 1)
 
+   // autoreleasepool root config (intended for debugging only)
+   void                     *_poolconfiguration;
    struct mulle_map         _map;  // not the -threadDictionary !
    int                      _rval;
 
+   char                     _isObjectFunctionArgument;
    char                     _isDetached;
-   char                     _invocationGainedAccess;
+   char                     _threadDidGainAccess;     // NSThread did gain accesss
 }
-
-// this property can only be set by the caller, before the thread is
-// actually executed
-@property( dynamic, assign) char   *mulleNameUTF8String  MULLE_OBJC_THREADSAFE_PROPERTY;
 
 + (NSThread *) mainThread;
 
@@ -114,6 +114,9 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
                               argument:(void *) argument;
 
 
+- (instancetype) mulleInitWithObjectFunction:(MulleThreadObjectFunction_t) f
+                                      object:(id) obj;
+
 // caller is responsible to call -retainArguments on invocation
 - (instancetype) mulleInitWithInvocation:(NSInvocation *) invocation;
 
@@ -150,7 +153,6 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 // from the NSThread
 //
 - (NSInvocation *) mulleJoin;    // __attribute__((availability(mulleobjc,introduced=0.2)));
-- (void) mulleDetach;            // __attribute__((availability(mulleobjc,introduced=0.2)));
 
 // This is legacy interface, which runs the thread in a detached state.
 // Prefer mulleStart and then keep the NSThread object around for later.
@@ -172,9 +174,19 @@ typedef int   MulleThreadFunction_t( NSThread *, void *);
 
 - (int) mulleReturnStatus;
 
+
+// this is not any longer a property, because we only want to clear it in
+// -dealloc. At time of writing properties are zeroed in -finalize
+//
+// This "property" can only be set by the caller, before the thread is
+// actually executed, if none is set this will be the address of NSThread
+- (void) mulleSetNameUTF8String:(char *) s   MULLE_OBJC_THREADSAFE_METHOD;
+- (char *) mulleNameUTF8String               MULLE_OBJC_THREADSAFE_METHOD;
+
 #pragma mark - Internal
 
 // don't call these functions yourself
+
 
 MULLE_OBJC_GLOBAL
 NSThread   *_MulleThreadGetCurrentThreadObjectInUniverse( struct _mulle_objc_universe *universe);
@@ -293,7 +305,9 @@ static inline mulle_thread_t  MulleThreadGetCurrentOSThread( void)
 
 
 
-typedef void   MulleObjCTAOFailureHandler( void *obj, mulle_thread_t osThread, struct _mulle_objc_descriptor *des) MULLE_C_NO_RETURN;
+typedef void   MulleObjCTAOFailureHandler( void *obj,
+                                           mulle_thread_t osThread,
+                                           struct _mulle_objc_descriptor *des) MULLE_C_NO_RETURN;
 
 // no coming back from this, just print nicely and abort
 #pragma mark - TAO Wrong Thread Failure

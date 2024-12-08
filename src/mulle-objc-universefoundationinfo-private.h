@@ -52,6 +52,7 @@ struct _mulle_objc_universefoundationinfo_object
    // thread object
    struct mulle_map    *threads;
 
+   unsigned char       singlethreadautoreleasecheckerenabled;
    unsigned char       debugenabled;
    unsigned char       zombieenabled;
    unsigned char       deallocatezombie;

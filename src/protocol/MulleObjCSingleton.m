@@ -43,6 +43,7 @@
 #import "MulleObjCExceptionHandler-Private.h"
 #import "MulleObjCIntegralType.h"
 #import "MulleObjCAllocation.h"
+#import "MulleObjCFunctions.h"
 #import "NSRange.h"
 #import "MulleObjCVersion.h"
 
@@ -100,7 +101,9 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
    MulleObjCSingletonMarkClassAsSingleton( self);
    if( Self._useEphemeralSingleton == -1)
    {
-      Self._useEphemeralSingleton = mulle_objc_environment_get_yes_no( "MULLE_OBJC_EPHEMERAL_SINGLETON");
+      Self._useEphemeralSingleton = mulle_objc_environment_get_yes_no( "MULLE_OBJC_EPHEMERAL_SINGLETON")
+                                    | mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_LEAK")
+                                    | mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_ZOMBIE");
       if( Self._useEphemeralSingleton > 0)
       {
          // universe allocator partakes in aba GC, but not the class allocator

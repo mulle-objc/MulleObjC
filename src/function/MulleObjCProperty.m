@@ -53,6 +53,8 @@ int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
    struct _mulle_objc_ivar    *ivar;
    mulle_objc_ivarid_t        ivarid;
 
+   assert( MulleObjCObjectIsInstance( (id) self));
+
    bits = _mulle_objc_property_get_bits( property);
    if( bits & _mulle_objc_property_setterclear)
    {
@@ -97,6 +99,8 @@ int   _MulleObjCInstanceClearPropertyNoReadOnly( struct _mulle_objc_property *pr
    ptrdiff_t                  offset;
    struct _mulle_objc_ivar    *ivar;
    mulle_objc_ivarid_t        ivarid;
+
+   assert( MulleObjCObjectIsInstance( (id) self));
 
    // don't clear readonly properties for (seems incompatible with Apple)
    bits = _mulle_objc_property_get_bits( property);
@@ -168,6 +172,8 @@ void   _MulleObjCInstanceClearProperties( id obj, BOOL clearReadOnly)
 {
    struct _mulle_objc_class        *cls;
    struct _mulle_objc_infraclass   *infra;
+
+   assert( MulleObjCObjectIsInstance( obj));
 
    // walk through properties and release them
    cls  = _mulle_objc_object_get_isa( obj);

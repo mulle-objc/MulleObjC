@@ -12,10 +12,11 @@
 
 @implementation Foo
 
-+ (void) function:(id) arg
++ (void) method:(id) arg
 {
-   [[NSObject new] autorelease];
-   printf( "%s\n", __PRETTY_FUNCTION__);
+   [Foo object]; // create an object for leak test
+   mulle_printf( "%s\n", __PRETTY_FUNCTION__);
+   MulleObjCDumpAutoreleasePoolsFrame();
 }
 
 @end
@@ -25,13 +26,13 @@ int main( void)
 {
    NSThread    *thread;
 
-   [NSThread detachNewThreadSelector:@selector( function:)
-                            toTarget:[Foo class]
-                          withObject:nil];
-
-   // as we are running this in a test, it should be with
-   // pedantic exit, so the universe will wait for the other thread
-   // to finish...
-
+   @autoreleasepool
+   {
+      [NSThread mulleSetMainThreadWaitsAtExit:YES];  // ensure
+      [NSThread detachNewThreadSelector:@selector( method:)
+                               toTarget:[Foo class]
+                             withObject:nil];
+      MulleObjCDumpAutoreleasePoolsFrame();
+   }
    return( 0);
 }

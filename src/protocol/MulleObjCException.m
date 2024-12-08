@@ -171,7 +171,7 @@ void   _MulleObjCThrowErrnoException( mulle_objc_universeid_t universeid,
  */
 MULLE_C_NO_RETURN
 void   _MulleObjCThrowInvalidArgumentExceptionUTF8String( mulle_objc_universeid_t universeid,
-                                                       char *format, ...)
+                                                          char *format, ...)
 {
    struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_universefoundationinfo   *rootconfig;

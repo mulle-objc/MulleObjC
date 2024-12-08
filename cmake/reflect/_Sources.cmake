@@ -13,6 +13,7 @@ endif()
 set( SOURCES
 src/class/MulleDynamicObject.m
 src/class/MulleObject.m
+src/class/MulleProxy.m
 src/class/NSAutoreleasePool.m
 src/class/NSConditionLock.m
 src/class/NSCondition.m

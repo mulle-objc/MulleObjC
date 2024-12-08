@@ -33,6 +33,9 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#ifndef MulleObjCHashFunctions_h__
+#define MulleObjCHashFunctions_h__
+
 #include "include.h"
 
 #include "NSRange.h"
@@ -79,4 +82,4 @@ static inline NSUInteger   MulleObjCBytesPartialHash( void *buf, NSUInteger leng
    return( MulleObjCBytesHashRange( buf, range));
 }
 
-
+#endif

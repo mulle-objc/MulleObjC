@@ -1,0 +1,19 @@
+#1 - a: -[Foo autorelease] 1
+#1 - 1: int main(int, const char **) 1
+#1 - +: -[Foo retain] 1 -> 2
+#1 - 2: int main(int, const char **) 2
+#1 - +: -[Foo retain] 2 -> 3
+#1 - q: -[Foo mulleRelinquishAccess] 2
+#2 - a: -[Foo autorelease] 2
+#2 - g: -[Foo mulleGainAccess] 2
+#2 - 3: int thread_function(NSThread *, id) 2
+#2 - +: -[Foo retain] 2 -> 3
+#2 - q: -[Foo mulleRelinquishAccess] 2
+#1 - 4: int main(int, const char **) 2
+#1 - a: -[Foo autorelease] 2
+#1 - g: -[Foo mulleGainAccess] 2
+#1 - a: -[Foo autorelease] 2
+#1 - 5: int main(int, const char **) 2
+#1 - -: -[Foo release] 2 -> 1
+#1 - -: -[Foo release] 1 -> 0
+#1 - d: -[Foo dealloc] 0
