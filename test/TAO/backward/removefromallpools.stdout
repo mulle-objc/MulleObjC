@@ -1,0 +1,15 @@
+#1 - 1: int main(int, const char **)
+#2 - a: -[Foo autorelease] 1
+#2 - 1: +[Receiver foo:] 1
+#2 - +: -[Foo retain] 1 -> 2
+#2 - q: -[Foo mulleRelinquishAccess] 1
+#1 - 3: int main(int, const char **)
+#1 - a: -[Foo autorelease] 1
+#1 - g: -[Foo mulleGainAccess] 1
+#1 - 4: int main(int, const char **) 1
+#1 - +: -[Foo retain] 1 -> 2
+#1 - -: -[Foo release] 2 -> 1
+#1 - a: -[Foo autorelease] 1
+#1 - 5: int main(int, const char **) 1
+#1 - -: -[Foo release] 1 -> 0
+#1 - d: -[Foo dealloc] 0

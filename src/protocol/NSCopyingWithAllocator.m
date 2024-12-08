@@ -146,13 +146,15 @@ int   _MulleObjCClassCopyWithAllocatorProperties( struct _mulle_objc_infraclass 
 
 
 
-id   MulleObjCInstanceCopyWithAllocator( id obj,
-                                NSUInteger extraBytes,
-                                struct mulle_allocator *allocator)
+id   _MulleObjCInstanceCopyWithAllocator( id obj,
+                                          NSUInteger extraBytes,
+                                          struct mulle_allocator *allocator)
 {
    id                clone;
    Class             infraCls;
    struct copy_info  info;
+
+   assert( MulleObjCObjectIsInstance( obj));
 
 
    if( [obj respondsToSelector:@selector( mulleAllocator)] &&
@@ -187,7 +189,7 @@ id   MulleObjCInstanceCopyWithAllocator( id obj,
 
 - (id) copyWithAllocator:(struct mulle_allocator *) allocator
 {
-   return( MulleObjCInstanceCopyWithAllocator( self, 0, allocator));
+   return( _MulleObjCInstanceCopyWithAllocator( self, 0, allocator));
 }
 
 @end

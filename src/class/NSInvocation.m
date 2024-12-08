@@ -43,6 +43,7 @@
 #import "MulleObjCException.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
+#import "MulleObjCFunctions.h"
 
 #pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
 
@@ -152,14 +153,13 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    size_t                             size;
 
    if( ! self->_methodSignature)
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                         "methodSignature not found on target");
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "methodSignature not found on target");
    p    = [self->_methodSignature mulleSignatureTypeInfoAtIndex:i];
    adr  = &((char *) self->_storage)[ p->invocation_offset];
    size = p->natural_size;
 
    if( ! is_valid_frame_range( self, adr, size))
-      __mulle_objc_universe_raise_invalidindex( NULL, i);
+      MulleObjCThrowInvalidIndexException( i);
 
    *p_adr  = adr;
    *p_size = size;
@@ -270,14 +270,11 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
 
    signature = [target methodSignatureForSelector:sel];
    if( ! signature)
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                         "method not found on target");
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method not found on target");
    if( [signature numberOfArguments] != 3)
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                         "method must accept one argument");
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method must accept one argument");
    if( [signature isVariadic])
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                         "method must not be variadic");
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method must not be variadic");
 
    invocation = [self invocationWithMethodSignature:signature];
    [invocation setTarget:target];
@@ -302,11 +299,9 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
 #endif
    signature = [target methodSignatureForSelector:sel];
    if( ! signature)
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                         "method %x not found on target", sel);
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method %x not found on target", sel);
    if( [signature isVariadic])
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                         "method must not be variadic");
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method must not be variadic");
 
    invocation = [self invocationWithMethodSignature:signature];
    [invocation setTarget:target];
@@ -595,8 +590,7 @@ static void   NSInvocationMakeObjectArgumentsPerformSelector( NSInvocation *self
       return;
 
    if( [_methodSignature isVariadic])
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                        "NSInvocation can not \
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "NSInvocation can not \
 retain the arguments of variadic methods");
 
    _argumentsRetained = YES;
@@ -783,11 +777,9 @@ static void   invocation_with_nil_target_warning( NSInvocation *self)
 
    sel = [self selector];
    if( ! sel)
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                         "NSInvocation: selector has not been set yet");
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "NSInvocation: selector has not been set yet");
    if( ! _methodSignature)
-      __mulle_objc_universe_raise_internalinconsistency( _mulle_objc_object_get_universe( self),
-                                                         "NSInvocation: methodSignature has not been set yet");
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "NSInvocation: methodSignature has not been set yet");
 
    pType = [_methodSignature _methodMetaABIParameterType];
    rType = [_methodSignature _methodMetaABIReturnType];

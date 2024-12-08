@@ -1,0 +1,7 @@
+thread_id,thread,pool_id,pool,object_id,object,class,rc
+0,"NSMainThread",0,"main root",0,"a","Foo",1
+0,"NSMainThread",0,"main root",1,"test-thread","NSThread",2
+1,"test-thread",1,"thread inner",2,"b","Foo",3
+1,"test-thread",1,"thread inner",2,"b","Foo",3
+1,"test-thread",1,"thread inner",3,"c","Foo",1
+1,"test-thread",0,"thread root",2,"b","Foo",3

@@ -36,6 +36,7 @@
 #import "MulleDynamicObject.h"
 
 #import "MulleObjCProtocol.h"
+#import "MulleObjCFunctions.h"
 
 #import "import-private.h"
 #include <ctype.h>
@@ -1949,7 +1950,7 @@ static inline void  copy_generic_value( struct mulle__pointermap *map,
    MulleDynamicObject                          *copy;
    unsigned int                         n;
 
-   copy      = [MulleObjCObjectGetClass( self) new];
+   copy      = [MulleObjCInstanceGetClass( self) new];
 
    // wipe possibly copied ivars
    n         = mulle__pointermap_get_count( &self->__ivars);

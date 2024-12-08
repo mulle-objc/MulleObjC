@@ -37,8 +37,10 @@
 
 // other files in this library
 
-// other libraries of MulleObjCValueFoundation
+// other libraries of MulleObjC
 #import "import.h"
+
+#import "MulleObjCFunctions.h"
 
 // std-c and dependencies
 

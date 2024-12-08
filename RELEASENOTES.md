@@ -1,3 +1,16 @@
+## 0.25.0
+
+* added new types `NSUIntegerAtomic` and `NSIntegerAtomic` to facilitate @property code
+* experimental and *untested* `MulleProxy` class added
+* added NSAutoreleasePool debugging facility to dump contents into CSV format for postprocessing with sqlite or scripts
+* method `-[NSThread mulleDetach]` no longer exists!
+* new NSThread methods `-mulleInitWithObjectFunction:object:` for convenient ownership transfer even when using C functions
+* improved the teardown code of NSThread and improved the detached case
+* added various `Instance` functions, where previously `Object` was used exlusively to properly differentiate Class and Instance code
+* improved and simplified tracing with ``MULLE_OBJC_TRACE_ZOMBIE`` and ``MULLE_OBJC_TRACE_LEAK`,` which eliminates the need to use he finer grained variables a lot of times
+* added `MulleObjCObjectIsInstance` and a host of other introspection functions dealing with Class and Instance distinctions
+
+
 ## 0.24.0
 
 

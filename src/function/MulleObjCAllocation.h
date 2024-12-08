@@ -33,10 +33,16 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#ifndef MulleObjectAllocation_h__
+#define MulleObjectAllocation_h__
+
 #include "mulle-objc.h"
 
 #include <stdarg.h>
 
+
+
+// -------------
 
 #ifndef MULLE_OBJC_EMBEDDED_ALLOCATOR
 MULLE_C_CONST_RETURN
@@ -47,6 +53,8 @@ static inline struct mulle_allocator   *MulleObjCInstanceGetAllocator( id obj)
 
    if( ! obj)
       return( NULL);
+
+   assert( MulleObjCObjectIsInstance( obj));
 
 #ifdef MULLE_OBJC_EMBEDDED_ALLOCATOR
    void   **p_allocator;
@@ -80,6 +88,8 @@ static inline struct mulle_allocator   *MulleObjCClassGetAllocator( Class cls)
 
    if( ! cls)
       return( NULL);
+
+   assert( MulleObjCObjectIsClass( cls)); // just a convenient check here
 
 #ifdef MULLE_OBJC_EMBEDDED_ALLOCATOR
    struct _mulle_objc_threadfoundationinfo   *info;
@@ -130,31 +140,31 @@ void   *MulleObjCCallocAutoreleased( NSUInteger n,
 
 #pragma mark - allocate memory for objects
 
-static inline void  *MulleObjCInstanceAllocateNonZeroedMemory( id self, NSUInteger size)
+static inline void   *MulleObjCInstanceAllocateNonZeroedMemory( id self, NSUInteger size)
 {
    return( _mulle_allocator_malloc( MulleObjCInstanceGetAllocator( self), size));
 }
 
 
-static inline void  *MulleObjCInstanceReallocateNonZeroedMemory( id self, void *p, NSUInteger size)
+static inline void   *MulleObjCInstanceReallocateNonZeroedMemory( id self, void *p, NSUInteger size)
 {
    return( _mulle_allocator_realloc( MulleObjCInstanceGetAllocator( self), p, size));
 }
 
 
-static inline void  *MulleObjCInstanceAllocateMemory( id self, NSUInteger size)
+static inline void   *MulleObjCInstanceAllocateMemory( id self, NSUInteger size)
 {
    return( _mulle_allocator_calloc( MulleObjCInstanceGetAllocator( self), 1, size));
 }
 
 
-static inline void  *MulleObjCInstanceDuplicateUTF8String( id self, char *s)
+static inline void   *MulleObjCInstanceDuplicateUTF8String( id self, char *s)
 {
    return( _mulle_allocator_strdup( MulleObjCInstanceGetAllocator( self), s));
 }
 
 
-static inline void  MulleObjCInstanceDeallocateMemory( id self, void *p)
+static inline void   MulleObjCInstanceDeallocateMemory( id self, void *p)
 {
    if( p)
       _mulle_allocator_free( MulleObjCInstanceGetAllocator( self), p);
@@ -163,31 +173,31 @@ static inline void  MulleObjCInstanceDeallocateMemory( id self, void *p)
 
 #pragma mark - allocate memory for class methods
 
-static inline void  *MulleObjCClassAllocateNonZeroedMemory( Class cls, NSUInteger size)
+static inline void   *MulleObjCClassAllocateNonZeroedMemory( Class cls, NSUInteger size)
 {
    return( _mulle_allocator_malloc( MulleObjCClassGetAllocator( cls), size));
 }
 
 
-static inline void  *MulleObjCClassReallocateNonZeroedMemory( Class cls, void *p, NSUInteger size)
+static inline void   *MulleObjCClassReallocateNonZeroedMemory( Class cls, void *p, NSUInteger size)
 {
    return( _mulle_allocator_realloc( MulleObjCClassGetAllocator( cls), p, size));
 }
 
 
-static inline void  *MulleObjCClassAllocateMemory( Class cls, NSUInteger size)
+static inline void   *MulleObjCClassAllocateMemory( Class cls, NSUInteger size)
 {
    return( _mulle_allocator_calloc( MulleObjCClassGetAllocator( cls), 1, size));
 }
 
 
-static inline void  *MulleObjCClassDuplicateUTF8String( Class cls, char *s)
+static inline void   *MulleObjCClassDuplicateUTF8String( Class cls, char *s)
 {
    return( _mulle_allocator_strdup( MulleObjCClassGetAllocator( cls), s));
 }
 
 
-static inline void  MulleObjCClassDeallocateMemory( Class cls, void *p)
+static inline void   MulleObjCClassDeallocateMemory( Class cls, void *p)
 {
    if( p)
       _mulle_allocator_free( MulleObjCClassGetAllocator( cls), p);
@@ -287,6 +297,7 @@ static inline NSUInteger  MulleObjCClassGetInstanceSize( Class infra)
 {
    if( ! infra)
       return( 0);
+
    return( _mulle_objc_infraclass_get_allocationsize( infra));
 }
 
@@ -302,6 +313,8 @@ static inline id   MulleObjCClassConstructInstance( Class infra,
 
    if( ! infra)
       return( nil);
+
+   assert( MulleObjCObjectIsClass( infra));  // convenience check
 
    assert( length >= _mulle_objc_infraclass_get_allocationsize( infra));
 
@@ -411,12 +424,19 @@ static inline NSUInteger   MulleObjCCopyObjectArray( id *objects,
 // MEMO: only use in your root class -retain method
 static inline id   _MulleObjCRetainObject( id obj)
 {
+   assert( MulleObjCObjectIsInstance( obj));
+
    _mulle_objc_object_retain_inline( obj);
    return( obj);
 }
 
+
 // MEMO: only use in your root class -release method
 static inline void   _MulleObjCReleaseObject( id obj)
 {
+   assert( MulleObjCObjectIsInstance( obj));
+
    _mulle_objc_object_release_inline( obj);
 }
+
+#endif

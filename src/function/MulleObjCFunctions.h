@@ -33,8 +33,11 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#ifndef MulleObjCFunctions_h__
+#define MulleObjCFunctions_h__
 
 #include "minimal.h"
+
 
 
 #pragma mark - accessor shortcuts
@@ -665,7 +668,10 @@ IMP   MulleObjCObjectSearchClobberedIMP( id obj,
 // If called from -bar in Foo(A) this will find the IMP -bar of Foo.
 // Unless it doesn't exist.
 // Or unless there is an intervening category Foo(B), which its own -bar,
-// then you get the IMP for -bar of Foo(B)
+// then you get the IMP for -bar of Foo(B). If there is no implementation of
+// -bar in Foo or its categories, you will get 0 back!
+// e.g. Foo : NSObject, if you search for -autorelease and Foo doesn't
+// implement it but NSObject does, then you get 0.
 //
 #define MulleObjCClobberedIMP \
    MulleObjCObjectSearchClobberedIMP( (self), (_cmd), __MULLE_OBJC_CLASSID__, __MULLE_OBJC_CATEGORYID__)
@@ -904,18 +910,30 @@ static inline Class   MulleObjCObjectGetClass( id obj)
 }
 
 
+// common expectation to have this available as well
+static inline Class   MulleObjCInstanceGetClass( id obj)
+{
+   return( MulleObjCObjectGetClass( obj));
+}
+
+
+
 MULLE_OBJC_GLOBAL
-void    MulleObjCObjectSetClass( id obj, Class cls);
+void    MulleObjCInstanceSetClass( id obj, Class cls);
+
 
 //
 // only cheatin' strings should use this
 // this must be used in init and nowhere else, as it is
 // not atomic
 //
-static inline void   MulleObjCObjectConstantify( id obj)
+static inline void   MulleObjCInstanceConstantify( id obj)
 {
    if( obj)
+   {
+      assert( MulleObjCObjectIsInstance( obj));
       _mulle_objc_object_constantify_noatomic( obj);
+   }
 }
 
 
@@ -974,19 +992,24 @@ Class   MulleObjCLookupClassByClassID( SEL classid);
 MULLE_OBJC_GLOBAL
 SEL     MulleObjCCreateSelectorUTF8String( char *name);
 
+
 MULLE_OBJC_GLOBAL
-char  *MulleObjCInstanceGetClassNameUTF8String( id obj);
+char   *MulleObjCObjectGetClassNameUTF8String( id obj);
 
 
 static inline 
-char  *MulleObjCObjectGetClassNameUTF8String( id obj)
+char  *MulleObjCInstanceGetClassNameUTF8String( id obj)
 {
-   return( MulleObjCInstanceGetClassNameUTF8String( obj));
+   assert( MulleObjCObjectIsInstanceOrNil( obj));
+
+   return( MulleObjCObjectGetClassNameUTF8String( obj));
 }
 
 
 static inline void   *MulleObjCInstanceGetExtraBytes( id obj)
 {
+   assert( MulleObjCObjectIsInstanceOrNil( obj));
+
    return( obj ? _mulle_objc_object_get_extra( obj) : NULL);
 }
 
@@ -1027,6 +1050,8 @@ static inline struct _mulle_objc_property  *MulleObjCInstanceSearchProperty( id 
 {
    struct _mulle_objc_infraclass   *infra;
 
+   assert( MulleObjCObjectIsInstanceOrNil( obj));
+
    if( ! obj)
       return( NULL);
 
@@ -1061,3 +1086,6 @@ BOOL  MulleObjCDescribeMemory( struct mulle_buffer *buffer,
 
 // dump known instance variables of an object
 void  MulleObjCDescribeIvars( struct mulle_buffer *buffer, id obj);
+
+
+#endif

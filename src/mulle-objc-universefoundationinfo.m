@@ -80,21 +80,29 @@ void
 #if DEBUG
    assert_proper_testallocator_linkorder();
 #endif
-   info->exception.vectors   = *exceptiontable;
+   info->exception.vectors = *exceptiontable;
 
-   info->object.roots        = mulle_set_create( 32,
-                                                 (void *) &_MulleObjCContainerAssignKeyCallback,
-                                                 allocator);
-   info->object.threads      = mulle_map_create( 32,
-                                                 (void *) &_MulleObjCContainerPointerKeyAssignValueCallback,
-                                                 allocator);
+   info->object.roots      = mulle_set_create( 32,
+                                               (void *) &_MulleObjCContainerAssignKeyCallback,
+                                               allocator);
+   info->object.threads    = mulle_map_create( 32,
+                                               (void *) &_MulleObjCContainerPointerKeyAssignValueCallback,
+                                               allocator);
 
-   info->object.debugenabled      = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEBUG_ENABLED") ||
-         mulle_objc_environment_get_yes_no( "NSDebugEnabled");
-   info->object.zombieenabled     = mulle_objc_environment_get_yes_no( "MULLE_OBJC_ZOMBIE_ENABLED") ||
-         mulle_objc_environment_get_yes_no( "NSZombieEnabled");
-   info->object.deallocatezombie  = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEALLOCATE_ZOMBIE") ||
-         mulle_objc_environment_get_yes_no( "NSDeallocateZombies");
+   // sometimes useful
+   info->object.singlethreadautoreleasecheckerenabled = mulle_objc_environment_get_yes_no( "MULLE_OBJC_SINGLE_THREAD_AUTORELEASE_CHECKER_ENABLED");
+
+   info->object.debugenabled      = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEBUG_ENABLED")
+                                    | mulle_objc_environment_get_yes_no( "NSDebugEnabled");
+
+   info->object.zombieenabled     = mulle_objc_environment_get_yes_no( "MULLE_OBJC_ZOMBIE_ENABLED")
+                                    | mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_ZOMBIE")
+                                    | mulle_objc_environment_get_yes_no( "NSZombieEnabled");
+   // when leak checkingt must deallocate
+   info->object.deallocatezombie  = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEALLOCATE_ZOMBIE")
+                                    | mulle_objc_environment_get_yes_no( "NSDeallocateZombies")
+                                    | mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_LEAK");
+
    info->object.shredzombie       = ! mulle_objc_environment_get_yes_no( "MULLE_OBJC_PRESERVE_ZOMBIE");
 }
 

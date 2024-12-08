@@ -60,6 +60,10 @@ id   _mulle_atomic_id_update( mulle_atomic_id_t *ivar,
       if( ivarType == _C_RETAIN_ID)
          value = mulle_objc_object_call_retain( value);
 
+   // MEMO: need to document why this is rereading pointer in the loop
+   //       and not just once outside the loop and then using previous.
+   //       from __cas. I benchmarked just using "cas" with a random value
+   //       for retrieval, but a failing CAS is markedly worse.
    for(;;)
    {
       old = (id) _mulle_atomic_pointer_read( &ivar->pointer);

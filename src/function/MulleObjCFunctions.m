@@ -131,8 +131,11 @@ void   MulleObjCMakeObjectsPerformSelector2( id *objects,
 // should be CString something
 char  *MulleObjCClassGetNameUTF8String( Class cls)
 {
+
    if( ! cls)
       return( NULL); // return NULL to stay compatible with NSStringFromClass
+
+   assert( MulleObjCObjectIsClass( cls)); // convenience check
 
    return( _mulle_objc_infraclass_get_name( cls));
 }
@@ -278,15 +281,18 @@ Class   MulleObjCLookupClassByClassID( SEL classid)
 }
 
 
-char  *MulleObjCInstanceGetClassNameUTF8String( id obj)
+char  *MulleObjCObjectGetClassNameUTF8String( id obj)
 {
    return( MulleObjCClassGetNameUTF8String( [obj class]));
 }
 
 
-void    MulleObjCObjectSetClass( id obj, Class cls)
+void    MulleObjCInstanceSetClass( id obj, Class cls)
 {
    struct _mulle_objc_class   *new_cls;
+
+   // can't do this, isa pointer might be trash yet
+   // assert( ! MulleObjCObjectIsInstanceOrNil( obj));
 
    if( ! obj)
       return;

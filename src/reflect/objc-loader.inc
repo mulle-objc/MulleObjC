@@ -11,6 +11,7 @@
       { @selector( MulleObjCThreadSafe), MULLE_OBJC_NO_CATEGORYID },      // 8b122dd3;MulleObjCThreadSafe;;
       { @selector( MulleObjCThreadUnsafe), MULLE_OBJC_NO_CATEGORYID },      // 5414daed;MulleObjCThreadUnsafe;;
       { @selector( MulleObject), MULLE_OBJC_NO_CATEGORYID },      // a4b69f59;MulleObject;;
+      { @selector( MulleProxy), MULLE_OBJC_NO_CATEGORYID },      // 52ede52b;MulleProxy;;
       { @selector( NSAutoreleasePool), MULLE_OBJC_NO_CATEGORYID },      // 58bb178a;NSAutoreleasePool;;
       { @selector( NSCondition), MULLE_OBJC_NO_CATEGORYID },      // 0397143e;NSCondition;;
       { @selector( NSConditionLock), MULLE_OBJC_NO_CATEGORYID },      // 5e0deecf;NSConditionLock;;
