@@ -241,7 +241,10 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
 - (char *) mulleNameUTF8String
 {
    if( ! _mulleNameUTF8String[ 0])
-      mulle_snprintf( _mulleNameUTF8String, sizeof( _mulleNameUTF8String), "%p", self);
+      mulle_snprintf( _mulleNameUTF8String, sizeof( _mulleNameUTF8String),
+                      "<NSAutoreleasePool %p>",
+                      MulleObjCInstanceGetClassNameUTF8String( self),
+                      self);
    return( &_mulleNameUTF8String[ 0]);
 }
 
@@ -249,6 +252,7 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
 - (void) mulleSetNameUTF8String:(char *) s
 {
    strncpy( _mulleNameUTF8String, s ? s : "", sizeof( _mulleNameUTF8String) - 1);
+   _mulleNameUTF8String[ sizeof( _mulleNameUTF8String) - 1] = 0;
 }
 
 
@@ -1181,7 +1185,10 @@ static inline void   _dump_info_init( struct dump_info *p,
    {
       if( thread != info->thread.mainthread)
       {
-         mulle__pointermap_set( &p->thread_index_map, thread, (void *) (intptr_t) thread_index, NULL);
+         mulle__pointermap_set( &p->thread_index_map,
+                                thread,
+                                (void *) (intptr_t) thread_index,
+                                NULL);
          ++thread_index;
       }
    }
@@ -1190,6 +1197,9 @@ static inline void   _dump_info_init( struct dump_info *p,
 
 static inline void   _dump_info_done( struct dump_info *p)
 {
+   mulle_free( p->thread_name);
+   mulle_free( p->pool_name);
+
    _mulle__pointermap_done( &p->thread_index_map, NULL);
    _mulle__pointermap_done( &p->object_index_map, NULL);
 }
@@ -1204,7 +1214,9 @@ static void   _dumpinfo_dump_thread( struct dump_info *info,
    struct _mulle_objc_poolconfiguration   *config;
 
    info->thread_adr   = thread;
-   info->thread_name  = [thread mulleNameUTF8String];
+
+   mulle_free( info->thread_name);
+   info->thread_name  = mulle_strdup( [thread mulleNameUTF8String]);
    info->thread_index = (int) index;
    info->pool_index   = 0;
 
@@ -1214,7 +1226,8 @@ static void   _dumpinfo_dump_thread( struct dump_info *info,
 
    for( pool = config->tail; pool; pool = pool->_owner)
    {
-      info->pool_name = [pool mulleNameUTF8String];
+      mulle_free( info->pool_name);
+      info->pool_name = mulle_strdup( [pool mulleNameUTF8String]);
       info->pool_adr  = pool;
 
       --info->pool_index;
@@ -1250,7 +1263,11 @@ static void
    _dump_info_done( &dump_info);
 }
 
-
+//
+// Though we do a "lock" its just to block another
+// MulleObjCDumpAutoreleasePoolsToFILEWithOptions, dumping other threads
+// autoreleasepools is obviously risky.
+//
 void   MulleObjCDumpAutoreleasePoolsToFILEWithOptions( FILE *fp, int options)
 {
    struct _mulle_objc_universe                 *universe;

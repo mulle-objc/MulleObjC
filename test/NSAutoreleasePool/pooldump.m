@@ -46,7 +46,7 @@
 - (char *) mulleNameUTF8String
 {
    if( ! _mulleNameUTF8String[ 0])
-      mulle_snprintf( _mulleNameUTF8String, sizeof( _mulleNameUTF8String), "%p", self);
+      mulle_snprintf( _mulleNameUTF8String, sizeof( _mulleNameUTF8String), "<Foo %p>", self);
    return( &_mulleNameUTF8String[ 0]);
 }
 

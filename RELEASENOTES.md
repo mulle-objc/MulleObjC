@@ -1,5 +1,8 @@
 ## 0.25.0
 
+* NSInvocation does not raise anymore during -init as noone should raise during init
+* NSAutoreleasePool name can now be 48-1 bytes long
+
 * added new types `NSUIntegerAtomic` and `NSIntegerAtomic` to facilitate @property code
 * experimental and *untested* `MulleProxy` class added
 * added NSAutoreleasePool debugging facility to dump contents into CSV format for postprocessing with sqlite or scripts

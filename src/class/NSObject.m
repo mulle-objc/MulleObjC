@@ -121,6 +121,11 @@
    }
 #endif
 
+   // MEMO: can't autorelease ahead of init, because init can return
+   //       nil and release object, or release object and return another
+   //       alloced one. So if -init raises, we leak and can't do much
+   //       about. -raise during -init == BAD
+   //
    obj = [_cls alloc];
    obj = mulle_objc_object_call_variable_inline( obj,
                                                  (mulle_objc_methodid_t) _cmd, 

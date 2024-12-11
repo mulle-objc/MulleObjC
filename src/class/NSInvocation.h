@@ -89,7 +89,7 @@
 - (void) setSelector:(SEL) selector;
 
 - (id) target;
-- (void) setTarget:target;
+- (void) setTarget:(id) target;
 
 - (void) invoke;
 - (void) invokeWithTarget:(id) target;

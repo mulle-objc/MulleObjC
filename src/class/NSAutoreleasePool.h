@@ -56,7 +56,7 @@
 {
    NSAutoreleasePool   *_owner;
    void                *_storage;
-   char                _mulleNameUTF8String[ 32];
+   char                _mulleNameUTF8String[ 48];
 }
 
 // MEMO: this is marked as threadsafe, but that's because its assumed
@@ -265,5 +265,11 @@ void   MulleObjCDumpAutoreleasePoolsToFileIndexed( char *filename);
 MULLE_OBJC_GLOBAL
 void   MulleObjCDumpAutoreleasePoolsToFILEWithOptions( FILE *fp, int indexed);
 
+//
+// MEMO: like the functions above, you should only use them when you
+//       are in the debugger and a breakpoint has happened, but for debugging
+//       you can sometimes get by even in running programs, if threads are
+//       waiting for each other.
+//
 MULLE_OBJC_GLOBAL
 unsigned long   MulleObjCDumpAutoreleasePoolsFrame( void);

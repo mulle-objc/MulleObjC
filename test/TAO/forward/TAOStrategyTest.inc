@@ -33,8 +33,24 @@ static void   dump_trace_text( unsigned long nr, char *format, va_list args)
    }
 
    mulle_vfprintf( fp, format, args);
-   mulle_fprintf( fp, "\n");
-   _mulle_stacktrace( NULL, 2, mulle_stacktrace_linefeed, fp);
+   fclose( fp);
+}
+
+
+static void   dump_trace_stack( unsigned long nr)
+{
+   auto char   buf[ 19 + 32 + 4 + 1];
+   FILE        *fp;
+
+   mulle_snprintf( buf, sizeof( buf), "NSAutoreleasePools_%06d.trc", nr);
+   fp = fopen( buf, "w");
+   if( ! fp)
+   {
+      perror( "fopen:");
+      return;
+   }
+
+   _mulle_stacktrace( NULL, 3, mulle_stacktrace_csv, fp);
 
    fclose( fp);
 }
@@ -55,6 +71,7 @@ static void   test_trace( char *format, ...)
       nr = MulleObjCDumpAutoreleasePoolsFrame();
       va_start( args, format);
       dump_trace_text( nr, format, args);
+      dump_trace_stack( nr);
       va_end( args);
    }
 #endif

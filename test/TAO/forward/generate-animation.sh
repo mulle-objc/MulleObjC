@@ -6,6 +6,65 @@ if [ "$#" -lt 1 ]; then
     exit 1
 fi
 
+
+output_stacktrace()
+{
+   log_entry "output_stacktrace" "$@"
+
+   local address
+   local segment_offset
+   local symbol_offset
+   local symbol_address
+   local symbol_name
+   local segment_address
+   local segment_name
+
+   local i
+   local line
+   local boring_line
+   local function_name
+   local location
+
+   local source_file
+   local line_number
+
+   # Skip the header line
+
+   while IFS=',' read -r address segment_offset symbol_offset symbol_address symbol_name segment_address segment_name
+   do
+      if [ "${address}" = 'address' ]
+      then
+         continue
+      fi
+
+      segment_name="${segment_name//\"/}"
+      segment_offset="${segment_offset//0x/}"
+
+      # ignore runtime code
+      case "${segment_name}" in
+         *mulle-objc-runtime.*)
+            continue
+         ;;
+      esac
+
+      i=0
+      while IFS= read -r line
+      do
+         case $i in
+            0) boring_line="$line" ;;
+            1) function_name="$line" ;;
+            2) location="$line" ;;
+         esac
+         ((i++))
+      done < <(rexekutor addr2line -f -e "${segment_name}" -a "${segment_offset}")
+
+      IFS=':' read -r source_file line_number <<< "${location}"
+
+      printf "%s:%s %s\n" "${source_file#${MULLE_USER_PWD}/}" "${line_number:0}" "${function_name}"
+   done
+}
+
+
 output_html()
 {
     log_entry "output_html" "$@"
@@ -75,16 +134,19 @@ EOF
 
     # Add number divs
     echo "        const titles = [" >> animation.html
-    for svg in "$@"; do
+    for svg in "$@"
+    do
          echo "            '${svg%.svg}'," >> animation.html
     done
     echo "        ];" >> animation.html
 
     # Add title divs
     echo "        const commands = [" >> animation.html
-    for svg in "$@"; do
+    for svg in "$@"
+    do
         txt_file="${svg%.svg}.txt"
-        if [ -f "$txt_file" ]; then
+        if [ -f "$txt_file" ]
+        then
             title=$(head -n1 "$txt_file")
             echo "            '$title'," >> animation.html
         else
@@ -96,9 +158,10 @@ EOF
     # Add stack traces
     echo "        const traces = [" >> animation.html
     for svg in "$@"; do
-        txt_file="${svg%.svg}.txt"
-        if [ -f "$txt_file" ]; then
-            trace=$(tail -n +2 "$txt_file" | sed 's/"/\\"/g' | tr '\n' '\\' | sed 's/\\/\\n/g')
+        trc_file="${svg%.svg}.trc"
+        if [ -f "$trc_file" ]
+        then
+            trace=$(output_stacktrace < "$trc_file" | sed 's/"/\\"/g' | tr '\n' '\\' | sed 's/\\/\\n/g')
             echo "            '$trace'," >> animation.html
         else
             echo "            ''," >> animation.html
@@ -161,6 +224,18 @@ EOF
 }
 
 
+create_svg_file()
+{
+   log_entry "create_svg_file" "$@"
+
+   local csv="$1"
+   local dot="$2"
+   local svg="$3"
+
+   pooldump-dot.awk "${csv}" > "${dot}" \
+   && dot -Tsvg -o "${svg}" "${dot}"
+}
+
 
 output()
 {
@@ -180,17 +255,18 @@ output()
       dot="${RVAL}.dot"
       svg="${RVAL}.svg"
 
-      pooldump-dot.awk "${csv}" > "${dot}" || exit 1
-      dot -Tsvg -o "${svg}" "${dot}"
+      create_svg_file "${csv}" "${dot}" "${svg}" &
 
       svg_files+=("${svg}")
    done
 
+   wait
+
    output_html "${svg_files[@]}"
 }
 
-
-PATH="${PATH}:${PWD}"
+r_dirname "${MULLE_EXECUTABLE}"
+PATH="${PATH}:${RVAL}"
 
 output "$@"
 

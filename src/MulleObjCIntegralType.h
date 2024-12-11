@@ -13,6 +13,7 @@
 
 #include <mulle-c11/mulle-c11-bool.h>
 #include <mulle-c11/mulle-c11-integer.h>
+#include <mulle-thread/mulle-thread.h>
 
 typedef enum
 {
