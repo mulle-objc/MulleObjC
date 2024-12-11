@@ -28,6 +28,16 @@ NR == 2 {
     num_fields = NF
 }
 
+function html_escape( str) {
+    gsub(/&/, "\\&amp;", str)
+    gsub(/</, "\\&lt;", str)
+    gsub(/>/, "\\&gt;", str)
+    gsub(/"/, "\\&quot;", str)
+    gsub(/'/, "\\&#39;", str)
+    return str
+}
+
+
 NR > 1 {
     gsub(/"/, "", $2)  # thread name
     gsub(/"/, "", $4)  # pool name
@@ -35,12 +45,12 @@ NR > 1 {
     gsub(/"/, "", $7)  # class name
 
     thread_id = $1
-    thread_name = $2
+    thread_name = html_escape( $2)
     pool_id = $3
-    pool_name = $4
+    pool_name = html_escape( $4)
     obj_id = $5
-    obj_name = $6
-    class_name = $7
+    obj_name = html_escape( $6)
+    class_name = html_escape( $7)
     rc = $8
 
     if (num_fields >= 10) {

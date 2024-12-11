@@ -174,12 +174,9 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    void                            *extraBytes;
    struct _mulle_objc_infraclass   *cls;
 
+   // MEMO: do not raise during construction of objects
    if( ! signature)
-   {
-      __mulle_objc_universe_raise_invalidargument( _mulle_objc_object_get_universe( self),
-                                                   "signature is nil");
       return( nil);
-   }
 
 //   frame_size  = [signature frameLength];
 //   size        = mulle_metaabi_sizeof_union( frame_size);
@@ -231,6 +228,9 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
 
    signature  = [target methodSignatureForSelector:sel];
    invocation = [self invocationWithMethodSignature:signature];
+   if( ! invocation)
+      return( nil);
+
    [invocation setTarget:target];
    [invocation setSelector:sel];
 
@@ -268,13 +268,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    NSInvocation        *invocation;
    NSMethodSignature   *signature;
 
-   signature = [target methodSignatureForSelector:sel];
-   if( ! signature)
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method not found on target");
-   if( [signature numberOfArguments] != 3)
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method must accept one argument");
-   if( [signature isVariadic])
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method must not be variadic");
+   signature  = [target methodSignatureForSelector:sel];
 
    invocation = [self invocationWithMethodSignature:signature];
    [invocation setTarget:target];
@@ -297,11 +291,7 @@ static inline void   pointerAndSizeOfArgumentValue( NSInvocation *self,
    void                               *adr;
    MulleObjCMethodSignatureTypeInfo   *p;
 #endif
-   signature = [target methodSignatureForSelector:sel];
-   if( ! signature)
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method %x not found on target", sel);
-   if( [signature isVariadic])
-      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method must not be variadic");
+   signature  = [target methodSignatureForSelector:sel];
 
    invocation = [self invocationWithMethodSignature:signature];
    [invocation setTarget:target];
@@ -780,6 +770,8 @@ static void   invocation_with_nil_target_warning( NSInvocation *self)
       MulleObjCThrowInternalInconsistencyExceptionUTF8String( "NSInvocation: selector has not been set yet");
    if( ! _methodSignature)
       MulleObjCThrowInternalInconsistencyExceptionUTF8String( "NSInvocation: methodSignature has not been set yet");
+   if( [_methodSignature isVariadic])
+      MulleObjCThrowInternalInconsistencyExceptionUTF8String( "method must not be variadic");
 
    pType = [_methodSignature _methodMetaABIParameterType];
    rType = [_methodSignature _methodMetaABIReturnType];

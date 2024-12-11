@@ -946,6 +946,8 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
    id   otherRunloop;
 
    assert( ! runLoop || [runLoop mulleIsAccessibleByThread:self]);
+   assert( ! _mulle_objc_object_is_finalized( (struct _mulle_objc_object *) self));
+
    [runLoop retain];
    otherRunloop = __mulle_atomic_pointer_compare_and_swap( &self->_runLoop, runLoop, NULL);
    if( otherRunloop)
@@ -1107,7 +1109,9 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 
    s = _mulle_atomic_pointer_read( &_nameUTF8String);
    if( ! s)
-      s = MulleObjC_asprintf( "%p", self);
+      s = MulleObjC_asprintf( "<%s %p>",
+                              MulleObjCInstanceGetClassNameUTF8String( self),
+                              self);
    return( s);
 }
 
