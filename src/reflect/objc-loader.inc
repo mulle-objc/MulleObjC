@@ -1,5 +1,4 @@
       { @selector( MulleAutolockingObject), MULLE_OBJC_NO_CATEGORYID },      // 6eb2f41b;MulleAutolockingObject;;
-      { @selector( MulleDynamicObject), @selector( NSMutableCopying) },      // d9918780;MulleDynamicObject;4aa86031;NSMutableCopying
       { @selector( MulleDynamicObject), MULLE_OBJC_NO_CATEGORYID },      // d9918780;MulleDynamicObject;;
       { @selector( MulleObjCClassCluster), MULLE_OBJC_NO_CATEGORYID },      // 6ed73da1;MulleObjCClassCluster;;
       { @selector( MulleObjCException), MULLE_OBJC_NO_CATEGORYID },      // a228e119;MulleObjCException;;
@@ -19,7 +18,6 @@
       { @selector( NSInvocation), MULLE_OBJC_NO_CATEGORYID },      // c089c043;NSInvocation;;
       { @selector( NSLock), MULLE_OBJC_NO_CATEGORYID },      // cd92d31f;NSLock;;
       { @selector( NSMethodSignature), MULLE_OBJC_NO_CATEGORYID },      // 523989f9;NSMethodSignature;;
-      { @selector( NSMutableCopying), MULLE_OBJC_NO_CATEGORYID },      // 4aa86031;NSMutableCopying;;
       { @selector( NSNull), MULLE_OBJC_NO_CATEGORYID },      // f0c42d79;NSNull;;
       { @selector( NSObject), @selector( NSCodingSupport) },      // b3a66256;NSObject;55df6832;NSCodingSupport
       { @selector( NSObject), @selector( NSCopying) },      // b3a66256;NSObject;903fb1df;NSCopying

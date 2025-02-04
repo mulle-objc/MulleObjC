@@ -185,3 +185,58 @@ void   _MulleObjCInstanceClearProperties( id obj, BOOL clearReadOnly)
                                            : _MulleObjCInstanceClearPropertyNoReadOnly,
                                            obj);
 }
+
+
+
+# pragma mark - improve dealloc speed for classes that don't have properties that need to be released
+
+
+int   _MulleObjCClassWalkProperties( Class cls,
+                                     mulle_objc_walkpropertiescallback_t f,
+                                     void *userinfo)
+{
+   struct _mulle_objc_propertylist   *list;
+   struct _mulle_objc_infraclass     *infra;
+   struct _mulle_objc_infraclass     *superclass;
+   unsigned int                      n;
+   int                               rval;
+
+   infra = (struct _mulle_objc_infraclass *) cls;
+   assert( _mulle_objc_class_is_infraclass( (struct _mulle_objc_class *) infra));
+
+   // protocol properties are part of the class
+   n = mulle_concurrent_pointerarray_get_count( &infra->propertylists);
+   assert( n);
+   if( infra->base.inheritance & MULLE_OBJC_CLASS_DONT_INHERIT_CATEGORIES)
+      n = 1;
+
+   mulle_concurrent_pointerarray_for_reverse( &infra->propertylists, n, list)
+   {
+      if( (rval = _mulle_objc_propertylist_walk( list, f, infra, userinfo)))
+         return( rval);
+   }
+
+   // in MulleObjC the superclass is always searched
+   superclass = _mulle_objc_infraclass_get_superclass( infra);
+   if( superclass && superclass != infra)
+      return( _MulleObjCClassWalkProperties( (Class) superclass, f, userinfo));
+
+   return( 0);
+}
+
+
+int   _MulleObjCInstanceWalkProperties( id obj,
+                                        mulle_objc_walkpropertiescallback_t f,
+                                        void *userinfo)
+{
+   struct _mulle_objc_class        *cls;
+   struct _mulle_objc_infraclass   *infra;
+
+   assert( MulleObjCObjectIsInstance( obj));
+
+   // walk through properties and release them
+   cls   = _mulle_objc_object_get_isa( obj);
+   // if it's a meta class it's an error during debug
+   infra = _mulle_objc_class_as_infraclass( cls);
+   return( _MulleObjCClassWalkProperties( (Class) infra, f, userinfo));
+}

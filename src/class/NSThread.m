@@ -120,6 +120,32 @@ static struct
 }
 
 
++ (instancetype) mulleThreadWithObjectFunction:(MulleThreadObjectFunction_t) f
+                                       object:(id) obj
+{
+   NSThread   *threadObject;
+
+   threadObject = [self alloc];
+   threadObject = [threadObject mulleInitWithObjectFunction:f
+                                                     object:obj];
+   threadObject = [threadObject autorelease];
+   return( threadObject);
+}
+
+
++ (instancetype) mulleThreadWithFunction:(MulleThreadFunction_t *) f
+                                argument:(void *) argument
+{
+   NSThread   *threadObject;
+
+   threadObject = [self alloc];
+   threadObject = [threadObject mulleInitWithFunction:f
+                                             argument:argument];
+   threadObject = [threadObject autorelease];
+   return( threadObject);
+}
+
+
 /*
  */
 - (id) init

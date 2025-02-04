@@ -67,10 +67,17 @@ PROTOCOLCLASS_END()
 + (instancetype) locklessObject;
 - (instancetype) initNoLock;
 
+// ??? what for: current philosophy is that we don't want the user to
+//     lock manually...
 - (BOOL) tryLock                                            MULLE_OBJC_THREADSAFE_METHOD;
 
 // if you override -didShareRecursiveLock: you must call super
 - (void) didShareRecursiveLock:(NSRecursiveLock *) lock     MULLE_OBJC_THREADSAFE_METHOD;
+
+//
+// self uses "other" lock instead of own, lock. This can only work
+// if the own lock is not locked and "self" is still only single-threaded or ?
+//
 - (void) shareRecursiveLock:(NSRecursiveLock *) other       MULLE_OBJC_THREADSAFE_METHOD;
 - (void) shareRecursiveLockWithObject:(MulleObject *) other MULLE_OBJC_THREADSAFE_METHOD;
 

@@ -33,7 +33,10 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#define HAVE_INSTANCE_COPY_CODE  // we haz it but dont talk about it :)
+
 #import "MulleDynamicObject.h"
+
 
 #import "MulleObjCProtocol.h"
 #import "MulleObjCFunctions.h"
@@ -449,7 +452,6 @@ static struct _mulle_objc_property  *search_dynamic_property( struct _mulle_objc
    }
    return( NULL);
 }
-
 
 
 - (instancetype) init
@@ -1889,89 +1891,11 @@ static BOOL   MulleObjectRespondsToSelector( Class self, SEL sel)
    return( MulleObjectRespondsToSelector( infra, sel));
 }
 
-@end
 
-
-@implementation MulleDynamicObject( NSMutableCopying)
-
-static inline void  copy_generic_value( struct mulle__pointermap *map,
-                                        struct mulle_pointerpair *pair,
-                                        struct _mulle_objc_infraclass *infra,
-                                        struct mulle_allocator *allocator)
+- (id) copy
 {
-   char                            *signature;
-   enum generic_type               type;
-   mulle_objc_methodid_t           methodid;
-   struct _mulle_objc_descriptor   *desc;
-   struct _mulle_objc_property     *property;
-   struct _mulle_objc_universe     *universe;
-
-   methodid = (mulle_objc_methodid_t) (uintptr_t) pair->key;
-   property = search_dynamic_property( &infra, methodid);
-   if( property)
-   {
-      type      = generic_type_for_property( property);
-   }
-   else
-   {
-      universe  = _mulle_objc_infraclass_get_universe( infra);
-      desc      = mulle_objc_universe_lookup_descriptor_nofail( universe, methodid);
-      signature = _mulle_objc_descriptor_get_signature( desc);
-      type      = generic_type_for_signature( signature);
-   }
-
-   //
-   // descriptor is always the "value" getter
-   // key is the value selector
-   //
-   switch( type)
-   {
-   case is_strdup : pair->value = mulle_allocator_strdup( allocator, pair->value);
-                    break;
-   case is_value  :
-   case is_number :
-   case is_retain : pair->value = [(id) pair->value retain];
-                    break;
-   case is_copy   : pair->value = [(id) pair->value copy];
-   default        : break;
-   }
-
-   _mulle__pointermap_insert_pair( map, pair, allocator);
-}
-
-
-- (id) mutableCopy
-{
-   struct mulle_allocator               *allocator;
-   struct mulle__pointermapenumerator   rover;
-   struct mulle_pointerpair             pair;
-   struct _mulle_objc_infraclass        *infra;
-   struct _mulle_objc_class             *cls;
-   MulleDynamicObject                          *copy;
-   unsigned int                         n;
-
-   copy      = [MulleObjCInstanceGetClass( self) new];
-
-   // wipe possibly copied ivars
-   n         = mulle__pointermap_get_count( &self->__ivars);
-   allocator = MulleObjCInstanceGetAllocator( copy);
-   _mulle__pointermap_init( &copy->__ivars, n, allocator);
-
-   //
-   // copy values
-   //
-   cls       = _mulle_objc_object_get_non_tps_isa( self);
-   infra     = _mulle_objc_class_as_infraclass( cls);
-   rover     = mulle__pointermap_enumerate( &self->__ivars);
-   while( _mulle__pointermapenumerator_next_pair( &rover, &pair))
-   {
-      // this is a "choke" point: best solution would be to have a
-      // per infraclass property cache to speed this up
-      copy_generic_value( &copy->__ivars, &pair, infra, allocator);
-   }
-   mulle__pointermapenumerator_done( &rover);
-
-   return( copy);
+   abort(); // you are doing it wrong MulleDynamicObject can never be immutable
+   return( nil);
 }
 
 @end

@@ -160,4 +160,35 @@ static inline BOOL   _MulleObjCRecycleObjectAtomically( mulle_atomic_pointer_t *
    return( YES);
 }
 
+MULLE_OBJC_GLOBAL
+int   _MulleObjCClassWalkProperties( Class cls,
+                                     mulle_objc_walkpropertiescallback_t f,
+                                     void *userinfo);
+
+
+static inline
+int   MulleObjCClassWalkProperties( Class cls,
+                                    mulle_objc_walkpropertiescallback_t f,
+                                    void *userinfo)
+{
+   if( ! cls || ! f)
+      return( 0);
+   return( _MulleObjCClassWalkProperties( cls, f, userinfo));
+}
+
+
+MULLE_OBJC_GLOBAL
+int   _MulleObjCInstanceWalkProperties( id obj,
+                                        mulle_objc_walkpropertiescallback_t f,
+                                        void *userinfo);
+
+static inline
+int   MulleObjCInstanceWalkProperties( id obj,
+                                       mulle_objc_walkpropertiescallback_t f,
+                                       void *userinfo)
+{
+   if( ! obj || ! f)
+      return( 0);
+   return( _MulleObjCInstanceWalkProperties( obj, f, userinfo));
+}
 

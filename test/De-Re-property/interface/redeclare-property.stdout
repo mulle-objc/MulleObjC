@@ -1,0 +1,2 @@
+Property "value" of Foo is serializable
+Property "value" of Bar is not serializable

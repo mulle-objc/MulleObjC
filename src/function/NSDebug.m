@@ -366,9 +366,9 @@ static void   zombifyLargeObject( id obj, int shred)
 
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( zombieCls));
    if( shred)
-      memset( &zombie->_originalClass + 1,
-              0xad,
-              _mulle_objc_class_get_instancesize( cls) - sizeof( Class));
+      mulle_memset_uint32( &zombie->_originalClass + 1,
+                           0xdeaddead,
+                           _mulle_objc_class_get_instancesize( cls) - sizeof( Class));
 }
 
 @end
@@ -427,7 +427,7 @@ static void   zombifyObject( id obj, int shred)
    assert( zombieCls);
    _mulle_objc_object_set_isa( obj, _mulle_objc_infraclass_as_class( zombieCls));
    if( shred)
-      memset( obj, 0xad, _mulle_objc_class_get_instancesize( cls));
+      mulle_memset_uint32( obj, 0xdeaddead, _mulle_objc_class_get_instancesize( cls));
 }
 
 

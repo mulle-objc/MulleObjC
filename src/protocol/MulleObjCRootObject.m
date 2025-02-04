@@ -168,6 +168,52 @@ static inline void   checkAutoreleaseRelease( id self)
 
 
 //
+// as a class method, prevent [Foo autorelease] to end up in the autorelease
+// pool (at least when running -O0)
+//
++ (instancetype) autorelease
+{
+   return( (id) self);
+}
+
+
++ (instancetype) retain
+{
+   return( (id) self);
+}
+
+
++ (void) release
+{
+}
+
+
++ (NSUInteger) retainCount
+{
+   return( MULLE_OBJC_NEVER_RELEASE);
+}
+
+
++ (instancetype) init
+{
+   assert( 0 && "init a class ???");
+   return( nil);
+}
+
+
++ (void) finalize
+{
+}
+
+
++ (void) dealloc
+{
+   assert( 0 && "dealloc a class ???");
+}
+
+
+
+//
 // do not override these, inherit MulleObjCThreadSafe or optionally
 // MulleObjCThreadUnsafe
 //

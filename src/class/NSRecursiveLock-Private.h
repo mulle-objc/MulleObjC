@@ -92,3 +92,13 @@ static inline BOOL  _MulleObjCRecursiveLockTryLock( NSRecursiveLock *_self)
    return( YES);
 }
 
+
+static inline NSUInteger  _MulleObjCRecursiveLockGetLockingDepth( NSRecursiveLock *_self)
+{
+   struct { @defs( NSRecursiveLock); } *self = (void *) _self;
+   NSUInteger   depth;
+
+   depth = (NSUInteger) _mulle_atomic_pointer_read( &self->_depth);
+   return( depth);
+}
+

@@ -41,19 +41,29 @@
 #import "NSZone.h"
 
 
+// NSCopying
+//
+// **Must** return an instance that is immutable. The instance is supposed
+// to react to the same methods as the original, so returning a NSDictionary
+// from a random object is not a `-copy`. The general `isKindOfClass:`
+// semantics should work as well, so if self is a NSMutableString then
+// the return value should also be a NSString, though I have no real idea
+// how to formulate this.
+//
+// Does not return an instancetype (e.g. NSMutableSet returns NSSet).
+// If it isn't immutable, you should be using constructors to copy.
+//
+@protocol NSCopying
+
+- (id /*<MulleObjCImmutable>*/) copy;  /* MulleObjCImmutable protocol is too tedious */
 //
 // the old copyWithZone: is gone. If you have copyWithZone: methods,
 // code a method -copy that calls your -copyWithZone:
 //
-@protocol NSCopying
 
-//
-// Does not return an instancetype (e.g. NSMutableSet returns NSSet).
-// Must return an instance that is immutable.
-// If it isn't immutable, you should be using -mutableCopy (which is
-// deprecated), or simply use constructors to copy.
-//
-- (id /*<MulleObjCImmutable>*/) copy;  /* MulleObjCImmutable protocol is too tedious */
+@optional
+
+- (id) immutableInstance;
 
 @end
 

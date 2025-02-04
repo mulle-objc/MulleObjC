@@ -29,39 +29,41 @@
 @end
 
 
-@interface Value : MulleDynamicObject <NSCopying>
 
-@property( dynamic) char  *nameUTF8String;
+@interface Value : NSObject <NSCopying>
+
+@property( assign) char  *nameUTF8String;
 
 @end
 
 
 @implementation Value
 
-@dynamic nameUTF8String;
 
 + (instancetype) objectWithNameUTF8String:(char *) s
 {
    Value  *value;
 
    value = [self object];
-   [value setNameUTF8String:s];
+   value->_nameUTF8String = s;
    return( value);
 }
 
+
 - (char *) UTF8String
 {
-   return( [self nameUTF8String]);
+   return( _nameUTF8String);
 }
 
 
 // terrible hack for this test
 - (id) copy
 {
-   return( [self mutableCopy]);
+   return( [[[self class] objectWithNameUTF8String:"copy"] retain]);
 }
 
 @end
+
 
 
 

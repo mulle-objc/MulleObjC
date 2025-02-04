@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 #define VALUE_HAS_NAME
-#define DO_COPY
 
 @interface Foo : MulleDynamicObject
 @end
@@ -26,46 +25,42 @@
 @end
 
 
-@interface Value : MulleDynamicObject <NSCopying>
 
-@property( dynamic) char  *nameUTF8String;
+@interface Value : NSObject <NSCopying>
+
+@property( assign) char  *nameUTF8String;
 
 @end
 
 
 @implementation Value
 
-@dynamic nameUTF8String;
 
 + (instancetype) objectWithNameUTF8String:(char *) s
 {
    Value  *value;
 
    value = [self object];
-#ifdef VALUE_HAS_NAME
-   [value setNameUTF8String:s];
-#endif
+   value->_nameUTF8String = s;
    return( value);
 }
 
 
 - (char *) UTF8String
 {
-#ifdef VALUE_HAS_NAME
-   return( [self nameUTF8String]);
-#else
-   return( "retainValue");
-#endif
+   return( _nameUTF8String);
 }
 
 
 // terrible hack for this test
 - (id) copy
 {
-   return( [self mutableCopy]);
+   return( [[[self class] objectWithNameUTF8String:"copy"] retain]);
 }
 
 @end
+
+
 
 
 
@@ -79,14 +74,7 @@ int  main()
       obj = [Foo object];
       [obj setRetainValue:[Value objectWithNameUTF8String:"retain"]];
 
-#ifdef DO_COPY
-      copy = [[obj mutableCopy] autorelease];
-
-      mulle_printf( "%@\n", [copy retainValue]);
-      [copy mullePerformFinalize];
-#else
       mulle_printf( "%@\n", [obj retainValue]);
-#endif
       [obj mullePerformFinalize];
    }
 

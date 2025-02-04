@@ -119,7 +119,6 @@ src/protocol/NSCopyingWithAllocator.h
 src/protocol/NSCopying.h
 src/protocol/NSFastEnumeration.h
 src/protocol/NSLocking.h
-src/protocol/NSMutableCopying.h
 src/protocol/NSObjectProtocol.h
 src/reflect/_MulleObjC-versioncheck.h
 src/struct/MulleObjCContainerObjectCallback.h

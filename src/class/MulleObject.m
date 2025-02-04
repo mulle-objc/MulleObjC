@@ -1,3 +1,4 @@
+#define HAVE_INSTANCE_COPY_CODE
 #import "MulleObject.h"
 
 #import "import-private.h"
@@ -405,7 +406,7 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 
 - (instancetype) init
 {
-   self = [super init];
+   self   = [super init];
    __lock = [NSRecursiveLock new];
    return( self);
 }
@@ -464,13 +465,30 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 //  |    > [view addSubview:subview]            | -> 2       |
 //  |       > [subview willAddToSuperview:view] |            | -> 1
 //  |       < [subview willAddToSuperview:view] |            | -> 0
-//  |         [subview shareRecursiveLockWithObject:view]  | THREADSAFE |
+//  |         [subview shareRecursiveLockWithObject:view]    | THREADSAFE |
 //  |       > [subview didAddToSuperview:view]  | -> 3       |
 //  |       < [subview didAddToSuperview:view]  | -> 2       |
 //  |    < [view removeSubview:subview]         | -> 1       |
 //  | < [view doStuff]                          | -> 0       |
 //
 // Looks like its harmless..
+//
+// Funnily enough, because the lock is not reread for unlocking the proper
+// lock count is still achieved, even if the lock is no longer in use by
+// any object (can't reap the pool inbetween though)
+//
+//  | Action                                    | View Lock  | Subview Lock
+//  |-------------------------------------------|------------|-------
+//  |                                           |    0       |    0
+//  | > [subview doStuff]                       |            | -> 1
+//  |    > [view addSubview:subview]            | -> 1       |
+//  |       > [subview willAddToSuperview:view] |            | -> 2
+//  |       < [subview willAddToSuperview:view] |            | -> 1
+//  |         [subview shareRecursiveLockWithObject:view]    | THREADSAFE |
+//  |       > [subview didAddToSuperview:view]  | -> 2       |
+//  |       < [subview didAddToSuperview:view]  | -> 1       |
+//  |    < [view removeSubview:subview]         | -> 0       |
+//  | < [subview doStuff]                       |            | -> 0
 //
 
 - (void) didShareRecursiveLock:(NSRecursiveLock *) lock
@@ -487,10 +505,22 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 
 - (void) shareRecursiveLock:(NSRecursiveLock *) lock
 {
+   //
+   // TODO: if self->_lock is != nil and lock is nil, don't we return to
+   //       a new lock ?
+   //
    NSLockingDo( lock)
    {
       if( lock != self->__lock)
       {
+         // only share if _lock is not in use yet or if its the same lock.
+         // because why ?
+         // use. (If in use we could hypothetically add lock calls in a loop
+         // to `lock` and discard __lock)
+
+         //assert( (self->__lock ? _MulleObjCRecursiveLockGetLockingDepth( self->__lock) : 0) == 0);
+         // assert( [self retainCount] == 1);  // must be single threaded
+
          [self->__lock autorelease];
          self->__lock = [lock retain];
 
@@ -505,4 +535,6 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    [self shareRecursiveLock:other ? other->__lock : nil];
 }
 
+
 @end
+
