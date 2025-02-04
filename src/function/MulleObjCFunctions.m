@@ -357,16 +357,18 @@ IMP   MulleObjCObjectSearchSuperIMP( id obj,
    struct _mulle_objc_class             *cls;
    struct _mulle_objc_method            *method;
    mulle_objc_implementation_t          imp;
+   unsigned int                         inheritance;
 
    if( ! obj)
       return( (IMP) 0);
 
-   search = mulle_objc_searcharguments_make_super( sel, classid);
-   cls    = _mulle_objc_object_get_isa( obj);
-   method = mulle_objc_class_search_method( cls,
-                                           &search,
-                                           _mulle_objc_class_get_inheritance( cls),
-                                           NULL);
+   cls         = _mulle_objc_object_get_isa( obj);
+   inheritance = cls->inheritance;
+   search      = mulle_objc_searcharguments_make_super( sel, classid);
+   method      = mulle_objc_class_search_method( cls,
+                                                 &search,
+                                                 inheritance,
+                                                 NULL);
    imp = 0;
    if( method)
       imp = _mulle_objc_method_get_implementation( method);

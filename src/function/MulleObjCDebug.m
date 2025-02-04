@@ -163,7 +163,7 @@ void   MulleObjCDotdumpClassToDirectory( char *classname, char *directory)
    }
 
    cls = _mulle_objc_infraclass_as_class( infra);
-   mulle_objc_class_dotdump_to_directory( cls, directory);
+   mulle_objc_class_dotdump_to_directory( cls, directory, 0);
 }
 
 

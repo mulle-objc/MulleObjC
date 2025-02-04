@@ -84,7 +84,7 @@
 //
 // Instead of using the alloc/init/autorelease pattern, MulleObjC provides the
 // +object method on NSObject subclasses to instantiate autoreleased objects
-// without needing separate +alloc and -init calls. For example:
+// For example:
 //
 // Foo *s = [Foo object];
 //
@@ -119,8 +119,7 @@
 #endif
 
 // AAO suport
-+ (instancetype) instantiate;             // alloc + autorelease
-- (instancetype) immutableInstance;       // copy + autorelease
++ (instancetype) instantiate;             // alloc + delayed autorelease
 
 //
 // TODO: call this `instance` ?? We have class which is made up of
@@ -129,10 +128,8 @@
 // "wrapping" name for all is probably still object. So why is the
 // method to produce instances called object ?
 //
-+ (instancetype) object;      // alloc + autorelease + init -> new
-
-// old name
-+ (instancetype) instantiatedObject;      // alloc + autorelease + init -> new
++ (instancetype) object;      // alloc + init + autorelease
+//+ (instancetype) instance;  // synonym this once the compiler knows how to
 
 - (BOOL) __isSingletonObject;       // here object is a valid name as it fits instance and class
 - (BOOL) __isClassClusterObject;

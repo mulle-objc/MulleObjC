@@ -61,20 +61,6 @@
 #pragma clang diagnostic ignored "-Wparentheses"
 
 
-@interface NSObject ( NSCopying)
-
-- (id) copy;
-
-@end
-
-
-@interface NSObject ( NSMutableCopying)
-
-- (id) mutableCopy;
-
-@end
-
-
 // intentonally a root object (!)
 @interface _MulleObjCInstantiatePlaceholder <MulleObjCPlaceboRetainCount>
 {
@@ -269,42 +255,16 @@ retry:
 }
 
 
-+ (instancetype) instantiatedObject // alloc + autorelease + init
-{
-   id   obj;
-
-   obj = [self instantiate];
-   obj = [obj init];
-   return( obj);
-}
-
-
 + (instancetype) object // same as above
 {
    id   obj;
 
-   obj = [self instantiate];
+   //
+   // we don't do the instantiate here, because we autorelease
+   // anyway.
+   //
+   obj = [self alloc];
    obj = [obj init];
-   return( obj);
-}
-
-
-- (instancetype) immutableInstance
-{
-   id   obj;
-
-   obj = [self copy];
-   obj = [obj autorelease];
-   assert( [obj conformsToProtocol:@protocol( MulleObjCImmutable)]);
-   return( obj);
-}
-
-
-- (instancetype) mutableInstance
-{
-   id   obj;
-
-   obj = [self mutableCopy];
    obj = [obj autorelease];
    return( obj);
 }
@@ -313,6 +273,9 @@ retry:
 - (instancetype) mulleThreadSafeInstance
 {
    id   obj;
+
+   if( [self mulleIsThreadSafe])
+      return( self);
 
    obj = [self immutableInstance];
    assert( [obj mulleIsThreadSafe]);
@@ -747,17 +710,5 @@ void  MulleObjCClassInterposeBeforeClass( Class self, Class other)
 {
    MulleObjCClassInterposeBeforeClass( self, subClass);
 }
-
-
-
-//
-// as a class method, prevent [Foo autorelease] to end up in the autorelease
-// pool (at least when running -O0)
-//
-+ (instancetype) autorelease
-{
-   return( (id) self);
-}
-
 
 @end

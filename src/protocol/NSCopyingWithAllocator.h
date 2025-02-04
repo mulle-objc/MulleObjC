@@ -41,11 +41,9 @@
 #import "NSZone.h"
 
 
-// TODO: rename to MulleObjCMutableCopyingWithAllocator or just move
-//       to NSMutableCopying
-
+//
 // MEMO: scheme needs to remember allocator in the instance header or ?
-
+//
 // NSCopyingWithAllocator is supposed to be used to transfer an object and
 // it's ivars/properties to another allocator. If it can be determined that
 // the object is already there, then this will just retain.
@@ -63,7 +61,7 @@
 // }
 // @property( assign) id  f;        // zeroed
 // @property( copy)   id  f;        // copied
-// @property( retain) id  f;        // zeroed
+// @property( retain) id  f;        // zeroed!
 //
 @protocol NSCopyingWithAllocator
 

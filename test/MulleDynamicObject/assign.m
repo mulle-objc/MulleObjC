@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 #define VALUE_HAS_NAME
-#define DO_COPY
 
 @interface Foo : MulleDynamicObject
 @end
@@ -58,13 +57,6 @@
 #endif
 }
 
-
-// terrible hack for this test
-- (id) copy
-{
-   return( [self mutableCopy]);
-}
-
 @end
 
 
@@ -79,14 +71,7 @@ int  main()
       obj = [Foo object];
       [obj setAssignValue:[Value objectWithNameUTF8String:"assign"]];
 
-#ifdef DO_COPY
-      copy = [[obj mutableCopy] autorelease];
-
-      mulle_printf( "%@\n", [copy assignValue]);
-      [copy mullePerformFinalize];
-#else
       mulle_printf( "%@\n", [obj assignValue]);
-#endif
       [obj mullePerformFinalize];
    }
 

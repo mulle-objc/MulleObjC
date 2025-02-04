@@ -2,7 +2,6 @@
 
 #import "NSObjectProtocol.h"
 #import "NSCopying.h"
-#import "NSMutableCopying.h"
 
 
 
@@ -16,6 +15,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadSafe)
    cls = _mulle_objc_infraclass_as_class( (struct _mulle_objc_infraclass *) self);
    _mulle_objc_class_set_state_bit( cls, MULLE_OBJC_CLASS_IS_NOT_THREAD_AFFINE);
 }
+
 
 - (BOOL) mulleIsThreadSafe                MULLE_OBJC_THREADSAFE_METHOD
 {
@@ -85,7 +85,7 @@ PROTOCOLCLASS_END()
 
 PROTOCOLCLASS_IMPLEMENTATION( MulleObjCImmutable)
 
-- (id /*<MulleObjCImmutable>*/) copy;
+- (id /*<MulleObjCImmutable>*/) copy
 {
    return( [self retain]);
 }

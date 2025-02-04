@@ -35,8 +35,6 @@
 //
 #import "NSObject.h"
 
-#import "NSMutableCopying.h"
-
 //
 // The convenient superclass of all "non-value" and "non-container" objects.
 //
@@ -49,7 +47,7 @@
 // and any object (but not NSRange or floating point values or any integer
 // exceeding the sizeof( void *)
 //
-@interface MulleDynamicObject : NSObject < NSMutableCopying>
+@interface MulleDynamicObject : NSObject
 {
    struct mulle__pointermap   __ivars;      // use __ to "hide" it
 }
@@ -92,11 +90,3 @@ void   _MulleDynamicObjectNumberSetter( MulleDynamicObject *self, SEL selector, 
 MULLE_C_NONNULL_FIRST
 void   _MulleDynamicObjectValueGetter( MulleDynamicObject *self, SEL selector, void *_param);
 
-
-@interface MulleDynamicObject( NSMutableCopying)< NSMutableCopying>
-
-// we can't do NSCopying, because we are mutable, but mutableCopy is sorta
-// outlawed (I am so conflicted)
-- (id) mutableCopy;
-
-@end

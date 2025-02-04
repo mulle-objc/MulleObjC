@@ -47,6 +47,9 @@
 
 struct _mulle_objc_universefoundationinfo_object
 {
+   // roots (and threads) comprise the universe autoreleasepool, conceptually
+   // (you can't reach it via -autorelease, because its not in the per
+   // thread chain, and you can't stack stuff in it either)
    struct mulle_set    *roots;
    // single out thread into their own map, where we can map OSThread to
    // thread object

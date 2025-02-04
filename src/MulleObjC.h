@@ -75,7 +75,6 @@
 #import "NSCopyingWithAllocator.h"
 #import "NSFastEnumeration.h"
 #import "NSLocking.h"
-#import "NSMutableCopying.h"
 #import "NSObjectProtocol.h"
 
 // categories

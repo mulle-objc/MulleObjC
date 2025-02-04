@@ -101,6 +101,17 @@ typedef int   MulleThreadObjectFunction_t( NSThread *, id);
 + (void) exit;
 
 
++ (instancetype) mulleThreadWithTarget:(id) target
+                              selector:(SEL) sel
+                                object:(id) argument;
+
++ (instancetype) mulleThreadWithObjectFunction:(MulleThreadObjectFunction_t) f
+                                       object:(id) obj;
+
++ (instancetype) mulleThreadWithFunction:(MulleThreadFunction_t *) f
+                                argument:(void *) argument;
+
+
 // caller is responsible to call -retainArguments on invocation
 + (instancetype) mulleThreadWithInvocation:(NSInvocation *) invocation;
 
@@ -147,6 +158,7 @@ typedef int   MulleThreadObjectFunction_t( NSThread *, id);
 // the thread is started and starts running, but still should be joined or
 // detached
 - (void) mulleStart;
+
 //
 // don't call mulleJoin on a detached thread.
 // Returns the thread invocation, and after that it's no longer available

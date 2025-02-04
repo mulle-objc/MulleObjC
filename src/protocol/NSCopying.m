@@ -45,6 +45,18 @@
 @implementation NSObject ( NSCopying)
 
 
+// TODO: move this to NSCopying ?
+- (instancetype) immutableInstance
+{
+   id   obj;
+
+   obj = [(id <NSCopying>) self copy];
+   obj = [obj autorelease];
+   assert( [obj conformsToProtocol:@protocol( MulleObjCImmutable)]);
+   return( obj);
+}
+
+
 - (id) copyWithZone:(NSZone *) zone
 {
    fprintf( stderr, "-[NSObject copyWithZone:] doesn't work anymore.\n"
