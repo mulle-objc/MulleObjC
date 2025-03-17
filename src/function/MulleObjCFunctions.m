@@ -938,104 +938,69 @@ void   MulleObjCDescribeIvars( struct mulle_buffer *buffer, id obj)
  *
  */
 
-struct call_info
-{
-   id    obj;
-   SEL   methodsel;
-   id    parameter;
-};
-
-
-static int   method_caller( struct _mulle_objc_class *cls,
+static int   imp_collector( struct _mulle_objc_class *cls,
                             struct _mulle_objc_searcharguments *search,
                             unsigned int inheritance,
                             struct _mulle_objc_searchresult *result)
 {
-   struct call_info              *p;
-   mulle_objc_implementation_t   imp;
+   struct mulle_pointerarray   *array;
 
-   p    = search->userinfo;
-   imp  = _mulle_objc_method_get_implementation( result->method);
-   mulle_objc_implementation_invoke( imp, p->obj, p->methodsel, p->parameter);
+   array = _mulle_objc_searcharguments_get_userinfo( search);
+   mulle_pointerarray_add( array, _mulle_objc_method_get_implementation( result->method));
    return( mulle_objc_walk_ok);
 }
 
 
-void    MulleObjCObjectSpamInheritorToAncestor( id obj, SEL sel, id parameter, Class stopClass)
+void   MulleObjCClassCollectImplementations( Class startClass,
+                                             struct MulleObjCCollectionInfo *info,
+                                             struct mulle_pointerarray *array)
 {
    struct _mulle_objc_searcharguments   args;
    struct _mulle_objc_searchresult      result;
    struct _mulle_objc_class             *cls;
-   struct call_info                     info;
    mulle_objc_classid_t                 stop_classid;
    unsigned int                         inheritance;
 
-   info.obj       = obj;
-   info.methodsel = sel;
-   info.parameter = parameter;
+   if( ! startClass || ! info || ! array)
+      return;
 
    // find the first method, if we find none we are done
-   args         = mulle_objc_searcharguments_make_default( sel);
-   stop_classid = mulle_objc_infraclass_get_classid( stopClass);
+   args         = mulle_objc_searcharguments_make_default( info->selector);
+   stop_classid = info->stopClass
+                  ? mulle_objc_infraclass_get_classid( info->stopClass)
+                  : 0;
+
    _mulle_objc_searcharguments_set_stop_classid( &args, stop_classid);
-   _mulle_objc_searcharguments_set_callback( &args, method_caller);
-   _mulle_objc_searcharguments_set_userinfo( &args, &info);
+   _mulle_objc_searcharguments_set_callback( &args, imp_collector);
+   _mulle_objc_searcharguments_set_userinfo( &args, array);
 
-   cls         = _mulle_objc_object_get_isa( obj);
-   inheritance = _mulle_objc_class_get_inheritance( cls);
-   mulle_objc_class_search_method( cls,
-                                   &args,
-                                   inheritance,
-                                   &result);
+   cls         = (struct _mulle_objc_class *) startClass;
+   inheritance = ! info->inheritance
+                 ? _mulle_objc_class_get_inheritance( cls)
+                 : info->inheritance;
+
+   mulle_objc_class_search_method( cls, &args, inheritance, &result);
 }
 
 
-static int   method_collector( struct _mulle_objc_class *cls,
-                               struct _mulle_objc_searcharguments *search,
-                               unsigned int inheritance,
-                               struct _mulle_objc_searchresult *result)
+/*
+ * Experimental suppport for -initCategory and -deallocCategory, which 
+ * should be useful with MulleObject being able to support dynamic
+ * properties.
+ */
+void   MulleObjCIMPArrayInit( struct MulleObjCIMPArray *imps, 
+                              Class cls, 
+                              Class stopCls,
+                              SEL sel, 
+                              unsigned int flags,
+                              struct mulle_allocator *allocator)
 {
-   struct mulle_pointerarray *methods;
+   struct MulleObjCCollectionInfo   info;
 
-   methods = _mulle_objc_searcharguments_get_userinfo( search);
-   mulle_pointerarray_add( methods, result->method);
-   return( mulle_objc_walk_ok);
-}
+   mulle_pointerarray_init( &imps->imps, 0, allocator);
+   imps->selector = sel;
 
-
-void    MulleObjCObjectSpamAncestorToInheritor( id obj, SEL sel, id parameter, Class startClass)
-{
-   struct _mulle_objc_searcharguments   args;
-   struct _mulle_objc_searchresult      result;
-   struct _mulle_objc_method            *method;
-   struct _mulle_objc_class             *cls;
-   mulle_objc_implementation_t          imp;
-   mulle_objc_classid_t                 stop_classid;
-   unsigned int                         inheritance;
-
-   mulle_pointerarray_do_flexible( methods, 32)
-   {
-      // find the first method, if we find none we are done
-      args         = mulle_objc_searcharguments_make_default( sel);
-      stop_classid = mulle_objc_infraclass_get_classid( startClass);
-      _mulle_objc_searcharguments_set_stop_classid( &args, stop_classid);
-      _mulle_objc_searcharguments_set_callback( &args, method_collector);
-      _mulle_objc_searcharguments_set_userinfo( &args, methods);
-
-      cls         = _mulle_objc_object_get_isa( obj);
-      inheritance = _mulle_objc_class_get_inheritance( cls);
-      mulle_objc_class_search_method( cls,
-                                      &args,
-                                      inheritance,
-                                      &result);
-
-      // now we have all the methods collected and can call them in reverse
-      // order
-      mulle_pointerarray_for_reverse( methods, method)
-      {
-         imp = _mulle_objc_method_get_implementation( method);
-         mulle_objc_implementation_invoke( imp, obj, sel, parameter);
-      }
-   }
+   info = MulleObjCCollectionInfoMake( stopCls, sel, flags);
+   MulleObjCClassCollectImplementations( cls, &info, &imps->imps);
 }
 

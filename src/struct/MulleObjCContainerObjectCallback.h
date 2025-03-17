@@ -139,6 +139,14 @@ void   *
    mulle_container_callback_object_copy( void *callback,
                                          id obj,
                                          struct mulle_allocator *allocator);
+
+// used for "key" copying
+MULLE_OBJC_GLOBAL
+void   *
+   mulle_container_callback_object_immutable_copy( void *callback,
+                                                   id obj,
+                                                   struct mulle_allocator *allocator);
+
 MULLE_OBJC_GLOBAL
 void
    mulle_container_callback_object_autorelease( void *callback,

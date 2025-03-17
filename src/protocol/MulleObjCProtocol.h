@@ -73,10 +73,10 @@
 // marked both MulleObjCThreadSafe and MulleObjCThreadUnsafe in its
 // inheritance chain. The last marker wins!
 //
-// Example: NSArray
+// Example: NSArray : NSObject < MulleObjCThreadSafe>
 // -> MulleObjCThreadSafe
 //
-// Example: NSMutableDictionary
+// Example: NSMutableArray : NSArray < MulleObjCThreadUnsafe>
 // -> MulleObjCThreadUnsafe
 //
 // You don't have to marker you classes with MulleObjCThreadUnsafe,
@@ -115,7 +115,8 @@ PROTOCOLCLASS_END()
 _PROTOCOLCLASS_INTERFACE( MulleObjCImmutable, MulleObjCRuntimeObject)
 
 @optional
-- (id /*<MulleObjCImmutable>*/) copy;  // protocol is too tedious
+- (id) copy;           // protocol return type is too tedious
+- (id) immutableCopy;  // protocol return type is too tedious
 
 PROTOCOLCLASS_END()
 
@@ -165,26 +166,33 @@ PROTOCOLCLASS_END()
 @end
 
 
+@protocol MulleObjCImmutableCopying;
+
 
 // convenience declaration to put on concrete immutable value subclasses
 // order is important here
-#define MulleObjCValueProtocols             MulleObjCRuntimeObject,  \
-                                            MulleObjCValue,          \
-                                            MulleObjCInvariant,      \
-                                            MulleObjCImmutable,      \
-                                            MulleObjCThreadSafe
+// we can add MulleObjCImmutableCopying here
+#define MulleObjCValueProtocols             MulleObjCRuntimeObject,   \
+                                            MulleObjCValue,           \
+                                            MulleObjCInvariant,       \
+                                            MulleObjCImmutable,       \
+                                            MulleObjCThreadSafe,      \
+                                            MulleObjCImmutableCopying
 
 // convenience declaration to put on concrete mutable value subclasses
+// if your object is MutableValue it must not support deriving a
 #define MulleObjCMutableValueProtocols      MulleObjCRuntimeObject,  \
                                             MulleObjCValue,          \
                                             MulleObjCThreadUnsafe
 
 
 // convenience declaration to put on concrete immutable container subclasses
+// we can add MulleObjCImmutableCopying here
 #define MulleObjCContainerProtocols         MulleObjCRuntimeObject,  \
                                             MulleObjCContainer,      \
                                             MulleObjCImmutable,      \
-                                            MulleObjCThreadSafe
+                                            MulleObjCThreadSafe,     \
+                                            MulleObjCImmutableCopying
 
 // convenience declaration to put on concrete mutable container subclasses
 // generally we don't like -mutableCopy and don't want to prolong its existence
@@ -193,9 +201,11 @@ PROTOCOLCLASS_END()
                                             MulleObjCThreadUnsafe
 
 // convenience declaration to put on all other immutable objects
-#define MulleObjCImmutableProtocols         MulleObjCRuntimeObject,  \
-                                            MulleObjCImmutable,      \
-                                            MulleObjCThreadSafe      \
+// we can add MulleObjCImmutableCopying here
+#define MulleObjCImmutableProtocols         MulleObjCRuntimeObject,   \
+                                            MulleObjCImmutable,       \
+                                            MulleObjCThreadSafe,      \
+                                            MulleObjCImmutableCopying
 
 
 // convenience declaration to *optionally* put on all other objects

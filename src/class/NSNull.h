@@ -43,7 +43,7 @@
 //
 // The mulle-objc NSNull reacts to all unknown methods by return nil/NULL/0 (!)
 //
-@interface NSNull : NSObject < MulleObjCSingleton, MulleObjCValueProtocols, NSCoding>
+@interface NSNull : NSObject < MulleObjCSingleton, MulleObjCValueProtocols>
 {
 }
 

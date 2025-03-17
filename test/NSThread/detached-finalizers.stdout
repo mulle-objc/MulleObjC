@@ -1,0 +1,4 @@
+-[Foo finalize]: foo
+-[Foo finalize]: bar
+-[Foo finalize]: after
+-[Foo finalize]: before

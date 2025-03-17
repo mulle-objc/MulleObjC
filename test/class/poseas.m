@@ -314,15 +314,14 @@ static void   dump_class_table( void)
    intptr_t                                    classid;
 
    universe = _mulle_objc_infraclass_get_universe( (struct _mulle_objc_infraclass *) [NSObject class]);
-   rover = mulle_concurrent_hashmap_enumerate( &universe->classtable);
-   while( _mulle_concurrent_hashmapenumerator_next( &rover, &classid, (void **) &infra))
+
+   mulle_concurrent_hashmap_for( &universe->classtable, classid, infra)
    {
       mulle_fprintf( stderr, "%4ld: %08x \"%s\"\n",
                              (long) _mulle_objc_infraclass_get_classindex( infra),
                              classid,
                              _mulle_objc_infraclass_get_name( infra));
    }
-   mulle_concurrent_hashmapenumerator_done( &rover);
 }
 
 

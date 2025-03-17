@@ -45,7 +45,7 @@
 // MEMO: scheme needs to remember allocator in the instance header or ?
 //
 // NSCopyingWithAllocator is supposed to be used to transfer an object and
-// it's ivars/properties to another allocator. If it can be determined that
+// its ivars/properties to another allocator. If it can be determined that
 // the object is already there, then this will just retain.
 // Otherwise the default implementation will copy all integer/fp ivars
 // harmless, deep/copy char * as strings and copyWithAlloator: all properties

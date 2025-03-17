@@ -20,7 +20,6 @@
       { @selector( NSMethodSignature), MULLE_OBJC_NO_CATEGORYID },      // 523989f9;NSMethodSignature;;
       { @selector( NSNull), MULLE_OBJC_NO_CATEGORYID },      // f0c42d79;NSNull;;
       { @selector( NSObject), @selector( NSCodingSupport) },      // b3a66256;NSObject;55df6832;NSCodingSupport
-      { @selector( NSObject), @selector( NSCopying) },      // b3a66256;NSObject;903fb1df;NSCopying
       { @selector( NSObject), @selector( _NSNull) },      // b3a66256;NSObject;90d3fc87;_NSNull
       { @selector( NSObject), MULLE_OBJC_NO_CATEGORYID },      // b3a66256;NSObject;;
       { @selector( NSProxy), MULLE_OBJC_NO_CATEGORYID },      // 9a42ec29;NSProxy;;

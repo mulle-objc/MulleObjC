@@ -386,7 +386,7 @@ autorelease:
       break;
    }
 
-   // actually threads safe ?
+   // actually threadsafe ?
    osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
    if( ! osThread)
       return;
@@ -474,6 +474,11 @@ autorelease:
    [self mulleGainAccessWithTAOStrategy:strategy];
 }
 
+
+// MEMO: a method mulleTransferAccessToThread:(NSThread *) is nigh impossible
+//       because we can't get the objects into the other threads autorelease
+//       pool. Or if we could it would be extremely unsafe and hacky or ?
+//
 
 - (void) mulleRelinquishAccess
 {

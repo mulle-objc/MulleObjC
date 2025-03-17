@@ -89,6 +89,15 @@ void   *
 }
 
 
+void   *
+   mulle_container_callback_object_immutable_copy( void *callback,
+                                                   id obj,
+                                                   struct mulle_allocator *allocator)
+{
+   return( [obj immutableCopy]);
+}
+
+
 void
 	mulle_container_callback_object_autorelease( void *callback,
 															   id obj,
@@ -184,7 +193,7 @@ char *
    {                                                                                                       \
       .hash     = (mulle_container_keycallback_hash_t *)     mulle_container_keycallback_object_hash,      \
       .is_equal = (mulle_container_keycallback_is_equal_t *) mulle_container_keycallback_object_is_equal,  \
-      .retain   = (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_copy,         \
+      .retain   = (mulle_container_keycallback_retain_t *)   mulle_container_callback_object_immutable_copy, \
       .release  = (mulle_container_keycallback_release_t *)  mulle_container_callback_object_autorelease,  \
       .describe = (mulle_container_keycallback_describe_t *) mulle_container_callback_object_describe,     \
       .notakey  = nil,                                                                                     \

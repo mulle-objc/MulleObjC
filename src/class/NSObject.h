@@ -254,6 +254,13 @@
 @end
 
 
+@interface NSObject( NSCopying)
+
+- (id) copiedInstance;
+- (id) immutableInstance;
+
+@end
+
 //
 // These just memcpy. Objects embeddded into structs will not be retained (yet)
 // I could do this in the future though.

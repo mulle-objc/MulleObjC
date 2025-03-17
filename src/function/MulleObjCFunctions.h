@@ -897,13 +897,127 @@ MULLE_OBJC_GLOBAL
 void    MulleObjCMakeObjectsPerformRelease( id *objects, NSUInteger n);
 
 
-MULLE_OBJC_GLOBAL
-void    MulleObjCObjectSpamAncestorToInheritor( id obj, SEL sel, id argument, Class startClass);
+
+/*
+ * Spamming a method means calling a method on each category or protocolclass
+ * and class along the inheritance chain. This sounds like a good idea to
+ * get category initializers and deinitializers going, but things get tricky
+ * when you subclass...
+ */
+struct MulleObjCCollectionInfo
+{
+   Class          stopClass;
+   SEL            selector;
+   unsigned int   inheritance;
+};
+
+
+//
+// If you leave stopClass as Nil, that's fine.
+// Leave inheritance 0 for default inheritance
+//
+static inline struct MulleObjCCollectionInfo
+   MulleObjCCollectionInfoMake( Class stopClass,
+                                SEL sel,
+                                unsigned int inheritance)
+{
+   return( (struct MulleObjCCollectionInfo)
+   {
+      .stopClass   = stopClass,
+      .selector    = sel,
+      .inheritance = inheritance,
+   });
+}
+
+
+static inline struct MulleObjCCollectionInfo
+   MulleObjCCollectionInfoMakeCategories( Class cls, SEL sel)
+{
+   return( (struct MulleObjCCollectionInfo)
+   {
+      .stopClass   = cls,
+      .selector    = sel,
+      .inheritance = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
+                     | MULLE_OBJC_CLASS_DONT_INHERIT_CLASS,
+   });
+}
+
 
 MULLE_OBJC_GLOBAL
-void    MulleObjCObjectSpamInheritorToAncestor( id obj, SEL sel, id argument, Class startClass);
+void   MulleObjCClassCollectImplementations( Class startClass,
+                                             struct MulleObjCCollectionInfo *info,
+                                             struct mulle_pointerarray *array);
 
 
+
+struct MulleObjCIMPArray
+{
+   struct mulle_pointerarray   imps;
+   SEL                         selector;
+};
+
+
+//
+// Collected IMPs will be in override order, back to front
+//
+MULLE_OBJC_GLOBAL
+void   MulleObjCIMPArrayInit( struct MulleObjCIMPArray *imps, 
+                              Class cls, 
+                              Class stopCls, 
+                              SEL sel, 
+                              unsigned int flags,
+                              struct mulle_allocator *allocator);
+
+static inline void 
+   MulleObjCIMPArrayInitCategoryOnly( struct MulleObjCIMPArray *imps, 
+                                      Class cls, 
+                                      SEL sel, 
+                                      struct mulle_allocator *allocator)
+{
+   unsigned int   categories_only;
+
+   categories_only = MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
+                     | MULLE_OBJC_CLASS_DONT_INHERIT_CLASS
+                     | MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS
+                     | MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS_INHERITANCE;
+   MulleObjCIMPArrayInit( imps, cls, Nil, sel, categories_only, allocator);
+}
+
+
+static inline void   MulleObjCIMPArrayDone( struct MulleObjCIMPArray *imps)
+{
+   mulle_pointerarray_done( &imps->imps);
+}
+
+
+// Collected IMPs will be in override order, but for -init, we'd want to call
+// those that are obscured first
+static inline void   MulleObjCIMPArrayCallReverse( struct MulleObjCIMPArray *imps, id obj, id argument)
+{
+   IMP   imp;
+
+   mulle_pointerarray_for_reverse( &imps->imps, imp)
+   {
+      MulleObjCIMPCall( imp, obj, imps->selector, argument);
+   }
+}
+
+
+// conversely this would be good for `-dealloc`
+static inline void   MulleObjCIMPArrayCall( struct MulleObjCIMPArray *imps, id obj, id argument)
+{
+   IMP   imp;
+
+   mulle_pointerarray_for( &imps->imps, imp)
+   {
+      MulleObjCIMPCall( imp, obj, imps->selector, argument);
+   }
+}
+
+
+/*
+ *
+ */
 static inline Class   MulleObjCObjectGetClass( id obj)
 {
    return( obj ? (Class) _mulle_objc_object_get_isa( obj) : Nil);

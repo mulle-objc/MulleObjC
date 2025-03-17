@@ -255,20 +255,9 @@ static struct
 // TODO: we need some standard wraps for NSRange, CGPoint, CGRect (e.g. intptr[ 2], float[2], float[4])
 //       otherwise its too slow for UIKit
 //
-enum generic_type
-{
-//   is_invalid = -1,
-   is_void_pointer = 0,  // as is
-   is_strdup,            // strdup/free
-   is_assign,            // just like void pointer
-   is_retain,            // retain/autorelease
-   is_copy,              // copy/autorelease
-   is_value,             // wrap into NSValue (argh)
-   is_number             // wrap into NSValue (argh)
-};
 
 
-enum generic_type   generic_type_for_signature( char *signature)
+MulleObjCGenericType   _MulleObjCGenericTypeOfSignature( char *signature)
 {
    char  *type;
 
@@ -283,10 +272,10 @@ enum generic_type   generic_type_for_signature( char *signature)
 //       return( is_invalid);
 
    case _C_CLASS     :
-   case _C_ASSIGN_ID : return( is_assign);
-   case _C_RETAIN_ID : return( is_retain);
-   case _C_COPY_ID   : return( is_copy);
-   case _C_CHARPTR   : return( is_strdup);
+   case _C_ASSIGN_ID : return( MulleObjCGenericTypeAssign);
+   case _C_RETAIN_ID : return( MulleObjCGenericTypeRetain);
+   case _C_COPY_ID   : return( MulleObjCGenericTypeCopy);
+   case _C_CHARPTR   : return( MulleObjCGenericTypeStrdup);
 
    case _C_SEL       :
    case _C_CHR       :
@@ -296,48 +285,48 @@ enum generic_type   generic_type_for_signature( char *signature)
    case _C_INT       :
    case _C_UINT      :
    case _C_BOOL      :
-                       return( is_void_pointer);
+                       return( MulleObjCGenericTypeVoidPointer);
 
    case _C_LNG       : if( mulle_metaabi_is_voidptr_storage_compatible( long))
-                         return( is_void_pointer);
-                       return( is_number);
+                         return( MulleObjCGenericTypeVoidPointer);
+                       return( MulleObjCGenericTypeNumber);
                        // wrap it
    case _C_ULNG      : if( mulle_metaabi_is_voidptr_storage_compatible( unsigned long))
-                         return( is_void_pointer);
-                       return( is_number);
+                         return( MulleObjCGenericTypeVoidPointer);
+                       return( MulleObjCGenericTypeNumber);
 
    case _C_LNG_LNG   : if( mulle_metaabi_is_voidptr_storage_compatible( long long))
-                         return( is_void_pointer);
-                       return( is_number);
+                         return( MulleObjCGenericTypeVoidPointer);
+                       return( MulleObjCGenericTypeNumber);
 
    case _C_ULNG_LNG  : if( mulle_metaabi_is_voidptr_storage_compatible( unsigned long long))
-                         return( is_void_pointer);
-                       return( is_number);
+                         return( MulleObjCGenericTypeVoidPointer);
+                       return( MulleObjCGenericTypeNumber);
 
-   case _C_DBL       : return( is_number);
-   case _C_FLT       : return( is_number);
-   case _C_LNG_DBL   : return( is_number);
+   case _C_DBL       : return( MulleObjCGenericTypeNumber);
+   case _C_FLT       : return( MulleObjCGenericTypeNumber);
+   case _C_LNG_DBL   : return( MulleObjCGenericTypeNumber);
 
    case _C_PTR       : if( type[ 1] == '?')
-                          return( is_void_pointer);
+                          return( MulleObjCGenericTypeVoidPointer);
                        if( mulle_metaabi_is_voidptr_storage_compatible( void( *)( void)))
-                         return( is_void_pointer);
-                       return( is_value);
+                         return( MulleObjCGenericTypeVoidPointer);
+                       return( MulleObjCGenericTypeValue);
 
    default           : ;
    }
 
-   return( is_value);
+   return( MulleObjCGenericTypeValue);
 }
 
 #if 0
-static inline enum generic_type   generic_type_for_getter_signature( char *signature)
+static inline enum MulleObjCGenericType   _MulleObjCGenericTypeOfGetterSignature( char *signature)
 {
-   return( generic_type_for_signature( signature));
+   return( _MulleObjCGenericTypeOfSignature( signature));
 }
 
 
-static enum generic_type   generic_type_for_setter_signature( char *signature)
+static enum MulleObjCGenericType   _MulleObjCGenericTypeOfSetterSignature( char *signature)
 {
    char   *type;
 
@@ -345,37 +334,37 @@ static enum generic_type   generic_type_for_setter_signature( char *signature)
    type = mulle_objc_signature_next_type( signature);
    type = mulle_objc_signature_next_type( type);
    type = mulle_objc_signature_next_type( type);
-   return( generic_type_for_signature( type));
+   return( _MulleObjCGenericTypeOfSignature( type));
 }
 
 
-static inline enum generic_type   generic_type_for_adder_signature( char *signature)
+static inline enum MulleObjCGenericType   _MulleObjCGenericTypeOfAdderSignature( char *signature)
 {
-   return( generic_type_for_setter_signature( signature));
+   return( _MulleObjCGenericTypeOfSetterSignature( signature));
 }
 
 
-static inline enum generic_type   generic_type_for_remover_signature( char *signature)
+static inline enum MulleObjCGenericType   _MulleObjCGenericTypeOfRemoverSignature( char *signature)
 {
-   return( generic_type_for_setter_signature( signature));
+   return( _MulleObjCGenericTypeOfSetterSignature( signature));
 }
 #endif
 
 
-static inline enum generic_type
-   generic_type_for_property( struct _mulle_objc_property *property)
+MulleObjCGenericType
+   _MulleObjCGenericTypeOfProperty( struct _mulle_objc_property *property)
 {
    char                *signature;
-   enum generic_type   ivarType;
+   enum MulleObjCGenericType   ivarType;
 
    if( _mulle_objc_property_get_bits( property) & _mulle_objc_property_retain)
-      return( is_retain);
+      return( MulleObjCGenericTypeRetain);
    if( _mulle_objc_property_get_bits( property) & _mulle_objc_property_copy)
-      return( is_copy);
+      return( MulleObjCGenericTypeCopy);
 
    signature    = _mulle_objc_property_get_signature( property);
-   ivarType     = generic_type_for_signature( signature);
-   return( ivarType == is_retain ? is_assign : ivarType);
+   ivarType     = _MulleObjCGenericTypeOfSignature( signature);
+   return( ivarType == MulleObjCGenericTypeRetain ? MulleObjCGenericTypeAssign : ivarType);
 }
 
 
@@ -428,13 +417,19 @@ static mulle_objc_walkcommand_t
 
 
 MULLE_C_NEVER_INLINE
-static struct _mulle_objc_property  *search_dynamic_property( struct _mulle_objc_infraclass **infra_p,
-                                                              mulle_objc_methodid_t methodid)
+struct _mulle_objc_property  *_MulleObjCClassPointerSearchDynamicProperty( struct _mulle_objc_infraclass **infra_p,
+                                                                          mulle_objc_methodid_t methodid)
 {
    mulle_objc_walkcommand_t         cmd;
    struct search_methodid_context   ctxt;
-   struct _mulle_objc_infraclass    *infra = *infra_p;
+   struct _mulle_objc_infraclass    *infra;
+
    unsigned int                     inheritance;
+
+
+   infra = *infra_p;
+   if( ! infra)
+      return( NULL);
 
    ctxt        = search_methodid_context_make( methodid);
 
@@ -467,7 +462,7 @@ static inline void  release_generic_value( struct mulle__pointermap *map,
                                            struct _mulle_objc_property *property,
                                            struct mulle_allocator *allocator)
 {
-   enum generic_type   type;
+   enum MulleObjCGenericType   type;
 
    //
    // descriptor is always the "value" getter
@@ -475,11 +470,11 @@ static inline void  release_generic_value( struct mulle__pointermap *map,
    //
    if( property)
    {
-      type = generic_type_for_property( property);
-      if( type == is_void_pointer)
+      type = _MulleObjCGenericTypeOfProperty( property);
+      if( type == MulleObjCGenericTypeVoidPointer)
          return;
 
-      if( type == is_strdup)
+      if( type == MulleObjCGenericTypeStrdup)
       {
          mulle_allocator_free( allocator, pair->value);
          return;
@@ -513,7 +508,7 @@ static inline void  release_generic_value( struct mulle__pointermap *map,
       infra    = _mulle_objc_class_as_infraclass( cls);
       // this is a "choke" point: best solution would be to have a
       // per infraclass property cache to speed this up
-      property = search_dynamic_property( &infra, (mulle_objc_methodid_t) (uintptr_t) pair.key);
+      property = _MulleObjCClassPointerSearchDynamicProperty( &infra, (mulle_objc_methodid_t) (uintptr_t) pair.key);
       release_generic_value( &self->__ivars, &pair, property, allocator);
    }
    _mulle__pointermapenumerator_done( &rover);
@@ -548,7 +543,7 @@ static inline void   *MulleObjectGetKeyForSelector( MulleDynamicObject *self, mu
 
    cls       = _mulle_objc_object_get_non_tps_isa( self);
    infra     = _mulle_objc_class_as_infraclass( cls);
-   property  = search_dynamic_property( &infra, _cmd);  // infra will change to its parent infraclass
+   property  = _MulleObjCClassPointerSearchDynamicProperty( &infra, _cmd);  // infra will change to its parent infraclass
    getterSel = (void *) (uintptr_t) _mulle_objc_property_get_getter( property);
    return( getterSel);
 }
@@ -749,7 +744,7 @@ static void   _MulleObjectGenericValueSetter( MulleDynamicObject *self,
    key       = MulleObjectGetKeyForSelector( self, _cmd);
    cls       = _mulle_objc_object_get_non_tps_isa( self);
    infra     = _mulle_objc_class_as_infraclass( cls);
-   property  = search_dynamic_property( &infra, (uintptr_t) key);
+   property  = _MulleObjCClassPointerSearchDynamicProperty( &infra, (uintptr_t) key);
    signature = _mulle_objc_property_get_signature( property);
    value     = [[NSValue alloc] initWithBytes:_param
                                      objCType:signature];
@@ -824,31 +819,36 @@ static void
                                    struct _mulle_objc_descriptor *desc,
                                    struct _mulle_objc_infraclass *infra)
 {
-   enum generic_type             ivarType;
+   enum MulleObjCGenericType             ivarType;
    mulle_objc_implementation_t   imp;
    int                           isRelationship;
 
-   ivarType       = generic_type_for_property( property);
+   ivarType       = _MulleObjCGenericTypeOfProperty( property);
    isRelationship = _mulle_objc_property_is_relationship( property);
 
    switch( ivarType)
    {
-   case is_void_pointer : imp = (mulle_objc_implementation_t) _MulleObjectVoidPointerGetter;
+   case MulleObjCGenericTypeVoidPointer : 
+                          imp = (mulle_objc_implementation_t) _MulleObjectVoidPointerGetter;
                           break;
-   case is_strdup       : imp = (mulle_objc_implementation_t) _MulleObjectVoidPointerGetter;
+   case MulleObjCGenericTypeStrdup : 
+                          imp = (mulle_objc_implementation_t) _MulleObjectVoidPointerGetter;
                           break;
-   case is_assign       : imp = (mulle_objc_implementation_t)
+   case MulleObjCGenericTypeAssign : 
+                          imp = (mulle_objc_implementation_t)
                                 (isRelationship
                                 ? _MulleObjectAssignGetterWillReadRelationship
                                 : _MulleObjectVoidPointerGetter);
                           break;
-   case is_copy         : // let it slide...
-   case is_retain       : imp = (mulle_objc_implementation_t)
+   case MulleObjCGenericTypeCopy : // let it slide...
+   case MulleObjCGenericTypeRetain : 
+                          imp = (mulle_objc_implementation_t)
                                 (isRelationship
                                 ? _MulleObjectRetainGetterWillReadRelationship
                                 : _MulleObjectVoidPointerGetter);
                           break;
-   case is_number       : imp = _NSNumberGetterImplementationForProperty( property);
+   case MulleObjCGenericTypeNumber : 
+                          imp = _NSNumberGetterImplementationForProperty( property);
                           if( imp)
                              break;
    // every thing else is wrapped in NSValue (we don't do willReadRelationship:)
@@ -920,41 +920,47 @@ static void
                                    struct _mulle_objc_descriptor *desc,
                                    struct _mulle_objc_infraclass *infra)
 {
-   enum generic_type             ivarType;
+   enum MulleObjCGenericType             ivarType;
    mulle_objc_implementation_t   imp;
    int                           isObservable;
 
-   ivarType     = generic_type_for_property( property);
+   ivarType     = _MulleObjCGenericTypeOfProperty( property);
    isObservable = _mulle_objc_property_is_observable( property);
 
    switch( ivarType)
    {
-   case is_assign       :
-   case is_void_pointer : imp = (mulle_objc_implementation_t)
+   case MulleObjCGenericTypeAssign       :
+   case MulleObjCGenericTypeVoidPointer :    
+                           imp = (mulle_objc_implementation_t)
                                 (isObservable
                                 ? _MulleObjectVoidPointerSetterWillChange
                                 : _MulleObjectVoidPointerSetter);
                           break;
-   case is_strdup       : imp = (mulle_objc_implementation_t)
+   case MulleObjCGenericTypeStrdup : 
+                          imp = (mulle_objc_implementation_t)
                                 (isObservable
                                 ? _MulleObjectStrdupSetterWillChange
                                 : _MulleObjectStrdupSetter);
                           break;
-   case is_retain       : imp = (mulle_objc_implementation_t)
+   case MulleObjCGenericTypeRetain : 
+                          imp = (mulle_objc_implementation_t)
                                 (isObservable
                                 ? _MulleObjectRetainSetterWillChange
                                 : _MulleObjectRetainSetter);
                           break;
-   case is_copy         : imp = (mulle_objc_implementation_t)
+   case MulleObjCGenericTypeCopy : 
+                          imp = (mulle_objc_implementation_t)
                                 (isObservable
                                 ? _MulleObjectCopySetterWillChange
                                 : _MulleObjectCopySetter);
                           break;
-   case is_number       : imp = _NSNumberSetterImplementationForProperty( property);
+   case MulleObjCGenericTypeNumber : 
+                          imp = _NSNumberSetterImplementationForProperty( property);
                           if( imp)
                              break;
                           // fall thru (why not)
-   case is_value        : imp = _NSValueSetterImplementationForProperty( property);
+   case MulleObjCGenericTypeValue : 
+                          imp = _NSValueSetterImplementationForProperty( property);
                           if( ! imp)
                               imp = (mulle_objc_implementation_t)
                                     (isObservable
@@ -1054,7 +1060,7 @@ static void
                                   struct _mulle_objc_descriptor *desc,
                                   struct _mulle_objc_infraclass *infra)
 {
-   enum generic_type             ivarType;
+   enum MulleObjCGenericType             ivarType;
    mulle_objc_implementation_t   imp;
    int                           isObservable;
    int                           isRelationship;
@@ -1064,8 +1070,8 @@ static void
 
    // lets allow copy, for some strange stuff i don't understand,
    // but its got to be an object
-   ivarType = generic_type_for_property( property);
-   if( ivarType != is_retain && ivarType != is_copy && ivarType != is_assign)
+   ivarType = _MulleObjCGenericTypeOfProperty( property);
+   if( ivarType != MulleObjCGenericTypeRetain && ivarType != MulleObjCGenericTypeCopy && ivarType != MulleObjCGenericTypeAssign)
       retain_complain( property, desc, infra);
 
    isObservable   = _mulle_objc_property_is_observable( property);
@@ -1142,7 +1148,7 @@ static void
                                     struct _mulle_objc_descriptor *desc,
                                     struct _mulle_objc_infraclass *infra)
 {
-   enum generic_type             ivarType;
+   enum MulleObjCGenericType     ivarType;
    mulle_objc_implementation_t   imp;
    int                           isObservable;
    int                           isRelationship;
@@ -1152,8 +1158,8 @@ static void
 
    // lets allow copy, for some strange stuff i don't understand,
     // but its got to be an object
-   ivarType = generic_type_for_property( property);
-   if( ivarType != is_retain && ivarType != is_copy && ivarType != is_assign)
+   ivarType = _MulleObjCGenericTypeOfProperty( property);
+   if( ivarType != MulleObjCGenericTypeRetain && ivarType != MulleObjCGenericTypeCopy && ivarType != MulleObjCGenericTypeAssign)
       retain_complain( property, desc, infra);
 
    isObservable   = _mulle_objc_property_is_observable( property);
@@ -1278,7 +1284,7 @@ static struct _mulle_objc_method *
 
 
 MULLE_C_NONNULL_RETURN
-static struct _mulle_objc_method *
+struct _mulle_objc_method *
   _mulle_objc_infraclass_create_methods_for_property( struct _mulle_objc_infraclass *infra,
                                                       struct _mulle_objc_property *property,
                                                       mulle_objc_methodid_t neededSel)
@@ -1765,7 +1771,7 @@ static struct _mulle_objc_method *
 }
 
 
-static struct _mulle_objc_method *
+struct _mulle_objc_method *
    _mulle_objc_infraclass_create_accessor_methods( struct _mulle_objc_infraclass *infra,
                                                     mulle_objc_methodid_t neededSel)
 {
@@ -1790,44 +1796,17 @@ static struct _mulle_objc_method *
 //
 - (void *) forward:(void *) args
 {
-   struct _mulle_objc_property     *property;
-   mulle_objc_implementation_t     imp;
-   struct _mulle_objc_infraclass   *infra;
-   struct _mulle_objc_class        *cls;
-   struct _mulle_objc_method       *method;
-   mulle_objc_methodid_t           sel;
+   void                          *rval;
+   int                           fail = 0;
+   mulle_objc_implementation_t   imp;
 
-   cls      = _mulle_objc_object_get_non_tps_isa( self);
-   infra    = _mulle_objc_class_as_infraclass( cls);
-   sel      = (mulle_objc_methodid_t) _cmd;
+   rval = _MulleDynamicObjectForward( self, _cmd, args, &fail);
+   if( ! fail)
+      return( rval);
 
-   // if property was found, infra is changed to the infra class where we found the
-   // property, thats where we need to place the methodlist, if property is NULL
-   // infra is unchanged
-   property = search_dynamic_property( &infra, sel);
-   if( ! property)
-   {
-#ifdef HAVE_FULLY_DYNAMIC_MULLE_DYNAMIC_OBJECT
-      if( [(Class) infra isFullyDynamic])
-      {
-         // we can not create a property dynamically though, because it's not clear where
-         // to place it (directly on MulleDynamicObject ?)
-         method = _mulle_objc_infraclass_create_accessor_methods( infra, sel);
-         if( method)
-         {
-            imp = _mulle_objc_method_get_implementation( method);
-            return( mulle_objc_implementation_invoke( imp, self, sel, args));
-         }
-      }
-#endif
-      // call superclass forward: and fail there, unless that does some smart stuff
-      imp = _mulle_objc_object_lookup_superimplementation_inline_nofail( self, MULLE_DYNAMIC_OBJECT_FORWARD_SUPERID);
-      return( mulle_objc_implementation_invoke( imp, self, sel, args));
-   }
-
-   method   = _mulle_objc_infraclass_create_methods_for_property( infra, property, sel);
-   imp      = _mulle_objc_method_get_implementation( method);
-   return( mulle_objc_implementation_invoke( imp, self, sel, args));
+   // call superclass forward: and fail there, unless that does some smart stuff
+   imp = _mulle_objc_object_lookup_superimplementation_inline_nofail( self, MULLE_DYNAMIC_OBJECT_FORWARD_SUPERID);
+   return( mulle_objc_implementation_invoke( imp, self, _cmd, args));
 }
 
 
@@ -1846,7 +1825,7 @@ static BOOL   MulleObjectRespondsToSelector( Class self, SEL sel)
    enum mulle_objc_property_accessor_type   accessorType;
 
    infra    = (struct _mulle_objc_infraclass *) self;
-   property = search_dynamic_property( &infra, sel);
+   property = _MulleObjCClassPointerSearchDynamicProperty( &infra, sel);
    if( property)
       return( YES);
 
