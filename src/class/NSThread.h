@@ -67,6 +67,8 @@ typedef int   MulleThreadObjectFunction_t( NSThread *, id);
    MulleThreadFunction_t    *_function;          // unmanaged
    void                     *_functionArgument;  // unmanaged (unless _isObjectFunctionArgument is 1)
 
+   struct mulle__pointerarray   _finalizers;
+
    // autoreleasepool root config (intended for debugging only)
    void                     *_poolconfiguration;
    struct mulle_map         _map;  // not the -threadDictionary !
@@ -106,7 +108,7 @@ typedef int   MulleThreadObjectFunction_t( NSThread *, id);
                                 object:(id) argument;
 
 + (instancetype) mulleThreadWithObjectFunction:(MulleThreadObjectFunction_t) f
-                                       object:(id) obj;
+                                        object:(id) obj;
 
 + (instancetype) mulleThreadWithFunction:(MulleThreadFunction_t *) f
                                 argument:(void *) argument;
@@ -185,6 +187,9 @@ typedef int   MulleThreadObjectFunction_t( NSThread *, id);
 
 
 - (int) mulleReturnStatus;
+
+- (void) mulleAddFinalizer:(id) obj;
+- (void) mulleRemoveFinalizer:(id) obj;
 
 
 // this is not any longer a property, because we only want to clear it in

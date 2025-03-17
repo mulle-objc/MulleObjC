@@ -11,12 +11,12 @@ endif()
 # contents are derived from the file locations
 
 set( INCLUDE_DIRS
-src
+src/generic
 src/class
 src/function
-src/generic
-src/protocol
+src
 src/reflect
+src/protocol
 src/struct
 )
 

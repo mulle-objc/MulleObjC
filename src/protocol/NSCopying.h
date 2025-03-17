@@ -41,34 +41,48 @@
 #import "NSZone.h"
 
 
-// NSCopying
+
 //
-// **Must** return an instance that is immutable. The instance is supposed
-// to react to the same methods as the original, so returning a NSDictionary
-// from a random object is not a `-copy`. The general `isKindOfClass:`
-// semantics should work as well, so if self is a NSMutableString then
-// the return value should also be a NSString, though I have no real idea
-// how to formulate this.
+// a -copy with respect to NSCopying is another instance of the receiver
+// which is initialized to be as indistinguishable from the receiver as
+// possible. If the receiver is immutable, you will just receive a retained
+// instance of the receiver. The use of `-copy` is for creation of snapshots
+// or creating instances from prototypes. `NSCopying` is used by properties.
+// It's not used by NSDictionary, which uses `MulleObjCImmutableCopying` for keys.
 //
-// Does not return an instancetype (e.g. NSMutableSet returns NSSet).
-// If it isn't immutable, you should be using constructors to copy.
+// To copy an object to another allocator scheme (use NSCoypingWithAllocator)
+//
+// no longer a protocolclass!
 //
 @protocol NSCopying
 
-- (id /*<MulleObjCImmutable>*/) copy;  /* MulleObjCImmutable protocol is too tedious */
+- (id) copy;
+
 //
 // the old copyWithZone: is gone. If you have copyWithZone: methods,
 // code a method -copy that calls your -copyWithZone:
 //
 
-@optional
+@end
 
-- (id) immutableInstance;
+
+
+// MulleObjCImmutableCopying
+//
+// **Must** return an instance that is immutable. The general `isKindOfClass:`
+// semantics should work on the returned instance, so if self is a
+// NSString then the return value should also be a NSString.
+// The instance is supposed to react to the same methods as the original, so
+// returning a NSDictionary from a random object is not a `-copy`.
+//
+// Does not return an instancetype (e.g. NSMutableSet returns NSSet).
+// If it isn't immutable, you should be using constructors to copy.
+//
+@protocol MulleObjCImmutableCopying < NSCopying>
+
+- (id) immutableCopy;
 
 @end
 
 
-// no longer a protocolclass
-// @class NSCopying; // needed for the compiler to understand this is
-                  // protocol class
 

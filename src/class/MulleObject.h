@@ -40,7 +40,9 @@
 //
 // All instance methods will be thread-safe, due to the whole class being
 // marked MulleObjCThreadSafe. Special methods, that don't need (want) the
-// locking should be marked as MULLE_OBJC_THREADSAFE_METHOD.
+// locking should be marked as MULLE_OBJC_THREADSAFE_METHOD. Subclasses will
+// also be marked as threadsafe during +initialize. If you override
+// +initialize in your subclass, you need to call +[super initialize].
 //
 // To search for methods in a subclass of MulleObject, you will need to
 // specify the desired inheritance value manually. The cls->inheritance value

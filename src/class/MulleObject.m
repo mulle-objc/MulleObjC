@@ -277,8 +277,7 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 //      cls->inheritance |= MULLE_OBJC_CLASS_DONT_INHERIT_CLASS
 //                          | MULLE_OBJC_CLASS_DONT_INHERIT_CATEGORIES
 //                          | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
-//                          | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES
-//                          | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_META;
+//                          | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES:
 //   // since we are clobbering with MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES
 //   // the initialize of MulleObjCThreadSafe won't run, so we do this manually
       _mulle_objc_class_set_state_bit( cls, MULLE_OBJC_CLASS_IS_NOT_THREAD_AFFINE);
@@ -287,9 +286,7 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    {
 //      cls->inheritance &= ~(MULLE_OBJC_CLASS_DONT_INHERIT_CLASS
 //                            | MULLE_OBJC_CLASS_DONT_INHERIT_CATEGORIES
-//                            | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS
-//                            // | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES
-//                            | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_META);
+//                            | MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS);
       _mulle_objc_class_clear_state_bit( cls, MULLE_OBJC_CLASS_IS_NOT_THREAD_AFFINE);
    }
 }
@@ -394,11 +391,20 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 
 - (instancetype) initNoLock
 {
+   struct _mulle_objc_objectheader   *header;
+
    self = [super init];
 
    // This particular object is really single threaded now, so we have to
-   // turn it into thread affine until it gains a lock
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, mulle_thread_self());
+   // turn it into thread affine until it gains a lock. As the object
+   // purports to be threadsafe though, you must give it a lock before
+   // then moving it over into a thread otherwise you'll get an assert
+   //
+   if( self)
+   {
+      header = _mulle_objc_object_get_objectheader( self);
+      _mulle_objc_objectheader_set_thread( header, mulle_thread_self());
+   }
 
    return( self);
 }
@@ -412,13 +418,11 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 }
 
 
-
 - (void) dealloc
 {
    [__lock release];
    [super dealloc];
 }
-
 
 
 - (void) lock

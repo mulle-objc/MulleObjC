@@ -43,10 +43,9 @@
 
 
 //
-// if you feel the need to subclass this, change the
-// NSAutoreleasePoolConfiguration, to use your functions
-// Be careful when touching a running system
-// This is not a subclass of NSObject, because it really is different
+// * If you feel the need to subclass this, change the NSAutoreleasePoolConfiguration, to use your functions.
+// * Be careful when touching a running system.
+// * This is not a subclass of NSObject, because it really is different.
 //
 // A NSAutoreleasePool is not even a MulleObjCRuntimeObject, you can't do
 // much with it. As a consequence of it being a root object, instance methods
@@ -269,7 +268,9 @@ void   MulleObjCDumpAutoreleasePoolsToFILEWithOptions( FILE *fp, int indexed);
 // MEMO: like the functions above, you should only use them when you
 //       are in the debugger and a breakpoint has happened, but for debugging
 //       you can sometimes get by even in running programs, if threads are
-//       waiting for each other.
+//       waiting for each other. But in a regular running program or a test
+//       this can crash, because one of the threads may have "died" down
+//       already.
 //
 MULLE_OBJC_GLOBAL
 unsigned long   MulleObjCDumpAutoreleasePoolsFrame( void);

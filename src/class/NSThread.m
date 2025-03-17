@@ -58,6 +58,13 @@
 #pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
 
 
+@interface NSThread( Private)
+
+- (void) _mulleRunFinalizers;
+
+@end
+
+
 
 @implementation NSThread
 
@@ -154,6 +161,9 @@ static struct
                     0,
                     (void *) &_MulleObjCContainerCopyCStringKeyRetainValueCallback,
                     MulleObjCInstanceGetAllocator( self));
+
+   // MEMO: we don't need this, because its zeroed already
+   // _mulle__pointerarray_init( &_finalizers, 0);
    return( self);
 }
 
@@ -237,6 +247,12 @@ static struct
            || MulleThreadGetCurrentOSThread() == MulleThreadObjectGetOSThread( self))
            && "Do not call mullePerformFinalize on NSThread");
 
+   // first let installed finalizers run. This is for example CGGraphicsContext
+   // which must finalize in the thread its OpenGL context is so it can get
+   // rid of threadaffine resources
+   //
+   [self _mulleRunFinalizers];
+
    runLoop = [self mulleRunLoop];
    _mulle_atomic_pointer_write_nonatomic( &self->_runLoop, nil);
 
@@ -289,8 +305,16 @@ static struct
 
 - (void) dealloc
 {
+   struct mulle_allocator   *allocator;
+
    assert( ! [self mulleRunLoop]);
    assert( ! self->_userInfo);
+
+   // if a finalizer appears now, it's been added too late, this is
+   // extreeemly unlikely, someone must have snuck it in after -finalize
+   allocator = MulleObjCInstanceGetAllocator( self);
+   assert( _mulle__pointerarray_get_count( &_finalizers) == 0);
+   _mulle__pointerarray_done( &_finalizers, allocator);
 
    //
    // in the detached case, invocation and functionArgument are
@@ -1209,6 +1233,53 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 }
 
 
+- (void) mulleAddFinalizer:(id) obj
+{
+   struct mulle_allocator   *allocator;
+
+   allocator = MulleObjCInstanceGetAllocator( self);
+   obj       = [obj retain];
+   _mulle__pointerarray_add( &_finalizers, obj, allocator);
+}
+
+
+- (void) mulleRemoveFinalizer:(id) obj
+{
+   obj = _mulle__pointerarray_remove_unique( &_finalizers, obj);
+   [obj autorelease];
+}
+
+
+- (void) _mulleRunFinalizers
+{
+   struct mulle__pointerarray   tmp;
+   struct mulle_allocator       *allocator;
+   id                            obj;
+
+   allocator = MulleObjCInstanceGetAllocator( self);
+
+   while( _mulle__pointerarray_get_count( &_finalizers))
+   {
+      // copy finalizers over
+      tmp = _finalizers;
+      _mulle__pointerarray_init( &_finalizers, 0, allocator);
+
+      // run finalizers
+      mulle__pointerarray_for( &tmp, obj)
+      {
+         [obj mullePerformFinalize];
+         [obj autorelease];
+      }
+
+      // clean up finalizer array
+      _mulle__pointerarray_done( &tmp, allocator);
+
+      // if new ones appeared during -finalize run those until
+      // all are done
+   }
+}
+
+
 #if DEBUG
 - (instancetype) retain
 {
@@ -1276,12 +1347,16 @@ void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
          if( method)
          {
             imp          = mulle_objc_method_get_implementation( method);
+
+
             strategy     = (uintptr_t) _mulle_objc_implementation_invoke( imp, obj, @selector( mulleTAOStrategy), obj);
             strategyName = NS_ENUM_LOOKUP( MulleObjCTAOStrategy, strategy);
             mulle_buffer_sprintf( buffer, "and TAO strategy %s ", strategyName ? strategyName : "None");
          }
       }
 
+      // we output thread safe just in case, we shouldn't see it, but then
+      // it doesn't hurt either
       mulle_buffer_sprintf( buffer, "gets a %c%s call from thread ",
                                     ismeta ? '+' : '-',
                                     _mulle_objc_descriptor_get_name( desc));

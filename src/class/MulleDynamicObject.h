@@ -54,7 +54,20 @@
 
 //
 // You MUST NOT call [super forward:] to inherit this. See NSObject
-// forward: for more details
+// forward: for more details. Your subclass may want to code it's forward:
+// method like this:
+//
+// ``` objc
+// - (void *) forward:(void *) args
+// {
+//    void   *rval;
+//    int    fail = 0;
+//   
+//    rval = _MulleDynamicObjectForward( self, _cmd, param, &fail);
+//    if( ! fail)
+//       return( rval);
+//    ...
+//    // your code here
 //
 - (void *) forward:(void *) args;
 
@@ -80,13 +93,96 @@
 #define MULLE_DYNAMIC_OBJECT_FORWARD_SUPERID   ((mulle_objc_superid_t) 0x4d6bf14f)  // 'MulleDynamicObject;forward:'
 
 
+typedef NS_ENUM(NSInteger, MulleObjCGenericType)
+{
+    MulleObjCGenericTypeVoidPointer = 0,  // as is
+    MulleObjCGenericTypeStrdup,           // strdup/free
+    MulleObjCGenericTypeAssign,           // just like void pointer
+    MulleObjCGenericTypeRetain,           // retain/autorelease
+    MulleObjCGenericTypeCopy,             // copy/autorelease
+    MulleObjCGenericTypeValue,            // wrap into NSValue
+    MulleObjCGenericTypeNumber            // wrap into NSValue
+};
 
-MULLE_C_NONNULL_FIRST_FOURTH
+
+
+MULLE_C_NONNULL_FIRST_FOURTH 
+MULLE_OBJC_GLOBAL
 void   _MulleDynamicObjectValueSetter( MulleDynamicObject *self, SEL selector, void *_param, char *objcType);
 
-MULLE_C_NONNULL_FIRST_FOURTH
+MULLE_C_NONNULL_FIRST_FOURTH 
+MULLE_OBJC_GLOBAL
 void   _MulleDynamicObjectNumberSetter( MulleDynamicObject *self, SEL selector, void *_param, char *objcType);
 
-MULLE_C_NONNULL_FIRST
+MULLE_C_NONNULL_FIRST 
+MULLE_OBJC_GLOBAL
 void   _MulleDynamicObjectValueGetter( MulleDynamicObject *self, SEL selector, void *_param);
 
+
+MULLE_C_NONNULL_FIRST 
+MULLE_OBJC_GLOBAL
+struct _mulle_objc_property  *_MulleObjCClassPointerSearchDynamicProperty( struct _mulle_objc_infraclass **infra_p,
+                                                                           mulle_objc_methodid_t methodid);
+
+MULLE_C_NONNULL_FIRST 
+MULLE_OBJC_GLOBAL
+MulleObjCGenericType
+   _MulleObjCGenericTypeOfProperty( struct _mulle_objc_property *property);
+
+MULLE_C_NONNULL_FIRST 
+MULLE_OBJC_GLOBAL
+MulleObjCGenericType   _MulleObjCGenericTypeOfSignature( char *signature);
+
+
+
+MULLE_C_ALWAYS_INLINE
+static inline void   *_MulleDynamicObjectForward( id self, SEL _cmd, void *args, int *fail)
+{
+   struct _mulle_objc_property     *property;
+   mulle_objc_implementation_t     imp;
+   struct _mulle_objc_infraclass   *infra;
+   struct _mulle_objc_class        *cls;
+   struct _mulle_objc_method       *method;
+   mulle_objc_methodid_t           sel;
+   struct _mulle_objc_method *
+      _mulle_objc_infraclass_create_methods_for_property( struct _mulle_objc_infraclass *infra,
+                                                          struct _mulle_objc_property *property,
+                                                          mulle_objc_methodid_t neededSel);
+
+   assert( fail && ! *fail); // callers obligation
+
+   cls   = _mulle_objc_object_get_non_tps_isa( self);
+   infra = _mulle_objc_class_as_infraclass( cls);
+   sel   = (mulle_objc_methodid_t) _cmd;
+
+   // if property was found, infra is changed to the infra class where we found the
+   // property, thats where we need to place the methodlist, if property is NULL
+   // infra is unchanged
+   property = _MulleObjCClassPointerSearchDynamicProperty( &infra, sel);
+   if( property)
+   {
+      method   = _mulle_objc_infraclass_create_methods_for_property( infra, property, sel);
+      imp      = _mulle_objc_method_get_implementation( method);
+      return( mulle_objc_implementation_invoke( imp, self, sel, args));
+   }
+
+#ifdef HAVE_FULLY_DYNAMIC_MULLE_DYNAMIC_OBJECT
+   if( [(Class) infra isFullyDynamic])
+   {
+      struct _mulle_objc_method *
+         _mulle_objc_infraclass_create_accessor_methods( struct _mulle_objc_infraclass *infra,
+                                                         mulle_objc_methodid_t neededSel);
+
+      // we can not create a property dynamically though, because it's not clear where
+      // to place it (directly on MulleDynamicObject ?)
+      method = _mulle_objc_infraclass_create_accessor_methods( infra, sel);
+      if( method)
+      {
+         imp   = _mulle_objc_method_get_implementation( method);
+         return( mulle_objc_implementation_invoke( imp, self, sel, args));
+      }
+   }
+#endif
+   *fail = 1;
+   return( NULL);
+}

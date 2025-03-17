@@ -52,7 +52,7 @@
 //                         forKeys:(id <NSObject, NSCopying>) keys
 //                           count:(NSUInteger) count;
 - (NSUInteger) count;
-- (id) objectForKey:(id <NSObject, NSCopying>) key;
+- (id) objectForKey:(id <NSObject, MulleObjCImmutableCopying>) key;
 
 @end
 
@@ -60,8 +60,8 @@
 @protocol NSMutableDictionary < NSDictionary>
 
 - (void) setObject:(id <NSObject>) object
-            forKey:(id <NSObject, NSCopying>) key;
-- (void) removeObjectForKey:(id <NSObject, NSCopying>) key;
+            forKey:(id <NSObject, MulleObjCImmutableCopying>) key;
+- (void) removeObjectForKey:(id <NSObject, MulleObjCImmutableCopying>) key;
 - (void) removeAllObjects;
 
 @end

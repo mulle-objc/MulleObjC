@@ -146,18 +146,16 @@ static void
 static void
    _mulle_objc_universe_finalize_singletons( struct _mulle_objc_universe *universe)
 {
-   struct _mulle_objc_infraclass               *infra;
-   struct mulle_concurrent_hashmapenumerator   rover;
-   id                                          obj;
-   int                                         is_constant;
-
+   struct _mulle_objc_infraclass   *infra;
+   id                              obj;
+   int                             is_constant;
+   intptr_t                        classid;
    //
    // performFinalize on singletons, this will add stuff to the
    // autoreleasepool, we want our singletons to be releases later,
    // so we autorelease them later
 
-   rover = mulle_concurrent_hashmap_enumerate( &universe->classtable);
-   while( _mulle_concurrent_hashmapenumerator_next( &rover, NULL, (void **) &infra))
+   mulle_concurrent_hashmap_for( &universe->classtable, classid, infra)  // slow
    {
       obj = (id) _mulle_objc_infraclass_get_singleton( infra);
       if( ! obj)
@@ -177,7 +175,6 @@ static void
       if( is_constant)
          _mulle_objc_object_constantify_noatomic( obj);
    }
-   mulle_concurrent_hashmapenumerator_done( &rover);
 }
 
 

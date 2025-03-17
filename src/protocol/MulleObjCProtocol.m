@@ -91,6 +91,13 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCImmutable)
 }
 
 
+- (id /*<MulleObjCImmutable>*/) immutableCopy
+{
+   return( [self retain]);
+}
+
+
+
 - (id /*<MulleObjCImmutable>*/) copyWithZone:(NSZone *) zone
 {
    return( [self retain]);

@@ -1,0 +1,155 @@
+=== Testing with Foo (method) - full inheritance ===
+Collected 3 IMPs
+Calling IMPs in normal order (dealloc style):
+Foo(Y):method
+Foo(X):method
+Foo:method
+Calling IMPs in reverse order (init style):
+Foo:method
+Foo(X):method
+Foo(Y):method
+
+=== Testing with Bar (method) - full inheritance ===
+Collected 8 IMPs
+Calling IMPs in normal order (dealloc style):
+Bar(Y):method
+Bar(X):method
+Bar:method
+Q:method
+P:method
+Foo(Y):method
+Foo(X):method
+Foo:method
+Calling IMPs in reverse order (init style):
+Foo:method
+Foo(X):method
+Foo(Y):method
+P:method
+Q:method
+Bar:method
+Bar(X):method
+Bar(Y):method
+
+=== Testing with Foo (method) - categories only flags ===
+Collected 2 IMPs
+Calling IMPs in normal order (dealloc style):
+Foo(Y):method
+Foo(X):method
+Calling IMPs in reverse order (init style):
+Foo(X):method
+Foo(Y):method
+
+=== Testing with Bar (method) - categories only flags ===
+Collected 2 IMPs
+Calling IMPs in normal order (dealloc style):
+Bar(Y):method
+Bar(X):method
+Calling IMPs in reverse order (init style):
+Bar(X):method
+Bar(Y):method
+
+=== Testing with Foo (method) - class implementations ===
+Collected 3 IMPs
+Calling IMPs in normal order (dealloc style):
+Foo(Y):method
+Foo(X):method
+Foo:method
+Calling IMPs in reverse order (init style):
+Foo:method
+Foo(X):method
+Foo(Y):method
+
+=== Testing with Bar (method) - class implementations ===
+Collected 3 IMPs
+Calling IMPs in normal order (dealloc style):
+Bar(Y):method
+Bar(X):method
+Bar:method
+Calling IMPs in reverse order (init style):
+Bar:method
+Bar(X):method
+Bar(Y):method
+
+=== Testing with Bar (method) - stop at Foo ===
+Collected 5 IMPs
+Calling IMPs in normal order (dealloc style):
+Bar(Y):method
+Bar(X):method
+Bar:method
+Q:method
+P:method
+Calling IMPs in reverse order (init style):
+P:method
+Q:method
+Bar:method
+Bar(X):method
+Bar(Y):method
+
+=== Testing MulleObjCIMPArrayInitCategoryOnly with Foo (method) - direct API ===
+Collected 2 IMPs
+Calling IMPs in normal order (dealloc style):
+Foo(Y):method
+Foo(X):method
+Calling IMPs in reverse order (init style):
+Foo(X):method
+Foo(Y):method
+
+=== Testing MulleObjCIMPArrayInitCategoryOnly with Bar (method) - direct API ===
+Collected 2 IMPs
+Calling IMPs in normal order (dealloc style):
+Bar(Y):method
+Bar(X):method
+Calling IMPs in reverse order (init style):
+Bar(X):method
+Bar(Y):method
+
+=== Testing with Foo (init_method) - full inheritance ===
+Collected 3 IMPs
+Calling IMPs in normal order (dealloc style):
+Foo(Y):init_method
+Foo(X):init_method
+Foo:init_method
+Calling IMPs in reverse order (init style):
+Foo:init_method
+Foo(X):init_method
+Foo(Y):init_method
+
+=== Testing with Bar (dealloc_method) - full inheritance ===
+Collected 8 IMPs
+Calling IMPs in normal order (dealloc style):
+Bar(Y):dealloc_method
+Bar(X):dealloc_method
+Bar:dealloc_method
+Q:dealloc_method
+P:dealloc_method
+Foo(Y):dealloc_method
+Foo(X):dealloc_method
+Foo:dealloc_method
+Calling IMPs in reverse order (init style):
+Foo:dealloc_method
+Foo(X):dealloc_method
+Foo(Y):dealloc_method
+P:dealloc_method
+Q:dealloc_method
+Bar:dealloc_method
+Bar(X):dealloc_method
+Bar(Y):dealloc_method
+
+=== Testing MulleObjCIMPArrayInitCategoryOnly with Foo (init_method) - categories only ===
+Collected 2 IMPs
+Calling IMPs in normal order (dealloc style):
+Foo(Y):init_method
+Foo(X):init_method
+Calling IMPs in reverse order (init style):
+Foo(X):init_method
+Foo(Y):init_method
+
+=== Testing MulleObjCIMPArrayInitCategoryOnly with Bar (dealloc_method) - categories only ===
+Collected 2 IMPs
+Calling IMPs in normal order (dealloc style):
+Bar(Y):dealloc_method
+Bar(X):dealloc_method
+Calling IMPs in reverse order (init style):
+Bar(X):dealloc_method
+Bar(Y):dealloc_method
+

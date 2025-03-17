@@ -126,12 +126,12 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
    assert( extra < 0x10000);
    assert( count < 0x10000);
 
-   obj               = _MulleObjCClassAllocateInstance( self, extra);
-   obj->_count       = (uint16_t) count;
-   obj->_extra       = (uint16_t) extra;
-   obj->_bits        = (uint32_t) bits;
-   obj->_infos       = NULL;  // them lazy
-   obj->_types       = ((char *) getExtraMemory( obj)) + extra - size;
+   obj         = _MulleObjCClassAllocateInstance( self, extra);
+   obj->_count = (uint16_t) count;
+   obj->_extra = (uint16_t) extra;
+   obj->_bits  = (uint32_t) bits;
+   obj->_infos = NULL;  // them lazy
+   obj->_types = ((char *) getExtraMemory( obj)) + extra - size;
 
    memcpy( obj->_types, types, size);
 
@@ -410,10 +410,10 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
    {
       switch( i)
       {
-      case 0  : fprintf( stderr, "rval:\n"); break;
-      case 1  : fprintf( stderr, "self:\n"); break;
-      case 2  : fprintf( stderr, "_cmd:\n"); break;
-      default : fprintf( stderr, "arg%ld:\n", (long) i - 3); break;
+      case 0  : mulle_fprintf( stderr, "rval:\n"); break;
+      case 1  : mulle_fprintf( stderr, "self:\n"); break;
+      case 2  : mulle_fprintf( stderr, "_cmd:\n"); break;
+      default : mulle_fprintf( stderr, "arg%ld:\n", (long) i - 3); break;
       }
 
 #ifdef mulle_objc_typeinfodump_h__

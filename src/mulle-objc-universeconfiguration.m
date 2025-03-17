@@ -329,6 +329,63 @@ static void   *return_null( void *p)
 }
 
 
+static void   mulle_objc_testallocator_bail( void *q)
+{
+   // q is a leak, but is it an objective-C object ? if yes we can print it's
+   // class maybe. At this point the universe may very well not be there
+   // anymore!!
+   struct _mulle_objc_objectheader   *header;
+   struct _mulle_objc_infraclass     *infra;
+   struct _mulle_objc_universe       *universe;
+   intptr_t                          classid;
+
+   header   = q;
+   universe = __mulle_objc_global_get_defaultuniverse();
+   if( ! _mulle_objc_universe_is_uninitialized( universe))
+   {
+      mulle_concurrent_hashmap_for( &universe->classtable, classid, infra)
+      {
+         if( _mulle_objc_infraclass_as_class( infra) == header->_isa)
+         {
+            mulle_fprintf( stderr, "Leaked %s object: %@\n", _mulle_objc_infraclass_get_name( infra), q);
+            break;
+         }
+      }
+   }
+   else
+   {
+      // minimal sanity check
+      if( (_mulle_atomic_pointer_read_nonatomic( &header->_retaincount_1) != (void *) -1)
+          && header->_isa
+          && ! ((uintptr_t) header->_isa & 0x3))
+      {
+         mulle_fprintf( stderr, "The mulle-objc-runtime is taking a chance here...\n"
+                                "If it crashes without further output, %p was probably not an object.\n", q);
+         mulle_fprintf( stderr, "%p is a %s object\n", q, _mulle_objc_class_get_name( header->_isa));
+
+         // because the universe is not up anymore, we can't message the object
+         // mulle_fprintf( stderr, "%@\n", q);
+      }
+   }
+
+#if HAVE_DLSYM
+   {
+      void   (*p_mulle_testallocator_bail)( void (*)( void));
+
+      p_mulle_testallocator_bail = dlsym( RTLD_DEFAULT, "mulle_testallocator_bail");
+      if( p_mulle_testallocator_bail)
+         (*p_mulle_testallocator_bail)( q);
+   }
+#endif
+
+#ifdef __WIN
+   exit( 1);
+#else
+   abort();
+#endif
+}
+
+
 void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 {
    struct _mulle_objc_universefoundationinfo   *rootconfig;
@@ -351,6 +408,15 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
       p_mulle_testallocator_set_stacktracesymbolizer = dlsym( RTLD_DEFAULT, "mulle_testallocator_set_stacktracesymbolizer");
       if( p_mulle_testallocator_set_stacktracesymbolizer)
          (*p_mulle_testallocator_set_stacktracesymbolizer)( (void (*)(void)) MulleObjCStacktraceSymbolize);
+   }
+
+   if( mulle_objc_environment_get_yes_no_default( "MULLE_OBJC_TRACE_LEAK", NO))
+   {
+      void   (**config)( void *);
+
+      config = dlsym( RTLD_DEFAULT, "mulle_testallocator_config");
+      if( config)
+         *config = mulle_objc_testallocator_bail;
    }
 #endif
 }

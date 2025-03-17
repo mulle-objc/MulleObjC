@@ -711,4 +711,40 @@ void  MulleObjCClassInterposeBeforeClass( Class self, Class other)
    MulleObjCClassInterposeBeforeClass( self, subClass);
 }
 
+
+
+- (instancetype) copiedInstance
+{
+   id   obj;
+
+   obj = [(id <NSCopying>) self copy];
+   obj = [obj autorelease];
+   return( obj);
+}
+
+
+// TODO: move this to NSCopying ?
+- (instancetype) immutableInstance
+{
+   id   obj;
+
+   obj = [(id <MulleObjCImmutableCopying>) self immutableCopy];
+   obj = [obj autorelease];
+   assert( [obj conformsToProtocol:@protocol( MulleObjCImmutable)]);
+   return( obj);
+}
+
+
+- (id) copyWithZone:(NSZone *) zone
+{
+   fprintf( stderr, "-[NSObject copyWithZone:] doesn't work anymore.\n"
+"\n"
+"Either rename your -copyWithZone: implementations to -copy or add a\n"
+"-copy method to each class that implements -copyWithZone:\n"
+"Your returned object must be immutable!\n"
+"\n"
+"Endless recursion awaits those, who don't heed this advice.\n");
+   abort();
+}
+
 @end
