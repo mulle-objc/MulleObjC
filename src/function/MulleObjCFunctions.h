@@ -1015,6 +1015,42 @@ static inline void   MulleObjCIMPArrayCall( struct MulleObjCIMPArray *imps, id o
 }
 
 
+#include <mulle-objc-runtime/mulle-objc-runtime.h>
+#include <stdbool.h>
+
+/*
+ * Checks if a method is implemented directly on a class (including categories)
+ * but not inherited from any superclass or protocol.
+ *
+ * @param cls The class to check
+ * @param sel The selector of the method to check
+ * @return true if the method is directly implemented on the class, false otherwise
+ */
+static inline BOOL   MulleObjCClassImplementsSelector( Class aClass, SEL sel)
+{
+   struct _mulle_objc_class             *cls = (struct _mulle_objc_class *) aClass;
+   struct _mulle_objc_method            *method;
+   struct _mulle_objc_searchresult      result = { 0 };
+   struct _mulle_objc_searcharguments   search;
+   unsigned int                         inheritance;
+   if ( ! cls || ! sel)
+     return( 0);
+
+    // Setup search arguments
+   search = mulle_objc_searcharguments_make_default( (mulle_objc_methodid_t) sel);
+
+    // Configure inheritance flags to only search in the class itself and its categories
+   inheritance = MULLE_OBJC_CLASS_DONT_INHERIT_SUPERCLASS |
+                 MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOLS |
+                 MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_CATEGORIES |
+                 MULLE_OBJC_CLASS_DONT_INHERIT_PROTOCOL_META;
+
+    // Search for the method with these constraints
+    method = mulle_objc_class_search_method( cls, &search, inheritance, &result);
+    return( method != NULL);
+}
+
+
 /*
  *
  */
@@ -1034,6 +1070,19 @@ static inline Class   MulleObjCInstanceGetClass( id obj)
 
 MULLE_OBJC_GLOBAL
 void    MulleObjCInstanceSetClass( id obj, Class cls);
+
+
+//
+// only cheatin' strings should use this
+// this must be used in init and nowhere else, as it is
+// not atomic
+//
+static inline void    MulleObjCInstanceSetThreadAffinity( id obj, mulle_thread_t thread)
+{
+   if( obj)
+      _mulle_objc_object_set_thread( (struct _mulle_objc_object *) obj, thread);
+}
+
 
 
 //

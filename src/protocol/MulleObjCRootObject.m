@@ -284,11 +284,15 @@ static inline void   checkAutoreleaseRelease( id self)
 
 
 //
-// There are three kinds of TAO states:
+// For a threadsafe object, the access gain simplifies to an autorelease.
+//   0. The Object can belong to all threads (osThread == 0) and could live
+//      in all threads autoreleasepools (!)
 //
-//   1. Object belongs to no  threads (osThread == -1) lives in no autoreleasepool (mulle_objc_object_has_no_thread == -1)
-//   2. Object belongs to one thread  (osThread == x)  lives in x's autoreleaspool
-//   3. Object belongs to all threads (osThread == 0)  lives in all autoreleasepools (!)
+// There are two kinds of TAO states for a non-threadsafe object:
+//
+//   1. Object belongs to no  threads (osThread == -1) The object is "in limbo". Ideally the object
+//   lives in no autoreleasepool (mulle_objc_object_has_no_thread == -1).
+//   2. Object belongs to one thread  (osThread == x) and lives in its autoreleasepool
 //
 // In terms of mulle-objc "always autoreleased" philosophy an object that is
 // accessible by a thread, also lives in one of the autoreleasepools of the
@@ -302,6 +306,15 @@ static inline void   checkAutoreleaseRelease( id self)
 // The transfer ensures that the object is placed into the autorelease pool
 // of the receiving thread. mulleRelinquishAccess retains the object
 //
+// There is a special kind of TAO strategy for non-threadsafe objects.
+// MulleObjCTAOReceiverPerformsFinalize. This allows non-threadsafe objects to exist in multiple
+// autoreleasepools to be accessed by multiple threads through thread safe methods
+// only, so quite like MulleObjCTAOKnownThreadSafeMethods. But the objects thread
+// affinity is changed, so that non-threadsafe methods can be called from the receiving
+// thread. This needs careful synchronization between two threads.
+// It's not recommended to use this strategy. Noobs will probably flock to it, but will enter
+// a world of pain. Use thread safe objects in these circumstances!
+
 
 - (void) mulleGainAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy
 {
@@ -320,7 +333,14 @@ static inline void   checkAutoreleaseRelease( id self)
       // but don't change affinity
       goto autorelease;
 
+   case MulleObjCTAOCallerRemovesFromCurrentPool :
+   case MulleObjCTAOCallerRemovesFromAllPools    :
+   case MulleObjCTAOReceiverPerformsFinalize     :
+      break;
    default :
+#ifdef DEBUG
+      abort();
+#endif
       break;
    }
 
@@ -382,7 +402,15 @@ autorelease:
       // but don't change affinity
       return;
 
+   case MulleObjCTAOCallerRemovesFromCurrentPool :
+   case MulleObjCTAOCallerRemovesFromAllPools    :
+   case MulleObjCTAOReceiverPerformsFinalize     :
+      break;
+
    default :
+#ifdef DEBUG
+      abort();
+#endif
       break;
    }
 

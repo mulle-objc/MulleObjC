@@ -85,6 +85,7 @@ PROTOCOLCLASS_END()
 
 @end
 
+// See MulleDynamicObject on how to forward:
 #define MULLE_OBJECT_FORWARD_SUPERID   ((mulle_objc_superid_t) 0x53d27672)  // 'MulleObject;forward:'
 
 

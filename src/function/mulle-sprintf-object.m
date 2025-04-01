@@ -71,9 +71,9 @@ static int  _sprintf_object_conversion( struct mulle_buffer *buffer,
    if( v.obj)
    {
       if( info->memory.hash_found && Self.colorize)
-         s = [(id) v.obj colorizedUTF8String];
+         s = [(id) v.obj colorizedUTF8String];  // inherently thread safe!
       else
-         s = [(id) v.obj UTF8String];
+         s = [(id) v.obj UTF8String];           // not thread safe!
    }
    // do not use alternate output on string
    info->memory.hash_found = 0;

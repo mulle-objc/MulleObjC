@@ -442,7 +442,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-+ (char *) UTF8String
++ (char *) nonLockingUTF8String
 {
    char                       *s;
    struct _mulle_objc_class   *cls;
@@ -453,7 +453,7 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-static char   *NSObjectUTF8String( NSObject *self)
+char   *MulleObjCObjectUTF8String( NSObject *self)
 {
    char                       *result;
    char                       *s;
@@ -474,16 +474,17 @@ static char   *NSObjectUTF8String( NSObject *self)
 }
 
 
+- (char *) nonLockingUTF8String
+{
+   return( MulleObjCObjectUTF8String( self));
+}
+
+
 - (char *) UTF8String
 {
-   return( NSObjectUTF8String( self));
+   return( MulleObjCObjectUTF8String( self));
 }
 
-
-- (char *) threadSafeUTF8String
-{
-   return( NSObjectUTF8String( self));
-}
 
 
 - (char *) colorizerPrefixUTF8String
@@ -505,15 +506,19 @@ static char   *NSObjectUTF8String( NSObject *self)
    char   *s;
    char   *result;
 
-   s               = [self threadSafeUTF8String];
+   s               = [self nonLockingUTF8String];
    colorizedHeader = [self colorizerPrefixUTF8String];
 
    if( ! colorizedHeader)
       return( s);
 
    colorizedFooter = [self colorizerSuffixUTF8String];
-   mulle_asprintf( &result, "%s%s%s", colorizedHeader, s, colorizedFooter);
-   MulleObjCAutoreleaseAllocation( result, NULL);
+   mulle_buffer_do_autoreleased_string( buffer, NULL, result)
+   {
+      mulle_buffer_add_string( buffer, colorizedHeader);
+      mulle_buffer_add_string( buffer, s);
+      mulle_buffer_add_string( buffer, colorizedFooter);
+   }
 
    return( result);
 }

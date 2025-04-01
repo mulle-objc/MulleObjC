@@ -62,13 +62,13 @@ void   _MulleObjCInstanceClearProperties( id obj, BOOL clearReadOnly);
 //  MulleObjRecycle and MulleObjCAcquire are useful to transfer objects from
 //  one thread to another.
 //
-//  `_MulleObjCAcquirePointerAtomically` is a thread-safe way to acquire a pointer
-//  atomically. It will return the pointer value if it is not NULL, otherwise
-//  it will return NULL.
+//  `_MulleObjCAcquirePointerAtomically` is a thread-safe way to acquire a
+//  pointer atomically. It will return the pointer value if it is not NULL,
+//  otherwise it will return NULL.
 //
-//  `_MulleObjCRecyclePointerAtomically is a thread-safe way to recycle a pointer
-//  atomically. It will return <> 0, if the pointer was successfully recycled, otherwise
-//  it will return 0.
+//  `_MulleObjCRecyclePointerAtomically is a thread-safe way to recycle a
+//  pointer atomically. It will return <> 0, if the pointer was successfully
+//  recycled, otherwise it will return 0.
 //
 //  To transfer an object from one thread to another, it gets recycled by one
 //  thread and acquired by the other thread. Notice that an object in its
