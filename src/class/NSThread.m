@@ -46,6 +46,7 @@
 #import "MulleObjCExceptionHandler-Private.h"
 #import "MulleObjCFunctions.h"
 #import "NSAutoreleasePool.h"
+#import "NSDebug.h"
 #import "NSInvocation.h"
 #import "mulle-objc-exceptionhandlertable-private.h"
 #import "mulle-objc-universefoundationinfo-private.h"
@@ -752,6 +753,10 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    else
       [self->_invocation mulleRelinquishAccess];
 
+   // if we raise in bouncyBounce, then pthread_create@@GLIBC_2.34 might
+   // leak a stack... that will be caught by valgrind. I feel fixing this leas
+   // is a non-issue. Usually happens, if the to be called method or
+   // function does not exist.
    if( mulle_thread_create( bouncyBounce, self, &thread))
    {
       // undo this
@@ -1158,10 +1163,6 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
    char  *s;
 
    s = _mulle_atomic_pointer_read( &_nameUTF8String);
-   if( ! s)
-      s = MulleObjC_asprintf( "<%s %p>",
-                              MulleObjCInstanceGetClassNameUTF8String( self),
-                              self);
    return( s);
 }
 
@@ -1189,47 +1190,64 @@ void   MulleThreadSetCurrentThreadUserInfo( id info)
 }
 
 
-- (char *) UTF8String
+static char  *NSThreadUTF8String( NSThread *self)
 {
    Class   cls;
    char    *s;
+   char    *name;
 
-   s = _mulle_atomic_pointer_read( &_nameUTF8String);
-   if( s)
-      return( s);
+   cls  = [self class];
+   name = _mulle_atomic_pointer_read( &self->_nameUTF8String);
+   if( ! name)
+   {
+      if( [cls mainThread] == self)
+         name = "NSMainThread";
+   }
 
-   cls = [self class];
-   if( [cls mainThread] == self)
-      return( "NSMainThread");
-   return( MulleObjC_asprintf( "<%s %p>", MulleObjCClassGetNameUTF8String( cls), self));
+   mulle_buffer_do_autoreleased_string( buffer, NULL, s)
+   {
+      mulle_buffer_sprintf( buffer, "<%s", MulleObjCClassGetNameUTF8String( cls));
+      if( name)
+         mulle_buffer_sprintf( buffer, " \"%s\"", name);
+      else
+      {
+         if( ! MulleObjCDebugElideAddressOutput)
+            mulle_buffer_sprintf( buffer, " %p", self);
+      }
+      mulle_buffer_add_string( buffer, ">");
+   }
+   return( s);
+}
+
+
+- (char *) nonLockingUTF8String
+{
+   return( NSThreadUTF8String( self));
+}
+
+
+- (char *) UTF8String
+{
+   return( NSThreadUTF8String( self));
 }
 
 
 - (char *) colorizerPrefixUTF8String
 {
-   Class       cls;
-   char        *result;
-   char        *s;
+   char        *name;
    uintptr_t   hash;
    int         color;
 
-   cls = [self class];
-   if( [cls mainThread] == self)
-      return( "\033[38;5;2m");
-
    // use a random color for this thread, thats not blackish or whitish
-   // based on pointer address, it would be better to
-
-   s = [self mulleNameUTF8String];
-   if( s)
-      hash = _mulle_string_hash( s);
+   // based on pointer address or preferably name
+   name = [self mulleNameUTF8String];
+   if( name)
+      hash = _mulle_string_hash( name);
    else
       hash  = mulle_pointer_hash( self);
 
-   color  = (hash % (230 - 22)) + 22;
-   mulle_asprintf( &result, "\033[38;5;%dm", color);;
-
-   return( MulleObjCAutoreleaseAllocation( result, NULL));
+   color = (hash % (230 - 22)) + 22;
+   return( MulleObjC_asprintf( "\033[38;5;%dm", color));
 }
 
 

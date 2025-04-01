@@ -17,6 +17,88 @@
 # warning MulleObjCRuntimeObject protocol included
 #endif
 
+//
+// # MulleObjCTAOStrategy Enumeration
+//
+// The MulleObjCTAOStrategy enumeration defines Thread Affinity and
+// Ownership strategies that control how objects are transferred between
+// threads in the MulleObjC runtime system. This is a core part of
+// MulleObjC's memory management and thread safety architecture.
+//
+// ## Purpose
+//
+// This enumeration provides policies for safely transferring object
+// ownership between threads while managing memory correctly through
+// autorelease pools. The TAO system is designed to prevent race conditions,
+// memory leaks, and dangling pointers when objects move across thread
+// boundaries.
+//
+// ## Implementation Details
+//
+// ### All purpose thread strategies
+//
+// The enumeration defines five strategies, each with different implications
+// for thread safety and memory management. For a generic passing of objects,
+// between threads you SHOULD use MulleObjCTAOKnownThreadSafe. All other
+// strategies are basically hacks.
+//
+// *  MulleObjCTAOKnownThreadSafe:
+//    The most efficient strategy, used for fully thread-safe objects.
+//    Asserts that the object has no thread affinity (can be accessed from
+//    any thread). Completely bypasses thread affinity management. Used with
+//    objects that implement @protocol MulleObjCThreadSafe. Tip:
+//    use MulleObject dervied classes and make them MulleObjCThreadSafe.
+//
+// *  MulleObjCTAOCallerRemovesFromCurrentPool:
+//    Used when transferring an object that was just created for passing to
+//    another thread. The caller is responsible for removing the object from
+//    the current thread's autorelease pool. Implementation explicitly calls
+//    mulleReleasePoolObjects:count: on the current thread's autorelease
+//    pool. The fallback for objects, that do not "care" about thread safety.
+//    A common general-purpose strategy, which is not recommended as a
+//    "design" feature.
+//
+// *  MulleObjCTAOCallerRemovesFromAllPools:
+//    A more aggressive cleanup approach. Removes the object from all
+//    autorelease pools across all threads. The code comments warn against
+//    regular use, as it may lead to future failures. Used only in special
+//    circumstances when an object must be completely detached. But extremely
+//    hacky and  potentially slow and dangerous. Not recommended for general use.
+//
+// ### Custom thread strategies
+//
+// A custom thread is a thread, where you know what the thread funciton will
+// do (e.g. look up a NSURL for example). Using one of these strategies you
+// implicitly design a class to be only used with a certain custom thread,
+// which is limiting
+//
+// *  MulleObjCTAOKnownThreadSafeMethods:
+//    Used when you assume that the receiver will only call thread-safe methods.
+//    So your object is no longer all purpose but limited to a certain kind of
+//    NSThread access. Does not change thread affinity when gaining or
+//    relinquishing access. Bypasses normal thread checking and
+//    autorelease pool management. Allows more efficient inter-thread
+//    operation for partially thread-safe objects.
+//
+// *  MulleObjCTAOReceiverPerformsFinalize:
+//    For special setups where the receiving object handles its own
+//    finalization. Changes thread affinity when gaining or
+//    relinquishing access. Reserved for specialized manual object
+//    management scenarios.
+//
+// ## Operational Flow
+//
+// The source thread calls mulleRelinquishAccess, which:
+// - Retains the object (ensuring it won't be deallocated during transfer)
+// - Based on the strategy, potentially removes it from autorelease pools
+// - Unsets the thread affinity marker (sets to mulle_objc_object_has_no_thread)
+//
+// The receiving thread calls mulleGainAccess, which:
+// - Sets the thread affinity to the current thread (unless using thread-safe
+//   strategies)
+// - Autoreleases the object in the receiving thread's autorelease pool
+//
+//
 
 typedef NS_ENUM( NSUInteger, MulleObjCTAOStrategy)
 {

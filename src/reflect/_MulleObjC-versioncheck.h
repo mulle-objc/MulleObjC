@@ -7,31 +7,38 @@
 
 #if defined( MULLE__OBJC__DEBUG_VERSION)
 # ifndef MULLE__OBJC__DEBUG_VERSION_MIN
-#  define MULLE__OBJC__DEBUG_VERSION_MIN  ((0UL << 20) | (21 << 8) | 3)
+#  define MULLE__OBJC__DEBUG_VERSION_MIN  ((0UL << 20) | (22 << 8) | 0)
 # endif
 # ifndef MULLE__OBJC__DEBUG_VERSION_MAX
-#  define MULLE__OBJC__DEBUG_VERSION_MAX  ((0UL << 20) | (22 << 8) | 0)
+#  define MULLE__OBJC__DEBUG_VERSION_MAX  ((0UL << 20) | (23 << 8) | 0)
 # endif
-# if MULLE__OBJC__DEBUG_VERSION < MULLE__OBJC__DEBUG_VERSION_MIN
-#  error "mulle-objc-debug is too old"
-# endif
-# if MULLE__OBJC__DEBUG_VERSION >= MULLE__OBJC__DEBUG_VERSION_MAX
-#  error "mulle-objc-debug is too new"
+# if MULLE__OBJC__DEBUG_VERSION < MULLE__OBJC__DEBUG_VERSION_MIN || MULLE__OBJC__DEBUG_VERSION >= MULLE__OBJC__DEBUG_VERSION_MAX
+#  pragma message("MULLE__OBJC__DEBUG_VERSION     is " MULLE_C_STRINGIFY_MACRO( MULLE__OBJC__DEBUG_VERSION))
+#  pragma message("MULLE__OBJC__DEBUG_VERSION_MIN is " MULLE_C_STRINGIFY_MACRO( MULLE__OBJC__DEBUG_VERSION_MIN))
+#  pragma message("MULLE__OBJC__DEBUG_VERSION_MAX is " MULLE_C_STRINGIFY_MACRO( MULLE__OBJC__DEBUG_VERSION_MAX))
+#  if MULLE__OBJC__DEBUG_VERSION < MULLE__OBJC__DEBUG_VERSION_MIN
+#   error "mulle-objc-debug is too old"
+#  else
+#   error "mulle-objc-debug is too new"
+#  endif
 # endif
 #endif
-
 #if defined( MULLE__OBJC__RUNTIME_VERSION)
 # ifndef MULLE__OBJC__RUNTIME_VERSION_MIN
-#  define MULLE__OBJC__RUNTIME_VERSION_MIN  ((0UL << 20) | (25 << 8) | 0)
+#  define MULLE__OBJC__RUNTIME_VERSION_MIN  ((0UL << 20) | (26 << 8) | 0)
 # endif
 # ifndef MULLE__OBJC__RUNTIME_VERSION_MAX
-#  define MULLE__OBJC__RUNTIME_VERSION_MAX  ((0UL << 20) | (26 << 8) | 0)
+#  define MULLE__OBJC__RUNTIME_VERSION_MAX  ((0UL << 20) | (27 << 8) | 0)
 # endif
-# if MULLE__OBJC__RUNTIME_VERSION < MULLE__OBJC__RUNTIME_VERSION_MIN
-#  error "mulle-objc-runtime is too old"
-# endif
-# if MULLE__OBJC__RUNTIME_VERSION >= MULLE__OBJC__RUNTIME_VERSION_MAX
-#  error "mulle-objc-runtime is too new"
+# if MULLE__OBJC__RUNTIME_VERSION < MULLE__OBJC__RUNTIME_VERSION_MIN || MULLE__OBJC__RUNTIME_VERSION >= MULLE__OBJC__RUNTIME_VERSION_MAX
+#  pragma message("MULLE__OBJC__RUNTIME_VERSION     is " MULLE_C_STRINGIFY_MACRO( MULLE__OBJC__RUNTIME_VERSION))
+#  pragma message("MULLE__OBJC__RUNTIME_VERSION_MIN is " MULLE_C_STRINGIFY_MACRO( MULLE__OBJC__RUNTIME_VERSION_MIN))
+#  pragma message("MULLE__OBJC__RUNTIME_VERSION_MAX is " MULLE_C_STRINGIFY_MACRO( MULLE__OBJC__RUNTIME_VERSION_MAX))
+#  if MULLE__OBJC__RUNTIME_VERSION < MULLE__OBJC__RUNTIME_VERSION_MIN
+#   error "mulle-objc-runtime is too old"
+#  else
+#   error "mulle-objc-runtime is too new"
+#  endif
 # endif
 #endif
 

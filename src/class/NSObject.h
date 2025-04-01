@@ -188,8 +188,9 @@
 //
 // Use the tool mulle-objc-uniqueid with '<yourclassname>;forward:' to create
 // a superid. Use this to lookup the implementation of super then call it.
-// Don't forget to register the corresponding _mulle_objc_super in the universe.
-// You can do this with a dummy method like `registerForwardSuper`:
+// Don't forget to register the corresponding struct _mulle_objc_super in the
+// universe. You can let the compile do this for you with a dummy method like
+// `registerForwardSuper`:
 //
 // ```
 // #define MYID   (mulle_objc_superid_t) 0x???????? // '<yourclassname>;forward:'
@@ -221,19 +222,20 @@
 
 @interface NSObject( UTF8String)
 
-//
-// why is this not mulle_utf8_t ? In mulle-objc char * in Objective-C is
-// defined to be UTF8. The returned string is either a static string or
-// autoreleased (!)
-//
+// In the Foundation this will be overridden, to call -description and then
+// turn the resulting NSString into a -UTF8String
 - (char *) UTF8String;  // used to be cStringDescription
 
 // you can use mulle_fprintf( "%#@") to trigger this colorization method
 // as this is used in debugging, the methods must be threadSafe (in contrast
 // to -UTF8String)
-
-- (char *) threadSafeUTF8String        MULLE_OBJC_THREADSAFE_METHOD;  // used to be cStringDescription
 - (char *) colorizedUTF8String         MULLE_OBJC_THREADSAFE_METHOD;
+
+// useful for the debugger where, you want to be sure that you don't run
+// into TAO or in a recursive MulleObject lock.
+// You can therefore only access "read only" properties and atomic properties
+// in -nonLockingUTF8String
+- (char *) nonLockingUTF8String        MULLE_OBJC_THREADSAFE_METHOD;  // used to be cStringDescription
 
 // color code to be placed in front of UTF8String (NULL for no colorization)
 // default NULL
@@ -284,6 +286,8 @@ void  MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id valu
 MULLE_OBJC_GLOBAL
 void  MulleObjCClassInterposeBeforeClass( Class self, Class other);
 
+MULLE_OBJC_GLOBAL
+char   *MulleObjCObjectUTF8String( NSObject *self);
 
 #pragma clang diagnostic pop
 

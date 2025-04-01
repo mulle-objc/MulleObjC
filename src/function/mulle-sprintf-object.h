@@ -38,6 +38,41 @@
 
 #include "include.h"
 
+/**
+ * @brief Provides custom sprintf conversion for Objective-C objects
+ *
+ * This module extends sprintf functionality to handle Objective-C objects
+ * with special formatting options.
+ *
+ * - Provides colorized output when enabled and requested
+ * - Handles nil object cases
+ * - Supports a '#' modifier for colorized output
+ *
+ * * The selection chooses between these two methods based on:
+ * 1. Whether the '#' modifier was used (info->memory.hash_found)
+ * 2. Whether colorization is globally enabled
+ *
+ * Object Methods:
+ *
+ * - `UTF8String` Returns a UTF-8 encoded string.
+ *    The "%@" conversion uses the standard -UTF8String which can lock. This is
+ *    what eventually will call -description.
+ *
+ * - `colorizedUTF8String`    Returns a UTF-8 encoded string with color.
+ *    This special method must be suitable for debugging, so it's important
+ *    that "%#@" does not lock. This is supposed to be used in all format
+ *    strings that does logging and introspection (po). -colorizedUTF8String
+ *    will eventually call -nonLockingUTF8String which will provide the
+ *    uncolored string.
+ *
+ * Colorization is controlled by environment variables:
+ * - `NO_COLOR`: Disables color output
+ * - `MULLE_NO_COLOR=YES`: Disables color output
+ * - `TERM=dumb`: Disables color output
+ *
+ * @note Automatically registers object conversion functions at library initialization
+ */
+
 MULLE_OBJC_GLOBAL
 void  mulle_sprintf_register_object_functions( struct mulle_sprintf_conversion *tables);
 

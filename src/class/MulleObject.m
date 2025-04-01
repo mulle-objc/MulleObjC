@@ -539,6 +539,5 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    [self shareRecursiveLock:other ? other->__lock : nil];
 }
 
-
 @end
 

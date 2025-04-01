@@ -98,7 +98,7 @@ void
    info->object.zombieenabled     = mulle_objc_environment_get_yes_no( "MULLE_OBJC_ZOMBIE_ENABLED")
                                     | mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_ZOMBIE")
                                     | mulle_objc_environment_get_yes_no( "NSZombieEnabled");
-   // when leak checkingt must deallocate
+   // when leak checking must deallocate
    info->object.deallocatezombie  = mulle_objc_environment_get_yes_no( "MULLE_OBJC_DEALLOCATE_ZOMBIE")
                                     | mulle_objc_environment_get_yes_no( "NSDeallocateZombies")
                                     | mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_LEAK");

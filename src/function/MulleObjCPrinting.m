@@ -40,12 +40,9 @@
 #import "MulleObjCAllocation.h"
 
 
-
-
 char   *MulleObjC_mvasprintf( char *format, mulle_vararg_list args)
 {
-   char                  *s;
-   struct mulle_buffer   buffer;
+   char   *s;
 
    if( ! format)
    {
@@ -53,13 +50,10 @@ char   *MulleObjC_mvasprintf( char *format, mulle_vararg_list args)
       return( NULL);
    }
 
-   mulle_buffer_init_default( &buffer);
-   mulle_buffer_mvsprintf( &buffer, format, args);
-   mulle_buffer_make_string( &buffer);
-   s = mulle_buffer_extract_string( &buffer);
-
-   MulleObjCAutoreleaseAllocation( s, mulle_buffer_get_allocator( &buffer));
-   mulle_buffer_done( &buffer);
+   mulle_buffer_do_autoreleased_string( buffer, NULL, s)
+   {
+      mulle_buffer_mvsprintf( buffer, format, args);
+   }
 
    return( s);
 }
@@ -67,8 +61,7 @@ char   *MulleObjC_mvasprintf( char *format, mulle_vararg_list args)
 
 char   *MulleObjC_vasprintf( char *format, va_list args)
 {
-   char                  *s;
-   struct mulle_buffer   buffer;
+   char   *s;
 
    if( ! format)
    {
@@ -76,13 +69,10 @@ char   *MulleObjC_vasprintf( char *format, va_list args)
       return( NULL);
    }
 
-   mulle_buffer_init_default( &buffer);
-   mulle_buffer_vsprintf( &buffer, format, args);
-   mulle_buffer_make_string( &buffer);
-   s = mulle_buffer_extract_string( &buffer);
-
-   MulleObjCAutoreleaseAllocation( s, mulle_buffer_get_allocator( &buffer));
-   mulle_buffer_done( &buffer);
+   mulle_buffer_do_autoreleased_string( buffer, NULL, s)
+   {
+      mulle_buffer_vsprintf( buffer, format, args);
+   }
 
    return( s);
 }

@@ -180,7 +180,7 @@ PROTOCOLCLASS_END()
                                             MulleObjCImmutableCopying
 
 // convenience declaration to put on concrete mutable value subclasses
-// if your object is MutableValue it must not support deriving a
+// 
 #define MulleObjCMutableValueProtocols      MulleObjCRuntimeObject,  \
                                             MulleObjCValue,          \
                                             MulleObjCThreadUnsafe

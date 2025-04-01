@@ -865,14 +865,16 @@ static void   *pushAutoreleasePool( struct _mulle_objc_poolconfiguration *config
    array = static_storage( config, pool);
 
    // init all pool ivars(!)
-   pool->_storage    = array;
-   pool->_owner      = config->tail;
+   pool->_storage                 = array;
+   pool->_owner                   = config->tail;
+   pool->_mulleNameUTF8String[ 0] = 0;
 
    array->used       = 0;
    array->previous   = NULL;
 
    config->tail      = pool;
    config->releasing = 0;
+
 
    if( config->trace & 0x4)
       fprintf( stderr, "[pool] pushed pool %p in thread 0x%lx\n", pool, (long) mulle_thread_self());
