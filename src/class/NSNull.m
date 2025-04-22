@@ -122,6 +122,7 @@
 }
 #endif
 
+
 - (NSComparisonResult) compare:(id) other
 {
    if( other == self)
@@ -140,6 +141,18 @@
 - (void *) forward:(void *) args
 {
    return( NULL);
+}
+
+
+- (char *) nonLockingUTF8String
+{
+   return( "NSNull");
+}
+
+
+- (char *) UTF8String
+{
+   return( "NSNull");
 }
 
 @end

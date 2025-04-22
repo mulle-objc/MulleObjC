@@ -442,17 +442,6 @@ static inline uintptr_t   rotate_uintptr( uintptr_t x)
 }
 
 
-+ (char *) nonLockingUTF8String
-{
-   char                       *s;
-   struct _mulle_objc_class   *cls;
-
-   cls = _mulle_objc_object_get_isa( self);
-   s   = _mulle_objc_class_get_name( cls);
-   return( s);
-}
-
-
 char   *MulleObjCObjectUTF8String( NSObject *self)
 {
    char                       *result;
@@ -483,6 +472,18 @@ char   *MulleObjCObjectUTF8String( NSObject *self)
 - (char *) UTF8String
 {
    return( MulleObjCObjectUTF8String( self));
+}
+
+
++ (char *) nonLockingUTF8String
+{
+   return( MulleObjCClassUTF8String( self));
+}
+
+
++ (char *) UTF8String
+{
+   return( MulleObjCClassUTF8String( self));
 }
 
 
