@@ -1,3 +1,24 @@
+## 0.26.0
+
+
+
+
+* UTF8String is now defined as not threadsafe and nonLockingUTF8String must be though
+* -colorizedUTF8String used -nonLockingUTF8String
+* more clarification for the -copy method
+* more clarification for TAO strategies
+* new function MulleObjCClassImplementsSelector specifically for -copy methods to check that a subclass is implementing -copy properly but can be useful in other places as well
+
+* added MulleObjCIMPArray functionality for collecting and calling method implementations
+* improved MulleDynamicObject with better forward: handling and generic type support
+* renamed generic type enums to MulleObjCGenericType for consistency
+* exposed `_MulleDynamicObjectForward` helper function for subclasses
+* added documentation for proper forward: implementation in MulleDynamicObject
+
+* use new memset32 function to scribble zombies
+* NSMutableCopying moved to Foundation, because mulle-objc does not support it anymore
+
+
 ## 0.25.0
 
 * NSInvocation does not raise anymore during -init as noone should raise during init
