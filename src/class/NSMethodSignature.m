@@ -168,7 +168,7 @@ static inline BOOL   hasExtraMemory( NSMethodSignature *self)
    hash = 5381;
    s    = (unsigned char *) _types;
 
-   while( c = *s++)
+   while( (c = *s++))
       hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
    return( hash);

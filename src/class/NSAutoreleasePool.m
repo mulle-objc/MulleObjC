@@ -858,7 +858,8 @@ static void   *pushAutoreleasePool( struct _mulle_objc_poolconfiguration *config
    size_t                                  size;
 
    //
-   // avoid zeroing out the initial buffer
+   // avoid zeroing out the initial buffer, but be very careful to zero
+   // out what we need zeroed
    //
    size  = sizeof( struct _mulle_autoreleasepointerarray);
    pool  = _MulleObjCClassAllocateNonZeroedObject( config->poolClass, size);
@@ -869,12 +870,10 @@ static void   *pushAutoreleasePool( struct _mulle_objc_poolconfiguration *config
    pool->_owner                   = config->tail;
    pool->_mulleNameUTF8String[ 0] = 0;
 
-   array->used       = 0;
-   array->previous   = NULL;
+   _mulle_autoreleasepointerarray_init( array, NULL);
 
    config->tail      = pool;
    config->releasing = 0;
-
 
    if( config->trace & 0x4)
       fprintf( stderr, "[pool] pushed pool %p in thread 0x%lx\n", pool, (long) mulle_thread_self());

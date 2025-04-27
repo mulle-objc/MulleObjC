@@ -87,7 +87,8 @@ int  main()
             [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleasePoolObjects:foo
                                                                            count:8];
             count = [NSAutoreleasePool mulleCount];
-            printf( "%td -> %td\n", previous, count);
+            assert( sizeof( ptrdiff_t) == sizeof( NSUInteger));
+            mulle_printf( "%td -> %td\n", previous, count);
             previous = count;
 
             [NSAutoreleasePool mulleReleasePoolObjects:foo

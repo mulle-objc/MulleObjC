@@ -241,9 +241,9 @@ struct _mulle_objc_universefoundationinfo  *
                                                      ? config->universe.versionassert
                                                      : nop;
    foundation.rootclassid = @selector( NSObject);
-   allocator              = config->foundation.objectallocator;
 
-   kind = "custom";
+   allocator = config->foundation.objectallocator;
+   kind      = "custom";
    if( ! allocator)
    {
       if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_FOUNDATION_STDLIB_ALLOCATOR"))
@@ -257,7 +257,8 @@ struct _mulle_objc_universefoundationinfo  *
          kind      = "default";
       }
    }
-   if( universe->debug.trace.universe)
+
+   if( universe->debug.trace.universe || mulle_objc_environment_get_int( "MULLE_TESTALLOCATOR", 0, INT_MAX, 0))
       mulle_objc_universe_trace( universe, "foundation uses %s allocator: %p", kind, allocator);
 
    foundation.allocator       = allocator;

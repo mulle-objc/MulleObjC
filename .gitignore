@@ -82,3 +82,8 @@ cola/wilted/
 .aider*
 .env
 *.trc
+CMakeLists.txt.bak
+.mulle/etc/make/build-dir
+research/
+dox/book
+vgcore.*
