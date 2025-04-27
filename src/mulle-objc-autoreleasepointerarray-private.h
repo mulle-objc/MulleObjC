@@ -115,6 +115,17 @@ struct _mulle_autoreleasepointerarray
 };
 
 
+static inline void
+   _mulle_autoreleasepointerarray_init( struct _mulle_autoreleasepointerarray *array, 
+                                        struct _mulle_autoreleasepointerarray *previous)
+{
+   array->used     = 0;
+   array->count    = 0;
+   array->previous = previous;
+}
+
+
+
 static inline struct _mulle_autoreleasepointerarray *
    _mulle_autoreleasepointerarray_create( struct _mulle_autoreleasepointerarray *previous)
 {
@@ -128,9 +139,7 @@ static inline struct _mulle_autoreleasepointerarray *
                      previous);
 #endif
 
-   array->used     = 0;
-   array->count    = 0;
-   array->previous = previous;
+   _mulle_autoreleasepointerarray_init( array, previous);
 
    return( array);
 }

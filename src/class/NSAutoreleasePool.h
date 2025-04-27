@@ -51,6 +51,9 @@
 // much with it. As a consequence of it being a root object, instance methods
 // like -init or -mulleNameUTF8String will wrap around, so be careful.
 //
+// NSAutoreleasePool objects themselves are allocated with the stdlib allocator
+// and not with the default allocator. This serves to avoid trace clutter.
+//
 @interface NSAutoreleasePool
 {
    NSAutoreleasePool   *_owner;
