@@ -16,7 +16,7 @@
 {
    [Foo object]; // create an object for leak test
    mulle_printf( "%s\n", __PRETTY_FUNCTION__);
-   MulleObjCDumpAutoreleasePoolsFrame();
+   // MulleObjCDumpAutoreleasePoolsFrame();
 }
 
 @end
@@ -32,7 +32,7 @@ int main( void)
       [NSThread detachNewThreadSelector:@selector( method:)
                                toTarget:[Foo class]
                              withObject:nil];
-      MulleObjCDumpAutoreleasePoolsFrame();
+      // MulleObjCDumpAutoreleasePoolsFrame();
    }
    return( 0);
 }
