@@ -79,8 +79,8 @@ As long as your sources are using `#import "import-private.h"` and your headers 
 mulle-sde add github:mulle-objc/MulleObjC
 ```
 
-To only add the sources of MulleObjC with dependency
-sources use [clib](https://github.com/clibs/clib):
+To only add the sources of MulleObjC with all the sources of its
+dependencies replace "github:" with [clib:](https://github.com/clibs/clib):
 
 ## Legacy adds
 
