@@ -135,8 +135,8 @@ MulleObjCGenericType   _MulleObjCGenericTypeOfSignature( char *signature);
 
 
 
-MULLE_C_ALWAYS_INLINE
-static inline void   *_MulleDynamicObjectForward( id self, SEL _cmd, void *args, int *fail)
+MULLE_C_STATIC_ALWAYS_INLINE
+void   *_MulleDynamicObjectForward( id self, SEL _cmd, void *args, int *fail)
 {
    struct _mulle_objc_property     *property;
    mulle_objc_implementation_t     imp;
