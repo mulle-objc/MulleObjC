@@ -32,11 +32,10 @@ static inline void   _MulleObjectUnlock( MulleObject *self)
 // proxied forward to. alas its not so easy, because we would have to
 // change more in the code above, which makes it seem not very useful
 //
-MULLE_C_ALWAYS_INLINE
-static inline
-   void  *MulleObjectLockingForward( MulleObject *self,
-                                     mulle_objc_methodid_t methodid,
-                                     void *parameter)
+MULLE_C_STATIC_ALWAYS_INLINE
+void  *MulleObjectLockingForward( MulleObject *self,
+                                  mulle_objc_methodid_t methodid,
+                                  void *parameter)
 {
    mulle_functionpointer_t            p;
    mulle_objc_implementation_t        imp;
@@ -105,8 +104,7 @@ static inline
 
 
 
-MULLE_C_ALWAYS_INLINE
-static inline
+MULLE_C_STATIC_ALWAYS_INLINE
    void  *MulleObjectLockingSuperForward( MulleObject *self,
                                           mulle_objc_methodid_t methodid,
                                           void *parameter)

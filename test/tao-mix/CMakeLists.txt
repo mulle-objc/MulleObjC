@@ -18,7 +18,7 @@ set( CMAKE_C_COMPILER_WORKS 1)
 
 project( tao-mix C)
 
-cmake_minimum_required( VERSION 3.11)
+cmake_minimum_required( VERSION 3.13...99.99)
 
 set_source_files_properties( tao.m PROPERTIES COMPILE_OPTIONS "-fobjc-tao")
 set_source_files_properties( no-tao.m PROPERTIES COMPILE_OPTIONS "-fno-objc-tao")

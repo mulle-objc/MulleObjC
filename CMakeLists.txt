@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.18) # 3.15 fails on windows
+cmake_minimum_required( VERSION 3.13...99.99) # 3.15 fails on windows
 
 project( MulleObjC VERSION 0.26.0 LANGUAGES C)
 

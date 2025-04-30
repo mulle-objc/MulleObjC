@@ -2,7 +2,7 @@
 ### picked up in preference over the one in cmake/share. And it will not get
 ### clobbered with the next upgrade.
 
-cmake_minimum_required( VERSION 3.13)
+cmake_minimum_required( VERSION 3.13...99.99)
 
 # this needs to run again for each executable so no include check
 #if( NOT __EXECUTABLE_OBJC_CMAKE__)
