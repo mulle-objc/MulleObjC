@@ -33,7 +33,7 @@
 - (void *) forward:(void *) param
 {
    assert( _other); 
-   return( mulle_objc_object_call_variable_inline( _other,
+   return( mulle_objc_object_call_inline_variable( _other,
                                                    @selector( print),
                                                    param));
 }

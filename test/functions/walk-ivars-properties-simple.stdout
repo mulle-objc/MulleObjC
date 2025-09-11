@@ -1,0 +1,6 @@
+Testing _MulleObjCInstanceWalkIvars and _MulleObjCInstanceWalkProperties
+========================================================================
+Object class: NSObject
+Valid object with null callbacks: ivars=0, properties=0
+
+=== All Tests Completed ===

@@ -40,11 +40,13 @@
 // other files in this library
 #import "mulle-objc-type.h"
 #import "mulle-objc-classbit.h"
+#import "MulleObjCAllocation.h"
 #import "MulleObjCException.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
 #import "MulleObjCIntegralType.h"
-#import "MulleObjCAllocation.h"
+#import "MulleObjCIvar.h"
+#import "MulleObjCProperty.h"
 #import "MulleObjCSingleton.h"
 #import "NSDebug.h"
 #import "NSRange.h"
@@ -113,7 +115,7 @@
    //       about. -raise during -init == BAD
    //
    obj = [_cls alloc];
-   obj = mulle_objc_object_call_variable_inline( obj,
+   obj = mulle_objc_object_call_inline_variable( obj,
                                                  (mulle_objc_methodid_t) _cmd, 
                                                  _param);
    [obj autorelease];
@@ -563,7 +565,7 @@ char   *MulleObjCObjectUTF8String( NSObject *self)
 
    target = [self forwardingTargetForSelector:_cmd];
    if( target)
-      return( mulle_objc_object_call_variable_inline( target,
+      return( mulle_objc_object_call_inline_variable( target,
                                                              (mulle_objc_methodid_t) _cmd,
                                                              param));
    /*
@@ -751,6 +753,172 @@ void  MulleObjCClassInterposeBeforeClass( Class self, Class other)
 "\n"
 "Endless recursion awaits those, who don't heed this advice.\n");
    abort();
+}
+
+
+
+
+struct self_ivars_context
+{
+   struct mulle_pointerset   ivars;
+   struct mulle_pointerset   *value_uniquing;
+   id                        self;
+   SEL                       sel;
+};
+
+
+static inline void  _self_ivars_context_init( struct self_ivars_context *p,
+                                              id self,
+                                              SEL sel,
+                                              struct mulle_pointerset *uniquing)
+{
+   p->self           = self;
+   p->sel            = sel;
+   p->value_uniquing = uniquing;
+   mulle_pointerset_init( &p->ivars, 64, NULL);
+}
+
+
+static inline void  _self_ivars_context_done( struct self_ivars_context *p)
+{
+   mulle_pointerset_done( &p->ivars);
+}
+
+
+
+MULLE_C_NEVER_INLINE
+static inline void   _MulleObjCIvarCallGainOrRelinquishAccessWithContext( struct _mulle_objc_ivar *ivar,
+                                                                          struct self_ivars_context *context)
+{
+   ptrdiff_t   offset;
+   id          obj;
+
+   assert( MulleObjCObjectIsInstance( context->self));
+
+   offset = _mulle_objc_ivar_get_offset( ivar);
+   obj    = * (id *) &((char *) context->self)[ offset];
+
+   // during the course of relinquish or gain, we can not call this multiple
+   // times on the same object, as this would create asserts (rightfully
+   // so, because after all thats the point of TAO)
+   // This will call: mulleGainAccessWithUniquingSet or relinquish which will
+   // do the uniquing
+   mulle_objc_object_call_inline_full_variable( obj,
+                                                context->sel,
+                                                context->value_uniquing);
+}
+
+
+static int   _MulleObjCIvarCallbackGainOrRelinquishAccessWithContext( struct _mulle_objc_ivar *ivar,
+                                                                      struct _mulle_objc_infraclass *cls,
+                                                                      void *info)
+{
+   char                        *signature;
+   struct self_ivars_context   *context = info;
+
+   MULLE_C_UNUSED( cls);
+
+   signature = _mulle_objc_ivar_get_signature( ivar);
+   if( ! _mulle_objc_signature_is_object( signature))
+      return( 0);
+
+   if( ! mulle_pointerset_insert( &context->ivars, ivar))
+      return( 0);
+
+   _MulleObjCIvarCallGainOrRelinquishAccessWithContext( ivar, context);
+   return( 0);
+}
+
+
+static int   _MulleObjCPropertyGainOrRelinquishAccessCallbackWithContext( struct _mulle_objc_property *property,
+                                                                          struct _mulle_objc_infraclass *cls,
+                                                                         void *info)
+{
+   uint32_t                    bits;
+   struct _mulle_objc_ivar     *ivar;
+   mulle_objc_ivarid_t         ivarid;
+   struct self_ivars_context   *context = info;
+
+   // only do retain and copy properties
+   bits = _mulle_objc_property_get_bits( property);
+   if( ! (bits & (_mulle_objc_property_retain|_mulle_objc_property_copy)))
+      return( 0);
+
+   ivarid = _mulle_objc_property_get_ivarid( property);
+   ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
+
+   // no need to check signature due to bits above
+   if( ! mulle_pointerset_insert( &context->ivars, ivar))
+      return( 0);
+
+   _MulleObjCIvarCallGainOrRelinquishAccessWithContext( ivar, context);
+   return( 0);
+}
+
+
+void   _MulleObjCObjectGainOrRelinquishAccessToIvars( id self,
+                                                      SEL sel,
+                                                      struct mulle_pointerset *uniquing)
+{
+   struct self_ivars_context   context;
+
+   // here we iterate over copied or retained instance variables
+   // and also gain access to them we
+   _self_ivars_context_init( &context, self, sel, uniquing);
+
+   // do properties first, where its easier to steer if something
+   // is assign, or retain/release (due to mulle-clang not being up to snuff)
+   _MulleObjCInstanceWalkProperties( self,
+                                     _MulleObjCPropertyGainOrRelinquishAccessCallbackWithContext,
+                                     &context);
+   // now walk ivars and do the rest
+   _MulleObjCInstanceWalkIvars( self,
+                                _MulleObjCIvarCallbackGainOrRelinquishAccessWithContext,
+                                &context);
+   _self_ivars_context_done( &context);
+}
+
+
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
+{
+   MulleObjCTAOStrategy   strategy;
+   int                    exists;
+
+   exists = ! mulle_pointerset_insert( uniquing, self);
+   if( exists)
+      return;
+
+   strategy = [self mulleTAOStrategy];
+   [self mulleGainAccessWithTAOStrategy:strategy];
+
+   switch( strategy)
+   {
+   case MulleObjCTAOCallerRemovesFromCurrentPool :
+   case MulleObjCTAOCallerRemovesFromAllPools    :
+      _MulleObjCObjectGainOrRelinquishAccessToIvars( self, _cmd, uniquing);
+      break;
+   }
+}
+
+
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
+{
+   MulleObjCTAOStrategy   strategy;
+   int                    exists;
+
+   exists = ! mulle_pointerset_insert( uniquing, self);
+   if( exists)
+      return;
+
+   strategy = [self mulleTAOStrategy];
+   switch( strategy)
+   {
+   case MulleObjCTAOCallerRemovesFromCurrentPool :
+   case MulleObjCTAOCallerRemovesFromAllPools    :
+      _MulleObjCObjectGainOrRelinquishAccessToIvars( self, _cmd, uniquing);
+      break;
+   }
+   [self mulleRelinquishAccessWithTAOStrategy:strategy];
 }
 
 @end

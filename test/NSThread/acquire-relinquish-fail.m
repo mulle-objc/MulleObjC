@@ -41,6 +41,15 @@
 
 @implementation Foo
 
++ (instancetype) object 
+{
+   id   obj;
+
+   obj = [super object];
+   mulle_fprintf( stderr, "%p lives\n", obj);
+   return( obj);
+}
+
 - (void) dealloc
 {
    id   obj;
@@ -48,9 +57,21 @@
    obj = (id) _mulle_atomic_pointer_read_nonatomic( &self->_available);
    [obj release];
 
+   mulle_fprintf( stderr, "%p dies\n", self);
    [super dealloc];
 }
 
+- (id) retain
+{
+   mulle_fprintf( stderr, "%p gets released\n", self);
+   return( [super retain]);
+}
+
+- (void) release
+{
+   mulle_fprintf( stderr, "%p gets released\n", self);
+   [super release];
+}
 
 - (void) touchTheCorpse
 {
@@ -86,9 +107,7 @@
 
 int   main( void)
 {
-   NSThread  *aThread;
-   NSThread  *bThread;
-   Foo       *foo;
+   Foo   *foo;
 
    @autoreleasepool
    {

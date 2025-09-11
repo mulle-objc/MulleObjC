@@ -1,14 +1,14 @@
-'V'
-1848
-1848
-1848
-1848
-(union abc) ( 1848 )
-(struct abc) { 1848, '2', 3 }
-(struct mulle_structarray) { <pointer>, <pointer>, <pointer>, 0, 16, 16, 0 }
-[ 1, 1848, 3 ]
-<Foo <pointer>>
-@selector( callMeMaybe:)
-<pointer>
-"VfL Bochum 1848"
-<broken type>
+test_char: 'V'
+test_int: 1848
+test_long_long: 1848
+test_float: 1848
+test_double: 1848
+test_union: (union abc) ( 1848 )
+test_struct: (struct abc) { 1848, '2', 3 }
+test_struct2: (struct mulle_structarray) { <pointer>, <pointer>, <pointer>, 0, 16, 16, 0, 0 }
+test_array: [ 1, 1848, 3 ]
+test_object: <Foo <pointer>>
+test_selector: @selector( callMeMaybe:)
+test_pointer: <pointer>
+test_charptr: "VfL Bochum 1848"
+test_broken: <broken type>

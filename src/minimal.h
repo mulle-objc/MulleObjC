@@ -48,6 +48,7 @@
 //
 #include "include.h"
 
+#include "mulle-objc-enum.h"
 #include "mulle-objc-type.h"
 
 #include "MulleObjCCompiler.h"

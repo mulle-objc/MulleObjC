@@ -23,8 +23,8 @@ int   main( int argc, const char * argv[])
          thread = [NSThread alloc];
          [thread mulleSetNameUTF8String:"#2"];
          thread = [thread initWithTarget:[Receiver class]
-                             selector:@selector( foo:)
-                             object:nil];
+                                selector:@selector( foo:)
+                                  object:nil];
          thread = [thread autorelease];
 
          mulle_printf( "%s - 1: %s\n", __THREAD_NAME__, __PRETTY_FUNCTION__);

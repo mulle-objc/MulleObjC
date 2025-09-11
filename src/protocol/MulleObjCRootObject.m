@@ -14,10 +14,12 @@
 #import "mulle-objc-universefoundationinfo-private.h"
 
 
-NS_ENUM_TABLE( MulleObjCTAOStrategy, 5) =
+NS_ENUM_TABLE( MulleObjCTAOStrategy, 7) =
 {
    NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromCurrentPool),
+   NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromCurrentPoolShallow),
    NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromAllPools),
+   NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromAllPoolsShallow),
    NS_ENUM_ITEM( MulleObjCTAOReceiverPerformsFinalize),
    NS_ENUM_ITEM( MulleObjCTAOKnownThreadSafeMethods),
    NS_ENUM_ITEM( MulleObjCTAOKnownThreadSafe)
@@ -333,9 +335,11 @@ static inline void   checkAutoreleaseRelease( id self)
       // but don't change affinity
       goto autorelease;
 
-   case MulleObjCTAOCallerRemovesFromCurrentPool :
-   case MulleObjCTAOCallerRemovesFromAllPools    :
-   case MulleObjCTAOReceiverPerformsFinalize     :
+   case MulleObjCTAOCallerRemovesFromCurrentPool        :
+   case MulleObjCTAOCallerRemovesFromCurrentPoolShallow :
+   case MulleObjCTAOCallerRemovesFromAllPools           :
+   case MulleObjCTAOCallerRemovesFromAllPoolsShallow    :
+   case MulleObjCTAOReceiverPerformsFinalize            :
       break;
    default :
 #ifdef DEBUG
@@ -402,9 +406,11 @@ autorelease:
       // but don't change affinity
       return;
 
-   case MulleObjCTAOCallerRemovesFromCurrentPool :
-   case MulleObjCTAOCallerRemovesFromAllPools    :
-   case MulleObjCTAOReceiverPerformsFinalize     :
+   case MulleObjCTAOCallerRemovesFromCurrentPool        :
+   case MulleObjCTAOCallerRemovesFromCurrentPoolShallow :
+   case MulleObjCTAOCallerRemovesFromAllPools           :
+   case MulleObjCTAOCallerRemovesFromAllPoolsShallow    :
+   case MulleObjCTAOReceiverPerformsFinalize            :
       break;
 
    default :
@@ -454,11 +460,13 @@ autorelease:
    // It indicates that someone is still holding a reference and is likely to
    // fail in the future
    //
+   case MulleObjCTAOCallerRemovesFromAllPoolsShallow    :
    case MulleObjCTAOCallerRemovesFromAllPools :
       [NSAutoreleasePool mulleReleasePoolObjects:&self
-                                       count:1];
+                                           count:1];
       break;
 
+   case MulleObjCTAOCallerRemovesFromCurrentPoolShallow :
    case MulleObjCTAOCallerRemovesFromCurrentPool :
       [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleasePoolObjects:&self
                                                                          count:1];
@@ -479,6 +487,12 @@ autorelease:
 }
 
 
++ (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD
+{
+   return( MulleObjCTAOKnownThreadSafe);
+}
+
+
 // For a completely thread unsafe object, the strategy must be to remove
 // it from the sending thread and move it wholesale to the new thread.
 // BUT! A partially threadsafe object, meaning it has some methods that
@@ -488,32 +502,78 @@ autorelease:
 // to write a checker that compares the mulleTaoStrategy of classes with the
 // provided methods and check if its consistent (IMO)
 //
+
 - (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD
 {
    return( MulleObjCTAOCallerRemovesFromCurrentPool);
 }
 
 
-- (void) mulleGainAccess
++ (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) p
+{
+}
+
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) p
 {
    MulleObjCTAOStrategy   strategy;
+
+   if( ! mulle_pointerset_insert( p, self))
+      return;
+
+   // so the default ignores the problem of ivars and properties
+   // it is NSObject which adds the convenience
 
    strategy = [self mulleTAOStrategy];
    [self mulleGainAccessWithTAOStrategy:strategy];
 }
 
 
+
+- (void) mulleGainAccess
+{
+   struct mulle_pointerset   set;
+
+   mulle_pointerset_init( &set, 64, NULL);
+   [self mulleGainAccessWithUniquingSet:&set];
+   mulle_pointerset_done( &set);
+}
+
+//
 // MEMO: a method mulleTransferAccessToThread:(NSThread *) is nigh impossible
 //       because we can't get the objects into the other threads autorelease
 //       pool. Or if we could it would be extremely unsafe and hacky or ?
 //
++ (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) p
+{
+}
 
-- (void) mulleRelinquishAccess
+
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) p
 {
    MulleObjCTAOStrategy   strategy;
 
+   if( ! mulle_pointerset_insert( p, self))
+      return;
+
+   // so the default ignores the problem of ivars and properties
+   // it is NSObject which adds the convenience
    strategy = [self mulleTAOStrategy];
    [self mulleRelinquishAccessWithTAOStrategy:strategy];
+
+}
+
+
+- (void) mulleRelinquishAccess
+{
+   struct mulle_pointerset   set;
+   void                      *tmp[ 32];
+
+   mulle_pointerset_init_with_static_pointers( &set,
+                                               tmp,
+                                               sizeof( tmp) / sizeof( tmp[0]),
+                                               NULL);
+   [self mulleRelinquishAccessWithUniquingSet:&set];
+   mulle_pointerset_done( &set);
 }
 
 
@@ -720,7 +780,7 @@ autorelease:
 
 - (id) performSelector:(SEL) sel
 {
-   return( mulle_objc_object_call_variable_inline( self,
+   return( mulle_objc_object_call_inline_variable( self,
                                                            (mulle_objc_methodid_t) sel,
                                                            (void *) self));
 }
@@ -729,7 +789,7 @@ autorelease:
 - (id) performSelector:(SEL) sel
             withObject:(id) obj
 {
-   return( mulle_objc_object_call_variable_inline( self,
+   return( mulle_objc_object_call_inline_variable( self,
                                                            (mulle_objc_methodid_t) sel,
                                                            (void *) obj));
 }
@@ -753,7 +813,7 @@ autorelease:
    param.p.obj1 = obj1;
    param.p.obj2 = obj2;
 
-   return( mulle_objc_object_call_variable_inline( self,
+   return( mulle_objc_object_call_inline_variable( self,
                                                    (mulle_objc_methodid_t) sel,
                                                    &param));
 }

@@ -58,7 +58,7 @@ int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
    bits = _mulle_objc_property_get_bits( property);
    if( bits & _mulle_objc_property_setterclear)
    {
-      mulle_objc_object_call_variable_inline( self, property->setter, NULL);
+      mulle_objc_object_call_inline_variable( self, property->setter, NULL);
       return( 0);
    }
 
@@ -109,7 +109,7 @@ int   _MulleObjCInstanceClearPropertyNoReadOnly( struct _mulle_objc_property *pr
 
    if( bits & _mulle_objc_property_setterclear)
    {
-      mulle_objc_object_call_variable_inline( self, property->setter, NULL);
+      mulle_objc_object_call_inline_variable( self, property->setter, NULL);
       return( 0);
    }
 
@@ -124,6 +124,8 @@ int   _MulleObjCInstanceClearPropertyNoReadOnly( struct _mulle_objc_property *pr
       {
          ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
          offset = _mulle_objc_ivar_get_offset( ivar);
+
+         // TODO: this is a compiler built-in should not use
          mulle_objc_object_set_property_value( self, 0, offset, NULL, 0);
       }
    }

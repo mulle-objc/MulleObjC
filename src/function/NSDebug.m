@@ -163,17 +163,6 @@ static inline void   __NSPrintToBufferForDebugger( struct mulle_buffer *buffer, 
    cls      = _mulle_objc_object_get_isa( a);
    universe = _mulle_objc_class_get_universe( cls);
 
-   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( nonLockingUTF8String));
-   if( imp)
-   {
-      s = (char *) (*imp)( a, @selector( nonLockingUTF8String), NULL);
-      if( s)
-      {
-         mulle_buffer_strcpy( buffer, s);
-         goto finish;
-      }
-   }
-
    imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( debugDescription));
    if( imp)
    {
@@ -181,6 +170,17 @@ static inline void   __NSPrintToBufferForDebugger( struct mulle_buffer *buffer, 
       if( string)
       {
          s      = _mulle_objc_universe_characters( universe, string);
+         mulle_buffer_strcpy( buffer, s);
+         goto finish;
+      }
+   }
+
+   imp = (IMP) _mulle_objc_class_lookup_implementation_noforward_nofill( cls, @selector( nonLockingUTF8String));
+   if( imp)
+   {
+      s = (char *) (*imp)( a, @selector( nonLockingUTF8String), NULL);
+      if( s)
+      {
          mulle_buffer_strcpy( buffer, s);
          goto finish;
       }

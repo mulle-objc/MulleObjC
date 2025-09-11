@@ -22,7 +22,7 @@
 - (void *) forward:(void *) param
 {
    mulle_fprintf( stderr, "%s\n", __PRETTY_FUNCTION__);
-   return( mulle_objc_object_call_variable_inline( self,
+   return( mulle_objc_object_call_inline_variable( self,
                                                    @selector( print),
                                                    param));
 }
@@ -44,7 +44,7 @@
 {
    mulle_fprintf( stderr, "%s\n", __PRETTY_FUNCTION__);
    assert( _other); 
-   return( mulle_objc_object_call_variable_inline( _other,
+   return( mulle_objc_object_call_inline_variable( _other,
                                                    _cmd,
                                                    param));
 }

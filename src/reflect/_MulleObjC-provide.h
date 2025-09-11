@@ -17,6 +17,7 @@
 #include "minimal.h"
 #include "mulle-objc-atomicid.h"
 #include "mulle-objc-classbit.h"
+#include "mulle-objc-enum.h"
 #include "mulle-objc-fastclassid.h"
 #include "mulle-objc-fastmethodid.h"
 #include "mulle-objc.h"

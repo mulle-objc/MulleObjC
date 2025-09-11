@@ -278,3 +278,66 @@ id   _MulleObjCAtomicIdGetLazy( mulle_atomic_id_t *ivar,
          [value release];
    }
 }
+
+# pragma mark - improve dealloc speed for classes that don't have properties that need to be released
+
+
+int   _MulleObjCClassWalkIvars( Class cls,
+                                mulle_objc_walkivarscallback_t f,
+                                void *userinfo)
+{
+   struct _mulle_objc_ivarlist       *list;
+   struct _mulle_objc_infraclass     *infra;
+   struct _mulle_objc_infraclass     *superclass;
+   unsigned int                      n;
+   int                               rval;
+
+   infra = (struct _mulle_objc_infraclass *) cls;
+   assert( _mulle_objc_class_is_infraclass( (struct _mulle_objc_class *) infra));
+
+   // in MulleObjC the superclass is always searched
+   // for ivars, we traverse the superclass first, so we get the ivars in
+   // "natural" order. There is also no way you can override an ivar or ?
+
+   superclass = _mulle_objc_infraclass_get_superclass( infra);
+   if( superclass && superclass != infra)
+   {
+      rval = _MulleObjCClassWalkIvars( (Class) superclass, f, userinfo);
+      if( rval)
+         return( rval);
+   }
+
+   // protocol properties are part of the class
+   n = mulle_concurrent_pointerarray_get_count( &infra->ivarlists);
+   assert( n);
+
+   // MEMO: pointless ?
+   if( infra->base.inheritance & MULLE_OBJC_CLASS_DONT_INHERIT_CATEGORIES)
+      n = 1;
+
+   mulle_concurrent_pointerarray_for_reverse( &infra->ivarlists, n, list)
+   {
+      if( (rval = _mulle_objc_ivarlist_walk( list, f, infra, userinfo)))
+         return( rval);
+   }
+
+
+   return( 0);
+}
+
+
+int   _MulleObjCInstanceWalkIvars( id obj,
+                                   mulle_objc_walkivarscallback_t f,
+                                   void *userinfo)
+{
+   struct _mulle_objc_class        *cls;
+   struct _mulle_objc_infraclass   *infra;
+
+   assert( MulleObjCObjectIsInstance( obj));
+
+   // walk through properties and release them
+   cls   = _mulle_objc_object_get_isa( obj);
+   // if it's a meta class it's an error during debug
+   infra = _mulle_objc_class_as_infraclass( cls);
+   return( _MulleObjCClassWalkIvars( (Class) infra, f, userinfo));
+}

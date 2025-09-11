@@ -38,8 +38,8 @@ src/function/NSDebug.m
 src/function/mulle-sprintf-object.m
 src/mulle-objc-atomicid.m
 src/mulle-objc-breakpoint.c
+src/mulle-objc-enum.m
 src/mulle-objc-threadfoundationinfo.m
-src/mulle-objc-type.c
 src/mulle-objc-universeconfiguration.m
 src/mulle-objc-universefoundationinfo.m
 src/protocol/MulleObjCClassCluster.m
@@ -50,6 +50,7 @@ src/protocol/MulleObjCSingleton.m
 src/protocol/MulleObjCTaggedPointer.m
 src/protocol/NSCoding.m
 src/protocol/NSCopyingWithAllocator.m
+src/protocol/NSCopying.m
 src/struct/MulleObjCContainerObjectCallback.m
 src/struct/NSRange.c
 )

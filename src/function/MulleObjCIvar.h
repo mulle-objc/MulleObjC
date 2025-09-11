@@ -52,6 +52,17 @@ void   MulleObjCObjectSetObjectIvar( id self, mulle_objc_ivarid_t ivarid, id val
 
 
 
+MULLE_OBJC_GLOBAL
+int   _MulleObjCClassWalkIvars( Class cls,
+                                mulle_objc_walkivarscallback_t f,
+                                void *userinfo);
+
+MULLE_OBJC_GLOBAL
+int   _MulleObjCInstanceWalkIvars( id obj,
+                                   mulle_objc_walkivarscallback_t f,
+                                   void *userinfo);
+
+
 // will not duplicate if *ivar == s
 // Interface is kinda bad, because copy/pasting this to -dealloc makes me
 // write:

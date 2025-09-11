@@ -1,0 +1,7 @@
+=== Debug Object Type Investigation ===
+Object is not nil
+Class is not NULL
+Is infraclass: YES
+Is metaclass: NO
+MulleObjCObjectIsInstance result: YES
+=== Test completed without crash ===

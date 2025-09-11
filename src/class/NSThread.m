@@ -340,6 +340,7 @@ static struct
 
    // need to free it like this
    [self mulleSetNameUTF8String:NULL];
+
    _MulleObjCInstanceFree( self);
 }
 
@@ -767,8 +768,8 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
       __mulle_objc_universe_raise_errno( universe, "thread creation");
    }
 
-   // we can not be sure, that the thread has done this already, but we want to
-   // be up-to-date
+   // we can not be sure, that the thread has done this already, but this
+   // thread wants to be up-to-date
    _NSThreadSetOSThread( self, thread);
 
    if( universe->debug.trace.thread)
