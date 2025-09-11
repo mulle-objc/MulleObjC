@@ -74,6 +74,29 @@
 
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature;
 
+
+//
+- (BOOL) argumentsRetained;
+
+
+- (void) invoke;
+- (void) invokeWithTarget:(id) target;
+
+// mulle additions
+
+- (void) _setMetaABIFrame:(void *) frame;
+- (BOOL) mulleReturnValueRetained;
+
+// used by NSThread to fill _rval (when called by -main)
+- (int) mulleIntReturnValue;
+
+@end
+
+
+// you should not override any of these argument and return value methods,
+// internally NSInvocation will not use them
+@interface NSInvocation( MulleBasicAccessors)
+
 - (void) getReturnValue:(void *) value_p;
 - (void) setReturnValue:(void *) value_p;
 
@@ -82,26 +105,14 @@
 - (void) setArgument:(void *) value_p
              atIndex:(NSUInteger) i;
 
-- (void) retainArguments;
-- (BOOL) argumentsRetained;
-
 - (SEL) selector;
 - (void) setSelector:(SEL) selector;
 
 - (id) target;
 - (void) setTarget:(id) target;
 
-- (void) invoke;
-- (void) invokeWithTarget:(id) target;
-
-// mulle additions
-
-- (void) _setMetaABIFrame:(void *) frame;
+- (void) retainArguments;
 - (void) mulleRetainReturnValue;
-- (BOOL) mulleReturnValueRetained;
-
-// used by NSThread to fill _rval (when called by -main)
-- (int) mulleIntReturnValue;
 
 @end
 

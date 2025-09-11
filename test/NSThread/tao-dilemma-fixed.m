@@ -39,6 +39,21 @@
 
 
 @implementation Bar
+
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
+{
+   mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
+   [super mulleGainAccessWithUniquingSet:uniquing];
+}
+
+
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
+{
+   mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
+   [super mulleRelinquishAccessWithUniquingSet:uniquing];
+}
+
+
 @end
 
 
@@ -91,20 +106,19 @@
    [self setBar:bar];
 }
 
-// >> **FIX** >>
-- (void) mulleGainAccess
+
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
-   [super mulleGainAccess];
-   [_bar mulleGainAccess];
+   mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
+   [super mulleGainAccessWithUniquingSet:uniquing];
 }
 
 
-- (void) mulleRelinquishAccess
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
-   [_bar mulleRelinquishAccess];
-   [super mulleRelinquishAccess];
+   mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
+   [super mulleRelinquishAccessWithUniquingSet:uniquing];
 }
-// << **FIX** <<
 
 @end
 

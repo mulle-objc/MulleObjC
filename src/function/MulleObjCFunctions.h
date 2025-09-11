@@ -1250,5 +1250,4 @@ BOOL  MulleObjCDescribeMemory( struct mulle_buffer *buffer,
 // dump known instance variables of an object
 void  MulleObjCDescribeIvars( struct mulle_buffer *buffer, id obj);
 
-
 #endif

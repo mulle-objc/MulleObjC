@@ -101,6 +101,7 @@ static inline NSUInteger   NSUIntegerAtomicMaskedOr( NSUIntegerAtomic *ivar,
    }
 }
 
+
 static inline NSUInteger   NSUIntegerAtomicOr( NSUIntegerAtomic *ivar,
                                                NSUInteger bits)
 
@@ -123,7 +124,6 @@ static inline NSUInteger   NSUIntegerAtomicOr( NSUIntegerAtomic *ivar,
       }
    }
 }
-
 
 
 static inline void   NSUIntegerAtomicSet( NSUIntegerAtomic *ivar,

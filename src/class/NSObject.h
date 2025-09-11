@@ -136,6 +136,9 @@
 
 + (void) mulleInterposeBeforeClass:(Class) subClass;
 
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) p          MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) p    MULLE_OBJC_THREADSAFE_METHOD;
+
 @end
 
 
@@ -262,6 +265,10 @@
 - (id) immutableInstance;
 
 @end
+
+MULLE_OBJC_GLOBAL
+void   _MulleObjCObjectGainOrRelinquishAccessToIvars( id self, SEL sel, struct mulle_pointerset *uniquing);
+
 
 //
 // These just memcpy. Objects embeddded into structs will not be retained (yet)

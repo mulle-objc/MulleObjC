@@ -1,5 +1,5 @@
 //
-//  mulle-objc-type.c
+//  mulle-objc-enum.m
 //  MulleObjC
 //
 //  Copyright (c) 2015 Nat! - Mulle kybernetiK.
@@ -33,12 +33,13 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#include "mulle-objc-type.h"
+#include "mulle-objc-enum.h"
 
 #include "include.h"
 
 #include <stdio.h>
 #include <ctype.h>
+#include "MulleObjCPrinting.h"
 
 
 // returns pointer as a convenience
@@ -96,7 +97,7 @@ char   *_NS_OPTIONS_UTF8String( void *table,
    assert( "the enum table has too few entries" && (! len || *(char **) &((char *) table)[ line_size * (len - 1)]));
 
    empty = NULL;
-   mulle_buffer_do_string( buffer, NULL, s)
+   mulle_buffer_do_autoreleased_string( buffer, NULL, s)
    {
       line = table;
       for( i = 0; i < len; i++)
@@ -133,7 +134,7 @@ char   *_NS_OPTIONS_UTF8String( void *table,
       mulle_buffer_add_string_if_empty( buffer, empty ? empty : "0");
    }
 
-   return( MulleObjCAutoreleaseAllocation( s, NULL));
+   return( s);
 }
 
 

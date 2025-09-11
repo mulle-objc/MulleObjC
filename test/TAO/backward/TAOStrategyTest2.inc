@@ -62,6 +62,20 @@
    mulle_printf( "%s - q: %s %td\n", __THREAD_NAME__,__PRETTY_FUNCTION__, [self retainCount]);
 }
 
+
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
+{
+   [super mulleGainAccessWithUniquingSet:uniquing];
+   mulle_printf( "%s - g: %s %td\n", __THREAD_NAME__,__PRETTY_FUNCTION__, [self retainCount]);
+}
+
+
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
+{
+   [super mulleRelinquishAccessWithUniquingSet:uniquing];
+   mulle_printf( "%s - q: %s %td\n", __THREAD_NAME__,__PRETTY_FUNCTION__, [self retainCount]);
+}
+
 @end
 
 

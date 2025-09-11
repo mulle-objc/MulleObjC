@@ -259,6 +259,19 @@ static inline id  _MULLE_OBJC_PROTOCOL_CAST_NON_NIL( PROTOCOL protocolName, id x
 }
 
 // as receiver may have multiple protocols, just cast to id for now
-#define MULLE_OBJC_PROTOCOL_CAST_NON_NIL( protocolName, x)  \
+#define MULLE_OBJC_PROTOCOL_CAST_NON_NIL( protocolName, x) \
    (id) _MULLE_OBJC_PROTOCOL_CAST_NON_NIL( @protocol( protocolName), (x))
 
+
+#define MULLE_OBJC_SUBCLASS_REQUIRES_IMPLEMENTATION                  \
+   MulleObjCThrowInternalInconsistencyExceptionUTF8String(           \
+      "your class %s must implement %s",                             \
+      MulleObjCObjectGetClassNameUTF8String( self),                  \
+      __FUNCTION__)
+
+#define MULLE_OBJC_METHOD_REQUIRES_OVERRIDE( infostring)             \
+   MulleObjCThrowInternalInconsistencyExceptionUTF8String(           \
+      infostring ? "someone must override %s %s"                     \
+                 : "someone must override %s",                       \
+      __PRETTY_FUNCTION__,                                           \
+      infostring)

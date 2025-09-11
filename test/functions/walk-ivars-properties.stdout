@@ -1,0 +1,64 @@
+Testing _MulleObjCInstanceWalkIvars and _MulleObjCInstanceWalkProperties
+========================================================================
+=== Testing BaseClass Instance ===
+Object class: BaseClass
+Walking ivars of BaseClass instance:
+Walking properties of BaseClass instance:
+
+BaseClass Results:
+  Ivars (5):
+    _baseValue
+    _baseString
+    _baseCount
+    _baseIvar
+    _baseObject
+  Properties (3):
+    baseCount
+    baseValue
+    baseObject
+✓ BaseClass ivar walk successful
+✓ BaseClass property walk successful
+
+=== Testing DerivedClass Instance (Inheritance Test) ===
+Object class: DerivedClass
+Walking ivars of DerivedClass instance:
+Walking properties of DerivedClass instance:
+
+DerivedClass Results:
+  Ivars (10):
+    _baseValue
+    _baseString
+    _baseCount
+    _baseIvar
+    _baseObject
+    _derivedRatio
+    _derivedIvar
+    _derivedIndex
+    _derivedObject
+    _derivedFloat
+  Properties (6):
+    derivedObject
+    derivedRatio
+    derivedIndex
+    baseCount
+    baseValue
+    baseObject
+✓ DerivedClass ivar walk successful - includes inherited ivars
+✓ DerivedClass property walk successful - includes inherited properties
+
+=== Testing Empty NSObject Instance ===
+Object class: NSObject
+Walking ivars of NSObject instance:
+Walking properties of NSObject instance:
+
+NSObject Results:
+  Ivars (0):
+  Properties (0):
+✓ NSObject walk completed (expected to have few or no items)
+
+=== Testing NULL Parameter Handling ===
+✓ NULL object detected and handled properly
+✓ Caller responsibility: validate objects before calling underscore functions
+✓ Underscore functions expect valid object instances
+
+=== All Tests Completed ===

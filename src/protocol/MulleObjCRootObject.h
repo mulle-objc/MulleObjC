@@ -90,6 +90,10 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 - (MulleObjCTAOStrategy) mulleTAOStrategy                                      MULLE_OBJC_THREADSAFE_METHOD;
 
 
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) p          MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) p    MULLE_OBJC_THREADSAFE_METHOD;
+
+
 #pragma mark - class introspection
 
 - (Class) class                                MULLE_OBJC_THREADSAFE_METHOD;

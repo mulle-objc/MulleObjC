@@ -1,9 +1,9 @@
 //
-//  ns_objc.h
+//  NSCopying.m
 //  MulleObjC
 //
-//  Copyright (c) 2015 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2015 Codeon GmbH.
+//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -33,33 +33,40 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
+#import "import-private.h"
 
-// This header should be includable by C and must not require linking with
-// the runtime
+#import "NSCopying.h"
 
-#ifndef mulle_objc_minimal__h__
-#define mulle_objc_minimal__h__
+#import "NSObject.h"
+#import "MulleObjCAllocation.h"
+#import "NSRange.h"
 
-//
-// This file only includes files, that do NOT include
-// <mulle-objc-runtime/mulle-objc-runtime.h>. They are therefore
-// safe to be included by .c files without the need to
-// define __MULLE_TPS__ and friends.
-//
-#include "include.h"
 
-#include "mulle-objc-enum.h"
-#include "mulle-objc-type.h"
+@implementation NSObject ( NSCopying)
 
-#include "MulleObjCCompiler.h"
-#include "MulleObjCIntegralType.h"
-#include "MulleObjCHashFunctions.h"
-//#include "MulleObjCUniverse.h"
 
-#include "NSByteOrder.h"
-#include "NSRange.h"
-#include "NSZone.h"
-#include "MulleObjCContainerObjectCallback.h"
-#include "MulleObjCVersion.h"
+// TODO: move this to NSCopying ?
+- (instancetype) immutableInstance
+{
+   id   obj;
 
-#endif /* mulle_objc_root_h */
+   obj = [(id <NSCopying>) self copy];
+   obj = [obj autorelease];
+   assert( [obj conformsToProtocol:@protocol( MulleObjCImmutable)]);
+   return( obj);
+}
+
+
+- (id) copyWithZone:(NSZone *) zone
+{
+   fprintf( stderr, "-[NSObject copyWithZone:] doesn't work anymore.\n"
+"\n"
+"Either rename your -copyWithZone: implementations to -copy or add a\n"
+"-copy method to each class that implements -copyWithZone:\n"
+"Your returned object must be immutable!\n"
+"\n"
+"Endless recursion awaits those, who don't heed this advice.\n");
+   abort();
+}
+
+@end

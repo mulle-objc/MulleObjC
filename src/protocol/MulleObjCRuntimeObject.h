@@ -104,6 +104,8 @@ typedef NS_ENUM( NSUInteger, MulleObjCTAOStrategy)
 {
    MulleObjCTAOCallerRemovesFromCurrentPool, // use this, if you just created the object to pass
    MulleObjCTAOCallerRemovesFromAllPools,    // try to avoid this
+   MulleObjCTAOCallerRemovesFromCurrentPoolShallow, // will not walk ivars and properties!
+   MulleObjCTAOCallerRemovesFromAllPoolsShallow,    // will not walk ivars and properties!
    MulleObjCTAOReceiverPerformsFinalize,     // for very special setups (*)
    MulleObjCTAOKnownThreadSafeMethods,       // aspire to use this (-finalize/-dealloc only do threadsafe stuff)
    MulleObjCTAOKnownThreadSafe               // most preferable though is this (only threadsafe objects are involved)
@@ -114,7 +116,7 @@ typedef NS_ENUM( NSUInteger, MulleObjCTAOStrategy)
 //     thread and then acquired by the thread maker.
 //
 
-extern NS_ENUM_TABLE( MulleObjCTAOStrategy, 5);
+extern NS_ENUM_TABLE( MulleObjCTAOStrategy, 7);
 
 
 
@@ -290,6 +292,10 @@ _Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
 
 - (void) mulleRelinquishAccess      MULLE_OBJC_THREADSAFE_METHOD;
 - (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy MULLE_OBJC_THREADSAFE_METHOD;
+
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) p          MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) p    MULLE_OBJC_THREADSAFE_METHOD;
+
 - (MulleObjCTAOStrategy) mulleTAOStrategy MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
