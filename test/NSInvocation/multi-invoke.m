@@ -57,9 +57,9 @@ int   main( void)
    NSUInteger           i;
    NSUInteger           next;
 
-   foo  = [Foo object];
-   a    = [A object];
-   b    = [B object];
+   foo  = [Foo instance];
+   a    = [A instance];
+   b    = [B instance];
 
    signature = [foo methodSignatureForSelector:@selector( foo:::)];
 

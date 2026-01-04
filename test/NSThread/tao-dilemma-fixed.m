@@ -6,60 +6,30 @@
 #endif
 
 
-//
-// To see the TAO dilemma in action uncomment this
-//
-#if 0
-@implementation NSThread( TaoDilemma)
-
-+ (MulleObjCTAOStrategy) defaultTAOStrategy
-{
-   // or MulleObjCTAOKnownThreadSafe, MulleObjCTAOKnownThreadSafeMethods
-   return( MulleObjCTAOReceiverPerformsFinalize);
-}
-@end
-#endif
-
-
+// Foo has a propery Bar
+// Foo will be passed to a new thread
 
 //
-// These are classes that is not thread safe. An instance can
+// These are classes that are not thread safe. An instance can
 // have a relationship with another object that is also not threadsafe.
 // This object gets passed from one thread to the other. But it remains in
 // the autoreleasePool of the originator, which will trigger the finalize...
 //
-
 @class Foo;
-
-@interface Bar : NSObject
-
-@property( assign) Foo  *foo;
-
-@end
-
-
-@implementation Bar
-
-- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
-{
-   mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
-   [super mulleGainAccessWithUniquingSet:uniquing];
-}
-
-
-- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
-{
-   mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
-   [super mulleRelinquishAccessWithUniquingSet:uniquing];
-}
-
-
-@end
-
+@class Bar;
 
 @interface Foo : NSObject
 
+// because bar is `retain`, this will be "carried" along
 @property( retain) Bar  *bar;
+
+@end
+
+
+@interface Bar : NSObject
+
+// because foo is `assign`, this will not be "carried" along, if we
+@property( assign) Foo  *foo;
 
 @end
 
@@ -101,7 +71,7 @@
    mulle_fprintf( stderr, "affinity of foo:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self));
 
    // bar will have thread affinity to "thread",
-   bar = [Bar object];
+   bar = [Bar instance];
    mulle_fprintf( stderr, "affinity of bar:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) bar));
    [self setBar:bar];
 }
@@ -109,6 +79,31 @@
 
 - (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
+   assert( mulle_pointerset_get( uniquing, self) == self);
+
+   mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
+   return( [super mulleGainAccessWithUniquingSet:uniquing]);
+}
+
+
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
+{
+   assert( mulle_pointerset_get( uniquing, self) == self);
+
+   mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
+   [super mulleRelinquishAccessWithUniquingSet:uniquing];
+}
+
+@end
+
+
+@implementation Bar
+
+// as Foo is assign, the super won't carry it along and we don't either
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
+{
+   assert( mulle_pointerset_get( uniquing, self) == self);
+
    mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
    [super mulleGainAccessWithUniquingSet:uniquing];
 }
@@ -116,6 +111,8 @@
 
 - (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
+   assert( mulle_pointerset_get( uniquing, self) == self);
+
    mulle_fprintf( stderr, "thread %p: %s\n", mulle_thread_self(), __FUNCTION__);
    [super mulleRelinquishAccessWithUniquingSet:uniquing];
 }
@@ -132,8 +129,9 @@ int   main( void)
 
    @autoreleasepool
    {
-      foo    = [Foo object];
-      mulle_fprintf( stderr, "affinity of foo:  %p\n\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) foo));
+      foo    = [Foo instance];
+      mulle_fprintf( stderr, "affinity of foo:  %p\n", _mulle_objc_object_get_thread( (struct _mulle_objc_object *) foo));
+      mulle_fprintf( stderr, "taoStrategy of foo:  %s\n\n", NS_ENUM_PRINT( MulleObjCTAOStrategy, [foo mulleTAOStrategy]));
       // foo thread affinity will also move to "thread"
       thread = [[[NSThread alloc] initWithTarget:foo
                                         selector:@selector( function:)

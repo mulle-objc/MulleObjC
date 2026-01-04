@@ -70,9 +70,9 @@ int  main()
 
    {
       Foo   *obj;
-      obj = [Foo object];
+      obj = [Foo instance];
 
-      [obj setMyValue:[Value object]];
+      [obj setMyValue:[Value instance]];
       value = [obj myValue];
       mulle_printf( "%@\n", value);
 
@@ -87,9 +87,9 @@ int  main()
    {
       Bar   *obj;
 
-      obj = [Bar object];
+      obj = [Bar instance];
 
-      [obj setMyValue:[Value object]];
+      [obj setMyValue:[Value instance]];
       value = [obj myValue];
       mulle_printf( "%@\n", value);
 

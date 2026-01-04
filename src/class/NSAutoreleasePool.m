@@ -345,7 +345,7 @@ static inline void   addObject( struct _mulle_objc_poolconfiguration *config, id
    {
       if( _mulle_autoreleasepointerarray_count( array) >= config->maxObjects)
       {
-         fprintf( stderr, "[pool] %p is growing too much\n", pool);
+         mulle_fprintf( stderr, "[pool] %p is growing too much\n", pool);
          abort();
       }
    }
@@ -412,7 +412,7 @@ static inline void   addObjects( struct _mulle_objc_poolconfiguration *config,
    {
       if( _mulle_autoreleasepointerarray_count( array) + count >= config->maxObjects)
       {
-         fprintf( stderr, "[pool] %p is growing too much\n", pool);
+         mulle_fprintf( stderr, "[pool] %p is growing too much\n", pool);
          abort();
       }
    }
@@ -501,9 +501,9 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
    if( ! config->tail)
    {
       if( config->trace)
-         fprintf( stderr, "[pool] %p tried to autorelease with no pool in place\n", p);
+         mulle_fprintf( stderr, "[pool] %p tried to autorelease with no pool in place\n", p);
 #if DEBUG
-      fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
+      mulle_fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
       abort();
 #endif
       return;
@@ -519,7 +519,7 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
       // or finalize
       // --------------------------------------------------------------------
       if( config->trace & 0x2)
-         fprintf( stderr, "[pool] %p (RC: %ld) immediate release from pool %p\n",
+         mulle_fprintf( stderr, "[pool] %p (RC: %ld) immediate release from pool %p\n",
                                   p,
                                   mulle_objc_object_get_retaincount( p),
                                   config->tail);
@@ -537,7 +537,7 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
    addObject( config, p);
 
    if( config->trace & 0x1)
-      fprintf( stderr, "[pool] object %p (RC: %ld) added to storage %p of pool %p\n",
+      mulle_fprintf( stderr, "[pool] object %p (RC: %ld) added to storage %p of pool %p\n",
                            p,
                            (long) mulle_objc_object_get_retaincount( p),
                            ((NSAutoreleasePool *) config->tail)->_storage,
@@ -586,10 +586,10 @@ static void   _autoreleaseObjects( struct _mulle_objc_poolconfiguration *config,
    if( ! config->tail)
    {
       if( config->trace)
-         fprintf( stderr, "[pool] trying to autorelease %lu objects "
+         mulle_fprintf( stderr, "[pool] trying to autorelease %lu objects "
                           "at %p with no pool in place\n", (long) count, objects);
 #if DEBUG
-      fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
+      mulle_fprintf( stderr, "*** There is no AutoreleasePool set up. Would leak! ***\n");
       abort();
 #endif
       return;
@@ -621,11 +621,11 @@ static void   _autoreleaseObjects( struct _mulle_objc_poolconfiguration *config,
    {
       id   *sentinel;
 
-      fprintf( stderr, "[pool] added objects to pool %p:\n", config->tail);
+      mulle_fprintf( stderr, "[pool] added objects to pool %p:\n", config->tail);
       sentinel = &objects[ count];
 
       do
-         fprintf( stderr, "\t%p\n", *objects);
+         mulle_fprintf( stderr, "\t%p\n", *objects);
       while( ++objects < sentinel);
    }
 }
@@ -722,7 +722,7 @@ static inline int   mulleCountObject( NSAutoreleasePool *self, id p)
 }
 
 
-- (NSUInteger) mulleCountObject:(id) p;
+- (NSUInteger) mulleCountObject:(id) p
 {
    struct _mulle_objc_poolconfiguration   *config;
    struct _mulle_objc_universe            *universe;
@@ -733,7 +733,7 @@ static inline int   mulleCountObject( NSAutoreleasePool *self, id p)
 }
 
 
-+ (NSUInteger) mulleCountObject:(id) p;
++ (NSUInteger) mulleCountObject:(id) p
 {
    NSAutoreleasePool                      *pool;
    NSUInteger                             count;
@@ -848,6 +848,32 @@ static inline void   releaseObjects( NSAutoreleasePool *self,
 }
 
 
+
+- (void) mulleReleasePoolObject:(id) p
+{
+   struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
+
+   universe = _mulle_objc_object_get_universe( self);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
+   releaseObjects( config->tail, &p, 1, config->object_map);
+}
+
+
++ (void) mulleReleasePoolObject:(id) p
+{
+   NSAutoreleasePool                      *pool;
+   struct _mulle_objc_poolconfiguration   *config;
+   struct _mulle_objc_universe            *universe;
+
+   universe = _mulle_objc_object_get_universe( self);
+   config   = mulle_objc_thread_get_poolconfiguration( universe);
+
+   for( pool = config->tail; pool; pool = pool->_owner)
+      releaseObjects( pool, &p, 1, config->object_map);
+}
+
+
 //
 // push / pop pools
 //
@@ -876,7 +902,7 @@ static void   *pushAutoreleasePool( struct _mulle_objc_poolconfiguration *config
    config->releasing = 0;
 
    if( config->trace & 0x4)
-      fprintf( stderr, "[pool] pushed pool %p in thread 0x%lx\n", pool, (long) mulle_thread_self());
+      mulle_fprintf( stderr, "[pool] pushed pool %p in thread %p\n", pool, (void *) mulle_thread_self());
 
    return( pool);
 }
@@ -892,7 +918,7 @@ static void   releaseAllObjectsInPool( struct _mulle_objc_poolconfiguration *con
       pool->_storage = NULL;
       if( config->trace & 0x2)
       {
-         fprintf( stderr, "[pool] %p releases objects of storage %p\n", pool, storage);
+         mulle_fprintf( stderr, "[pool] %p releases objects of storage %p\n", pool, storage);
 
          _mulle_autoreleasepointerarray_dump_objects( storage, "releases");
       }
@@ -912,23 +938,23 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
    assert( aPool);
 
    if( config->trace & 0x4)
-      fprintf( stderr, "[pool] popping to pool %p in thread 0x%lx\n",
-                        aPool, (long) mulle_thread_self());
+      mulle_fprintf( stderr, "[pool] popping to pool %p in thread %p\n",
+                        aPool, (void *) mulle_thread_self());
    do
    {
       pool = config->tail;
       if( ! pool)
       {
-         fprintf( stderr, "[pool] asked to pop to pool %p that didn't exist in "
-                          "thread 0x%lx\n", aPool, (long) mulle_thread_self());
+         mulle_fprintf( stderr, "[pool] asked to pop to pool %p that didn't exist in "
+                          "thread %p\n", aPool, (void *) mulle_thread_self());
          abort();
       }
 
       config->releasing = 1;
 
       if( config->trace & 0x4)
-         fprintf( stderr, "[pool] popping pool %p in thread 0x%lx\n",
-                           pool, (long) mulle_thread_self());
+         mulle_fprintf( stderr, "[pool] popping pool %p in thread %p\n",
+                           pool, (void *) mulle_thread_self());
 
    //   exception = nil;
    //NS_DURING
@@ -944,7 +970,7 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 
    //   [exception raise];
       if( config->trace & 0x4)
-         fprintf( stderr, "[pool] %p pool deallocates\n", pool);
+         mulle_fprintf( stderr, "[pool] %p pool deallocates\n", pool);
       _MulleObjCInstanceFree( pool);
    }
    while( pool != aPool);

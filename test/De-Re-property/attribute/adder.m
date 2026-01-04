@@ -36,8 +36,8 @@ int  main( int argc, char *argv[])
    Foo   *a;
    Foo   *b;
 
-   a = [Foo object];
-   b = [Foo object];
+   a = [Foo instance];
+   b = [Foo instance];
 
    [a addToMe:b];
    [a removeFromMe:b];

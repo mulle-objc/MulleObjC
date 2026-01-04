@@ -40,7 +40,7 @@ int   main( void)
       1848
    };
 
-   foo = [Foo object];
+   foo = [Foo instance];
    invocation = [NSInvocation mulleInvocationWithTarget:foo
                                               selector:@selector( foo:::), x, x, YES];
    [invocation invoke];

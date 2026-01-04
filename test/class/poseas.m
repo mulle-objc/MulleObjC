@@ -283,13 +283,13 @@ static char  *names[ 8] =
 static void   create( id obj[ 8])
 {
    obj[ 0] = [Foo class];
-   obj[ 1] = [Foo object];
+   obj[ 1] = [Foo instance];
    obj[ 2] = [Bar class];
-   obj[ 3] = [Bar object];
+   obj[ 3] = [Bar instance];
    obj[ 4] = [FooBar class];
-   obj[ 5] = [FooBar object];
+   obj[ 5] = [FooBar instance];
    obj[ 6] = [Poser class];
-   obj[ 7] = [Poser object];
+   obj[ 7] = [Poser instance];
 }
 
 

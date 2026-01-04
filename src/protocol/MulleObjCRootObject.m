@@ -14,13 +14,14 @@
 #import "mulle-objc-universefoundationinfo-private.h"
 
 
-NS_ENUM_TABLE( MulleObjCTAOStrategy, 7) =
+NS_ENUM_TABLE( MulleObjCTAOStrategy, 8) =
 {
    NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromCurrentPool),
    NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromCurrentPoolShallow),
    NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromAllPools),
    NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromAllPoolsShallow),
    NS_ENUM_ITEM( MulleObjCTAOReceiverPerformsFinalize),
+   NS_ENUM_ITEM( MulleObjCTAOTransferIvars),
    NS_ENUM_ITEM( MulleObjCTAOKnownThreadSafeMethods),
    NS_ENUM_ITEM( MulleObjCTAOKnownThreadSafe)
 };
@@ -340,6 +341,7 @@ static inline void   checkAutoreleaseRelease( id self)
    case MulleObjCTAOCallerRemovesFromAllPools           :
    case MulleObjCTAOCallerRemovesFromAllPoolsShallow    :
    case MulleObjCTAOReceiverPerformsFinalize            :
+   case MulleObjCTAOTransferIvars                       :
       break;
    default :
 #ifdef DEBUG
@@ -381,8 +383,9 @@ autorelease:
 
 - (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy
 {
-   mulle_thread_t   osThread;
-   mulle_thread_t   currentOSThread;
+   mulle_thread_t      osThread;
+   mulle_thread_t      currentOSThread;
+   NSAutoreleasePool   *pool;
 
    [self retain];
 
@@ -411,6 +414,7 @@ autorelease:
    case MulleObjCTAOCallerRemovesFromAllPools           :
    case MulleObjCTAOCallerRemovesFromAllPoolsShallow    :
    case MulleObjCTAOReceiverPerformsFinalize            :
+   case MulleObjCTAOTransferIvars                       :
       break;
 
    default :
@@ -462,14 +466,13 @@ autorelease:
    //
    case MulleObjCTAOCallerRemovesFromAllPoolsShallow    :
    case MulleObjCTAOCallerRemovesFromAllPools :
-      [NSAutoreleasePool mulleReleasePoolObjects:&self
-                                           count:1];
+      [NSAutoreleasePool mulleReleasePoolObject:self];
       break;
 
    case MulleObjCTAOCallerRemovesFromCurrentPoolShallow :
    case MulleObjCTAOCallerRemovesFromCurrentPool :
-      [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleasePoolObjects:&self
-                                                                         count:1];
+      pool = [NSAutoreleasePool mulleDefaultAutoreleasePool];
+      [pool mulleReleasePoolObject:self];
 #ifdef DEBUG
       if( [NSAutoreleasePool mulleContainsObject:self])
          MulleObjCThrowInternalInconsistencyExceptionUTF8String( "A parent autoreleasepool is still holding "
@@ -509,16 +512,17 @@ autorelease:
 }
 
 
-+ (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) p
++ (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
+   assert( mulle_pointerset_get( uniquing, self) == self);
 }
 
-- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) p
+
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
    MulleObjCTAOStrategy   strategy;
 
-   if( ! mulle_pointerset_insert( p, self))
-      return;
+   assert( mulle_pointerset_get( uniquing, self) == self);
 
    // so the default ignores the problem of ivars and properties
    // it is NSObject which adds the convenience
@@ -528,14 +532,28 @@ autorelease:
 }
 
 
+- (void) mulleRelinquishAccessWithUniquingSetIfAbsent:(struct mulle_pointerset *) uniquing
+{
+   if( mulle_pointerset_insert( uniquing, self))
+      [self mulleRelinquishAccessWithUniquingSet:uniquing];
+}
+
+
+- (void) mulleGainAccessWithUniquingSetIfAbsent:(struct mulle_pointerset *) uniquing
+{
+   if( mulle_pointerset_insert( uniquing, self))
+      [self mulleGainAccessWithUniquingSet:uniquing];
+}
+
 
 - (void) mulleGainAccess
 {
-   struct mulle_pointerset   set;
+   struct mulle_pointerset   uniquing;
 
-   mulle_pointerset_init( &set, 64, NULL);
-   [self mulleGainAccessWithUniquingSet:&set];
-   mulle_pointerset_done( &set);
+   mulle_pointerset_init( &uniquing, 64, NULL);
+   mulle_pointerset_insert( &uniquing, self);
+   [self mulleGainAccessWithUniquingSet:&uniquing];
+   mulle_pointerset_done( &uniquing);
 }
 
 //
@@ -543,37 +561,105 @@ autorelease:
 //       because we can't get the objects into the other threads autorelease
 //       pool. Or if we could it would be extremely unsafe and hacky or ?
 //
-+ (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) p
++ (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
+   assert( mulle_pointerset_get( uniquing, self) == self);
 }
 
 
-- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) p
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
    MulleObjCTAOStrategy   strategy;
 
-   if( ! mulle_pointerset_insert( p, self))
-      return;
+   assert( mulle_pointerset_get( uniquing, self) == self);
 
    // so the default ignores the problem of ivars and properties
    // it is NSObject which adds the convenience
    strategy = [self mulleTAOStrategy];
    [self mulleRelinquishAccessWithTAOStrategy:strategy];
-
 }
 
 
 - (void) mulleRelinquishAccess
 {
-   struct mulle_pointerset   set;
+   struct mulle_pointerset   uniquing;
    void                      *tmp[ 32];
 
-   mulle_pointerset_init_with_static_pointers( &set,
+   mulle_pointerset_init_with_static_pointers( &uniquing,
                                                tmp,
                                                sizeof( tmp) / sizeof( tmp[0]),
                                                NULL);
-   [self mulleRelinquishAccessWithUniquingSet:&set];
-   mulle_pointerset_done( &set);
+   mulle_pointerset_insert( &uniquing, self);
+   [self mulleRelinquishAccessWithUniquingSet:&uniquing];
+   mulle_pointerset_done( &uniquing);
+}
+
+
+
+void   MulleObjCRelinquishAccessToObjectsWithUniquingSet( id *objects,
+                                                          NSUInteger count,
+                                                          struct mulle_pointerset *uniquing)
+{
+   id    obj;
+   id    *sentinel;
+
+   assert( uniquing);
+
+   sentinel = &objects[ count];
+   while( objects < sentinel)
+   {
+      obj    = *objects++;
+      if( mulle_pointerset_insert( uniquing, obj))
+         [obj mulleRelinquishAccessWithUniquingSet:uniquing];
+   }
+}
+
+
+void   MulleObjCRelinquishAccessToObjects( id *objects,
+                                           NSUInteger count)
+{
+   struct mulle_pointerset   uniquing;
+   void                      *tmp[ 32];
+
+   mulle_pointerset_init_with_static_pointers( &uniquing,
+                                               tmp,
+                                               sizeof( tmp) / sizeof( tmp[0]),
+                                               NULL);
+   MulleObjCRelinquishAccessToObjectsWithUniquingSet( objects, count, &uniquing);
+   mulle_pointerset_done( &uniquing);
+}
+
+
+void   MulleObjCGainAccessToObjectsWithUniquingSet( id *objects,
+                                                    NSUInteger count,
+                                                    struct mulle_pointerset *uniquing)
+{
+   id    obj;
+   id    *sentinel;
+
+   assert( uniquing);
+
+   sentinel = &objects[ count];
+   while( objects < sentinel)
+   {
+      obj    = *objects++;
+      if( mulle_pointerset_insert( uniquing, obj))
+         [obj mulleGainAccessWithUniquingSet:uniquing];
+   }
+}
+
+
+void   MulleObjCGainAccessToObjects( id *objects, NSUInteger count)
+{
+   struct mulle_pointerset   uniquing;
+   void                      *tmp[ 32];
+
+   mulle_pointerset_init_with_static_pointers( &uniquing,
+                                               tmp,
+                                               sizeof( tmp) / sizeof( tmp[0]),
+                                               NULL);
+   MulleObjCGainAccessToObjectsWithUniquingSet( objects, count, &uniquing);
+   mulle_pointerset_done( &uniquing);
 }
 
 

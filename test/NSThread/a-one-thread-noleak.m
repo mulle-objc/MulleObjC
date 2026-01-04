@@ -52,7 +52,7 @@ int   main( void)
 
    @autoreleasepool
    {
-      foo = [Foo object];
+      foo = [Foo instance];
 
       @autoreleasepool
       {

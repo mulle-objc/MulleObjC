@@ -56,7 +56,7 @@ int  main( int argc, char *argv[])
 {
    Bar   *b;
 
-   b = [Bar object];
+   b = [Bar instance];
 
    MulleObjCInstanceWalkProperties( b, printEncoding, b);
 

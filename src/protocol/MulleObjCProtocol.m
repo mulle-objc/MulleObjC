@@ -30,8 +30,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadSafe)
 
 
 //
-// no need for mulleTAOStrategy as it doesn't apply to threadSafe objects
-// but still nicer for introspection
+// this is needed so our object does not get removed from the AutoreleasePool
 //
 - (MulleObjCTAOStrategy) mulleTAOStrategy  MULLE_OBJC_THREADSAFE_METHOD
 {

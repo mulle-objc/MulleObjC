@@ -220,7 +220,7 @@ static void   test_pointer( void)
 
 static void   test_object( void)
 {
-   Foo   *x = [Foo object];
+   Foo   *x = [Foo instance];
    char  *s;
 
    mulle_printf( "%s: ", __FUNCTION__);

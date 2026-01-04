@@ -21,7 +21,7 @@ int  main()
 {
    Foo   *obj;
 
-   obj = [Foo object];
+   obj = [Foo instance];
    printf( "%d\n", [obj myIntValue]);
    [obj setMyIntValue:1848];
    printf( "%d\n", [obj myIntValue]);

@@ -16,7 +16,10 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleAutolockingObject)
 
 - (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD
 {
-   return( MulleObjCTAOKnownThreadSafe);
+   // though the object itself is threadsafe and access to the properties
+   // is thread safe, as soon as a subclass adds say a NSMutableArray it
+   // will be more convenient to transfer the ivars, though not foolproof
+   return( MulleObjCTAOTransferIvars);
 }
 
 PROTOCOLCLASS_END()

@@ -11,7 +11,7 @@ int  main( int argc, char *argv[])
    mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__);
 #endif
 
-   obj = [MulleObject object];
+   obj = [MulleObject instance];
 
    return( 0);
 }

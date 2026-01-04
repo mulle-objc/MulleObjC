@@ -261,18 +261,18 @@ static void  tests( BOOL print)
    C   *c;
    D   *d;
 
-   a = [A object];
+   a = [A instance];
    test_object( a, 4, print);
 
-   b = [B object];
+   b = [B instance];
    test_object( b, 0, print);
 
-   c = [C object];
+   c = [C instance];
    test_object( c, 4, print);
 
    // remember when doing TAO calls, TAO methods do not go into any cache
    // so that they will be rechecked every time
-   d = [D object];
+   d = [D instance];
    test_object( d, 0, print);
 }
 

@@ -39,7 +39,7 @@ int  main( int argc, char *argv[])
 {
    A   *a;
 
-   a = [A object];
+   a = [A instance];
    [a verify];
 
    return( 0);

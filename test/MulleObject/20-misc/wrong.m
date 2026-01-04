@@ -51,11 +51,11 @@ int  main( int argc, char *argv[])
 #if defined( DEBUG) && defined( __MULLE_OBJC__)
    mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__);
 #endif
-   a = [A object];
+   a = [A instance];
    [a print];
    printf("\n");
 
-   b = [B object];
+   b = [B instance];
    [b print];
 
    aClass = [A class];

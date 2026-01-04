@@ -17,7 +17,7 @@
 __attribute__ ((noreturn))
 static void   throw_argument_exception( id format, va_list args)
 {
-   [[Exception object] raise];
+   [[Exception instance] raise];
    abort(); // compiler sigh
 }
 
@@ -86,7 +86,7 @@ static void   throw_argument_exception( id format, va_list args)
 - (id) lazyAssign
 {
    mulle_printf( "%s\n", __PRETTY_FUNCTION__);
-   return( [Assign object]);
+   return( [Assign instance]);
 }
 
 - (id) lazyCopy

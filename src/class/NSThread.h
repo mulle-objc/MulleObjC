@@ -368,7 +368,7 @@ void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
 //    Bar   *bar;
 //
 //    MULLE_C_UNUSED( arg);
-//    bar = [Bar object];
+//    bar = [Bar instance];
 //    [self setBar:bar];
 // }
 // @end
@@ -380,7 +380,7 @@ static inline void  MulleObjCTAOTest( Class cls, id arg)
 
    @autoreleasepool
    {
-      obj    = [cls object];
+      obj    = [cls instance];
       thread = [[[NSThread alloc] initWithTarget:obj
                                         selector:@selector( mulleTAOTestSetup:)
                                           object:arg] autorelease];

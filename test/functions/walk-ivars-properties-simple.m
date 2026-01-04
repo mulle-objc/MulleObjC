@@ -8,7 +8,7 @@ int   main( void)
    mulle_printf( "Testing _MulleObjCInstanceWalkIvars and _MulleObjCInstanceWalkProperties\n");
    mulle_printf( "========================================================================\n");
    
-   NSObject *obj = [NSObject object];
+   NSObject *obj = [NSObject instance];
    if( obj)
    {
       mulle_printf( "Object class: %s\n", MulleObjCObjectGetClassNameUTF8String( obj));

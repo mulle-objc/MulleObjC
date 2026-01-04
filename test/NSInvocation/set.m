@@ -40,7 +40,7 @@ int   main( void)
    float               f;
    char                c;
 
-   foo        = [Foo object];
+   foo        = [Foo instance];
    sel        = @selector( string:selector:range:character:float:);
    signature  = [foo methodSignatureForSelector:sel];
    invocation = [NSInvocation invocationWithMethodSignature:signature];

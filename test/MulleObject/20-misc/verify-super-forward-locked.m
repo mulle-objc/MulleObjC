@@ -55,7 +55,7 @@ int  main( int argc, char *argv[])
 {
    B   *b;
 
-   b = [B object];
+   b = [B instance];
    [b verify];
 
    return( 0);

@@ -551,6 +551,24 @@ static NSInvocation   *popStandardInvocation( void)
 }
 
 
+#ifdef DEBUG
+- (void) release
+{
+   [super release];
+}
+
+- (id) retain
+{
+   return( [super retain]);
+}
+
+- (id) autorelease
+{
+   return( [super autorelease]);
+}
+#endif
+
+
 /**
  **
  **/
@@ -569,7 +587,7 @@ static NSInvocation   *popStandardInvocation( void)
 //   frame_size  = [signature frameLength];
 //   size        = mulle_metaabi_sizeof_union( frame_size);
 //   size       += [signature methodReturnLength];
-//   size       += alignof( long double);  // for alignment
+//   size       += alignof( double);  // for alignment
 
    // if size is smaller than what we allocate as standard size adjust up
    // to standard size
@@ -593,7 +611,7 @@ static NSInvocation   *popStandardInvocation( void)
       invocation = NSAllocateObject( self, size, NULL);
 
    extraBytes                   = MulleObjCInstanceGetExtraBytes( invocation);
-   invocation->_storage         = mulle_pointer_align( extraBytes, alignof( long double));
+   invocation->_storage         = mulle_pointer_align( extraBytes, alignof( double));
    invocation->_sentinel        = &((char *) invocation->_storage)[ size];
    invocation->_methodSignature = [signature retain];
 
@@ -659,6 +677,8 @@ static NSInvocation   *popStandardInvocation( void)
    signature  = [target methodSignatureForSelector:sel];
 
    invocation = [self invocationWithMethodSignature:signature];
+   if( ! invocation)
+      return( nil);
 
    NSInvocationSetTarget( invocation, target);
    NSInvocationSetSelector( invocation, sel);
@@ -682,6 +702,9 @@ static NSInvocation   *popStandardInvocation( void)
    signature  = [target methodSignatureForSelector:sel];
 
    invocation = [self invocationWithMethodSignature:signature];
+   if( ! invocation)
+      return( nil);
+
    NSInvocationSetTarget( invocation, target);
    NSInvocationSetSelector( invocation, sel);
    [invocation _setMetaABIFrame:param];
@@ -723,7 +746,7 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
 
 - (void) finalize
 {
-   // wird wohl seinen grund haben
+   // we dont have ivars we want to release now
 }
 
 
@@ -733,6 +756,7 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
       [self _releaseArguments];
    if( _returnValueRetained)
       [self _releaseReturnValue];
+
    [_methodSignature release];
 
    if( _isStandardInvocation( self))
@@ -841,35 +865,34 @@ static BOOL   _isStandardInvocation( NSInvocation *invocation)
 
 
 
-- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) set
+- (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
    MulleObjCTAOStrategy   strategy;
 
-   if( ! mulle_pointerset_insert( set, self))
-      return;
+   assert( mulle_pointerset_get( uniquing, self) == self);
 
    strategy = [self mulleTAOStrategy];
    [self mulleGainAccessWithTAOStrategy:strategy];
 
-   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd, set);
+   NSInvocationMakeObjectArgumentsPerformSelector( self,
+                                                   @selector( mulleGainAccessWithUniquingSetIfAbsent:),
+                                                   uniquing);
 }
 
 
-- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) set
+- (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) uniquing
 {
    MulleObjCTAOStrategy   strategy;
 
-   if( ! mulle_pointerset_insert( set, self))
-      return;
+   assert( mulle_pointerset_get( uniquing, self) == self);
 
-   NSInvocationMakeObjectArgumentsPerformSelector( self, _cmd, set);
+   NSInvocationMakeObjectArgumentsPerformSelector( self,
+                                                   @selector( mulleRelinquishAccessWithUniquingSetIfAbsent:),
+                                                   uniquing);
 
    strategy = [self mulleTAOStrategy];
    [self mulleRelinquishAccessWithTAOStrategy:strategy];
 }
-
-
-
 
 
 - (BOOL) argumentsRetained

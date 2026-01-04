@@ -79,7 +79,7 @@ int   main( int argc, const char * argv[])
 {
    Foo  *foo;
 
-   foo = [Foo object];
+   foo = [Foo instance];
    [NSThread detachNewThreadSelector:@selector( test:)
                             toTarget:foo
                           withObject:nil];

@@ -18,7 +18,7 @@ int   main( int argc, const char * argv[])
 
    @autoreleasepool
    {
-      obj    = [Foo object];
+      obj    = [Foo instance];
       mulle_printf( "%s - 1: %s %td\n", __THREAD_NAME__, __PRETTY_FUNCTION__, [obj retainCount]);
 
       thread = [NSThread alloc];

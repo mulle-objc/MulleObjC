@@ -93,6 +93,10 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 - (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) p          MULLE_OBJC_THREADSAFE_METHOD;
 - (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) p    MULLE_OBJC_THREADSAFE_METHOD;
 
+// do not use, except in dire circumstance like NSInvocation is in
+- (void) mulleRelinquishAccessWithUniquingSetIfAbsent:(struct mulle_pointerset *) uniquing MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleGainAccessWithUniquingSetIfAbsent:(struct mulle_pointerset *) uniquing       MULLE_OBJC_THREADSAFE_METHOD;
+
 
 #pragma mark - class introspection
 
@@ -143,6 +147,21 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 
 
 PROTOCOLCLASS_END();
+
+MULLE_OBJC_GLOBAL
+void   MulleObjCRelinquishAccessToObjectsWithUniquingSet( id *objects,
+                                                          NSUInteger count,
+                                                          struct mulle_pointerset *uniquing);
+MULLE_OBJC_GLOBAL
+void   MulleObjCRelinquishAccessToObjects( id *objects, NSUInteger count);
+
+
+MULLE_OBJC_GLOBAL
+void   MulleObjCGainAccessToObjectsWithUniquingSet( id *objects,
+                                                    NSUInteger count,
+                                                    struct mulle_pointerset *uniquing);
+MULLE_OBJC_GLOBAL
+void   MulleObjCGainAccessToObjects( id *objects, NSUInteger count);
 
 
 //

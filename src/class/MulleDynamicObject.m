@@ -305,8 +305,9 @@ MulleObjCGenericType   _MulleObjCGenericTypeOfSignature( char *signature)
 
    case _C_DBL       : return( MulleObjCGenericTypeNumber);
    case _C_FLT       : return( MulleObjCGenericTypeNumber);
+#ifdef _C_LNG_DBL
    case _C_LNG_DBL   : return( MulleObjCGenericTypeNumber);
-
+#endif
    case _C_PTR       : if( type[ 1] == '?')
                           return( MulleObjCGenericTypeVoidPointer);
                        if( mulle_metaabi_is_voidptr_storage_compatible( void( *)( void)))

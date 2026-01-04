@@ -31,7 +31,7 @@ int   main( void)
    NSThread   *thread;
    Foo        *obj;
 
-   obj    = [Foo object];
+   obj    = [Foo instance];
 
    threadFunction( nil, obj);
 

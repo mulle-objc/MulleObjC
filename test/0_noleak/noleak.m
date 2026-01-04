@@ -26,7 +26,7 @@ int  main( void)
       return( 1);
    }
 #endif
-   [Foo object];
+   [Foo instance];
 
    return( 0);
 }

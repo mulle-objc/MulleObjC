@@ -1,6 +1,9 @@
 #ifndef mulle_objc__h__
 #define mulle_objc__h__
 
+// load this before windows.h
+#include <mulle-objc-runtime/mulle-objc-c-types.h>
+
 #include "include.h"
 
 //
@@ -18,8 +21,8 @@
 
 #include <mulle-objc-runtime/mulle-objc-runtime.h>
 
-#include "minimal.h"
 
+#include "minimal.h" 
 
 // additional stuff requiring the runtime
 #include "mulle-objc-atomicid.h"

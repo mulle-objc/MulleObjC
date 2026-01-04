@@ -229,6 +229,30 @@ void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s)
 }
 
 
+void   MulleObjCObjectSetAtomicDuplicatedUTF8String( id self,
+                                                     mulle_atomic_pointer_t *ivar,
+                                                     char *s)
+{
+   struct mulle_allocator       *allocator;
+   struct _mulle_objc_universe  *universe;
+   void                         *actual;
+   void                         *old;
+
+   // need universe allocator for abafree
+   universe  = _mulle_objc_object_get_universe( self);
+   allocator = _mulle_objc_universe_get_allocator( universe);
+   old       = _mulle_atomic_pointer_read( ivar);
+   if( s)
+      s = mulle_allocator_strdup( allocator, s);
+
+   actual = __mulle_atomic_pointer_cas( ivar, s, old);
+
+   if( actual == old)
+      mulle_allocator_abafree( allocator, old);
+   else
+      mulle_allocator_free( allocator, s);
+}
+
 
 //
 // MulleObjC : value added code for mulle_atomic_id_t

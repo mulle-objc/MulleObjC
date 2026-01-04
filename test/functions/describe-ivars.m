@@ -26,8 +26,8 @@
 
 static void   test_bar( void)
 {
-   Bar   *x = [Bar object];
-   Bar   *y = [Bar object];
+   Bar   *x = [Bar instance];
+   Bar   *y = [Bar instance];
    char  *s;
 
    [x setObject:y];

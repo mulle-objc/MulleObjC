@@ -40,7 +40,7 @@ int  main( int argc, char *argv[])
 #if defined( DEBUG) && defined( __MULLE_OBJC__)
    mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__);
 #endif
-   a = [A object];
+   a = [A instance];
    [a setName:"VfL Bochum 1848"];
    [a print];
 

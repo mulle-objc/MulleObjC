@@ -5,7 +5,7 @@ int   main( int argc, char *argv[])
 {
    NSObject   *obj;
    
-   obj = [NSObject object];
+   obj = [NSObject instance];
    assert( obj);
    
    // Test that we can call the walk functions with valid object

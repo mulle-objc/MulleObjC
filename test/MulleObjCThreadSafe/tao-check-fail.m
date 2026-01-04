@@ -57,7 +57,7 @@ void  test( Class cls)
    id         obj;
    NSThread   *thread;
 
-   obj = [cls object];
+   obj = [cls instance];
    thread_main( [NSThread mainThread], obj);
 
    thread = [[[NSThread alloc] mulleInitWithFunction:thread_main

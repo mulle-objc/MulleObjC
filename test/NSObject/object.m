@@ -24,7 +24,7 @@ int   main( void)
    MulleObjCDotdumpMetaHierarchy( "Foo");
 #endif
 
-   foo = [Foo object];
+   foo = [Foo instance];
    // happy if it doesn't leak
    return( 0);
 }

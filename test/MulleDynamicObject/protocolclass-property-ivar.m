@@ -56,7 +56,7 @@ PROTOCOLCLASS_END()
 {
    Value  *value;
 
-   value = [self object];
+   value = [self instance];
    [value setNameUTF8String:s];
    return( value);
 }
@@ -78,7 +78,7 @@ int  main()
 
    @autoreleasepool
    {
-      obj   = [Foo object];
+      obj   = [Foo instance];
       value = [Value objectWithNameUTF8String:"VfL Bochum 1848"];
       [obj setComment:value];
       mulle_printf( "%@\n", [obj comment]);

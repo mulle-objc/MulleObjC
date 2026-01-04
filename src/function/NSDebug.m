@@ -316,14 +316,14 @@ static char   zombie_prefix[] = "_MulleObjCZombieOf";
 //
 // this should never be called
 // it ensures, that the functions are present at debug time
+// We don't support lldb any longer though (we only do gdb)
+//+ (void) __reference_lldb_functions__
+//{
+//   extern void   mulle_objc_reference_lldb_functions( void);
 //
-+ (void) __reference_lldb_functions__
-{
-   extern void   mulle_objc_reference_lldb_functions( void);
-
-   mulle_objc_reference_lldb_functions();
-}
-
+//   mulle_objc_reference_lldb_functions();
+//}
+//
 
 + (void) __reference_gdb_functions__
 {

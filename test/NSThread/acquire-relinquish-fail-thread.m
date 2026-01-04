@@ -34,7 +34,7 @@ int   main( void)
 
    @autoreleasepool
    {
-      foo     = [Foo object];
+      foo     = [Foo instance];
 
       // since foo is not MulleObjCThreadSafe you can't pass it to two threads
       // it just won't work (except for weird races, where one thread dies

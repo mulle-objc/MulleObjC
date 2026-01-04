@@ -14,7 +14,6 @@
 static inline  void   stacktrace( void)
 {
    _mulle_stacktrace( NULL, 1, mulle_stacktrace_linefeed, stderr);
-
 }
 
 
@@ -63,7 +62,7 @@ int   main( void)
 
    @autoreleasepool
    {
-      foo     = [Foo object];
+      foo     = [Foo instance];
 
       // the NSThread will create an NSInvocation which will retain the
       // target and the argument

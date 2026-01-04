@@ -7,22 +7,6 @@
 
 
 //
-// To see the TAO dilemma in action uncomment this
-//
-#if 0
-@implementation NSThread( TaoDilemma)
-
-+ (MulleObjCTAOStrategy) defaultTAOStrategy
-{
-   // or MulleObjCTAOKnownThreadSafe, MulleObjCTAOKnownThreadSafeMethods
-   return( MulleObjCTAOReceiverPerformsFinalize);
-}
-@end
-#endif
-
-
-
-//
 // These are classes that is not thread safe. An instance can
 // have a relationship with another object that is also not threadsafe.
 // This object gets passed from one thread to the other. But it remains in
@@ -121,7 +105,7 @@ static void   recycle_ivar_object( mulle_atomic_pointer_t *p, id obj)
 
    foo = acquire_ivar_object( &self->_available);
    if( ! foo)
-      foo = [Foo object];
+      foo = [Foo instance];
    [foo work];
    recycle_ivar_object( &self->_available, foo);
 }
@@ -137,7 +121,7 @@ int   main( void)
 
    @autoreleasepool
    {
-      foo = [Foo object];
+      foo = [Foo instance];
       [foo doOne];
       [foo doOne];
    }

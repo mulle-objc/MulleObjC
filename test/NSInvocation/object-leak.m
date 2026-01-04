@@ -56,7 +56,7 @@ int   main( void)
 
    @autoreleasepool
    {
-      foo        = [Foo object];
+      foo        = [Foo instance];
       invocation = [NSInvocation mulleInvocationWithTarget:foo
                                                   selector:@selector( printUTF8String:), "Hello"];
       [foo addInvocation:invocation];

@@ -216,9 +216,9 @@ int   main( void)
    NSAutoreleasePool    *pool;
    NSInvocation         *invocation;
 
-   foo  = [Foo object];
-   a    = [A object];
-   b    = [B object];
+   foo  = [Foo instance];
+   a    = [A instance];
+   b    = [B instance];
 
    // 1848 by default will produce an "int", but we need a NSUInteger here
    // solution a) cast on call

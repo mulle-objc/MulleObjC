@@ -25,8 +25,12 @@ static inline void   MulleObjCBang( struct _mulle_objc_universe *universe,
 }
 
 
-// always returns same value (in same thread)
-MULLE_C_CONST_RETURN struct _mulle_objc_universe  *
+//
+// MEMO: need to set `MULLE_OBJC_DEFINE__register_mulle_objc_universe` before
+//       including the runtime
+//
+MULLE_C_GLOBAL  // voodoo
+struct _mulle_objc_universe  *
    __register_mulle_objc_universe( mulle_objc_universeid_t universeid,
                                    char *universename)
 {
