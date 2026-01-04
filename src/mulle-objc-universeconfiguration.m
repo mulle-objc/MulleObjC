@@ -72,11 +72,36 @@
 
 # pragma mark - Configuration of the North Shore
 
+void   mulle_objc_universe_dump_coverage( struct _mulle_objc_universe *universe)
+{
+   char   *filename;
+
+   mulle_objc_universe_trace( universe, "writing coverage files...");
+
+   filename = getenv( "MULLE_OBJC_CLASS_CACHESIZES_FILENAME");
+   if( ! filename)
+      filename = "class-cachesizes.csv";
+   mulle_objc_universe_csvdump_cachesizes_to_filename( universe, filename);
+
+   // used methods will have a "searched" bit set
+   filename = getenv( "MULLE_OBJC_METHOD_COVERAGE_FILENAME");
+   if( ! filename)
+      filename = "method-coverage.csv";
+   mulle_objc_universe_csvdump_methodcoverage_to_filename( universe, filename);
+
+   // we can figure out used classes by their cachesize (or init bits)
+   filename = getenv( "MULLE_OBJC_CLASS_COVERAGE_FILENAME");
+   if( ! filename)
+      filename = "class-coverage.csv";
+   mulle_objc_universe_csvdump_classcoverage_to_filename( universe, filename);
+
+}
+
+
 void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
 {
    void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
    int    trace;
-   char   *filename;
 
    trace = mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_UNIVERSE");
    if( trace)
@@ -84,22 +109,7 @@ void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
 
    if( mulle_objc_environment_get_yes_no( "MULLE_OBJC_COVERAGE"))
    {
-      mulle_objc_universe_trace( universe, "writing coverage files...");
-
-      filename = getenv( "MULLE_OBJC_CLASS_CACHESIZES_FILENAME");
-      if( ! filename)
-         filename = "class-cachesizes.csv";
-      mulle_objc_universe_csvdump_cachesizes_to_filename( universe, filename);
-
-      filename = getenv( "MULLE_OBJC_METHOD_COVERAGE_FILENAME");
-      if( ! filename)
-         filename = "method-coverage.csv";
-      mulle_objc_universe_csvdump_methodcoverage_to_filename( universe, filename);
-
-      filename = getenv( "MULLE_OBJC_CLASS_COVERAGE_FILENAME");
-      if( ! filename)
-         filename = "class-coverage.csv";
-      mulle_objc_universe_csvdump_classcoverage_to_filename( universe, filename);
+      mulle_objc_universe_dump_coverage( universe);
    }
 }
 
@@ -192,7 +202,6 @@ struct _mulle_objc_universefoundationinfo  *
    if( coverage)
    {
       universe->config.coverage                = YES;
-      universe->config.repopulate_caches       = YES;
       universe->config.pedantic_exit           = YES;
       universe->config.no_classcuster_coverage =
          ! mulle_objc_environment_get_yes_no( "MULLE_OBJC_CLASS_CLUSTER_COVERAGE");

@@ -82,9 +82,12 @@ int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
    if( bits & _mulle_objc_property_autoreleaseclear)
    {
       ivarid = _mulle_objc_property_get_ivarid( property);
-      ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
-      offset = _mulle_objc_ivar_get_offset( ivar);
-      mulle_objc_object_set_property_value( self, 0, offset, NULL, 0);
+      if( ivarid)
+      {
+         ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
+         offset = _mulle_objc_ivar_get_offset( ivar);
+         mulle_objc_object_set_property_value( self, 0, offset, NULL, 0);
+      }
    }
    return( 0);
 }

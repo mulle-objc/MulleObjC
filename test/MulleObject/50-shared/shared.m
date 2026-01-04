@@ -26,10 +26,10 @@ int  main( int argc, char *argv[])
 {
    Foo   *a, *b, *c, *d;
 
-   a = [Foo object];
-   b = [Foo object];
-   c = [Foo object];
-   d = [Foo object];
+   a = [Foo instance];
+   b = [Foo instance];
+   c = [Foo instance];
+   d = [Foo instance];
 
    [b shareRecursiveLockWithObject:a];
    [c shareRecursiveLockWithObject:b];

@@ -99,24 +99,6 @@
 + (BOOL) mulleContainsObject:(id) p;
 + (NSUInteger) mulleCountObject:(id) p;
 
-// untested! This like -drain, but the autoreleasepool stays in place
-// so its somewhat nicer than:
-//
-//    NSPopAutoreleasePool( pool);
-//    pool = NSPushAutoreleasePool();
-- (void) mulleReleaseAllPoolObjects;
-
-
-//
-// just do the specific autoreleasepool, find all objects that match
-// and immediately release them. Of course your thread must not touch any
-// of these objects thereafter
-//
-+ (void) mulleReleasePoolObjects:(id *) p
-                           count:(NSUInteger) count;
-- (void) mulleReleasePoolObjects:(id *) p
-                           count:(NSUInteger) count;
-
 //
 // Returns YES, if 'p' has autoreleases
 //
@@ -133,6 +115,28 @@
 //
 + (NSUInteger) mulleCount;
 - (NSUInteger) mulleCount;
+
+
+// untested! This like -drain, but the autoreleasepool stays in place
+// so its somewhat nicer than:
+//
+//    NSPopAutoreleasePool( pool);
+//    pool = NSPushAutoreleasePool();
+- (void) mulleReleaseAllPoolObjects;
+
+//
+// just do the specific autoreleasepool, find all objects that match
+// and immediately release them. Of course your thread must not touch any
+// of these objects thereafter
+//
++ (void) mulleReleasePoolObjects:(id *) p
+                           count:(NSUInteger) count;
+- (void) mulleReleasePoolObjects:(id *) p
+                           count:(NSUInteger) count;
+
+// traces nice as we see the argument
++ (void) mulleReleasePoolObject:(id) p;
+- (void) mulleReleasePoolObject:(id) p;
 
 @end
 
@@ -216,7 +220,6 @@ id   NSAutoreleaseObject( id obj)
       _MulleObjCAutoreleaseObject( obj);
    return( obj);
 }
-
 
 
 //

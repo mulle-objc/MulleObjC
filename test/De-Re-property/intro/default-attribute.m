@@ -35,11 +35,11 @@ int  main( int argc, char *argv[])
    Foo   *b;
    Foo   *c;
 
-   a = [Foo object];
+   a = [Foo instance];
    [a setName:"a"];
-   b = [Foo object];
+   b = [Foo instance];
    [b setName:"b"];
-   c = [Foo object];
+   c = [Foo instance];
    [c setName:"c"];
 
    [a setRetainOther:b];

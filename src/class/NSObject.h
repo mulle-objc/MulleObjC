@@ -86,7 +86,7 @@
 // +object method on NSObject subclasses to instantiate autoreleased objects
 // For example:
 //
-// Foo *s = [Foo object];
+// Foo *s = [Foo instance];
 //
 // Convenience constructor methods like -stringWithUTF8String: can also be used
 // to construct autoreleased instances:
@@ -122,14 +122,16 @@
 + (instancetype) instantiate;             // alloc + delayed autorelease
 
 //
-// TODO: call this `instance` ?? We have class which is made up of
-// a metaclass and an infraclass, it produces instance of a class,
-// all of them are objects. But an instance is not a class. So the
-// "wrapping" name for all is probably still object. So why is the
-// method to produce instances called object ?
+// We call the factory method `instance` now ?? We have class which is made up
+// of a metaclass and an infraclass. infraclass produces instance of a class,
+// metaclass, infraclass, instance are all objects. But an instance is not a
+// class. The "wrapping" name for all is object. And the method to produce
+// instances is therefore "instance" not "object" ?
 //
-+ (instancetype) object;      // alloc + init + autorelease
-//+ (instancetype) instance;  // synonym this once the compiler knows how to
++ (instancetype) instance;      // alloc + init + autorelease
+
+// this is the old name (from 0.26)
++ (instancetype) object;        // synonym this once the compiler knows how to
 
 - (BOOL) __isSingletonObject;       // here object is a valid name as it fits instance and class
 - (BOOL) __isClassClusterObject;
@@ -139,9 +141,16 @@
 - (void) mulleGainAccessWithUniquingSet:(struct mulle_pointerset *) p          MULLE_OBJC_THREADSAFE_METHOD;
 - (void) mulleRelinquishAccessWithUniquingSet:(struct mulle_pointerset *) p    MULLE_OBJC_THREADSAFE_METHOD;
 
+- (id) copiedInstance;
+
 @end
 
 
+@interface NSObject( NSCopying)
+
+- (id) immutableInstance;
+
+@end
 
 @class NSMethodSignature;
 @class NSInvocation;
@@ -259,12 +268,6 @@
 @end
 
 
-@interface NSObject( NSCopying)
-
-- (id) copiedInstance;
-- (id) immutableInstance;
-
-@end
 
 MULLE_OBJC_GLOBAL
 void   _MulleObjCObjectGainOrRelinquishAccessToIvars( id self, SEL sel, struct mulle_pointerset *uniquing);

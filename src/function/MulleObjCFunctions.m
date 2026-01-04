@@ -561,7 +561,9 @@ static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer,
       id                              c_id;
       int                             c_int;
       long                            c_lng;
+#ifdef _C_LNG_DBL
       long double                     c_lng_dbl;
+#endif
       long long                       c_lng_lng;
       mulle_objc_methodid_t           c_sel;
       short                           c_sht;
@@ -609,6 +611,13 @@ static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer,
       get_scalarvalue( v.c_bool, int, p, sentinel);
       mulle_buffer_sprintf( buffer, "%s%bd", sep, v.c_bool);
       break;
+
+#ifdef _C_LNG_DBL
+   case _C_LNG_DBL   :
+      get_scalarvalue( v.c_lng_dbl, long double, p, sentinel);
+      mulle_buffer_sprintf( buffer, "%s%Lg", sep, v.c_lng_dbl);
+      break;
+#endif
 
    case _C_DBL   :
       get_scalarvalue( v.c_dbl, double, p, sentinel);
@@ -675,7 +684,9 @@ static void  *_MulleObjCDescribeMemory( struct mulle_buffer *buffer,
 
    case _C_ATOM     :
    case _C_UNDEF    :
+#ifdef _C_VECTOR
    case _C_VECTOR   :
+#endif
    case _C_BFLD     :
    case _C_ARY_E    :
    case _C_STRUCT_E :   

@@ -48,6 +48,8 @@
 //
 #include "include.h"
 
+#include <mulle-objc-runtime/minimal.h>
+
 #include "mulle-objc-enum.h"
 #include "mulle-objc-type.h"
 

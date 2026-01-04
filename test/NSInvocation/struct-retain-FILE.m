@@ -45,7 +45,7 @@ static void   test1( void)
    a.s        = mulle_strdup( "VfL Bochum 1848");
    a.fp       = stdout;
 
-   foo        = [Foo object];
+   foo        = [Foo instance];
    invocation = [NSInvocation mulleInvocationWithTarget:foo
                                                selector:@selector( printA:),
                                                a];
@@ -73,7 +73,7 @@ static void   test2( void)
    NSMethodSignature   *signature;
 
    s          = mulle_strdup( "VfL Bochum 1848");
-   foo        = [Foo object];
+   foo        = [Foo instance];
    invocation = [NSInvocation mulleInvocationWithTarget:foo
                                                selector:@selector( printUTF8String:toFILE:),
                                                s,

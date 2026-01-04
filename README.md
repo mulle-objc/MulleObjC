@@ -70,6 +70,19 @@ which supports the metaABI required for the mulle-objc runtime.
 | [mulle-objc-list](https://github.com/mulle-objc/mulle-objc-list) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-list.svg) [![Build Status](https://github.com/mulle-objc/mulle-objc-list/workflows/CI/badge.svg?branch=release)](https://github.com/mulle-objc/mulle-objc-list/actions/workflows/mulle-sde-ci.yml) | 📒 Lists mulle-objc runtime information contained in executables.
 
 
+## Quickstart
+
+
+``` sh
+mulle-sde init -d my-project -m mulle-objc/objc-developer executable
+cd my-project
+mulle-sde vibecoding on
+mulle-sde run
+```
+
+You are done, skip the following "Add" step.
+
+
 ## Add
 
 Use [mulle-sde](//github.com/mulle-sde) to add MulleObjC to your project.
@@ -108,9 +121,15 @@ file).
 ### Add as subproject with cmake and git
 
 ``` bash
+git submodule add -f --name "mulle-core" \
+                            "https://github.com/mulle-core/mulle-core.git" \
+                            "stash/mulle-core"
 git submodule add -f --name "mulle-objc-runtime" \
                             "https://github.com/mulle-objc/mulle-objc-runtime.git" \
                             "stash/mulle-objc-runtime"
+git submodule add -f --name "mulle-core" \
+                            "https://github.com/mulle-core/mulle-core.git" \
+                            "stash/mulle-core"
 git submodule add -f --name "mulle-objc-debug" \
                             "https://github.com/mulle-objc/mulle-objc-debug.git" \
                             "stash/mulle-objc-debug"
@@ -123,11 +142,15 @@ git submodule update --init --recursive
 ``` cmake
 add_subdirectory( stash/MulleObjC)
 add_subdirectory( stash/mulle-objc-debug)
+add_subdirectory( stash/mulle-core)
 add_subdirectory( stash/mulle-objc-runtime)
+add_subdirectory( stash/mulle-core)
 
 target_link_libraries( ${PROJECT_NAME} PUBLIC MulleObjC)
 target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-objc-debug)
+target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-core)
 target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-objc-runtime)
+target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-core)
 ```
 
 

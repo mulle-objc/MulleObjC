@@ -384,7 +384,7 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
 
    info        = &get_infos( self)[ 0];
    frame_size += info->natural_size;     // methodReturnLength
-   frame_size += alignof( long double);  // for alignment
+   frame_size += alignof( double);  // for alignment
 
    return( frame_size);
 }

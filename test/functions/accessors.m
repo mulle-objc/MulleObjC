@@ -16,7 +16,9 @@
 @property unsigned long long   v_Q;
 @property float                v_f;
 @property double               v_d;
+#ifdef _C_LNG_DBL
 @property long double          v_D;
+#endif
 @property NSRange              v_range;
 
 @end
@@ -31,7 +33,7 @@ int   main( int argc, char *argv[])
 {
    Foo   *foo;
 
-   foo = [Foo object];
+   foo = [Foo instance];
 
    MulleObjCObjectSetBOOL( foo, @selector( setV_B:), YES);
    if( MulleObjCObjectGetBOOL( foo, @selector( v_B)) != YES)
@@ -86,12 +88,14 @@ int   main( int argc, char *argv[])
       return( 1);
    }
 
+#ifdef _C_LNG_DBL
    MulleObjCObjectSetLongDouble( foo, @selector( setV_D:), 18.48);
    if( MulleObjCObjectGetLongDouble( foo, @selector( v_D)) != 18.48)
    {
       printf( "long double fail\n");
       return( 1);
    }
+#endif
 
    MulleObjCObjectSetRange( foo, @selector( setV_range:), NSRangeMake( 18, 48));
    if( ! NSEqualRanges( MulleObjCObjectGetRange( foo, @selector( v_range)), NSRangeMake( 18, 48)))

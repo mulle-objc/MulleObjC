@@ -17,7 +17,7 @@
 
 int  main( int argc, char *argv[])
 {
-   [[Foo object] doNothing];
+   [[Foo instance] doNothing];
 
    return( 0);
 }

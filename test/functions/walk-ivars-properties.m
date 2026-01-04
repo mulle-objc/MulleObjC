@@ -137,7 +137,7 @@ static void  testBaseClassInstance( void)
    
    mulle_printf( "=== Testing BaseClass Instance ===\n");
    
-   obj = [BaseClass object];
+   obj = [BaseClass instance];
    if( ! obj)
    {
       mulle_printf( "ERROR: Failed to create BaseClass instance\n");
@@ -183,7 +183,7 @@ static void  testDerivedClassInstance( void)
    
    mulle_printf( "\n=== Testing DerivedClass Instance (Inheritance Test) ===\n");
    
-   obj = [DerivedClass object];
+   obj = [DerivedClass instance];
    if( ! obj)
    {
       mulle_printf( "ERROR: Failed to create DerivedClass instance\n");
@@ -229,7 +229,7 @@ static void  testEmptyInstance( void)
    
    mulle_printf( "\n=== Testing Empty NSObject Instance ===\n");
    
-   obj = [NSObject object];
+   obj = [NSObject instance];
    if( ! obj)
    {
       mulle_printf( "ERROR: Failed to create NSObject instance\n");

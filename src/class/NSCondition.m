@@ -90,13 +90,13 @@ static void  rval_perror_abort( char *s, int rval)
 
 - (void) wait
 {
+#ifndef  _WIN32
    int   rval;
    // It is important to note that when pthread_cond_wait()
    // and pthread_cond_timedwait() return without error, the associated
    // predicate may still be false
    // (associated predicate -> -[NSConditionLock condition])
    //
-#ifndef  _WIN32
    _mulleIsLocked = NO;
    rval = pthread_cond_wait( &self->_condition, &self->_lock);
    if( rval)
@@ -124,11 +124,11 @@ static void  rval_perror_abort( char *s, int rval)
 
 - (void) unlock
 {
-   int   rval;
-
    _mulleIsLocked = NO;
 
 #ifndef  _WIN32
+   int   rval;
+
    rval = pthread_mutex_unlock( &self->_lock);
    assert( ! rval);
    USE_FOR_DUMB_COMPILER( rval);

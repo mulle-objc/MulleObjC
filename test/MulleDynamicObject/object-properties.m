@@ -44,7 +44,7 @@
 {
    Value  *value;
 
-   value = [self object];
+   value = [self instance];
    value->_nameUTF8String = s;
    return( value);
 }
@@ -73,7 +73,7 @@ int  main()
 
    @autoreleasepool
    {
-      obj = [Foo object];
+      obj = [Foo instance];
       [obj setCopyValue:[Value objectWithNameUTF8String:"copy"]];
       [obj setAssignValue:[Value objectWithNameUTF8String:"assign"]];
       [obj setRetainValue:[Value objectWithNameUTF8String:"retain"]];

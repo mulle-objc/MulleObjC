@@ -6,23 +6,6 @@
 #endif
 
 
-//
-// To see the TAO dilemma in action uncomment this
-//
-#if 0
-@implementation NSThread( TaoDilemma)
-
-+ (MulleObjCTAOStrategy) defaultTAOStrategy
-{
-   // or MulleObjCTAOKnownThreadSafe, MulleObjCTAOKnownThreadSafeMethods
-   return( MulleObjCTAOReceiverPerformsFinalize);
-}
-@end
-#endif
-
-
-
-
 
 @class Foo;
 
@@ -45,7 +28,7 @@
 {
    id   obj;
 
-   obj = [super object];
+   obj = [super instance];
    mulle_fprintf( stderr, "%p lives\n", obj);
    return( obj);
 }
@@ -94,7 +77,7 @@
 
    foo = _MulleObjCAcquireObjectAtomically( &self->_available);
    if( ! foo)
-      foo = [Foo object];
+      foo = [Foo instance];
    [foo work];
 
    // we can ignore the return value, since we don't care about foo anymore
@@ -111,7 +94,7 @@ int   main( void)
 
    @autoreleasepool
    {
-      foo = [Foo object];
+      foo = [Foo instance];
       [foo doOne];
       [foo touchTheCorpse];
       [foo doOne];

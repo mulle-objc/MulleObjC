@@ -116,7 +116,7 @@ struct _mulle_objc_universefoundationinfo
    Class   stringsubclasses[ _MULLE_OBJC_FOUNDATIONINFO_N_STRINGSUBCLASSES];
    Class   numbersubclasses[ _MULLE_OBJC_FOUNDATIONINFO_N_NUMBERSUBCLASSES];
 
-   void     (*teardown_callback)( struct _mulle_objc_universe  *universe);
+   void    (*teardown_callback)( struct _mulle_objc_universe  *universe);
 };
 
 

@@ -55,7 +55,7 @@
 //
 // NSLock   *lock;
 //
-// lock = [NSLock object];
+// lock = [NSLock instance];
 // MulleObjCLockingDo( lock)
 // {
 //    // do stuff while locked

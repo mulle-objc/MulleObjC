@@ -21,7 +21,7 @@ int   main( int argc, const char * argv[])
    NSConditionLock   *lock;
 
    // just some
-   lock = [NSConditionLock object];
+   lock = [NSConditionLock instance];
 
    mulle_printf( "nil: %s\n", _NSPrintForDebugger( nil));
    //MulleObjCDebugElideAddressOutput=YES;

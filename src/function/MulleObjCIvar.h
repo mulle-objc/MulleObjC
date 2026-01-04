@@ -72,7 +72,11 @@ int   _MulleObjCInstanceWalkIvars( id obj,
 MULLE_OBJC_GLOBAL
 void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s);
 
-
+// as above but string is stored "atomically"
+MULLE_OBJC_GLOBAL
+void   MulleObjCObjectSetAtomicDuplicatedUTF8String( id self,
+                                                     mulle_atomic_pointer_t *ivar,
+                                                     char *s);
 //
 // MulleObjC : value added code for mulle_atomic_id_t
 //             the lazy loader will call `lazyLoader` on `obj` to provide

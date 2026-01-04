@@ -82,10 +82,13 @@
 // possible. If the receiver is immutable, you will just receive a retained
 // instance of the receiver. The use of `-copy` is for creation of snapshots
 // or creating instances from prototypes. `NSCopying` is used by properties.
-// It's not used by NSDictionary, which uses `MulleObjCImmutableCopying` for keys.
+// It's not used by NSDictionary, which uses `MulleObjCImmutableCopying` for
+// keys. A copy, if a different object, needs to be independent of the original
+// project. So any change to the original should not change the copy. To what
+// degree though, when NSArray is NSCopying ? -hash and -isEqual: should not
+// change for sure. But NSArray is not calling -copy on its elements (it can't)
 //
-// To copy an object to another allocator scheme (use NSCoypingWithAllocator)
-//
+// To copy an object to another allocator scheme use NSCopyingWithAllocator.
 // no longer a protocolclass!
 //
 @protocol NSCopying
@@ -117,6 +120,3 @@
 - (id) immutableCopy;
 
 @end
-
-
-

@@ -18,7 +18,7 @@
 {
    Foo   *obj;
 
-   obj = [Foo object];
+   obj = [Foo instance];
    obj->_nameUTF8String = s;
    return( obj);
 }

@@ -53,9 +53,9 @@ int   main( void)
 
    @autoreleasepool
    {
-      target     = [TestObject object];
+      target     = [TestObject instance];
       strcpy( target->_name, "target"); 
-      argument   = [TestObject object];
+      argument   = [TestObject instance];
       strcpy( argument->_name, "argument"); 
 
       trace( "creation", target, argument);

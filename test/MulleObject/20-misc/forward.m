@@ -46,8 +46,8 @@ int  main( int argc, char *argv[])
    A              *a;
    B              *b;
 
-   a = [A object];
-   b = [B object];
+   a = [A instance];
+   b = [B instance];
    [b setOther:a];
    [b printOther];
 

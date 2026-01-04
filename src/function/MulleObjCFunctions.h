@@ -289,6 +289,7 @@ static inline double   MulleObjCObjectGetDouble( id obj, SEL sel)
 }
 
 // long double
+#ifdef _C_LNG_DBL
 static inline void   MulleObjCObjectSetLongDouble( id obj, SEL sel, long double value)
 {
    mulle_metaabi_union_voidptr_return( struct { long double value; })  param;
@@ -306,6 +307,7 @@ static inline double   MulleObjCObjectGetLongDouble( id obj, SEL sel)
    mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.value);
 }
+#endif
 
 
 // NSRange
@@ -559,6 +561,7 @@ static inline double
 }
 
 
+#ifdef _C_LNG_DBL
 static inline long double
    MulleObjCIMPCall0ReturningLongDouble( IMP imp, id obj, SEL sel)
 {
@@ -570,6 +573,7 @@ static inline long double
                                      &param);
    return( param.r.a);
 }
+#endif
 
 
 static inline long   MulleObjCIMPCall0ReturningLong( IMP imp, id obj, SEL sel)
@@ -577,7 +581,7 @@ static inline long   MulleObjCIMPCall0ReturningLong( IMP imp, id obj, SEL sel)
    mulle_metaabi_union_void_parameter( struct { long a;})  param;
 
    if( sizeof( long) <= sizeof( void *))
-      return( (long) MulleObjCIMPCall0( imp, obj, sel));
+      return( (long) (intptr_t) MulleObjCIMPCall0( imp, obj, sel));
 
    mulle_objc_implementation_invoke( (mulle_objc_implementation_t) imp,
                                      obj,
@@ -593,7 +597,7 @@ static inline unsigned long
    mulle_metaabi_union_void_parameter( struct { unsigned long a;})  param;
 
    if( sizeof( unsigned long) <= sizeof( void *))
-      return( (unsigned long) MulleObjCIMPCall0( imp, obj, sel));
+      return( (unsigned long) (uintptr_t) MulleObjCIMPCall0( imp, obj, sel));
 
    mulle_objc_implementation_invoke( (mulle_objc_implementation_t) imp,
                                      obj,
@@ -609,7 +613,7 @@ static inline long long
    mulle_metaabi_union_void_parameter( struct { long long a;})  param;
 
    if( sizeof( long long) <= sizeof( void *))
-      return( (long long ) MulleObjCIMPCall0( imp, obj, sel));
+      return( (long long) (intptr_t) MulleObjCIMPCall0( imp, obj, sel));
 
    mulle_objc_implementation_invoke( (mulle_objc_implementation_t) imp,
                                      obj,
@@ -625,7 +629,7 @@ static inline unsigned long long
    mulle_metaabi_union_void_parameter( struct { unsigned long long a;})  param;
 
    if( sizeof( unsigned long long) <= sizeof( void *))
-      return( (unsigned long long ) MulleObjCIMPCall0( imp, obj, sel));
+      return( (unsigned long long) (uintptr_t) MulleObjCIMPCall0( imp, obj, sel));
 
 
    mulle_objc_implementation_invoke( (mulle_objc_implementation_t) imp,

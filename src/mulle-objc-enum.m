@@ -200,27 +200,27 @@ char   *_NS_ENUM_UTF8String( void *table,
 }
 
 
-unsigned long long   _NS_OPTIONS_ParseUTF8String( void *table,
-                                                  unsigned int len,
-                                                  size_t line_size,
-                                                  size_t offset,
-                                                  size_t item_len,
-                                                  char *s)
+int   _NS_OPTIONS_ParseUTF8String_strict( void *table,
+                                          unsigned int len,
+                                          size_t line_size,
+                                          size_t offset,
+                                          size_t item_len,
+                                          char *s,
+                                          unsigned long long *value)
 {
    unsigned int         i;
    void                 *line;
-   unsigned long long   value;
+   unsigned long long   tmp;
    char                 *key;
    size_t               key_len;
 
-   value = 0;
+   if( ! value)
+      value = &tmp;
 
    if( ! s)
-      return( value);
+      return( NO);
 
-   if( isdigit( *s))
-      return( atoll( s));
-
+   *value = 0;
    while( *s)
    {
       line = table;
@@ -232,47 +232,67 @@ unsigned long long   _NS_OPTIONS_ParseUTF8String( void *table,
          {
             switch( item_len)
             {
-            case 1  : value |= *(uint8_t *)  &((char *) line)[ offset]; break;
-            case 2  : value |= *(uint16_t *) &((char *) line)[ offset]; break;
-            case 4  : value |= *(uint32_t *) &((char *) line)[ offset]; break;
-            case 8  : value |= *(uint64_t *) &((char *) line)[ offset]; break;
+            case 1  : *value |= *(uint8_t *)  &((char *) line)[ offset]; break;
+            case 2  : *value |= *(uint16_t *) &((char *) line)[ offset]; break;
+            case 4  : *value |= *(uint32_t *) &((char *) line)[ offset]; break;
+            case 8  : *value |= *(uint64_t *) &((char *) line)[ offset]; break;
             default : abort();
             }
             goto next;
          }
          line = &((char *) line)[ line_size];
       }
-      return( 0);
+      return( NO);
 
 next:
       s = &s[ key_len];
       if( *s == '|' && s[ 1] != 0)
          ++s;
    }
-   return( value);
+
+   return( YES);
 }
 
 
-unsigned long long   _NS_ENUM_ParseUTF8String( void *table,
-                                               unsigned int len,
-                                               size_t line_size,
-                                               size_t offset,
-                                               size_t item_len,
-                                               char *s)
+unsigned long long   _NS_OPTIONS_ParseUTF8String( void *table,
+                                                  unsigned int len,
+                                                  size_t line_size,
+                                                  size_t offset,
+                                                  size_t item_len,
+                                                  char *s)
+{
+   unsigned long long   value;
+
+   if( s && isdigit( *s))
+      return( atoll( s));
+
+   if( _NS_OPTIONS_ParseUTF8String_strict( table, len, line_size, offset, item_len, s, &value))
+      return( value);
+
+   return( 0);
+}
+
+
+
+int   _NS_ENUM_ParseUTF8String_strict( void *table,
+                                       unsigned int len,
+                                       size_t line_size,
+                                       size_t offset,
+                                       size_t item_len,
+                                       char *s,
+                                       unsigned long long *value)
 {
    unsigned int         i;
    void                 *line;
-   unsigned long long   value;
+   unsigned long long   tmp;
    char                 *key;
    size_t               key_len;
 
-   value = 0;
+   if( ! value)
+      value = &tmp;
 
    if( ! s)
-      return( value);
-
-   if( isdigit( *s))
-      return( atoll( s));
+      return( NO);
 
    line = table;
    for( i = 0; i < len; i++)
@@ -283,15 +303,35 @@ unsigned long long   _NS_ENUM_ParseUTF8String( void *table,
       {
          switch( item_len)
          {
-         case 1  : value = *(uint8_t *)  &((char *) line)[ offset]; break;
-         case 2  : value = *(uint16_t *) &((char *) line)[ offset]; break;
-         case 4  : value = *(uint32_t *) &((char *) line)[ offset]; break;
-         case 8  : value = *(uint64_t *) &((char *) line)[ offset]; break;
+         case 1  : *value = *(uint8_t *)  &((char *) line)[ offset]; break;
+         case 2  : *value = *(uint16_t *) &((char *) line)[ offset]; break;
+         case 4  : *value = *(uint32_t *) &((char *) line)[ offset]; break;
+         case 8  : *value = *(uint64_t *) &((char *) line)[ offset]; break;
          default : abort();
          }
-         return( value);
+         return( YES);
       }
       line = &((char *) line)[ line_size];
    }
+
+   return( NO);
+}
+
+
+unsigned long long   _NS_ENUM_ParseUTF8String( void *table,
+                                               unsigned int len,
+                                               size_t line_size,
+                                               size_t offset,
+                                               size_t item_len,
+                                               char *s)
+{
+   unsigned long long   value;
+
+   if( s && isdigit( *s))
+      return( atoll( s));
+
+   if( _NS_ENUM_ParseUTF8String_strict( table, len, line_size, offset, item_len, s, &value))
+      return( value);
+
    return( 0);
 }

@@ -38,7 +38,7 @@ int  main( void)
 {
    Foo   *foo;
 
-   foo = [Foo object]; // this should not leak
+   foo = [Foo instance]; // this should not leak
 
    // no leaks
    return( 0);

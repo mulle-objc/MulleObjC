@@ -52,7 +52,7 @@ int main( void)
 {
    Foo   *foo;
 
-   foo = [Foo object];
+   foo = [Foo instance];
    [foo run];
 
    return( 0);

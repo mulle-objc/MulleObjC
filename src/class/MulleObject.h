@@ -145,3 +145,11 @@ static inline void   _MulleObjectValueGetter( MulleObject *self,
    _MulleDynamicObjectValueGetter( self, _cmd, _param);
 }
 
+
+
+// just an alias for _MulleDynamicObjectForward
+MULLE_C_STATIC_ALWAYS_INLINE
+void   *_MulleObjectForward( id self, SEL _cmd, void *args, int *fail)
+{
+   return( _MulleDynamicObjectForward( self, _cmd, args, fail));
+}

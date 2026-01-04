@@ -22,7 +22,7 @@
 - (id) function:(id) arg
 {
    printf( "%s\n", __PRETTY_FUNCTION__);
-   return( [Foo object]);
+   return( [Foo instance]);
 }
 
 
@@ -33,7 +33,7 @@
    id             other;
    id             arg;
 
-   other   = [Foo object];
+   other   = [Foo instance];
    _thread = [[NSThread alloc] initWithTarget:self
                                      selector:@selector( function:)
                                        object:other];
@@ -78,7 +78,7 @@ int main( void)
 {
    Foo   *foo;
 
-   foo = [Foo object];
+   foo = [Foo instance];
    [foo run];
 
    return( 0);

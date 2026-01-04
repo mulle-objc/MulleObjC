@@ -43,13 +43,15 @@
 // NSInvocations can be variable in size, as _storage expands and contracts
 // with MetaABI parameters
 //
+// Subclasses that add properties, even if not readonly must release them
+// in dealloc as -finalize does nothing.
+//
 @interface NSInvocation : NSObject
 {
-   NSMethodSignature   *_methodSignature;
-   char                *_storage;
-   char                *_sentinel;
-   char                _argumentsRetained;
-   char                _returnValueRetained;
+   char   *_storage;
+   char   *_sentinel;
+   char   _argumentsRetained;
+   char   _returnValueRetained;
 }
 
 @property( retain, readonly) NSMethodSignature   *methodSignature;

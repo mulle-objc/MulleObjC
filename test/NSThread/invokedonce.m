@@ -42,8 +42,8 @@ int main( void)
 
    @autoreleasepool
    {
-      foo = [Foo object];
-      bar = [Bar object];
+      foo = [Foo instance];
+      bar = [Bar instance];
 
       thread = [[[NSThread alloc] initWithTarget:foo
                                         selector:@selector( method:)

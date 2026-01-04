@@ -87,3 +87,11 @@ CMakeLists.txt.bak
 research/
 dox/book
 vgcore.*
+test*/**/*.test.*
+/*.md
+!/AGENTS.md
+!/README.md
+perf.data
+*.backup
+.cursorignpore
+.cursorignore

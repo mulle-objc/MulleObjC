@@ -5,7 +5,7 @@ int   main( void)
 {
    mulle_printf( "=== Debug Object Type Investigation ===\n");
    
-   NSObject *obj = [NSObject object];
+   NSObject *obj = [NSObject instance];
    
    if( ! obj)
    {

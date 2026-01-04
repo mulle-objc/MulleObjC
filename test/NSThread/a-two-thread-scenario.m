@@ -64,7 +64,7 @@ int   main( void)
 
    @autoreleasepool
    {
-      foo     = [Foo object];
+      foo     = [Foo instance];
 
       // the NSThread will create an NSInvocation which will retain the
       // target and the argument

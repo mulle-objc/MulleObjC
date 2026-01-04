@@ -38,8 +38,8 @@ int main( void)
    Bar        *bar;
    NSThread   *thread;
 
-   foo = [Foo object];
-   bar = [Bar object];
+   foo = [Foo instance];
+   bar = [Bar instance];
 
    @autoreleasepool
    {

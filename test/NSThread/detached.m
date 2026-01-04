@@ -14,7 +14,7 @@
 
 + (void) method:(id) arg
 {
-   [Foo object]; // create an object for leak test
+   [Foo instance]; // create an object for leak test
    mulle_printf( "%s\n", __PRETTY_FUNCTION__);
    // MulleObjCDumpAutoreleasePoolsFrame();
 }

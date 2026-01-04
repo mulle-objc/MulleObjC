@@ -28,8 +28,8 @@ int  main( int argc, char *argv[])
    mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__);
 #endif
 
-   a = [A object];
-   b = [A object];
+   a = [A instance];
+   b = [A instance];
 
    [a print];
    printf("\n");

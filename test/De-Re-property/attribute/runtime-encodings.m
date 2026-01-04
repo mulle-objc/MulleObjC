@@ -64,7 +64,7 @@ int  main( int argc, char *argv[])
 {
    Foo   *a;
 
-   a = [Foo object];
+   a = [Foo instance];
 
    MulleObjCInstanceWalkProperties( a, printEncoding, a);
 

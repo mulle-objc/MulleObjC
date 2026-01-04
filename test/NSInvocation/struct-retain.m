@@ -48,7 +48,7 @@ struct key_value
 {
    Value   *obj;
 
-   obj = [self object];
+   obj = [self instance];
    [obj setUTF8String:s];
    return( obj);
 }
@@ -71,7 +71,7 @@ int   main( void)
    x.inner.values[ 0] = [Value valueWithUTF8String:"Heide"];
    x.inner.values[ 1] = [Value valueWithUTF8String:"2"];
 
-   foo        = [Foo object];
+   foo        = [Foo instance];
    invocation = [NSInvocation mulleInvocationWithTarget:foo
                                               selector:@selector( foo:), x];
 #if 1 // 0 to produce expected result

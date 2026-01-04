@@ -40,7 +40,7 @@
 {
    Value  *value;
 
-   value = [self object];
+   value = [self instance];
 #ifdef VALUE_HAS_NAME
    [value setNameUTF8String:s];
 #endif
@@ -68,7 +68,7 @@ int  main()
 
    @autoreleasepool
    {
-      obj = [Foo object];
+      obj = [Foo instance];
       [obj setAssignValue:[Value objectWithNameUTF8String:"assign"]];
 
       mulle_printf( "%@\n", [obj assignValue]);

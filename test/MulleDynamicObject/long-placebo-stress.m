@@ -70,7 +70,7 @@ int  main()
    Foo   *obj;
    int   j;
 
-   obj = [Foo object];
+   obj = [Foo instance];
    for( j = 0; j < LOOPS; j++)
    {
       [obj setMyLongValue01:[obj myLongValue00] + 1];

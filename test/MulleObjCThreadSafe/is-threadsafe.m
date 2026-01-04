@@ -46,7 +46,7 @@ static void   test( Class cls)
    mulle_printf( "+[%s mulleIsThreadSafe:] %btd\n",
                   MulleObjCClassGetNameUTF8String( cls),
                   [cls mulleIsThreadSafe]);
-   obj = [cls object];
+   obj = [cls instance];
    mulle_printf( "-[%s mulleIsThreadSafe:] %btd\n",
                  MulleObjCClassGetNameUTF8String( cls),
                  [obj mulleIsThreadSafe]);

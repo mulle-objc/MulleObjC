@@ -33,7 +33,7 @@ if( NOT DEFINED CMAKE_C_LINK_GROUP_USING_WHOLE_ARCHIVE_SUPPORTED)
            ""
        )
    else()
-      if( WIN32)
+      if( MSVC)
          set(CMAKE_C_LINK_GROUP_USING_WHOLE_ARCHIVE 
               "LINKER:-WHOLEARCHIVE:"
               ""

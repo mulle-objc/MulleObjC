@@ -90,6 +90,14 @@ enum name
                              sizeof( name ## __table[ 0].value),                                       \
                              string)
 
+#define NS_ENUM_PARSE_STRICT( name, string, value_p)                                                   \
+   _NS_ENUM_ParseUTF8String_strict( name ## __table,                                                   \
+                             (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
+                             sizeof( name ## __table[ 0]),                                             \
+                             offsetof( NS_ENUM_ITEM_TYPE( name), value),                               \
+                             sizeof( name ## __table[ 0].value),                                       \
+                             string,                                                                   \
+                             value_p)
 //
 //// precede with typedef like:  typedef NS_OPTIONS( NSUInteger, foo) { x = 1; }
 //
@@ -105,27 +113,38 @@ enum name
 #define NS_OPTIONS_ITEM( name)            { #name, name }
 #define NS_OPTIONS_ITEM_TYPE( name)       struct name ## __item
 #define NS_OPTIONS_TABLE( name, length)   NS_OPTIONS_ITEM_TYPE( name) name ## __table[ length]
-#define NS_OPTIONS_PRINT( name, options)                                            \
-   _NS_OPTIONS_UTF8String( name ## __table,                                         \
+#define NS_OPTIONS_PRINT( name, options)                                                             \
+   _NS_OPTIONS_UTF8String( name ## __table,                                                          \
                            (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
-                           sizeof( name ## __table[ 0]),                            \
-                           offsetof( NS_OPTIONS_ITEM_TYPE( name), value),           \
-                           sizeof( name ## __table[ 0].value),                      \
+                           sizeof( name ## __table[ 0]),                                             \
+                           offsetof( NS_OPTIONS_ITEM_TYPE( name), value),                            \
+                           sizeof( name ## __table[ 0].value),                                       \
                            options)
-#define NS_OPTIONS_LOOKUP( name, item)                                           \
-   _NS_table_search_UTF8String( name ## __table,                                 \
-                        (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
-                        sizeof( name ## __table[ 0]),                            \
-                        offsetof( NS_OPTIONS_ITEM_TYPE( name), value),           \
-                        sizeof( name ## __table[ 0].value),                      \
-                        item)
-#define NS_OPTIONS_PARSE( name, string)                                                  \
-   _NS_OPTIONS_ParseUTF8String( name ## __table,                                         \
+
+#define NS_OPTIONS_LOOKUP( name, item)                                                                    \
+   _NS_table_search_UTF8String( name ## __table,                                                          \
                                 (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
-                                sizeof( name ## __table[ 0]),                            \
-                                offsetof( NS_OPTIONS_ITEM_TYPE( name), value),           \
-                                sizeof( name ## __table[ 0].value),                      \
+                                sizeof( name ## __table[ 0]),                                             \
+                                offsetof( NS_OPTIONS_ITEM_TYPE( name), value),                            \
+                                sizeof( name ## __table[ 0].value),                                       \
+                                item)
+
+#define NS_OPTIONS_PARSE( name, string)                                                                   \
+   _NS_OPTIONS_ParseUTF8String( name ## __table,                                                          \
+                                (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
+                                sizeof( name ## __table[ 0]),                                             \
+                                offsetof( NS_OPTIONS_ITEM_TYPE( name), value),                            \
+                                sizeof( name ## __table[ 0].value),                                       \
                                 string)
+
+#define NS_OPTIONS_PARSE_STRICT( name, string, value_p)                                                   \
+   _NS_OPTIONS_ParseUTF8String_strict( name ## __table,                                                   \
+                                (unsigned int) (sizeof( name ## __table) / sizeof( name ## __table[ 0])), \
+                                sizeof( name ## __table[ 0]),                                             \
+                                offsetof( NS_OPTIONS_ITEM_TYPE( name), value),                            \
+                                sizeof( name ## __table[ 0].value),                                       \
+                                string,                                                                   \
+                                value_p)
 
 
 //MULLE_OBJC_GLOBAL
@@ -135,6 +154,25 @@ char   *_NS_table_search_UTF8String( void *table,
                                      size_t offset,
                                      size_t item_len,
                                      unsigned long long bit);
+
+
+//MULLE_OBJC_GLOBAL (dont have it here, why ?)
+int   _NS_ENUM_ParseUTF8String_strict( void *table,
+                                       unsigned int len,
+                                       size_t line_size,
+                                       size_t offset,
+                                       size_t item_len,
+                                       char *s,
+                                       unsigned long long *value);
+
+//MULLE_OBJC_GLOBAL
+int   _NS_OPTIONS_ParseUTF8String_strict( void *table,
+                                          unsigned int len,
+                                          size_t line_size,
+                                          size_t offset,
+                                          size_t item_len,
+                                          char *s,
+                                          unsigned long long *value);
 
 
 //MULLE_OBJC_GLOBAL (dont have it here, why ?)
