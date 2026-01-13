@@ -1,3 +1,27 @@
+## 0.27.0
+
+
+* fix duplicate mulle-core submodule entries in cmake section
+* add missing dependency toc command to quickstart guide
+
+
+feature: add strict enum parsing and access control improvements
+
+* Rename NSObject `object` factory method to `instance` (old name kept for compatibility)
+* Add strict enum/options parsing with validation output
+* New access control methods: `mulleGainAccessWithUniquingSetIfAbsent` and `mulleRelinquishAccessWithUniquingSetIfAbsent`
+* Add `MulleObjCGainAccessToObjects` and `MulleObjCRelinquishAccessToObjects` utility functions
+* New ``mulle_atomic_pointer_t`` string setter for thread-safe ivar updates
+* Improved NSInvocation error handling and alignment fixes
+* Add ``_MulleObjectForward`` alias for dynamic forwarding
+* Add methods to NSAutoreleasePool for single object release tracing
+* removed `long double` support by default
+
+
+* mulleGainAccess/mulleRelinquishAccess rework. Now properties and ivars are gained and relinquised as well by NSObject with uniquing
+* new header `mulle_objc_enum` for outside use of enums without the need for `mulle_objc_type`
+
+
 ## 0.26.0
 
 

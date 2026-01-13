@@ -95,3 +95,7 @@ perf.data
 *.backup
 .cursorignpore
 .cursorignore
+dox.unreleased/
+lsp-hover-port.sh
+lsp-hover.sh
+test/MulleObject/30-bench/mulle-objc.css
