@@ -1,3 +1,7 @@
+### 0.27.1
+
+* fix obscure crasher in NSAutoreleasePool
+
 ## 0.27.0
 
 
