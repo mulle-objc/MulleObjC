@@ -261,7 +261,7 @@ static inline void
          while( objects > sentinel)
          {
             opfer = *--objects;
-            _mulle_objc_object_call_release( opfer);
+            mulle_objc_object_call_release( opfer);
          }
       }
 
