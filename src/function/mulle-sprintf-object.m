@@ -70,6 +70,18 @@ static int  _sprintf_object_conversion( struct mulle_buffer *buffer,
    s = "(nil)";
    if( v.obj)
    {
+#ifdef DEBUG
+      struct _mulle_objc_class   *cls;
+
+      cls = __mulle_objc_object_get_isa( v.obj);
+      if( ! cls)
+      {
+         // TODO: avoid calling mulle_fprintf recursively within itself
+         fprintf( stderr, "The runtime has no string class loaded, so the %%@ format is invalid.\n"
+                                "MulleObjC has no string class. Use MulleFoundation for NSString.\n");
+         abort();
+      }
+#endif
       if( info->memory.hash_found && Self.colorize)
          s = [(id) v.obj colorizedUTF8String];  // inherently thread safe!
       else

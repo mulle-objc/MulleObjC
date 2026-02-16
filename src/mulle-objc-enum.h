@@ -41,7 +41,24 @@
 
 #ifndef NSENUM
 
+#include "include.h"
+
+#include <mulle-objc-runtime/minimal.h>
+
 #include <stddef.h>
+
+//// maybe not necessary
+//#ifndef MULLE_OBJC_GLOBAL
+//# ifdef MULLE_OBJC_BUILD
+//#  define MULLE_OBJC_GLOBAL    MULLE_C_GLOBAL
+//# else
+//#  if defined( MULLE_OBJC_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE_OBJC_INCLUDE_STATIC))
+//#   define MULLE_OBJC_GLOBAL   MULLE_C_EXTERN_GLOBAL
+//#  else
+//#   define MULLE_OBJC_GLOBAL   extern
+//#  endif
+//# endif
+//#endif
 
 
 //// precede with typedef like:  typedef NS_ENUM( NSUInteger, foo) { x = 1; }
@@ -147,7 +164,7 @@ enum name
                                 value_p)
 
 
-//MULLE_OBJC_GLOBAL
+MULLE_OBJC_GLOBAL
 char   *_NS_table_search_UTF8String( void *table,
                                      unsigned int len,
                                      size_t line_size,
@@ -156,7 +173,7 @@ char   *_NS_table_search_UTF8String( void *table,
                                      unsigned long long bit);
 
 
-//MULLE_OBJC_GLOBAL (dont have it here, why ?)
+MULLE_OBJC_GLOBAL
 int   _NS_ENUM_ParseUTF8String_strict( void *table,
                                        unsigned int len,
                                        size_t line_size,
@@ -165,7 +182,7 @@ int   _NS_ENUM_ParseUTF8String_strict( void *table,
                                        char *s,
                                        unsigned long long *value);
 
-//MULLE_OBJC_GLOBAL
+MULLE_OBJC_GLOBAL
 int   _NS_OPTIONS_ParseUTF8String_strict( void *table,
                                           unsigned int len,
                                           size_t line_size,
@@ -175,7 +192,7 @@ int   _NS_OPTIONS_ParseUTF8String_strict( void *table,
                                           unsigned long long *value);
 
 
-//MULLE_OBJC_GLOBAL (dont have it here, why ?)
+MULLE_OBJC_GLOBAL
 unsigned long long   _NS_ENUM_ParseUTF8String( void *table,
                                                unsigned int len,
                                                size_t line_size,
@@ -183,15 +200,14 @@ unsigned long long   _NS_ENUM_ParseUTF8String( void *table,
                                                size_t item_len,
                                                char *s);
 
-//MULLE_OBJC_GLOBAL
+MULLE_OBJC_GLOBAL
 unsigned long long   _NS_OPTIONS_ParseUTF8String( void *table,
                                                   unsigned int len,
                                                   size_t line_size,
                                                   size_t offset,
                                                   size_t item_len,
                                                   char *s);
-//MULLE_OBJC_GLOBAL
-
+MULLE_OBJC_GLOBAL
 char   *_NS_ENUM_UTF8String( void *table,
                              unsigned int len,
                              size_t line_size,
@@ -199,8 +215,7 @@ char   *_NS_ENUM_UTF8String( void *table,
                              size_t item_len,
                              unsigned long long bits);
 
-//MULLE_OBJC_GLOBAL
-
+MULLE_OBJC_GLOBAL
 char   *_NS_OPTIONS_UTF8String( void *table,
                                 unsigned int len,
                                 size_t line_size,
@@ -208,8 +223,7 @@ char   *_NS_OPTIONS_UTF8String( void *table,
                                 size_t item_len,
                                 unsigned long long bits);
 
-//MULLE_OBJC_GLOBAL
-
+MULLE_OBJC_GLOBAL
 size_t   _NS_OPTIONS_prefix_length( void *table,
                                     unsigned int len,
                                     size_t line_size);

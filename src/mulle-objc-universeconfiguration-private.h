@@ -57,7 +57,7 @@ struct _mulle_objc_universeconfiguration_defaults
    void   *(*retain_autorelease)( void *);
    void   (*uncaughtexception)( void *exception) _MULLE_C_NO_RETURN;
    void   (*wrongthread)( struct _mulle_objc_object *obj,
-                          mulle_thread_t affinity_thread,
+                          mulle_thread_id_t affinity_thread,
                           struct _mulle_objc_descriptor *desc) _MULLE_C_NO_RETURN;
 
    // this is called for each new _mulle_objc_threadinfo (i.e. per thread init)

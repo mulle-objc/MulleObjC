@@ -244,8 +244,8 @@ static struct
    // it's an error to call mullePerformFinalize from the main thread. From
    // the the actual thread, you should use +[NSThread exit];
    //
-   assert( (! MulleThreadObjectGetOSThread( self)
-           || MulleThreadGetCurrentOSThread() == MulleThreadObjectGetOSThread( self))
+   assert( (! MulleThreadObjectGetOSThreadId( self)
+           || MulleThreadGetCurrentOSThreadId() == MulleThreadObjectGetOSThreadId( self))
            && "Do not call mullePerformFinalize on NSThread");
 
    // first let installed finalizers run. This is for example CGGraphicsContext
@@ -345,17 +345,12 @@ static struct
 }
 
 
-//static inline void  _NSThreadClearOSThread( NSThread *threadObject)
-//{
-//   _mulle_atomic_pointer_write( &threadObject->_osThread, NULL);
-//}
-
-
 // MEMO: this is only atomic because it will be set by both threads for
 //       consistency in both threads
-static inline void  _NSThreadSetOSThread( NSThread *threadObject, mulle_thread_t thread)
+static inline void   _NSThreadSetOSThreadId( NSThread *threadObject,
+                                             mulle_thread_id_t thread_id)
 {
-   _mulle_atomic_pointer_cas( &threadObject->_osThread, (void *) thread, NULL);
+   _mulle_atomic_pointer_cas( &threadObject->_osThreadId, (void *) thread_id, NULL);
 }
 
 
@@ -371,7 +366,7 @@ static void   _mulle_objc_thread_become_universethread( struct _mulle_objc_unive
    // the universe may have done this already for us if we are the
    // "main" thread
    //
-   assert( mulle_thread_self() != _mulle_objc_universe_get_thread( universe));
+   assert( mulle_thread_id() != _mulle_objc_universe_get_thread_id( universe));
 
    _mulle_objc_universe_retain( universe);
 
@@ -396,7 +391,7 @@ static void
    // the universe will do this, if we are the
    // "main" thread
    //
-   assert( mulle_thread_self() != _mulle_objc_universe_get_thread( universe));
+   assert( mulle_thread_id() != _mulle_objc_universe_get_thread_id( universe));
    _mulle_objc_thread_remove_universe_gc( universe);
    if( unset)
       mulle_objc_thread_unset_threadinfo( universe);      // can't call Objective-C anymore
@@ -412,7 +407,7 @@ static void
 static void   _MulleThreadRegisterInUniverse( NSThread *self,
                                               struct _mulle_objc_universe *universe)
 {
-   _mulle_objc_universe_set_threadobject_for_thread( universe, mulle_thread_self(), self); // does not retain
+   _mulle_objc_universe_set_threadobject_for_thread_id( universe, mulle_thread_id(), self); // does not retain
    _mulle_objc_thread_set_threadobject( universe, self);   // this owns it!
 }
 
@@ -420,9 +415,13 @@ static void   _MulleThreadRegisterInUniverse( NSThread *self,
 static void   _MulleThreadDeregisterInUniverse( NSThread *self,
                                                 struct _mulle_objc_universe *universe)
 {
-   assert( MulleThreadObjectGetOSThread( self) == mulle_thread_self());
+   mulle_fprintf( stderr, "self: %@\n", self);
+   mulle_fprintf( stderr, "self threadid: %p\n", (void *) MulleThreadObjectGetOSThreadId( self));
+   mulle_fprintf( stderr, "curr threadid: %p\n", (void *) mulle_thread_id());
 
-   _mulle_objc_universe_remove_threadobject_for_thread( universe, mulle_thread_self(), self); // does not retain
+   assert( MulleThreadObjectGetOSThreadId( self) == mulle_thread_id());
+
+   _mulle_objc_universe_remove_threadobject_for_thread_id( universe, MulleThreadObjectGetOSThreadId( self), self); // does not retain
    _mulle_objc_thread_set_threadobject( universe, NULL);   // this owns it!
 }
 
@@ -446,7 +445,7 @@ static NSThread   *__MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc
    NSThread   *self;
 
    self = [NSThread new];
-   _mulle_atomic_pointer_write_nonatomic( &self->_osThread, (void *) mulle_thread_self());
+   _mulle_atomic_pointer_write_nonatomic( &self->_osThreadId, (void *) mulle_thread_id());
 
    //
    // create pool configuration, ahead of register so it can
@@ -500,14 +499,8 @@ static void   _MulleThreadTakedownPoolAndRelease( NSThread *threadObject,
 void   _MulleThreadRemoveThreadObjectFromUniverse( NSThread *threadObject,
                                                    struct _mulle_objc_universe *universe)
 {
-#ifndef NDEBUG
-   mulle_thread_t   thread;
-
-   thread = MulleThreadObjectGetOSThread( threadObject);
-   assert( thread == mulle_thread_self());
-   assert( thread != _mulle_objc_universe_get_thread( universe));
-#endif
-
+   assert( MulleThreadObjectGetOSThreadId( threadObject) == mulle_thread_id());
+   assert( MulleThreadObjectGetOSThreadId( threadObject) != _mulle_objc_universe_get_thread_id( universe));
 
    // MEMO: used to be above mulle_objc_thread_done_poolconfigurationm but
    //       then -dealloc code could not find the current thread
@@ -570,8 +563,8 @@ void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_univer
       mulle_objc_universe_fail_inconsistency( universe,
          "_MulleThreadResignAsMainThreadObjectInUniverse can only be called inside the crunch");
 
-   assert( MulleThreadObjectGetOSThread( threadObject) == mulle_thread_self());
-   assert( MulleThreadObjectGetOSThread( threadObject) == _mulle_objc_universe_get_thread( universe));
+   assert( MulleThreadObjectGetOSThreadId( threadObject) == mulle_thread_id());
+   assert( MulleThreadObjectGetOSThreadId( threadObject) == _mulle_objc_universe_get_thread_id( universe));
    assert( [threadObject retainCount] == 1);
 
    // we don't resign as universe thread, just pop the pools
@@ -669,10 +662,13 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 {
    NSThread                      *self = arg;
    struct _mulle_objc_universe   *universe;
+   mulle_thread_id_t             thread_id;
 
    // it's not sure that this is already set, depends if thread or caller
-   // comes first
-   _NSThreadSetOSThread( self, mulle_thread_self());
+   // comes first. But we need it immediately.
+   thread_id = mulle_thread_id();
+   assert( thread_id);
+   _NSThreadSetOSThreadId( self, thread_id);
 
    universe = _mulle_objc_object_get_universe( self);
 
@@ -728,11 +724,12 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 {
    struct _mulle_objc_universe                 *universe;
    struct _mulle_objc_universefoundationinfo   *info;
-   mulle_thread_t                              thread;
    intptr_t                                    n_threads;
+   mulle_thread_id_t                           thread_id;
+
 
    universe = _mulle_objc_object_get_universe( self);
-   if( MulleThreadObjectGetOSThread( self))
+   if( MulleThreadObjectGetOSThreadId( self))
       __mulle_objc_universe_raise_internalinconsistency( universe, "thread already running");
 
    //
@@ -758,7 +755,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    // leak a stack... that will be caught by valgrind. I feel fixing this leas
    // is a non-issue. Usually happens, if the to be called method or
    // function does not exist.
-   if( mulle_thread_create( bouncyBounce, self, &thread))
+   if( mulle_thread_create( bouncyBounce, self, &self->_osThread))
    {
       // undo this
       self->_isDetached = NO;
@@ -770,10 +767,14 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 
    // we can not be sure, that the thread has done this already, but this
    // thread wants to be up-to-date
-   _NSThreadSetOSThread( self, thread);
+   thread_id = mulle_thread_get_id( self->_osThread);
+   assert( thread_id);
+   _NSThreadSetOSThreadId( self, thread_id);
 
    if( universe->debug.trace.thread)
-      mulle_objc_universe_trace( universe, "%p started thread %p", mulle_thread_self(), thread);
+      mulle_objc_universe_trace( universe, "0x%lx started thread %p",
+                                            mulle_thread_id(),
+                                            _mulle_atomic_pointer_read( &self->_osThreadId));
 }
 
 
@@ -799,7 +800,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
       __mulle_objc_universe_raise_internalinconsistency( universe,
                         "can't join a detached thread. Use -mulleStart.");
    }
-   mulle_thread_join( MulleThreadObjectGetOSThread( self));
+   mulle_thread_join( self->_osThread);
 
    invocation = nil;
 
@@ -847,8 +848,6 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 
 - (void) start
 {
-   mulle_thread_t   os_thread;
-
    // we set this early, otherwise things could get racy
    // in case we don't really detach, we set this back to NO
    self->_isDetached = YES;
@@ -863,8 +862,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
       or be made joinable again.
    */
 
-   os_thread = MulleThreadObjectGetOSThread( self);
-   mulle_thread_detach( os_thread);
+   mulle_thread_detach( self->_osThread);
 }
 
 
@@ -883,7 +881,7 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    universe  = _mulle_objc_object_get_universe( thread);
    info      = _mulle_objc_universe_get_universefoundationinfo( universe);
    n_threads = (intptr_t) _mulle_atomic_pointer_read( &info->thread.n_threads);
-//   fprintf( stderr, "%s %p %ld\n", __PRETTY_FUNCTION__, (void *) mulle_thread_self(), n_threads);
+//   fprintf( stderr, "%s %p %ld\n", __PRETTY_FUNCTION__, (void *) mulle_thread_id(), n_threads);
    if( n_threads == 1)
       [thread __isProbablyGoingSingleThreaded];
 
@@ -1307,7 +1305,9 @@ static char  *NSThreadUTF8String( NSThread *self)
 #endif
 
 
-extern MULLE_C_NO_RETURN void   _mulle_objc_printf_abort( char *format, ...);
+//MULLE_OBJC_RUNTIME_GLOBAL
+//MULLE_C_NO_RETURN
+//void   _mulle_objc_printf_abort( char *format, ...);
 
 //
 // Print more nicey, nicey, than what the runtime can do. If the runtime were
@@ -1318,7 +1318,7 @@ extern MULLE_C_NO_RETURN void   _mulle_objc_printf_abort( char *format, ...);
 // MulleObjCTAOLogAndFail or some other failure...
 //
 void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
-                              mulle_thread_t osThread,
+                              mulle_thread_id_t osThreadId,
                               struct _mulle_objc_descriptor *desc)
 {
    struct _mulle_objc_class              *cls;
@@ -1338,17 +1338,17 @@ void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
    universe = _mulle_objc_class_get_universe( cls);
 
    currentThreadObject = MulleThreadGetCurrentThread();
-   osThreadObject      = _mulle_objc_universe_lookup_threadobject_for_thread( universe, osThread);   // try to retri
+   osThreadObject      = _mulle_objc_universe_lookup_threadobject_for_thread_id( universe, osThreadId);
 
    mulle_buffer_do( buffer)
    {
-      mulle_buffer_sprintf( buffer, "%s <%s %p> with affinity to thread ",
+      mulle_buffer_sprintf( buffer, "%s <%s %p> with affinity to ",
                                     ismeta ? "Class" : "Instance",
                                     MulleObjCObjectGetClassNameUTF8String( (id) obj),
                                     obj);
       if( osThreadObject)
       {
-         mulle_buffer_sprintf( buffer, "<%s %p",
+         mulle_buffer_sprintf( buffer, "thread <%s %p",
                                     MulleObjCInstanceGetClassNameUTF8String( osThreadObject),
                                     osThreadObject);
          s = _mulle_atomic_pointer_read( &osThreadObject->_nameUTF8String);
@@ -1357,7 +1357,10 @@ void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
          mulle_buffer_add_string( buffer, "> ");
       }
       else
-         mulle_buffer_sprintf( buffer, "%p ", osThread);
+         if( osThreadId == (mulle_thread_id_t) -1)
+            mulle_buffer_sprintf( buffer, "no thread ");
+         else
+            mulle_buffer_sprintf( buffer, "thread %p ", (void *) osThreadId);
 
       if( ! ismeta)
       {
@@ -1391,7 +1394,7 @@ void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
          mulle_buffer_add_string( buffer, "> ");
       }
       else
-         mulle_buffer_sprintf( buffer, "%p ", mulle_thread_self());
+         mulle_buffer_sprintf( buffer, "%p ", (void *) mulle_thread_id());
 
       s = mulle_buffer_extract_string( buffer);
    }

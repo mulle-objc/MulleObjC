@@ -38,7 +38,7 @@
 
 @interface NSRecursiveLock : NSLock
 {
-   mulle_atomic_pointer_t   _thread;
+   mulle_atomic_pointer_t   _thread_id;
    mulle_atomic_pointer_t   _depth;
 }
 

@@ -3,7 +3,7 @@
 #import <MulleObjC/MulleObjCDebug.h>
 
 
-@interface A : MulleObject < MulleAutolockingObjectProtocols>
+@interface A : MulleObject < MulleAutolockingObjectProtocols, MulleObjCException>
 
 - (void) raise;
 
@@ -40,6 +40,9 @@ int  main( int argc, char *argv[])
    mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__);
 #endif
    a = [A instance];
+
+   __attribute__((aligned(32))) char dummy[32] = {0};  // for AVX
+   (void)dummy;
 
    // this should complain, since the try/catch is too late to unlock
    @try

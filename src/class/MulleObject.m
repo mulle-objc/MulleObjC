@@ -197,11 +197,11 @@ void   MulleObjectSwapInFreshSecondLevelCache( struct _mulle_objc_class *cls,
 int   MulleObjectInvalidateSecondLevelCacheEntry( struct _mulle_objc_class *cls,
                                                   mulle_objc_methodid_t uniqueid)
 {
-   struct _mulle_objc_cacheentry     *entry;
-   struct _mulle_objc_cache          *cache;
-   struct _mulle_objc_impcache       *fcache;
-   struct _mulle_objc_impcachepivot  *cachepivot;
-   mulle_objc_uniqueid_t             offset;
+   struct _mulle_objc_cacheentry      *entry;
+   struct _mulle_objc_cache           *cache;
+   struct _mulle_objc_impcache        *fcache;
+   struct _mulle_objc_impcachepivot   *cachepivot;
+   mulle_objc_uniqueid_t              offset;
 
    cachepivot = (struct _mulle_objc_impcachepivot *) &cls->userinfo;
    fcache     = _mulle_objc_impcachepivot_get_impcache_atomic( cachepivot);
@@ -372,13 +372,102 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 
 - (void *) __lockingForward:(void *) parameter
 {
-   return( MulleObjectLockingForward( self, _cmd, parameter));
+//
+// the idea here was to separate self from __target which would then be
+// proxied forward to. alas its not so easy, because we would have to
+// change more in the code above, which makes it seem not very useful
+//
+   mulle_objc_implementation_t   imp;
+   mulle_objc_methodid_t         methodid;
+   NSRecursiveLock               *lock;
+   void                          *rval;
+
+   methodid = (mulle_objc_methodid_t) _cmd;
+
+   imp  = MulleObjectGetForwardImp( self, methodid);
+   lock = __lock; // can be NULL
+
+   // it's vital, that we increment and decrement the identical lock
+   // for performance reasons, we don't retain it (users responsibility
+   // not to torch it)
+   if( lock)
+      _MulleObjCRecursiveLockLock( lock);
+
+#ifdef NDEBUG
+   rval = mulle_objc_implementation_invoke( imp, self, methodid, parameter);
+#else
+   fprintf(stderr, "About to invoke imp=%p self=%p methodid=%x\n", imp, self, methodid);
+   @try
+   {
+      fprintf(stderr, "Inside try\n");
+      rval = mulle_objc_implementation_invoke( imp, self, methodid, parameter);
+      fprintf(stderr, "End try\n");
+   }
+   @catch( id exception)
+   {
+      struct _mulle_objc_universe   *universe;
+
+      universe = _mulle_objc_object_get_universe( self);
+      fprintf(stderr, "In catch\n");
+
+      __mulle_objc_universe_raise_internalinconsistency( universe,
+                               "An exception %@ is passing thru a -[%@ %s] "
+                               "method call, which will lead to a deadlock",
+                               exception,
+                               MulleObjCObjectGetClass( self),
+                               mulle_objc_universe_lookup_methodname( universe, methodid));
+   }
+   fprintf(stderr, "Invoke completed\n");
+#endif
+   if( lock)
+      _MulleObjCRecursiveLockUnlock( lock);
+
+   return( rval);
 }
 
 
 - (void *) __lockingSuperForward:(void *) parameter
 {
-   return( MulleObjectLockingSuperForward( self, _cmd, parameter));
+   void                          *rval;
+   NSRecursiveLock               *lock;
+   mulle_objc_implementation_t   imp;
+   mulle_objc_methodid_t         methodid;
+
+   methodid = (mulle_objc_methodid_t) _cmd;
+
+   imp  = MulleObjectGetSuperForwardImp( self, methodid);
+   lock = ((struct { @defs( MulleObject); } *) self)->__lock; // can be NULL
+
+   // it's vital, that we increment and decrement the identical lock
+   // for performance reasons, we don't retain it (users responsibility
+   // not to torch it)
+   if( lock)
+      _MulleObjCRecursiveLockLock( lock);
+
+#ifdef NDEBUG
+   rval = mulle_objc_implementation_invoke( imp, self, methodid, parameter);
+#else
+   @try
+   {
+      rval = mulle_objc_implementation_invoke( imp, self, methodid, parameter);
+   }
+   @catch( id exception)
+   {
+      struct _mulle_objc_universe   *universe;
+
+      universe = _mulle_objc_object_get_universe( self);
+      __mulle_objc_universe_raise_internalinconsistency( universe,
+                               "An exception %@ is passing thru a -[%@ %s] "
+                               "method call, which will lead to a deadlock",
+                               exception,
+                               MulleObjCObjectGetClass( self),
+                               mulle_objc_universe_lookup_methodname( universe, methodid));
+   }
+#endif
+   if( lock)
+      _MulleObjCRecursiveLockUnlock( lock);
+
+   return( rval);
 }
 
 
@@ -406,7 +495,7 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    if( self)
    {
       header = _mulle_objc_object_get_objectheader( self);
-      _mulle_objc_objectheader_set_thread( header, mulle_thread_self());
+      _mulle_objc_objectheader_set_thread_id( header, mulle_thread_id());
    }
 
    return( self);
@@ -504,9 +593,10 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
    // if we have no lock (any more), change affinity to current thread
    // otherwise we iz now threadsafe
    //
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, lock
-                                        ? mulle_objc_object_is_threadsafe
-                                        : mulle_thread_self());
+   _mulle_objc_object_set_thread_id( (struct _mulle_objc_object *) self,
+                                     lock
+                                     ? mulle_objc_object_is_threadsafe
+                                     : mulle_thread_id());
 }
 
 

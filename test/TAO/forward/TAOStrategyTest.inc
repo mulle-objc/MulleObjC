@@ -14,8 +14,21 @@ static inline char  *curr_thread_name( void)
 
 #define __THREAD_NAME__    curr_thread_name()
 
+#ifndef TEST_TRACE_FRAME
+# define TEST_TRACE_FRAME  0
+#endif
+
 #ifndef TEST_PROTOCOLS
 # define TEST_PROTOCOLS
+#endif
+
+//
+// with -O1 and up this wont hit -retain/-release anymore
+// And you can't avoid it with default.CFLAGS because the libraries are
+// compiled -O3 or better. So property accessors will not care.
+//
+#ifndef TRACE_RETAIN_RELEASE
+# define TRACE_RETAIN_RELEASE  1
 #endif
 
 
@@ -64,7 +77,7 @@ static void   test_trace( char *format, ...)
    mulle_vprintf( format, args);
    va_end( args);
 
-#ifdef TEST_TRACE_FRAME
+#if TEST_TRACE_FRAME
    {
       unsigned long   nr;
 
@@ -94,7 +107,9 @@ static void   test_trace( char *format, ...)
 
 - (void) release
 {
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - ->: %s %td -> %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount], [self retainCount] - 1);
+#endif
    [super release];
 }
 
@@ -103,8 +118,9 @@ static void   test_trace( char *format, ...)
 {
    self = [super retain];
 
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - +<: %s %td -> %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount], [self retainCount] + 1);
-
+#endif
    return( self);
 }
 
@@ -112,7 +128,9 @@ static void   test_trace( char *format, ...)
 - (id) autorelease
 {
    self = [super autorelease];
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - a<: %s %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount]);
+#endif
    return( self);
 }
 
@@ -155,7 +173,9 @@ static int   thread_function( NSThread *thread, id obj)
 
 - (void) release
 {
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - ->: %s %td -> %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount], [self retainCount] - 1);
+#endif
    MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 }
 
@@ -164,8 +184,9 @@ static int   thread_function( NSThread *thread, id obj)
 {
    self = MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - +<: %s %td -> %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount], [self retainCount] + 1);
-
+#endif
    return( self);
 }
 
@@ -174,8 +195,9 @@ static int   thread_function( NSThread *thread, id obj)
 {
    self = MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - a<: %s %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount]);
-
+#endif
    return( self);
 }
 
@@ -215,7 +237,9 @@ static int   thread_function( NSThread *thread, id obj)
 
 - (void) release
 {
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - ->: %s %td -> %td\n", __THREAD_NAME__, __PRETTY_FUNCTION__, [self retainCount], [self retainCount] - 1);
+#endif
    MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 }
 
@@ -224,16 +248,18 @@ static int   thread_function( NSThread *thread, id obj)
 {
    self = MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - +<: %s %td -> %td\n", __THREAD_NAME__, __PRETTY_FUNCTION__, [self retainCount], [self retainCount] + 1);
-
+#endif
    return( self);
 }
 
 
 - (void) _autoreleaseInvocation
 {
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - f>: %s %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount]);
-
+#endif
    MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
    test_trace( "%s - f<: %s %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount]);
@@ -242,8 +268,9 @@ static int   thread_function( NSThread *thread, id obj)
 
 - (void) _releaseInvocation
 {
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - f>: %s %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount]);
-
+#endif
    MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
    test_trace( "%s - f<: %s %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount]);
@@ -252,8 +279,9 @@ static int   thread_function( NSThread *thread, id obj)
 
 - (void) finalize
 {
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - f>: %s %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount]);
-
+#endif
    MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
    test_trace( "%s - f<: %s %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount]);
@@ -265,8 +293,9 @@ static int   thread_function( NSThread *thread, id obj)
 {
    self = MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
+#if TRACE_RETAIN_RELEASE
    test_trace( "%s - a<: %s %td\n", __THREAD_NAME__, __FUNCTION__, [self retainCount]);
-
+#endif
    return( self);
 }
 

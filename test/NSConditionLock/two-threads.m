@@ -29,11 +29,11 @@ static void   print_fail_if( int state)
    @autoreleasepool
    {
       [self lockWhenCondition:1848];
-      printf( "1. %ld\n", [self condition]);
+      printf( "1. %td\n", [self condition]);
       [self unlockWithCondition:1849];
 
       [self lockWhenCondition:1850];
-      printf( "3. %ld\n", [self condition]);
+      printf( "3. %td\n", [self condition]);
       [self unlockWithCondition:1851];
    }
 }
@@ -41,11 +41,11 @@ static void   print_fail_if( int state)
 - (void) runClient:(id) argument
 {
    [self lockWhenCondition:1849];
-   printf( "2. %ld\n", [self condition]);
+   printf( "2. %td\n", [self condition]);
    [self unlockWithCondition:1850];
 
    [self lockWhenCondition:1851];
-   printf( "4. %ld\n", [self condition]);
+   printf( "4. %td\n", [self condition]);
    [self unlockWithCondition:1852];
 }
 
@@ -69,7 +69,7 @@ int   main( int argc, const char * argv[])
    MulleObjCDotdumpClass( "NSConditionLock");
 #endif
 
-   printf( "0. %ld\n", [lock condition]);
+   printf( "0. %td\n", [lock condition]);
 
    [NSThread detachNewThreadSelector:@selector( runServer:)
                             toTarget:lock

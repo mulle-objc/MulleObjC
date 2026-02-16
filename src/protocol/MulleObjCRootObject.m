@@ -14,6 +14,7 @@
 #import "mulle-objc-universefoundationinfo-private.h"
 
 
+MULLE_OBJC_GLOBAL_VAR
 NS_ENUM_TABLE( MulleObjCTAOStrategy, 8) =
 {
    NS_ENUM_ITEM( MulleObjCTAOCallerRemovesFromCurrentPool),
@@ -222,12 +223,16 @@ static inline void   checkAutoreleaseRelease( id self)
 //
 - (BOOL) mulleIsThreadSafe
 {
-   mulle_thread_t   osThread;
+#ifdef __MULLE_OBJC_TAO__
+   mulle_thread_id_t   osThreadId;
 
    // TODO: ponder if we need atomics for this as the method can
    //       be accessed by multiple threads
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   return( ! osThread);
+   osThreadId = _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) self);
+   return( osThreadId == mulle_objc_object_is_threadsafe);
+#else
+   return( NO);   // without TAO we don't know
+#endif
 }
 
 
@@ -241,42 +246,45 @@ static inline void   checkAutoreleaseRelease( id self)
 
 - (void) mulleSetThreadSafe:(BOOL) flag
 {
-   mulle_thread_t   osThread;
+#ifdef __MULLE_OBJC_TAO__
+   mulle_thread_id_t   currentOSThreadId;
 
-   osThread = flag ? 0 : MulleThreadGetCurrentOSThread();
+   currentOSThreadId = flag ? 0 : MulleThreadGetCurrentOSThreadId();
 
    // Runtime says:
    // this need not be atomic, it would be one object setting the affinity
    // and then handing it over to another thread
    //
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, osThread);
+   _mulle_objc_object_set_thread_id( (struct _mulle_objc_object *) self, currentOSThreadId);
+#else
+#endif
 }
 
 
 - (BOOL) mulleIsAccessible
 {
-   mulle_thread_t   osThread;
-   mulle_thread_t   currentOSThread;
+   mulle_thread_id_t   osThreadId;
+   mulle_thread_id_t   currentOSThreadId;
 
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( ! osThread)
+   osThreadId = _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) self);
+   if( osThreadId == mulle_objc_object_is_threadsafe)
       return( YES);
-   currentOSThread = MulleThreadGetCurrentOSThread();
-   return( osThread == currentOSThread);
+   currentOSThreadId = MulleThreadGetCurrentOSThreadId();
+   return( osThreadId == currentOSThreadId);
 }
 
 
 - (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject
 {
-   mulle_thread_t   osThread;
+   mulle_thread_id_t   osThreadId;
 
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( ! osThread)
+   osThreadId = _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) self);
+   if( osThreadId == mulle_objc_object_is_threadsafe)
       return( YES);
 
    if( ! threadObject)
       threadObject = [NSThread currentThread];
-   return( osThread == MulleThreadObjectGetOSThread( threadObject));
+   return( osThreadId == MulleThreadObjectGetOSThreadId( threadObject));
 }
 
 
@@ -321,13 +329,13 @@ static inline void   checkAutoreleaseRelease( id self)
 
 - (void) mulleGainAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy
 {
-   mulle_thread_t   osThread;
-   mulle_thread_t   currentOSThread;
+   mulle_thread_id_t   osThreadId;
+   mulle_thread_id_t   currentOSThreadId;
 
    switch( strategy)
    {
    case MulleObjCTAOKnownThreadSafe :
-      assert( ! _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self) && "MulleObjCTAOKnownThreadSafe should only be set by @protocol MulleObjCThreadSafe");
+      assert( ! _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) self) && "MulleObjCTAOKnownThreadSafe should only be set by @protocol MulleObjCThreadSafe");
       goto autorelease;
 
       // the differentations are just for self commenting code
@@ -350,29 +358,29 @@ static inline void   checkAutoreleaseRelease( id self)
       break;
    }
 
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( osThread)
+   osThreadId = _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) self);
+   if( osThreadId)
    {
-      currentOSThread = MulleThreadGetCurrentOSThread();
+      currentOSThreadId = MulleThreadGetCurrentOSThreadId();
 #ifdef DEBUG
-      if( osThread != mulle_objc_object_has_no_thread)
+      if( osThreadId != mulle_objc_object_has_no_thread)
       {
          // This can happen if you gain an [NSArray arrayWithObjets:foo, foo, nil];
          // So an object could have been already gainedAccess to. This is no
          // problem as the relinquish will have retained twice also
-         if( currentOSThread != osThread)
+         if( currentOSThreadId != osThreadId)
             MulleObjCThrowInternalInconsistencyExceptionUTF8String( "your thread %@ "
                                                                     "can not gain access "
                                                                     "to object %p of class %s "
                                                                     "still owned by thread %p",
                                                                     MulleThreadGetCurrentThread(),
                                                                     self, MulleObjCObjectGetClassNameUTF8String( self),
-                                                                    osThread);
+                                                                    (void *) osThreadId);
       }
 #else
-      assert( osThread == mulle_objc_object_has_no_thread || currentOSThread == osThread);
+      assert( osThreadId == mulle_objc_object_has_no_thread || currentOSThreadId == osThreadId);
 #endif
-      _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, currentOSThread);
+      _mulle_objc_object_set_thread_id( (struct _mulle_objc_object *) self, currentOSThreadId);
    }
 
 autorelease:
@@ -383,8 +391,8 @@ autorelease:
 
 - (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy
 {
-   mulle_thread_t      osThread;
-   mulle_thread_t      currentOSThread;
+   mulle_thread_id_t   osThreadId;
+   mulle_thread_id_t   currentOSThreadId;
    NSAutoreleasePool   *pool;
 
    [self retain];
@@ -400,7 +408,7 @@ autorelease:
    switch( strategy)
    {
    case MulleObjCTAOKnownThreadSafe          :
-      assert( ! _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self) && "MulleObjCTAOKnownThreadSafe should only be set by @protocol MulleObjCThreadSafe");
+      assert( ! _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) self) && "MulleObjCTAOKnownThreadSafe should only be set by @protocol MulleObjCThreadSafe");
       return;
 
       // the differentiations are just for self commenting code
@@ -425,18 +433,18 @@ autorelease:
    }
 
    // actually threadsafe ?
-   osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) self);
-   if( ! osThread)
+   osThreadId = _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) self);
+   if( osThreadId == mulle_objc_object_is_threadsafe)
       return;
 
-   currentOSThread = MulleThreadGetCurrentOSThread();
+   currentOSThreadId = MulleThreadGetCurrentOSThreadId();
 #ifdef DEBUG
-   if( currentOSThread != osThread)
+   if( currentOSThreadId != osThreadId)
    {
       // This can happen if you relinquish [NSArray arrayWithObjets:foo, foo, nil];
       // So an object could have been already relinquished. This is no problem
       // as the gain will also autorelease it twice
-      if( osThread == (mulle_thread_t) mulle_objc_object_has_no_thread)
+      if( osThreadId == mulle_objc_object_has_no_thread)
          return;
 
       MulleObjCThrowInternalInconsistencyExceptionUTF8String( "your thread %@ "
@@ -445,12 +453,12 @@ autorelease:
                                                               "owned by thread %p",
                                                               MulleThreadGetCurrentThread(),
                                                               self, MulleObjCObjectGetClassNameUTF8String( self),
-                                                              osThread);
+                                                              osThreadId);
    }
 #else
-   assert( osThread != mulle_objc_object_has_no_thread || currentOSThread == osThread);
-   MULLE_C_UNUSED( osThread);
-   MULLE_C_UNUSED( currentOSThread);
+   assert( osThreadId != mulle_objc_object_has_no_thread || currentOSThreadId == osThreadId);
+   MULLE_C_UNUSED( osThreadId);
+   MULLE_C_UNUSED( currentOSThreadId);
 #endif
 
    //
@@ -485,8 +493,8 @@ autorelease:
       break;
    }
 
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self,
-                                  mulle_objc_object_has_no_thread);
+   _mulle_objc_object_set_thread_id( (struct _mulle_objc_object *) self,
+                                     mulle_objc_object_has_no_thread);
 }
 
 

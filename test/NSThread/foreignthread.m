@@ -9,19 +9,24 @@
 static mulle_thread_rval_t   function( void *arg)
 {
    NSAutoreleasePool   *pool;
+   NSThread            *currentThread;
+   NSThread            *mainThread;
 
-   fprintf( stderr, "function::NSPushAutoreleasePool\n");
+   mulle_fprintf( stderr, "function::NSPushAutoreleasePool\n");
    pool = NSPushAutoreleasePool( 0);
    {
-      fprintf( stderr, "function::check stuff\n");
-      printf( "[NSThread currentThread] is %snil\n",
-                  [NSThread currentThread] == nil ? "" : "not ");
-      printf( "[NSThread currentThread] is %s[NSThread mainThread]\n",
-                  [NSThread currentThread] == [NSThread mainThread] ? "" : "not ");
+      mulle_fprintf( stderr, "function::check stuff 1\n");
+      currentThread = [NSThread currentThread];
+      mulle_printf( "[NSThread currentThread] is %snil\n",
+                     currentThread == nil ? "" : "not ");
+      mainThread = [NSThread mainThread];
+      mulle_fprintf( stderr, "function::check stuff 2\n");
+      mulle_printf( "[NSThread currentThread] is %s[NSThread mainThread]\n",
+                     currentThread == mainThread ? "" : "not ");
    }
-   fprintf( stderr, "function::NSPopAutoreleasePool\n");
+   mulle_fprintf( stderr, "function::NSPopAutoreleasePool\n");
    NSPopAutoreleasePool( pool);
-   fprintf( stderr, "function::exit\n");
+   mulle_fprintf( stderr, "function::exit\n");
 
    mulle_thread_return();
 }
@@ -31,11 +36,12 @@ int main( void)
 {
    mulle_thread_t    thread;
 
-   fprintf( stderr, "Create thread\n");
+   mulle_fprintf( stderr, "Create thread\n");
    if( mulle_thread_create( function, NULL, &thread))
       return( 1);
 
-   fprintf( stderr, "Join thread\n");
+   mulle_fprintf( stderr, "Join thread\n");
    mulle_thread_join( thread);
+   mulle_fprintf( stderr, "Exit\n");
    return( 0);
 }

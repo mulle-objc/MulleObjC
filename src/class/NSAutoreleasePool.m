@@ -902,7 +902,9 @@ static void   *pushAutoreleasePool( struct _mulle_objc_poolconfiguration *config
    config->releasing = 0;
 
    if( config->trace & 0x4)
-      mulle_fprintf( stderr, "[pool] pushed pool %p in thread %p\n", pool, (void *) mulle_thread_self());
+      mulle_fprintf( stderr, "[pool] pushed pool %p in thread %p\n",
+                              pool,
+                              (void *) mulle_thread_id());
 
    return( pool);
 }
@@ -939,14 +941,17 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 
    if( config->trace & 0x4)
       mulle_fprintf( stderr, "[pool] popping to pool %p in thread %p\n",
-                        aPool, (void *) mulle_thread_self());
+                             aPool,
+                             (void *) mulle_thread_id());
    do
    {
       pool = config->tail;
       if( ! pool)
       {
          mulle_fprintf( stderr, "[pool] asked to pop to pool %p that didn't exist in "
-                          "thread %p\n", aPool, (void *) mulle_thread_self());
+                                "thread %p\n",
+                                aPool,
+                                (void *) mulle_thread_id());
          abort();
       }
 
@@ -954,7 +959,8 @@ static void   popAutoreleasePool( struct _mulle_objc_poolconfiguration *config, 
 
       if( config->trace & 0x4)
          mulle_fprintf( stderr, "[pool] popping pool %p in thread %p\n",
-                           pool, (void *) mulle_thread_self());
+                                pool,
+                                (void *) mulle_thread_id());
 
    //   exception = nil;
    //NS_DURING
@@ -1097,11 +1103,11 @@ struct dump_info
 
 static void   dump_object( id obj, struct dump_info *info)
 {
-   uintptr_t        rc;
-   char             *name;
-   mulle_thread_t   osThread;
-   NSThread         *thread;
-   NSUInteger       thread_index;
+   uintptr_t           rc;
+   char                *name;
+   mulle_thread_id_t   osThreadId;
+   NSThread            *thread;
+   NSUInteger          thread_index;
 
    if( [obj respondsToSelector:@selector( mulleNameUTF8String)])
    {
@@ -1120,15 +1126,15 @@ static void   dump_object( id obj, struct dump_info *info)
 
    if( info->options & 0x2)
    {
-      osThread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) obj);
-      if( osThread == mulle_objc_object_is_threadsafe)
+      osThreadId = _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) obj);
+      if( osThreadId == mulle_objc_object_is_threadsafe)
          mulle_fprintf( info->fp, ",NULL,\"threadsafe\"");
       else
-         if( osThread == mulle_objc_object_has_no_thread)
+         if( osThreadId == mulle_objc_object_has_no_thread)
             mulle_fprintf( info->fp, ",-1,\"unowned\"");
          else
          {
-            thread = mulle_map_get( info->info->object.threads, (void *) osThread);
+            thread = mulle_map_get( info->info->object.threads, (void *) osThreadId);
             name   = [thread mulleNameUTF8String];
             if( info->options & 0x1)
             {
@@ -1191,9 +1197,9 @@ static inline void   _dump_info_init( struct dump_info *p,
                                       struct _mulle_objc_universefoundationinfo *info,
                                       int options)
 {
-   NSThread         *thread;
-   NSUInteger       thread_index;
-   mulle_thread_t   osThread;
+   NSThread            *thread;
+   NSUInteger          thread_index;
+   mulle_thread_id_t   osThreadId;
 
    memset( p, 0, sizeof( *p));
 
@@ -1208,7 +1214,7 @@ static inline void   _dump_info_init( struct dump_info *p,
    mulle__pointermap_set( &p->thread_index_map, info->thread.mainthread, (void *) 0, NULL);
 
    thread_index = 1;
-   mulle_map_for( info->object.threads, osThread, thread)
+   mulle_map_for( info->object.threads, osThreadId, thread)
    {
       if( thread != info->thread.mainthread)
       {
@@ -1269,7 +1275,7 @@ static void
                                                              int indexed)
 {
    NSThread           *thread;
-   void               *osThread;
+   void               *osThreadId;
    NSUInteger         thread_index;
    struct dump_info   dump_info;
 
@@ -1278,7 +1284,7 @@ static void
    thread = info->thread.mainthread;
    _dumpinfo_dump_thread( &dump_info, thread, 0, fp);
 
-   mulle_map_for( info->object.threads, osThread, thread)
+   mulle_map_for( info->object.threads, osThreadId, thread)
    {
       thread_index = (NSUInteger) _mulle__pointermap_get( &dump_info.thread_index_map, thread);
       if( thread_index)

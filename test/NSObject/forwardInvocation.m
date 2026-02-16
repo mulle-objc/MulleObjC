@@ -166,8 +166,8 @@ static void  test_pointer_return( void)
    Foo   *foo;
 
    foo = [[Foo new] autorelease];
-   printf( "%p\n", [foo pointerReturnNoParam]);
-   printf( "%p\n", [foo pointerReturnPointerParam:(void *) 1847]);
+   mulle_printf( "%p\n", [foo pointerReturnNoParam]);
+   mulle_printf( "%p\n", [foo pointerReturnPointerParam:(void *) 1847]);
 }
 
 

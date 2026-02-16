@@ -35,9 +35,9 @@
 #ifndef mulle_objc_atomicid_h__
 #define mulle_objc_atomicid_h__
 
-#include "mulle-objc-type.h"
-
 #include "include.h" // Needed for MULLE_OBJC_GLOBAL
+
+#include "mulle-objc-type.h"
 
 #include <mulle-thread/mulle-thread.h>
 

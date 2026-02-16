@@ -27,12 +27,12 @@
 }
 
 
-// some funny code to test an obscure problem
+// some funny code to test an obscure problem (only works in Debug)
 - (void) release
 {
    NSThread   *thread;
 
-   mulle_thread_once_do( test)
+   mulle_thread_once_do_noblock( test)
    {
       @autoreleasepool
       {

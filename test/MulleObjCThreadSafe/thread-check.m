@@ -5,15 +5,14 @@
 // we only have two threads, otherwise its almost impossible without
 // keeping all NSThreads around...
 //
-static NSThread  *NSThread_for_OSthread( mulle_thread_t arg)
+static NSThread  *NSThread_for_OSthreadId( mulle_thread_id_t arg)
 {
    if( ! arg)
       return( nil);
-   if( arg == MulleThreadObjectGetOSThread( [NSThread mainThread]))
+   if( arg == MulleThreadObjectGetOSThreadId( [NSThread mainThread]))
       return( [NSThread mainThread]);
    return( [NSThread currentThread]);
 }
-
 
 
 int   main( void)
@@ -30,7 +29,7 @@ int   main( void)
    [other mulleSetNameUTF8String:"NSThread"];
 
    mulle_printf( "-[%@ mulleIsThreadSafe] %btd\n",   cls, [obj mulleIsThreadSafe]);
-   mulle_printf( "-[%@ threadAffinity] %@\n",        cls, NSThread_for_OSthread( _mulle_objc_object_get_thread( (struct _mulle_objc_object *) obj)));
+   mulle_printf( "-[%@ threadAffinity] %@\n",        cls, NSThread_for_OSthreadId( _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) obj)));
    mulle_printf( "-[%@ mulleIsAccessible] %btd\n",   cls, [obj mulleIsAccessible]);
 
    mulle_printf( "-[%@ mulleIsAccessibleByThread:%@] %btd\n",

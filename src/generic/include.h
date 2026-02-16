@@ -26,13 +26,15 @@
 
 
 #ifdef MULLE_OBJC_BUILD
-# define MULLE_OBJC_GLOBAL    MULLE_C_GLOBAL
+# define MULLE_OBJC_GLOBAL        MULLE_C_GLOBAL
+# define MULLE_OBJC_GLOBAL_VAR    MULLE_C_GLOBAL_VAR
 #else
 # if defined( MULLE_OBJC_INCLUDE_DYNAMIC) || (defined( MULLE_INCLUDE_DYNAMIC) && ! defined( MULLE_OBJC_INCLUDE_STATIC))
-#  define MULLE_OBJC_GLOBAL   MULLE_C_EXTERN_GLOBAL
+#  define MULLE_OBJC_GLOBAL       MULLE_C_EXTERN_GLOBAL
 # else
-#  define MULLE_OBJC_GLOBAL   extern
+#  define MULLE_OBJC_GLOBAL       extern
 # endif
+# define MULLE_OBJC_GLOBAL_VAR
 #endif
 
 

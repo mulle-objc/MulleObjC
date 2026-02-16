@@ -13,9 +13,7 @@
  */
 #import "import.h"
 
-#ifndef _WIN32
-#include <pthread.h>
-#endif
+#include <mulle-thread/mulle-thread.h>
 
 #import "NSObject.h"
 
@@ -24,17 +22,15 @@
 
 //
 // This is the basis for NSConditionLock. On its own its just a thin wrapper
-// around pthreads. Its super lowlevel and you really must have read the
-// pthread dox, otherwise you'll be deadlocking left and right.
-// TODO: move platform specifica to a C library
-// Hint: Use NSConditionLock or pthreads directly if possible.
+// around mulle-thread condition variables. Its super lowlevel and you really
+// must have read the condition variable docs, otherwise you'll be deadlocking
+// left and right.
+// Hint: Use NSConditionLock or mulle-thread directly if possible.
 //
 @interface NSCondition : NSObject < NSLocking, MulleObjCThreadSafe>
 {
-#ifndef _WIN32
-   pthread_mutex_t   _lock;
-   pthread_cond_t    _condition;
-#endif
+   mulle_thread_mutex_t   _lock;
+   mulle_thread_cond_t    _condition;
 }
 
 // it's an NSString, but we don't have it here
@@ -54,5 +50,4 @@
 - (BOOL) tryLock;
 
 @end
-
 

@@ -130,7 +130,7 @@ static id   MulleObjCNewClassClusterPlaceholder( Class infraCls)
    imp         = _mulle_objc_class_lookup_implementation_noforward( cls, sel);
 
    // inherently thread safe with no affinity
-   _mulle_objc_object_set_thread( placeholder, 0);
+   _mulle_objc_object_set_thread_id( placeholder, 0);
    if( imp)
       (*imp)( placeholder, sel, NULL);
 

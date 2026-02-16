@@ -85,14 +85,14 @@ int  main()
             // autoreleasepool stack
             previous = [NSAutoreleasePool mulleCount];
             [[NSAutoreleasePool mulleDefaultAutoreleasePool] mulleReleasePoolObjects:foo
-                                                                           count:8];
+                                                                               count:8];
             count = [NSAutoreleasePool mulleCount];
             assert( sizeof( ptrdiff_t) == sizeof( NSUInteger));
             mulle_printf( "%td -> %td\n", previous, count);
             previous = count;
 
             [NSAutoreleasePool mulleReleasePoolObjects:foo
-                                             count:8];
+                                                 count:8];
             count = [NSAutoreleasePool mulleCount];
 
             mulle_printf( "%td -> %td\n", previous, count);

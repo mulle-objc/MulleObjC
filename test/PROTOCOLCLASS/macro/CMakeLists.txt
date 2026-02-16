@@ -13,16 +13,20 @@ add_executable( macro.exe
 ${SOURCES}
 )
 
-get_filename_component( C_COMPILER_NAME "${CMAKE_C_COMPILER}" NAME_WE)
-
-if( "${C_COMPILER_NAME}" MATCHES "mulle-cl*")
-   if( CMAKE_BUILD_TYPE MATCHES "^Debug|^Test")
-      target_compile_options( "macro.exe" PRIVATE -fobjc-tao)
-      message( STATUS "TAO enabled via compiler flag")
-   endif()
+if( CMAKE_BUILD_TYPE MATCHES "^Debug|^Test")
+   target_compile_options( "macro.exe" PRIVATE -fobjc-tao)
+   message( STATUS "TAO enabled via compiler flag")
 endif()
 
 
 target_link_libraries( macro.exe
    ${TEST_LIBRARIES}
 )
+
+# Export symbols needed for Windows DLL dynamic linking
+if( WIN32)
+   target_link_options( macro.exe
+      PUBLIC
+         "-Wl,--export-all-symbols"
+   )
+endif()

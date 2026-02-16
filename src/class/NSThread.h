@@ -57,7 +57,8 @@ typedef int   MulleThreadObjectFunction_t( NSThread *, id);
 //
 @interface NSThread : NSObject < MulleObjCThreadSafe>
 {
-   mulle_atomic_pointer_t   _osThread;
+   mulle_thread_t           _osThread;          // set by mulle_thread_create, cant be changed!
+   mulle_atomic_pointer_t   _osThreadId;
    mulle_atomic_pointer_t   _runLoop;
    mulle_atomic_pointer_t   _nameUTF8String;
    mulle_atomic_pointer_t   _cancelled;
@@ -308,16 +309,21 @@ static inline id   MulleThreadObjectForKeyUTF8String( char *key)
 }
 
 
-
-static inline mulle_thread_t  MulleThreadObjectGetOSThread( NSThread *threadObject)
+static inline mulle_thread_id_t   MulleThreadObjectGetOSThreadId( NSThread *threadObject)
 {
-   return( (mulle_thread_t) _mulle_atomic_pointer_read( &((struct { @defs( NSThread); } *) threadObject)->_osThread));
+   return( (mulle_thread_id_t) _mulle_atomic_pointer_read( &((struct { @defs( NSThread); } *) threadObject)->_osThreadId));
 }
 
 
 static inline mulle_thread_t  MulleThreadGetCurrentOSThread( void)
 {
-   return( (mulle_thread_t) mulle_thread_self());
+   return( mulle_thread_self());
+}
+
+
+static inline mulle_thread_id_t  MulleThreadGetCurrentOSThreadId( void)
+{
+   return( mulle_thread_id());
 }
 
 
@@ -343,13 +349,14 @@ static inline void   MulleObjCSetTAOFailureHandler( MulleObjCTAOFailureHandler *
    struct _mulle_objc_universe      *universe;
 
    universe = mulle_objc_global_get_defaultuniverse();
-   universe->failures.wrongthread = (void (*)()) handler;
+   // mf: they fing ruined C
+   (* (void(**)()) &universe->failures.wrongthread) = (void (*)()) handler;
 }
 
 
 MULLE_OBJC_GLOBAL
 void  MulleObjCTAOLogAndFail( struct _mulle_objc_object *obj,
-                              mulle_thread_t osThread,
+                              mulle_thread_id_t osThreadId,
                               struct _mulle_objc_descriptor *desc) MULLE_C_NO_RETURN;
 
 

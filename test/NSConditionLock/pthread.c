@@ -43,7 +43,7 @@ int   main( int argc, const char * argv[])
       rval = pthread_mutex_trylock( &lock);
       if( ! rval)
       {
-         fprintf( stderr, "unexpected success\n");
+         mulle_fprintf( stderr, "unexpected success\n");
          abort();
       }
       rval_perror( "pthread_mutex_trylock", rval);

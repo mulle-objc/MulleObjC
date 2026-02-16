@@ -285,7 +285,7 @@ int  main( int argc, char *argv[])
    struct _mulle_objc_universe   *universe;
 
    universe = mulle_objc_global_get_universe( __MULLE_OBJC_UNIVERSEID__);
-   universe->callbacks.will_init_cache = will_init_cache;
+   universe->callback.will_init_cache = will_init_cache;
 
    tests( NO);
 

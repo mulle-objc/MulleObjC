@@ -29,7 +29,7 @@ endif()
 if( HEADERS_PHASE)
    install( FILES ${INSTALL_PUBLIC_HEADERS}  DESTINATION "include/${PROJECT_NAME}")
    install( FILES ${INSTALL_PRIVATE_HEADERS} DESTINATION "include/${PROJECT_NAME}")
-   install( FILES ${INSTALL_CMAKE_INCLUDES}          DESTINATION "include/${PROJECT_NAME}/cmake")
+   install( FILES ${INSTALL_CMAKE_INCLUDES}  DESTINATION "include/${PROJECT_NAME}/cmake")
 
    # short cut out
    if( NOT COMPILE_PHASE AND NOT LINK_PHASE)
@@ -57,7 +57,14 @@ target_compile_options( "${LIBRARY_COMPILE_TARGET}" PUBLIC -Wall)
 # use LIBRARY_LINK_TARGET for linker options
 if( LINK_PHASE)
    target_link_options( "${LIBRARY_LINK_TARGET}" PUBLIC)
+
+   # Allow unresolved symbols on Windows (for mulle_atexit, __register_mulle_objc_universe)
+   # if( WIN32 OR MINGW)
+   #    target_link_options( "${LIBRARY_LINK_TARGET}" PRIVATE "-Wl,/FORCE:UNRESOLVED")
+   # endif()
 endif()
+
+
 
 include( InstallLibrary)
 

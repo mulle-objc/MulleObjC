@@ -415,7 +415,7 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
    {
       void   (*p_mulle_testallocator_set_stacktracesymbolizer)( void (*)( void));
 
-      p_mulle_testallocator_set_stacktracesymbolizer = dlsym( RTLD_DEFAULT, "mulle_testallocator_set_stacktracesymbolizer");
+      p_mulle_testallocator_set_stacktracesymbolizer = mulle_dlsym_exe( "mulle_testallocator_set_stacktracesymbolizer");
       if( p_mulle_testallocator_set_stacktracesymbolizer)
          (*p_mulle_testallocator_set_stacktracesymbolizer)( (void (*)(void)) MulleObjCStacktraceSymbolize);
    }
@@ -431,17 +431,17 @@ void  mulle_objc_postcreate_universe( struct _mulle_objc_universe  *universe)
 #endif
 }
 
-extern
-MULLE_C_NO_RETURN void
-   _mulle_objc_vprintf_abort( char *format, va_list args);
-
-extern
-MULLE_C_NO_RETURN void
-   _mulle_objc_vperror_abort( char *format, va_list args);
-
-extern
-MULLE_C_NO_RETURN MULLE_C_NEVER_INLINE void
-   _mulle_objc_printf_abort( char *format, ...);
+// extern
+// MULLE_C_NO_RETURN void
+//    _mulle_objc_vprintf_abort( char *format, va_list args);
+//
+// extern
+// MULLE_C_NO_RETURN void
+//    _mulle_objc_vperror_abort( char *format, va_list args);
+//
+// extern
+// MULLE_C_NO_RETURN MULLE_C_NEVER_INLINE void
+//    _mulle_objc_printf_abort( char *format, ...);
 
 
 MULLE_C_NO_RETURN
@@ -449,6 +449,7 @@ void   MulleObjCStringVPrintfAbort( id format, va_list args)
 {
    _mulle_objc_vprintf_abort( [format UTF8String], args);
 }
+
 
 MULLE_C_NO_RETURN
 void   MulleObjCStringVPerrorAbort( id format, va_list args)

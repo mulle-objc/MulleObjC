@@ -120,8 +120,8 @@ struct _mulle_objc_universefoundationinfo
 };
 
 
-MULLE_C_CONST_NONNULL_RETURN static inline
-   struct _mulle_objc_universefoundationinfo *
+MULLE_C_CONST_NONNULL_RETURN
+static inline struct _mulle_objc_universefoundationinfo *
       _mulle_objc_universe_get_universefoundationinfo( struct _mulle_objc_universe *universe)
 {
    return( _mulle_objc_universe_get_foundationdata( universe));
@@ -202,16 +202,16 @@ MULLE_OBJC_GLOBAL
 void _mulle_objc_universefoundationinfo_release_rootobjects( struct _mulle_objc_universefoundationinfo *config);
 
 MULLE_OBJC_GLOBAL
-void _mulle_objc_universefoundationinfo_set_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *config,
-                                                                     mulle_thread_t thread,
+void _mulle_objc_universefoundationinfo_set_threadobject_for_thread_id( struct _mulle_objc_universefoundationinfo *config,
+                                                                     mulle_thread_id_t thread,
                                                                      void *obj);
 MULLE_OBJC_GLOBAL
-void _mulle_objc_universefoundationinfo_remove_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *config,
-                                                       mulle_thread_t thread,
-                                                       void *obj);
+void _mulle_objc_universefoundationinfo_remove_threadobject_for_thread_id( struct _mulle_objc_universefoundationinfo *config,
+                                                                           mulle_thread_id_t thread,
+                                                                           void *obj);
 MULLE_OBJC_GLOBAL
-void *_mulle_objc_universefoundationinfo_lookup_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *config,
-                                                                         mulle_thread_t thread);
+void *_mulle_objc_universefoundationinfo_lookup_threadobject_for_thread_id( struct _mulle_objc_universefoundationinfo *config,
+                                                                            mulle_thread_id_t thread);
 
 
 MULLE_OBJC_GLOBAL
@@ -229,13 +229,14 @@ void _mulle_objc_universe_lockedcall1_universefoundationinfo( struct _mulle_objc
                                                               void *obj);
 MULLE_OBJC_GLOBAL
 void _mulle_objc_universe_lockedcall2_universefoundationinfo( struct _mulle_objc_universe *universe,
-         void (*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_t, void *),
-         mulle_thread_t thread,
-         void *obj);
+                                                              void (*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_id_t, void *),
+                                                              mulle_thread_id_t thread,
+                                                              void *obj);
 
+MULLE_OBJC_GLOBAL
 void  *_mulle_objc_universe_lockedgetcall1_universefoundationinfo( struct _mulle_objc_universe *universe,
-         void *(*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_t),
-         mulle_thread_t thread);
+                                                                   void *(*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_id_t),
+                                                                   mulle_thread_id_t thread);
 
 # pragma mark - root object conveniences
 
@@ -268,41 +269,41 @@ static inline void
 
 
 static inline void
-	_mulle_objc_universe_set_threadobject_for_thread( struct _mulle_objc_universe *universe,
-                                    mulle_thread_t thread,
-												void *obj)
+	_mulle_objc_universe_set_threadobject_for_thread_id( struct _mulle_objc_universe *universe,
+                                                        mulle_thread_id_t thread_id,
+												                    void *obj)
 {
    if( universe->debug.trace.thread)
-      mulle_objc_universe_trace( universe, "add threadObject %p for thread %p", obj, thread);
+      mulle_objc_universe_trace( universe, "add threadObject %p for thread %p", obj, thread_id);
 
    _mulle_objc_universe_lockedcall2_universefoundationinfo( universe,
-   		_mulle_objc_universefoundationinfo_set_threadobject_for_thread,
-         thread,
+   		_mulle_objc_universefoundationinfo_set_threadobject_for_thread_id,
+         thread_id,
    		obj);
 }
 
 
 static inline void *
-   _mulle_objc_universe_lookup_threadobject_for_thread( struct _mulle_objc_universe *universe,
-                                       mulle_thread_t thread)
+   _mulle_objc_universe_lookup_threadobject_for_thread_id( struct _mulle_objc_universe *universe,
+                                                           mulle_thread_id_t thread_id)
 {
    return( _mulle_objc_universe_lockedgetcall1_universefoundationinfo( universe,
-              _mulle_objc_universefoundationinfo_lookup_threadobject_for_thread,
-              thread));
+              _mulle_objc_universefoundationinfo_lookup_threadobject_for_thread_id,
+              thread_id));
 }
 
 
 static inline void
-	_mulle_objc_universe_remove_threadobject_for_thread( struct _mulle_objc_universe *universe,
-                                       mulle_thread_t thread,
-                                       void *obj)
+	_mulle_objc_universe_remove_threadobject_for_thread_id( struct _mulle_objc_universe *universe,
+                                                           mulle_thread_id_t thread_id,
+                                                           void *obj)
 {
    if( universe->debug.trace.thread)
-      mulle_objc_universe_trace( universe, "remove threadObject %p for thread %p", obj, thread);
+      mulle_objc_universe_trace( universe, "remove threadObject %p for thread %p", obj, thread_id);
 
    _mulle_objc_universe_lockedcall2_universefoundationinfo( universe,
-   	 _mulle_objc_universefoundationinfo_remove_threadobject_for_thread,
-       thread,
+   	 _mulle_objc_universefoundationinfo_remove_threadobject_for_thread_id,
+       thread_id,
    	 obj);
 }
 
