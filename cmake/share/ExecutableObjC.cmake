@@ -53,7 +53,7 @@ if( APPLE AND MULLE_OBJC)
       if( MULLE_ATINIT_LIBRARY)
          target_link_options( "${EXECUTABLE_LINK_TARGET}"
             PUBLIC
-               "SHELL:LINKER:-exported_symbol,__mulle_atinit"
+               "SHELL:LINKER:-exported_symbol,_mulle_atinit"
          )
       endif()
       if( MULLE_ATEXIT_LIBRARY)

@@ -40,18 +40,57 @@
 #import "mulle-objc-universefoundationinfo-private.h"
 #import "NSThread.h"
 #import "NSAutoreleasePool.h"
-
+#include <mulle-objc-runtime/mulle-objc-universe-dll-loader.h>
 
 
 //
 // this is unfortunately linkorder and platform dependent
 //
 #if DEBUG
-static void   assert_proper_testallocator_linkorder( void)
-{
-   if( ! mulle_objc_environment_get_yes_no( "MULLE_TESTALLOCATOR"))
-      return;
 
+# ifdef _WIN32
+
+static int   should_load_test_allocator_dll( char *filename)
+{
+   if( ! filename)
+      return( 0);
+
+   if( ! strncmp( filename, "lib", 3))
+      filename += 3;
+
+   return( ! strcmp( filename, "mulle-testallocator.dll"));
+}
+
+
+static void   assert_proper_testallocator_linkorder( struct _mulle_objc_universe *universe)
+{
+   int   once;
+
+   once = 0;
+retry:
+   if( mulle_allocator_is_stdlib_allocator( &mulle_default_allocator))
+   {
+      // for windows, we on demand load it because why not, we could do the
+      // the same with dlopen really... but not yet
+      if( ! once)
+      {
+         once = 1;
+         if( ! _mulle_objc_universe_dll_loader_filtered( universe,
+                                                         "__exe__;__self__",
+                                                         should_load_test_allocator_dll))
+            goto retry;
+      }
+      fprintf( stderr,
+         "The testallocator is not linked in or not in the proper order.\n"
+         "The universe is initialized first. Flip linkorder for this platform ?\n");
+      abort();
+   }
+}
+
+# else 
+
+static void   assert_proper_testallocator_linkorder( struct _mulle_objc_universe *universe)
+{
    if( mulle_allocator_is_stdlib_allocator( &mulle_default_allocator))
    {
       fprintf( stderr,
@@ -60,7 +99,11 @@ static void   assert_proper_testallocator_linkorder( void)
       abort();
    }
 }
+
+# endif
+
 #endif
+
 
 void
    _mulle_objc_universefoundationinfo_init( struct _mulle_objc_universefoundationinfo *info,
@@ -78,7 +121,8 @@ void
       mulle_objc_universe_trace( universe, "setting up root/singleton/etc sets");
 
 #if DEBUG
-   assert_proper_testallocator_linkorder();
+   if( mulle_objc_environment_get_yes_no( "MULLE_TESTALLOCATOR"))
+      assert_proper_testallocator_linkorder( universe);
 #endif
    info->exception.vectors = *exceptiontable;
 
@@ -341,31 +385,31 @@ void   _mulle_objc_universefoundationinfo_release_rootobjects( struct _mulle_obj
 
 # pragma mark - thread storage
 
-void   _mulle_objc_universefoundationinfo_set_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *info,
-                                                                       mulle_thread_t thread,
-                                                                       void *obj)
-{
-   assert( mulle_set_get( info->object.roots, obj) == NULL);
-   assert( mulle_map_get( info->object.threads, (void *)  thread) == NULL);
-
-   mulle_map_set( info->object.threads, (void *) thread, obj);
-}
-
-
-void   _mulle_objc_universefoundationinfo_remove_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *info,
-                                                                          mulle_thread_t thread,
+void   _mulle_objc_universefoundationinfo_set_threadobject_for_thread_id( struct _mulle_objc_universefoundationinfo *info,
+                                                                          mulle_thread_id_t thread_id,
                                                                           void *obj)
 {
-   assert( mulle_map_get( info->object.threads, (void *) thread) != NULL);
+   assert( mulle_set_get( info->object.roots, obj) == NULL);
+   assert( mulle_map_get( info->object.threads, (void *)  thread_id) == NULL);
 
-   mulle_map_remove( info->object.threads, (void *) thread);
+   mulle_map_set( info->object.threads, (void *) thread_id, obj);
 }
 
 
-void  *_mulle_objc_universefoundationinfo_lookup_threadobject_for_thread( struct _mulle_objc_universefoundationinfo *info,
-                                                                          mulle_thread_t thread)
+void   _mulle_objc_universefoundationinfo_remove_threadobject_for_thread_id( struct _mulle_objc_universefoundationinfo *info,
+                                                                             mulle_thread_id_t thread_id,
+                                                                             void *obj)
 {
-   return( mulle_map_get( info->object.threads, (void *) thread));
+   assert( mulle_map_get( info->object.threads, (void *) thread_id) != NULL);
+
+   mulle_map_remove( info->object.threads, (void *) thread_id);
+}
+
+
+void  *_mulle_objc_universefoundationinfo_lookup_threadobject_for_thread_id( struct _mulle_objc_universefoundationinfo *info,
+                                                                             mulle_thread_id_t thread_id)
+{
+   return( mulle_map_get( info->object.threads, (void *) thread_id));
 }
 
 
@@ -421,8 +465,8 @@ void  _mulle_objc_universe_lockedcall1_universefoundationinfo( struct _mulle_obj
 
 
 void  _mulle_objc_universe_lockedcall2_universefoundationinfo( struct _mulle_objc_universe *universe,
-         void (*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_t, void *),
-         mulle_thread_t thread,
+         void (*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_id_t, void *),
+         mulle_thread_id_t thread_id,
          void *obj)
 {
    struct _mulle_objc_universefoundationinfo   *info;
@@ -432,15 +476,15 @@ void  _mulle_objc_universe_lockedcall2_universefoundationinfo( struct _mulle_obj
    _mulle_objc_universe_lock( universe);
    {
       info = _mulle_objc_universe_get_foundationdata( universe);
-      (*f)( info, thread, obj);
+      (*f)( info, thread_id, obj);
    }
    _mulle_objc_universe_unlock( universe);
 }
 
 
 void  *_mulle_objc_universe_lockedgetcall1_universefoundationinfo( struct _mulle_objc_universe *universe,
-         void *(*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_t),
-         mulle_thread_t thread)
+                                                                     void *(*f)( struct _mulle_objc_universefoundationinfo *, mulle_thread_id_t),
+                                                                     mulle_thread_id_t thread_id)
 {
    struct _mulle_objc_universefoundationinfo   *info;
    void                                        *obj;
@@ -448,7 +492,7 @@ void  *_mulle_objc_universe_lockedgetcall1_universefoundationinfo( struct _mulle
    _mulle_objc_universe_lock( universe);
    {
       info = _mulle_objc_universe_get_foundationdata( universe);
-      obj  = (*f)( info, thread);
+      obj  = (*f)( info, thread_id);
       obj  = [[(id) obj retain] autorelease];
    }
    _mulle_objc_universe_unlock( universe);

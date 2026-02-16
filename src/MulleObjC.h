@@ -43,7 +43,7 @@
 #import "import.h"
 
 // classes
-#import "MulleObjCLoader.h"
+#import "MulleObjCDeps.h"
 
 #import "MulleDynamicObject.h"
 #import "MulleObject.h"

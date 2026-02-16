@@ -45,13 +45,13 @@
 #include <stdarg.h>
 
 
-extern
-MULLE_C_NO_RETURN void
-   _mulle_objc_vprintf_abort( char *format, va_list args);
-
-extern
-MULLE_C_NO_RETURN void
-   _mulle_objc_vperror_abort( char *format, va_list args);
+// extern
+// MULLE_C_NO_RETURN void
+//    _mulle_objc_vprintf_abort( char *format, va_list args);
+//
+// extern
+// MULLE_C_NO_RETURN void
+//    _mulle_objc_vperror_abort( char *format, va_list args);
 
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 

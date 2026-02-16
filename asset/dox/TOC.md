@@ -1,4 +1,5 @@
 # MulleObjC Library Documentation for AI
+<!-- Keywords: foundation, objective-c -->
 
 ## 1. Introduction & Purpose
 

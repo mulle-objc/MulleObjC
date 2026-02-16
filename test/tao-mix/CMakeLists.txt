@@ -32,3 +32,11 @@ add_executable( tao-mix.exe
 target_link_libraries( tao-mix.exe
    ${TEST_LIBRARIES}
 )
+
+# Export symbols needed for Windows DLL dynamic linking
+if( WIN32)
+   target_link_options( tao-mix.exe
+      PUBLIC
+         "-Wl,--export-all-symbols"
+   )
+endif()

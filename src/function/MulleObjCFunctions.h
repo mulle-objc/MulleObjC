@@ -1084,7 +1084,8 @@ void    MulleObjCInstanceSetClass( id obj, Class cls);
 static inline void    MulleObjCInstanceSetThreadAffinity( id obj, mulle_thread_t thread)
 {
    if( obj)
-      _mulle_objc_object_set_thread( (struct _mulle_objc_object *) obj, thread);
+      _mulle_objc_object_set_thread_id( (struct _mulle_objc_object *) obj,
+                                        mulle_thread_get_id( thread));
 }
 
 
@@ -1247,11 +1248,13 @@ static inline char    *NSGetSizeAndAlignment( char *type, NSUInteger *size, NSUI
 //    double a[ 3] = { 0, 1, 2 };
 //    MulleObjCDescribeMemory( buffer, mulle_data_make( a, sizeof( a)), @encode( a));
 //
+MULLE_OBJC_GLOBAL
 BOOL  MulleObjCDescribeMemory( struct mulle_buffer *buffer, 
                                struct mulle_data data,
                                char *type);
 
 // dump known instance variables of an object
+MULLE_OBJC_GLOBAL
 void  MulleObjCDescribeIvars( struct mulle_buffer *buffer, id obj);
 
 #endif

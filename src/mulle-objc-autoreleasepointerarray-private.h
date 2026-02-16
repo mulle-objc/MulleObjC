@@ -134,9 +134,9 @@ static inline struct _mulle_autoreleasepointerarray *
    array = mulle_malloc( sizeof( struct _mulle_autoreleasepointerarray));
 
 #if AUTORELEASEPOOL_DEBUG
-   fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p allocated (previous = %p)\n",
-                     array,
-                     previous);
+   mulle_fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p allocated (previous = %p)\n",
+                           array,
+                           previous);
 #endif
 
    _mulle_autoreleasepointerarray_init( array, previous);
@@ -261,16 +261,16 @@ static inline void
          while( objects > sentinel)
          {
             opfer = *--objects;
-            _mulle_objc_object_call_release( opfer);
+            mulle_objc_object_call_release( opfer); // no '_'
          }
       }
 
       if( p != staticStorage)
       {
 #if AUTORELEASEPOOL_DEBUG
-         fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p deallocated (previous = %p)\n",
-                          p,
-                          q);
+         mulle_fprintf( stderr, "[pool] _mulle_autoreleasepointerarray %p deallocated (previous = %p)\n",
+                                p,
+                                q);
 #endif
          mulle_free( p);
       }
@@ -384,10 +384,10 @@ static inline void
          obj = *objects++;
          if( obj)
          {
-            fprintf( stderr, "[pool] %p %p (RC: %ld)\n",
-                                 obj,
-                                 verb,
-                                 (long) mulle_objc_object_get_retaincount( obj));
+            mulle_fprintf( stderr, "[pool] %s %p (RC: %td)\n",
+                                     verb,
+                                     obj,
+                                     (intptr_t) mulle_objc_object_get_retaincount( obj));
          }
       }
    }

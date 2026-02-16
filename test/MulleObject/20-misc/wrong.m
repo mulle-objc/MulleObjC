@@ -48,6 +48,7 @@ int  main( int argc, char *argv[])
    Class          aClass;
    BOOL           flag;
    NSInvocation   *invocation;
+
 #if defined( DEBUG) && defined( __MULLE_OBJC__)
    mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__);
 #endif

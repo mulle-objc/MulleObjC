@@ -37,7 +37,7 @@ void   wait_for_other_thread( char *name)
    if( _cmd != @selector( sel))                                                    \
    {                                                                               \
       fprintf( stderr, "%p: %s received value %08tx instead of %08tx\n",           \
-                           (void *) mulle_thread_self(),                           \
+                           (void *) mulle_thread_id(),                             \
                            #sel, (NSUInteger) _cmd, (NSUInteger) @selector( sel)); \
       MulleObjCHTMLDumpUniverse();                                                 \
       abort();                                                                     \
@@ -184,8 +184,8 @@ void   wait_for_other_thread( char *name)
 #define test_assert( self, sel)                                                   \
    for( mulle_objc_methodid_t val = [self sel]; val != @selector( sel);)          \
    {                                                                              \
-      fprintf( stderr, "%p: %s returned value %08tx instead of %08tx\n",          \
-                           (void *) mulle_thread_self(),                          \
+      fprintf( stderr, "0x%tx: %s returned value %08tx instead of %08tx\n",       \
+                           mulle_thread_id(),                                     \
                            #sel, (NSUInteger) val, (NSUInteger) @selector( sel)); \
       MulleObjCHTMLDumpUniverse();                                                \
       abort();                                                                    \

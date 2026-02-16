@@ -1,5 +1,5 @@
 #define TEST_TAO_STRATEGY   MulleObjCTAOReceiverPerformsFinalize
-#define TEST_TRACE_FRAME
+#define TEST_TRACE_FRAME    1
 
 #include "TAOStrategyTest.inc"
 

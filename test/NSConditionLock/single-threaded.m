@@ -32,7 +32,7 @@ int   main( int argc, const char * argv[])
 
    lock = [[[NSConditionLock alloc] initWithCondition:1848] autorelease];
 
-   printf( "1. %ld\n", [lock condition]);
+   printf( "1. %td\n", [lock condition]);
    // exercise NSLocking protocol, which is done by NSCondition
    // really
    if( [lock tryLockWhenCondition:1849])
@@ -45,15 +45,15 @@ int   main( int argc, const char * argv[])
       printf( "failed with right condition\n");
       return( 1);
    }
-   printf( "2. %ld\n", [lock condition]);
+   printf( "2. %td\n", [lock condition]);
 
    [lock unlockWithCondition:1849];
-   printf( "3. %ld\n", [lock condition]);
+   printf( "3. %td\n", [lock condition]);
 
    [lock lockWhenCondition:1849];
-   printf( "4. %ld\n", [lock condition]);
+   printf( "4. %td\n", [lock condition]);
    [lock unlockWithCondition:1850];
-   printf( "5. %ld\n", [lock condition]);
+   printf( "5. %td\n", [lock condition]);
 
    return( 0);
 }

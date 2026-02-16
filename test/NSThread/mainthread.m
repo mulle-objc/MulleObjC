@@ -23,11 +23,20 @@ int  main( void)
    thread = [NSThread currentThread];  // it should be available already
    if( ! thread)
    {
-      printf( "missing NSThread in universe %p\n", universe);
+      mulle_printf( "missing NSThread in universe %p\n", universe);
       return( 1);
    }
 
-   fprintf( stderr, "1\n");
+   mulle_fprintf( stderr, "0\n");
+
+   thread = [NSThread mainThread];  // it should be available already
+   if( ! thread)
+   {
+      mulle_printf( "missing mainThread in universe %p\n", universe);
+      return( 1);
+   }
+
+   mulle_fprintf( stderr, "1\n");
 
    //
    // thread must not be a rootobject
@@ -35,26 +44,26 @@ int  main( void)
    //
    if( mulle_set_get( info->object.roots, thread))
    {
-      printf( "is mistakingly a root object\n");
+      mulle_printf( "is mistakingly a root object\n");
       return( 1);
    }
 
-   if( ! mulle_map_get( info->object.threads, (void *) MulleThreadObjectGetOSThread( thread)))
+   if( ! mulle_map_get( info->object.threads, (void *) MulleThreadObjectGetOSThreadId( thread)))
    {
-      printf( "is mistakingly not a root thread object\n");
+      mulle_printf( "is mistakingly not a root thread object\n");
       return( 1);
    }
-   fprintf( stderr, "2\n");
+   mulle_fprintf( stderr, "2\n");
    _mulle_objc_universe_release( universe);
-   fprintf( stderr, "3\n");
+   mulle_fprintf( stderr, "3\n");
 
    // DANGEROUS!
    if( _mulle_atomic_pointer_read( &info->thread.n_threads) != (void *) 0)
    {
-      printf( "still running\n");
+      mulle_printf( "still running\n");
       return( 1);
    }
 
-   fprintf(  stderr, "4\n");
+   mulle_fprintf(  stderr, "4\n");
    return( 0);
 }

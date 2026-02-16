@@ -117,7 +117,8 @@ typedef NS_ENUM( NSUInteger, MulleObjCTAOStrategy)
 //     thread and then acquired by the thread maker.
 //
 
-extern NS_ENUM_TABLE( MulleObjCTAOStrategy, 8);
+MULLE_OBJC_GLOBAL
+NS_ENUM_TABLE( MulleObjCTAOStrategy, 8);
 
 
 
@@ -133,7 +134,7 @@ typedef struct _mulle_objc_dependency     mulle_objc_dependency_t;
 #define MULLE_OBJC_CATEGORY_DEPENDENCY( classname, categoryname) \
       { MULLE_OBJC_MAKE_CLASSID( classname), MULLE_OBJC_MAKE_CATEGORYID( categoryname) }
 #define MULLE_OBJC_LIBRARY_DEPENDENCY( libname) \
-      { MULLE_OBJC_MAKE_CLASSID( MulleObjCLoader), MULLE_OBJC_MAKE_CATEGORYID( libname) }
+      { MULLE_OBJC_MAKE_CLASSID( MulleObjCDeps), MULLE_OBJC_MAKE_CATEGORYID( libname) }
 
 #define MULLE_OBJC_NO_DEPENDENCY  \
       { MULLE_OBJC_NO_CLASSID, MULLE_OBJC_NO_CATEGORYID }

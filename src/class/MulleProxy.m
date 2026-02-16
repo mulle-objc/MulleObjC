@@ -212,9 +212,9 @@ static void   initWithTarget( MulleProxy *self, id target)
    // if we have no lock (any more), change affinity to current thread
    // otherwise we iz now threadsafe
    //
-   _mulle_objc_object_set_thread( (struct _mulle_objc_object *) self, lock
-                                        ? mulle_objc_object_is_threadsafe
-                                        : mulle_thread_self());
+   _mulle_objc_object_set_thread_id( (struct _mulle_objc_object *) self, lock
+                                     ? mulle_objc_object_is_threadsafe
+                                     : mulle_thread_id());
 }
 
 

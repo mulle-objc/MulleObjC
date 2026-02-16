@@ -525,7 +525,7 @@ static NSInvocation   *popStandardInvocation( void)
    header = _mulle_objc_object_get_objectheader( invocation);
    _mulle_atomic_pointer_write_nonatomic( &header->_retaincount_1, 0);
 
-   _mulle_objc_objectheader_set_thread( header, mulle_thread_self());
+   _mulle_objc_objectheader_set_thread_id( header, mulle_thread_id());
    return( invocation);
 }
 

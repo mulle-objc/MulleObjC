@@ -44,7 +44,7 @@
    int    c;
    char   tmp[ S_TREASURE];
 
-   c = mulle_pointer_hash( (void *) mulle_thread_self());
+   c = mulle_pointer_hash( (void *) mulle_thread_id());
    memset( tmp, c, S_TREASURE);
 
    if( depth)
@@ -64,6 +64,8 @@
 {
    NSUInteger  i;
 
+   mulle_fprintf( stderr, "running threadid: %p\n", (void *) mulle_thread_id());
+
    for( i = 0; i < 1000; i++)
    {
       MULLE_THREAD_UNPLEASANT_RACE_YIELD();
@@ -78,6 +80,8 @@
 int   main( int argc, const char * argv[])
 {
    Foo  *foo;
+
+   mulle_fprintf( stderr, "main threadid: %p\n", (void *) mulle_thread_id());
 
    foo = [Foo instance];
    [NSThread detachNewThreadSelector:@selector( test:)

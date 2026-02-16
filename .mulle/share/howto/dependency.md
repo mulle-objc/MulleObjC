@@ -34,3 +34,11 @@ mulle-sourcetree-to-c --show-marks
 mulle-sourcetree-to-cmake --show-marks
 ```
 
+
+## Debug cmake find_library
+
+``` bash
+mulle-sde -DCMAKE_DEBUG_FLAGS=--debug-find recraft
+```
+
+Check the logs for output or use `-v recraft`

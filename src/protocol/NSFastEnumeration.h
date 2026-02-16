@@ -39,12 +39,13 @@
 #import "MulleObjCIntegralType.h"
 
 
+// this struct must be kept in sync with the compiler!
 typedef struct
 {
    NSUInteger   state;
    id           *itemsPtr;
    NSUInteger   *mutationsPtr;
-   NSUInteger   extra[5];
+   NSUInteger   extra[ 5];
 } NSFastEnumerationState;
 
 

@@ -43,23 +43,32 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 - (NSUInteger) retainCount          MULLE_OBJC_THREADSAFE_METHOD;
 - (instancetype) autorelease        MULLE_OBJC_THREADSAFE_METHOD;
 
-#pragma mark - thread safety introspection
+#pragma mark - thread safety introspection (TAO only)
 
+// *+TAO ONLY**
+//
+// This method returns always NO if TAO is disabled.
 - (BOOL) mulleIsThreadSafe          MULLE_OBJC_THREADSAFE_METHOD;
+// This method always returns YES.
 + (BOOL) mulleIsThreadSafe          MULLE_OBJC_THREADSAFE_METHOD; // same name as - so adorn
 
+// *+TAO ONLY**
+//
 // if your object owns a non-threadsafe object (like NSMutable...) but
 // only provides locked access to it, you can declare the mutable object
 // to be threadsafe and TAO checks won't fail. This is a duality here,
 // thread-unsafe objects implement mulleGainAccess, where as thread safe
 // objects use mulleSetThreadSafe: on inferior (and private) mutable
 // objects (them being lock protected).
+// This method does nothing if TAO is disabled.
 - (void) mulleSetThreadSafe:(BOOL) flag;
 
-#pragma mark - thread affinity
+#pragma mark - thread affinity (TAO only)
 
+// **TAO ONLY**
+//
 // check if an object can be safely accessed by a thread, use this for
-// validatation and debugging only
+// validation and debugging only
 - (BOOL) mulleIsAccessible          MULLE_OBJC_THREADSAFE_METHOD;
 - (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject   MULLE_OBJC_THREADSAFE_METHOD;
 

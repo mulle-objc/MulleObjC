@@ -1,0 +1,19 @@
+: -[TestObject autorelease]
+: -[TestObject autorelease]
+creation:
+	-[target retainCount]   : 1
+	-[argument retainCount] : 1
+
+added to invocation:
+	-[target retainCount]   : 1
+	-[argument retainCount] : 1
+
+after mulleRelinquishAccess:
+	-[target retainCount]   : 2
+	-[argument retainCount] : 2
+
+target: -[TestObject autorelease]
+argument: -[TestObject autorelease]
+after mulleGainAccess:
+	-[target retainCount]   : 2
+	-[argument retainCount] : 2

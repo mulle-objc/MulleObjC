@@ -70,7 +70,7 @@ src/MulleObjCVersion.h
 src/MulleObjC.h
 src/class/MulleDynamicObject.h
 src/class/MulleObjCAutoreleasePool.h
-src/class/MulleObjCLoader.h
+src/class/MulleObjCDeps.h
 src/class/MulleObjCLockFoundation.h
 src/class/MulleObject.h
 src/class/MulleProxy.h

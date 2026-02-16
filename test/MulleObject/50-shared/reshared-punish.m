@@ -177,7 +177,7 @@ static int   test_thread_main( NSThread *thread, void *index)
       pair = extract_random_object_pair();
       [pair.a swap:pair.b];
       if( i == n_loops / 2)
-         mulle_fprintf( stderr, "%p %p\n", index, (void *) mulle_thread_self());
+         mulle_fprintf( stderr, "%p %p\n", index, (void *) mulle_thread_id());
       insert_object( pair.b);
       insert_object( pair.a);
    }

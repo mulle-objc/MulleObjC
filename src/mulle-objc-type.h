@@ -46,6 +46,8 @@
  * create a universe. It should keep the namespace as free as possible from
  * dependencies.
  */
+#include "include.h"
+
 #include <mulle-objc-runtime/minimal.h>
 
 #include <string.h>
@@ -127,9 +129,5 @@ typedef id                          (*IMP)( id, SEL, void *);
 #define NS_SWIFT_NAME( unused)
 #define NS_SWIFT_UNAVAILABLE( unused)
 #define NS_REQUIRES_NIL_TERMINATION
-
-#include "mulle-objc-enum.h"
-
-
 
 #endif

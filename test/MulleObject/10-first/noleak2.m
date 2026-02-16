@@ -1,7 +1,5 @@
 #import <MulleObjC/MulleObjC.h>
 
-#import <MulleObjC/MulleObjCDebug.h>
-
 
 @interface Foo : MulleObject < MulleAutolockingObjectProtocols>
 @end

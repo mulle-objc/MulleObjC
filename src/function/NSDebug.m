@@ -154,7 +154,7 @@ static inline void   __NSPrintToBufferForDebugger( struct mulle_buffer *buffer, 
    struct _mulle_objc_universe   *universe;
    void                          *string;
    char                          *s;
-   mulle_thread_t                thread;
+   mulle_thread_id_t             thread_id;
 
    // print description for "crap", 'a' usually returns NULL
    if( mulle_buffer_print_trash_object( buffer, a))
@@ -215,18 +215,19 @@ static inline void   __NSPrintToBufferForDebugger( struct mulle_buffer *buffer, 
                             aux ? aux : "");
 
 finish:
-   thread = _mulle_objc_object_get_thread( (struct _mulle_objc_object *) a);
-   if( thread)
+   thread_id = _mulle_objc_object_get_thread_id( (struct _mulle_objc_object *) a);
+   if( thread_id)
    {
-      if( thread == (mulle_thread_t) -1)
+      if( thread_id == (mulle_thread_id_t) -1)
          mulle_buffer_strcat( buffer, "(R)");
       else
          if( MulleObjCDebugElideAddressOutput)
             mulle_buffer_sprintf( buffer, "(%c)",
-                                           (thread == mulle_thread_self() ? 'A' : 'G'));
+                                           (thread_id == mulle_thread_id() ? 'A' : 'G'));
          else
             mulle_buffer_sprintf( buffer, "(%c:%p)",
-                                           (thread == mulle_thread_self() ? 'A' : 'G'), thread); // affine
+                                           (thread_id == mulle_thread_id() ? 'A' : 'G'),
+                                           (void *) thread_id); // affine
    }
 }
 
@@ -325,9 +326,11 @@ static char   zombie_prefix[] = "_MulleObjCZombieOf";
 //}
 //
 
+MULLE_OBJC_RUNTIME_GLOBAL
+void   mulle_objc_reference_gdb_functions( void);
+
 + (void) __reference_gdb_functions__
 {
-   extern void   mulle_objc_reference_gdb_functions( void);
 
    mulle_objc_reference_gdb_functions();
 }

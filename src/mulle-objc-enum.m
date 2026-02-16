@@ -33,9 +33,10 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#include "mulle-objc-enum.h"
 
 #include "include.h"
+
+#include "mulle-objc-enum.h"
 
 #include <stdio.h>
 #include <ctype.h>
