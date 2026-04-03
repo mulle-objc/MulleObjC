@@ -14,10 +14,15 @@ pgocvt.exe
 pgosweep.exe
 xdcmake.exe
 mulle-clang;remove
+mulle-clangd;remove
 mulle-scan-build;remove
+mulle-cov;remove
+mulle-nm;remove
 mulle-clang-cl.exe
 scan-build.exe
 mulle-gdb.exe
+mulle-cov.exe
+mulle-nm.exe
 cmake;remove
 cmake.exe
 ninja.exe

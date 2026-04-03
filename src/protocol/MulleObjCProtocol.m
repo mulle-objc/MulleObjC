@@ -99,6 +99,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCImmutable)
 
 - (id /*<MulleObjCImmutable>*/) copyWithZone:(NSZone *) zone
 {
+   MULLE_C_UNUSED( zone);
    return( [self retain]);
 }
 

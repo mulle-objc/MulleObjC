@@ -85,7 +85,7 @@
 }
 
 
-- (void *) forward:(void *) _param     MULLE_OBJC_THREADSAFE_METHOD
+- (void *) forward:(void *) _fwd_param     MULLE_OBJC_THREADSAFE_METHOD
 {
    id  obj;
 
@@ -117,7 +117,7 @@
    obj = [_cls alloc];
    obj = mulle_objc_object_call_inline_variable( obj,
                                                  (mulle_objc_methodid_t) _cmd, 
-                                                 _param);
+                                                 _fwd_param);
    [obj autorelease];
    return( obj);
 }
@@ -538,6 +538,7 @@ char   *MulleObjCObjectUTF8String( NSObject *self)
 
 - (id) forwardingTargetForSelector:(SEL) sel
 {
+   MULLE_C_UNUSED( sel);
    return( nil);
 }
 
@@ -546,6 +547,7 @@ char   *MulleObjCObjectUTF8String( NSObject *self)
 {
    struct _mulle_objc_universe   *universe;
 
+   MULLE_C_UNUSED( sel);
    universe = _mulle_objc_object_get_universe( self);
    __mulle_objc_universe_raise_internalinconsistency( universe,
                      "variadic methods can not be forwarded using invocations");
@@ -752,6 +754,7 @@ void  MulleObjCClassInterposeBeforeClass( Class self, Class other)
 
 - (id) copyWithZone:(NSZone *) zone
 {
+   MULLE_C_UNUSED( zone);
    fprintf( stderr, "-[NSObject copyWithZone:] doesn't work anymore.\n"
 "\n"
 "Either rename your -copyWithZone: implementations to -copy or add a\n"

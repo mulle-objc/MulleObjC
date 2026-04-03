@@ -35,8 +35,11 @@ valgrind
 vgdb
 valgrind.bin
 mulle-clang
+mulle-clangd
 mulle-scan-build
 mulle-gdb
+mulle-cov
+mulle-nm
 mulle-match-to-cmake
 mulle-match-to-c
 cmake;script

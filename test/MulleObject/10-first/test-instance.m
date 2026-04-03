@@ -13,6 +13,6 @@
 int main(void)
 {
    Foo *foo = [Foo instance];
-   mulle_printf("foo = %p\n", foo);
+   [foo doNothing];
    return 0;
 }

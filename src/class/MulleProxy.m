@@ -266,6 +266,7 @@ static void   initWithTarget( MulleProxy *self, id target)
 
 - (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject   MULLE_OBJC_THREADSAFE_METHOD
 {
+   MULLE_C_UNUSED( threadObject);
    return( YES);
 }
 

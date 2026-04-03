@@ -59,9 +59,11 @@ set(CMAKE_RC_COMPILER  ${LLVM_MINGW_ROOT}/bin/${TRIPLET}-windres CACHE FILEPATH 
 
 # Root path for finding target libs/includes
 set(CMAKE_FIND_ROOT_PATH
-    ${LLVM_MINGW_ROOT}
+    ${LLVM_MINGW_ROOT}/${TRIPLET}
     ${LLVM_MINGW_ROOT}/generic-w64-mingw32
+    ${LLVM_MINGW_ROOT}
 )
+
 
 # Search modes: programs on host, libs/includes on target
 # we also have programs in DEPENDENCY though, so we search both

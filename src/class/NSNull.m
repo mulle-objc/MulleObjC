@@ -89,12 +89,14 @@
 
 - (instancetype) initWithCoder:(NSCoder *) coder
 {
+   MULLE_C_UNUSED( coder);
    return( [self init]);
 }
 
 
 - (void) encodeWithCoder:(NSCoder *) coder
 {
+   MULLE_C_UNUSED( coder);
 }
 
 
@@ -140,6 +142,7 @@
 //
 - (void *) forward:(void *) args
 {
+   MULLE_C_UNUSED( args);
    return( NULL);
 }
 

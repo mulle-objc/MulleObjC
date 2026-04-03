@@ -83,12 +83,15 @@ static inline NSUncaughtExceptionHandler   *NSGetUncaughtExceptionHandler()
 }
 
 
+typedef void   (*retarded_type_checking_because_all_we_have_is_a_compiler_guys)( void *exception) _MULLE_C_NO_RETURN;
+
+
 static inline void   NSSetUncaughtExceptionHandler( NSUncaughtExceptionHandler *handler)
 {
    struct _mulle_objc_universe      *universe;
 
    universe = mulle_objc_global_get_defaultuniverse();
-   universe->failures.uncaughtexception = (void (*)()) handler;
+   universe->failures.uncaughtexception = (retarded_type_checking_because_all_we_have_is_a_compiler_guys) handler;
 }
 
 #endif
