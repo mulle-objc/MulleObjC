@@ -418,8 +418,9 @@ static mulle_objc_walkcommand_t
 
 
 MULLE_C_NEVER_INLINE
-struct _mulle_objc_property  *_MulleObjCClassPointerSearchDynamicProperty( struct _mulle_objc_infraclass **infra_p,
-                                                                          mulle_objc_methodid_t methodid)
+struct _mulle_objc_property  *
+   _MulleObjCClassPointerSearchDynamicProperty( struct _mulle_objc_infraclass **infra_p,
+                                                mulle_objc_methodid_t methodid)
 {
    mulle_objc_walkcommand_t         cmd;
    struct search_methodid_context   ctxt;
@@ -529,7 +530,8 @@ static inline void  release_generic_value( struct mulle__pointermap *map,
 
 // keep in index order of fields, for compiler to optimize...
 
-static inline void   *MulleObjectGetKeyForSelector( MulleDynamicObject *self, mulle_objc_methodid_t _cmd)
+static inline void   *MulleObjectGetKeyForSelector( MulleDynamicObject *self,
+                                                    mulle_objc_methodid_t _cmd)
 {
    void                            *key;
    void                            *getterSel;
@@ -607,7 +609,9 @@ static void   *_MulleObjectRetainGetterWillReadRelationship( MulleDynamicObject 
 }
 
 
-void   _MulleDynamicObjectValueGetter( MulleDynamicObject *self,  mulle_objc_methodid_t _cmd,  void *_param)
+void   _MulleDynamicObjectValueGetter( MulleDynamicObject *self,
+                                       mulle_objc_methodid_t _cmd,
+                                       void *_param)
 {
    id     value;
 
@@ -1285,6 +1289,7 @@ static struct _mulle_objc_method *
 
 
 MULLE_C_NONNULL_RETURN
+MULLE_OBJC_GLOBAL
 struct _mulle_objc_method *
   _mulle_objc_infraclass_create_methods_for_property( struct _mulle_objc_infraclass *infra,
                                                       struct _mulle_objc_property *property,
@@ -1772,6 +1777,7 @@ static struct _mulle_objc_method *
 }
 
 
+MULLE_OBJC_GLOBAL
 struct _mulle_objc_method *
    _mulle_objc_infraclass_create_accessor_methods( struct _mulle_objc_infraclass *infra,
                                                     mulle_objc_methodid_t neededSel)

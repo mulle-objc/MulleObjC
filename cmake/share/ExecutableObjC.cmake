@@ -37,6 +37,17 @@ if( UNIX AND NOT (APPLE OR COSMOPOLITAN OR MUSL_STATIC_ONLY))
 endif()
 
 #
+# painful! i thought i had this licked, but its a reoccuring problem
+# so we just export everything for now..
+#
+if( WIN32)
+   target_link_options("${EXECUTABLE_LINK_TARGET}"
+      PUBLIC
+         "SHELL:LINKER:--export-all-symbols"
+   )
+endif()
+
+#
 # MEMO: if I don't "if" MULLE_ATINIT_LIBRARY, then the compiler test on
 #       cmake on Apple will error out, because it doesn't link it for
 #       testing the compiler.

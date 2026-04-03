@@ -48,7 +48,12 @@
 // so on. This allows +load code to work in a known environment.
 //
 
-
+//
+// All classes and categories of the library need to be in +dependencies of
+// MulleObjCDeps, this guarantees that the class only "loads", after all
+// dependencies have been fulfilled. Especially for categories, its otherwise
+// a big unknown, what has been loaded yet.
+//
 /*
    To be dependent on MulleObjC put this before
    your +load code:

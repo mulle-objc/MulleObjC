@@ -100,3 +100,8 @@ lsp-hover-port.sh
 lsp-hover.sh
 test/MulleObject/30-bench/mulle-objc.css
 .kiro/
+.roam/index.db
+.roam/index.db-shm
+.roam/index.db-wal
+.roam
+.graveyard

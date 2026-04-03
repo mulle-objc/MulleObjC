@@ -266,6 +266,7 @@ void   mulle_objc_thread_done_poolconfiguration( struct _mulle_objc_universe *un
 
 + (void) mulleSetNameUTF8String:(char *) s
 {
+   MULLE_C_UNUSED( s);
    abort();
 }
 #endif

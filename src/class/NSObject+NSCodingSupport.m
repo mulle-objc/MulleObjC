@@ -63,12 +63,14 @@
 
 - (id) replacementObjectForCoder:(NSCoder *) coder
 {
+   MULLE_C_UNUSED( coder);
    return( self);
 }
 
 
 - (id) awakeAfterUsingCoder:(NSCoder *) decoder
 {
+   MULLE_C_UNUSED( decoder);
    return( self);
 }
 

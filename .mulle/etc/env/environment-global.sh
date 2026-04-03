@@ -49,6 +49,6 @@ export MULLE_EMULATOR__WINDOWS="wine"
 #
 #
 #
-export MULLE_CRAFT_CROSS_COMPILER_ROOT__WINDOWS="/opt/mulle-clang-project-windows/21.1.8.2"
+export MULLE_CRAFT_CROSS_COMPILER_ROOT__WINDOWS="/opt/mulle-clang-project-windows/latest"
 
 

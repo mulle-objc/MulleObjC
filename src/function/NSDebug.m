@@ -286,11 +286,13 @@ static char   zombie_prefix[] = "_MulleObjCZombieOf";
 }
 
 
-- (void) forward:(void *) _param       MULLE_OBJC_THREADSAFE_METHOD
+- (void) forward:(void *) params       MULLE_OBJC_THREADSAFE_METHOD
 {
    int                          isMeta;
    struct _mulle_objc_universe  *universe;
    char                         *hashname;
+
+   MULLE_C_UNUSED( params);
 
    // possibly bullshit ;)
    isMeta   = _mulle_objc_class_is_metaclass( _mulle_objc_object_get_isa( self));

@@ -220,6 +220,7 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
 
 + (instancetype) allocWithZone:(NSZone *) zone
 {
+   MULLE_C_UNUSED( zone);
    return( [self alloc]);
 }
 

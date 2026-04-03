@@ -1,5 +1,5 @@
 //
-//  MulleObjCLoader.h
+//  MulleObjCDeps.h
 //  MulleObjC
 //
 //  Created by Nat! on 27.03.17.
@@ -53,7 +53,7 @@
     ```
     mulle-build ;
     mulle-objc-list -d build/libMulleObjCStandalone.dylib | \
-    fgrep -w -v 'MulleObjCLoader' | \
+    fgrep -w -v 'MulleObjCDeps' | \
     sort > src/dependencies.inc
     ```
     */

@@ -38,6 +38,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCRootObject)
 
 + (instancetype) allocWithZone:(NSZone *) zone
 {
+   MULLE_C_UNUSED( zone);
    return( _MulleObjCClassAllocateInstance( self, 0));
 }
 
@@ -723,6 +724,7 @@ void   MulleObjCGainAccessToObjects( id *objects, NSUInteger count)
 
 + (BOOL) isMemberOfClass:(Class) otherClass     MULLE_OBJC_THREADSAFE_METHOD
 {
+   MULLE_C_UNUSED( otherClass);
    return( NO);  // seemingly the most compatible implementation...
 }
 
@@ -1063,6 +1065,9 @@ static int   collect( struct _mulle_objc_ivar *ivar,
 + (NSUInteger) _getOwnedObjects:(id *) objects
                        maxCount:(NSUInteger) maxCount
 {
+   MULLE_C_UNUSED( objects);
+   MULLE_C_UNUSED( maxCount);
+
    return( 0);
 }
 

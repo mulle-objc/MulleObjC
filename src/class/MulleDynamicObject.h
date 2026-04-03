@@ -134,6 +134,18 @@ MULLE_OBJC_GLOBAL
 MulleObjCGenericType   _MulleObjCGenericTypeOfSignature( char *signature);
 
 
+MULLE_OBJC_GLOBAL
+struct _mulle_objc_method *
+   _mulle_objc_infraclass_create_methods_for_property( struct _mulle_objc_infraclass *infra,
+                                                       struct _mulle_objc_property *property,
+                                                       mulle_objc_methodid_t neededSel);
+
+MULLE_OBJC_GLOBAL
+struct _mulle_objc_method *
+   _mulle_objc_infraclass_create_accessor_methods( struct _mulle_objc_infraclass *infra,
+                                                   mulle_objc_methodid_t neededSel);
+
+
 
 MULLE_C_STATIC_ALWAYS_INLINE
 void   *_MulleDynamicObjectForward( id self, SEL _cmd, void *args, int *fail)
@@ -144,10 +156,6 @@ void   *_MulleDynamicObjectForward( id self, SEL _cmd, void *args, int *fail)
    struct _mulle_objc_class        *cls;
    struct _mulle_objc_method       *method;
    mulle_objc_methodid_t           sel;
-   struct _mulle_objc_method *
-      _mulle_objc_infraclass_create_methods_for_property( struct _mulle_objc_infraclass *infra,
-                                                          struct _mulle_objc_property *property,
-                                                          mulle_objc_methodid_t neededSel);
 
    assert( fail && ! *fail); // callers obligation
 
@@ -169,10 +177,6 @@ void   *_MulleDynamicObjectForward( id self, SEL _cmd, void *args, int *fail)
 #ifdef HAVE_FULLY_DYNAMIC_MULLE_DYNAMIC_OBJECT
    if( [(Class) infra isFullyDynamic])
    {
-      struct _mulle_objc_method *
-         _mulle_objc_infraclass_create_accessor_methods( struct _mulle_objc_infraclass *infra,
-                                                         mulle_objc_methodid_t neededSel);
-
       // we can not create a property dynamically though, because it's not clear where
       // to place it (directly on MulleDynamicObject ?)
       method = _mulle_objc_infraclass_create_accessor_methods( infra, sel);

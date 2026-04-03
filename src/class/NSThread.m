@@ -415,10 +415,12 @@ static void   _MulleThreadRegisterInUniverse( NSThread *self,
 static void   _MulleThreadDeregisterInUniverse( NSThread *self,
                                                 struct _mulle_objc_universe *universe)
 {
-   mulle_fprintf( stderr, "self: %@\n", self);
+#if 0
+   //MEMO: BAD idea AI! Do not message self here anymore!
+   // mulle_fprintf( stderr, "self: %@\n", self);
    mulle_fprintf( stderr, "self threadid: %p\n", (void *) MulleThreadObjectGetOSThreadId( self));
    mulle_fprintf( stderr, "curr threadid: %p\n", (void *) mulle_thread_id());
-
+#endif
    assert( MulleThreadObjectGetOSThreadId( self) == mulle_thread_id());
 
    _mulle_objc_universe_remove_threadobject_for_thread_id( universe, MulleThreadObjectGetOSThreadId( self), self); // does not retain
@@ -521,9 +523,11 @@ NSThread   *_MulleThreadCreateMainThreadObjectInUniverse( struct _mulle_objc_uni
    struct _mulle_objc_universefoundationinfo   *info;
 
    info = _mulle_objc_universe_get_universefoundationinfo( universe);
+   assert( info && "you need to link MulleObjC-startup with your code");
+
    if( _mulle_atomic_pointer_read_nonatomic( &info->thread.n_threads))
       __mulle_objc_universe_raise_internalinconsistency( universe, \
-         "Universe %p is still or already multithreaded", universe);
+         "Universe %p is still or already multi-threaded", universe);
 
    // universe thread is already existent, so just put up NSThread
    // and NSAutoreleasePool
@@ -538,7 +542,7 @@ NSThread   *_MulleThreadCreateMainThreadObjectInUniverse( struct _mulle_objc_uni
 
 //
 // this can only be called during crunch time!
-// it will autorelase the runloop and the thread dictionary
+// it will autorelease the runloop and the thread dictionary
 //
 void   _MulleThreadFinalizeMainThreadObjectInUniverse( struct _mulle_objc_universe *universe)
 {

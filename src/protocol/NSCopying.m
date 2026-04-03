@@ -59,6 +59,7 @@
 
 - (id) copyWithZone:(NSZone *) zone
 {
+   MULLE_C_UNUSED( zone);
    fprintf( stderr, "-[NSObject copyWithZone:] doesn't work anymore.\n"
 "\n"
 "Either rename your -copyWithZone: implementations to -copy or add a\n"
