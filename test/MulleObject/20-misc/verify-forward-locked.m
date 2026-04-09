@@ -35,6 +35,11 @@
 
 
 
+@interface A (Forward)
+- (void) verify;
+@end
+
+
 int  main( int argc, char *argv[])
 {
    A   *a;

@@ -52,6 +52,11 @@
 @end
 
 
+@interface B (Forward)
+- (void) printOther;
+@end
+
+
 int  main( int argc, char *argv[])
 {
    A   *a;

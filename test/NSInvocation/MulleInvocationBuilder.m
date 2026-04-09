@@ -189,6 +189,7 @@ not be forwarded using invocations");
 
 - (NSInvocation *) bar:(id) obj1 :(id) obj2 :(NSUInteger) i :(float) x :(char) y;
 + (NSInvocation *) bar:(id) obj1 :(id) obj2 :(NSUInteger) i :(float) x :(char) y;
++ (NSInvocation *) foo:(id) obj1 :(id) obj2 :(NSUInteger) i;
 
 @end
 
