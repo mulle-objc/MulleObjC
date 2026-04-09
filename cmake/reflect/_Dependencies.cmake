@@ -124,7 +124,7 @@ endif()
 
 
 #
-# Generated from sourcetree: 5B278807-A894-4D62-904A-7AF69B5286C2;mulle-objc-debug;no-all-load,no-cmake-loader,no-cmake-searchpath,no-import,no-require,no-singlephase;
+# Generated from sourcetree: 5B278807-A894-4D62-904A-7AF69B5286C2;mulle-objc-debug;no-all-load,no-cmake-loader,no-cmake-searchpath,no-descend,no-import,no-require,no-singlephase;
 # Disable with : `mulle-sourcetree mark mulle-objc-debug no-link`
 # Disable for this platform: `mulle-sourcetree mark mulle-objc-debug no-cmake-platform-${MULLE_UNAME}`
 # Disable for a sdk: `mulle-sourcetree mark mulle-objc-debug no-cmake-sdk-<name>`

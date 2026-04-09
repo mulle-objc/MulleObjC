@@ -40,7 +40,7 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 
 - (void) foo:(id) obj1 : (id) obj2 : (NSUInteger) i
 {
-   printf( "%td %s %s\n", i, [obj1 name], [obj2 name]);
+   printf( "%td %s %s\n", i, (char *) [obj1 name], (char *) [obj2 name]);
 }
 
 @end

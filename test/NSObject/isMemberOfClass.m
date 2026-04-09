@@ -90,14 +90,14 @@ int  main( void)
 
    printf("\nfails:\n");
 
-   print_bool( [foo isMemberOfClass:bar]);
-   print_bool( [bar isMemberOfClass:foo]);
+   print_bool( [foo isMemberOfClass:(Class) bar]);
+   print_bool( [bar isMemberOfClass:(Class) foo]);
 
-   print_bool( [foo isMemberOfClass:xxx]);
-   print_bool( [xxx isMemberOfClass:foo]);
+   print_bool( [foo isMemberOfClass:(Class) xxx]);
+   print_bool( [xxx isMemberOfClass:(Class) foo]);
 
-   print_bool( [bar isMemberOfClass:xxx]);
-   print_bool( [xxx isMemberOfClass:bar]);
+   print_bool( [bar isMemberOfClass:(Class) xxx]);
+   print_bool( [xxx isMemberOfClass:(Class) bar]);
 
 
    [xxx release];

@@ -1,5 +1,7 @@
 #import <MulleObjC/MulleObjC.h>
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
 // Protocol classes
 @class P;
 @protocol P

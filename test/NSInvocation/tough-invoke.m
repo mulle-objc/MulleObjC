@@ -47,7 +47,7 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
    printf( "%d\n", c);
    printf( "%.2f\n", d);
    printf( "%d\n", e);
-   printf( "%ld-%ld\n", f.location, f.length);
+   printf( "%ld-%ld\n", (long) f.location, (long) f.length);
    return( 1848LL * 100000);
 }
 

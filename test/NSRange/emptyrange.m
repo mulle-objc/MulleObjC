@@ -14,7 +14,7 @@
 
 void   print_range( NSRange range)
 {
-   printf( "{%lu, %lu}", range.location, range.length);;
+   printf( "{%lu, %lu}", (unsigned long) range.location, (unsigned long) range.length);;
 }
 
 
@@ -71,7 +71,7 @@ static void   test_location( NSRange a, NSUInteger b)
 
    s = NSLocationInRange( b, a)  ? "YES" : "NO";
 
-   printf( "NSLocationInRange( %lu, ", b);
+   printf( "NSLocationInRange( %lu, ", (unsigned long) b);
    print_range( a);
    printf( ") = %s\n", s);
 }

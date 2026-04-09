@@ -21,7 +21,7 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 
    printf( "s         : %s\n", s);
    printf( "selector  : %x\n", sel);
-   printf( "range     : { %lu, %lu }\n", range.location, range.length);
+   printf( "range     : { %lu, %lu }\n", (unsigned long) range.location, (unsigned long) range.length);
    printf( "character : '%c'\n", c);
    printf( "float     : %g\n", f);
 }
