@@ -153,7 +153,7 @@
 
 - (instancetype) init
 {
-   return( _MulleObjCLockInit( self));
+   return( (D *) _MulleObjCLockInit( (NSLock *) self));
 }
 
 // TODO: check if we this is really needed on a per platform basis
@@ -161,7 +161,7 @@
 //
 - (void) dealloc
 {
-   _MulleObjCLockDone( self);
+   _MulleObjCLockDone( (NSLock *) self);
    [super dealloc];
 }
 
@@ -169,10 +169,10 @@
 // (just to make this equivalent to A)
 - (void) unsafeCall:(NSUInteger) n
 {
-   _MulleObjCLockLock( self);
+   _MulleObjCLockLock( (NSLock *) self);
    if( n)
       [self unsafeCall:n - 1];
-   _MulleObjCLockUnlock( self);
+   _MulleObjCLockUnlock( (NSLock *) self);
 }
 
 - (void) safeCall:(NSUInteger) n

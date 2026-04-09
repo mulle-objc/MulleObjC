@@ -1,5 +1,7 @@
 #import <MulleObjC/MulleObjC.h>
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
 
 // A De Re @property test
 //

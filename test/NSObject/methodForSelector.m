@@ -75,7 +75,7 @@ static void   testInstanceMethodForSelector( id self, SEL sel)
    id    obj;
 
    imp = [self instanceMethodForSelector:sel];
-   if( _mulle_objc_class_is_forwardimplementation( self, (mulle_objc_implementation_t) imp))
+   if( _mulle_objc_class_is_forwardimplementation( (struct _mulle_objc_class *) self, (mulle_objc_implementation_t) imp))
    {
       printf( "forward:\n");
       return;

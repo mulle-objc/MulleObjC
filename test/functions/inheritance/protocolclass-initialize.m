@@ -1,6 +1,8 @@
 #import <MulleObjC/MulleObjC.h>
 #import <MulleObjC/NSDebug.h>
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
 @interface A
 @end
 

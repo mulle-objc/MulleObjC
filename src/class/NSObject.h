@@ -157,7 +157,7 @@
 @class NSThread;
 
 
-@interface NSObject ( RuntimeInit)
+@interface NSObject ( RuntimeInitFuture)
 
 //
 // Preferably do not use ObjC or objc runtime calls in these
@@ -232,7 +232,7 @@
 #define NS_OBJECT_FORWARD_SUPERID   ((mulle_objc_superid_t) 0x3ab7a97b)  // 'NSObject;forward:'
 
 
-@interface NSObject( UTF8String)
+@interface NSObject( UTF8StringFuture)
 
 // In the Foundation this will be overridden, to call -description and then
 // turn the resulting NSString into a -UTF8String

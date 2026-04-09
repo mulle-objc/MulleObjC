@@ -90,7 +90,7 @@ int   main( void)
    mulle_objc_object_call( foo, @selector( foobar::), &param);
 
    printf( "Rval\n");
-   printf( "\t%ld-%s\n", param.rval.location, param.rval.length == INT_MIN ? "OK" : "FAIL");
+   printf( "\t%ld-%s\n", (long) param.rval.location, param.rval.length == INT_MIN ? "OK" : "FAIL");
 
    [foo release];
    [bar release];

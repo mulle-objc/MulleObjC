@@ -42,7 +42,7 @@
 // the debugger calls it and that therefore all other threads are stopped
 // We don't want a TAO check in the debugger.
 //
-@interface NSObject ( NSDebug)
+@interface NSObject ( NSDebugFuture)
 
 - (id) debugDescription    MULLE_OBJC_THREADSAFE_METHOD;
 

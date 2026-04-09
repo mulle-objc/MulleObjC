@@ -1,6 +1,8 @@
 #import <MulleObjC/MulleObjC.h>
 #import <MulleObjC/MulleObjCExceptionHandler-Private.h>
 
+#pragma clang diagnostic ignored "-Wobjc-root-class"
+
 //
 // ## MulleInvocationBuilder
 //
@@ -172,12 +174,12 @@ not be forwarded using invocations");
 
 - (void) foo:(id) obj1 :(id) obj2 :(NSUInteger) i
 {
-   printf( "%td %s %s\n", i, [obj1 name], [obj2 name]);
+   printf( "%td %s %s\n", i, (char *) [obj1 name], (char *) [obj2 name]);
 }
 
 - (void) bar:(id) obj1 :(id) obj2 :(NSUInteger) i  :(float) x :(char) y
 {
-   printf( "%td %s %s %g %c\n", i, [obj1 name], [obj2 name], x, y);
+   printf( "%td %s %s %g %c\n", i, (char *) [obj1 name], (char *) [obj2 name], x, y);
 }
 
 @end

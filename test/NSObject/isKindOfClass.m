@@ -86,14 +86,14 @@ int  main( void)
 
    printf("\nfails:\n");
 
-   print_bool( [foo isKindOfClass:bar]);
-   print_bool( [bar isKindOfClass:foo]);
+   print_bool( [foo isKindOfClass:(Class) bar]);
+   print_bool( [bar isKindOfClass:(Class) foo]);
 
-   print_bool( [foo isKindOfClass:xxx]);
-   print_bool( [xxx isKindOfClass:foo]);
+   print_bool( [foo isKindOfClass:(Class) xxx]);
+   print_bool( [xxx isKindOfClass:(Class) foo]);
 
-   print_bool( [bar isKindOfClass:xxx]);
-   print_bool( [xxx isKindOfClass:bar]);
+   print_bool( [bar isKindOfClass:(Class) xxx]);
+   print_bool( [xxx isKindOfClass:(Class) bar]);
 
 
    [xxx release];

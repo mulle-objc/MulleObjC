@@ -24,7 +24,7 @@ int   main( void)
    }
    
    // Try to get class information
-   Class cls = _mulle_objc_object_get_isa( obj);
+   struct _mulle_objc_class *cls = _mulle_objc_object_get_isa( obj);
    
    if( ! cls)
    {
