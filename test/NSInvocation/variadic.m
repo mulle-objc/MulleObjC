@@ -9,6 +9,11 @@
 @end
 
 
+@interface Foo (Forward)
+- (void) foobar:(id) obj, ...;
+@end
+
+
 @implementation Foo
 
 

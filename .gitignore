@@ -105,3 +105,4 @@ test/MulleObject/30-bench/mulle-objc.css
 .roam/index.db-wal
 .roam
 .graveyard
+*.tmp.*

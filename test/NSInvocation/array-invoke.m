@@ -5,8 +5,11 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 # import <MulleObjC/MulleObjC.h>
 #endif
 
-
 @interface Foo : NSObject
+@end
+
+@interface Foo (Forward)
+- (void) foobar:(char *) x;
 @end
 
 
