@@ -1,11 +1,12 @@
 {
    "name" : "MulleObjC",
-   "version" : "0.27.0",
+   "version" : "0.28.0",
    "description" : "💎 A collection of Objective-C root classes for mulle-objc",
    "keywords" : [],
    "license" : "BSD-3-Clause",
    "repo" : "mulle-objc/MulleObjC",
    "src" : [
+      "asset/dox/TOC.md",
       "src/class/MulleDynamicObject.h",
       "src/class/MulleDynamicObject.m",
       "src/class/MulleObjCAutoreleasePool.h",

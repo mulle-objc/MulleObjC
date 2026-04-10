@@ -1,5 +1,5 @@
 # MulleObjC Library Documentation for AI
-<!-- Keywords: foundation, objective-c -->
+<!-- Keywords: objc, runtime, root-classes, threading, autorelease -->
 
 ## 1. Introduction & Purpose
 
