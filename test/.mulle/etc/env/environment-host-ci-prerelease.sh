@@ -88,3 +88,165 @@ export MULLE__OBJC__RUNTIME_URL="https://github.com/mulle-objc/mulle-objc-runtim
 export MULLE__OBJC__RUNTIME_BRANCH="prerelease"
 
 
+#
+#
+#
+export MULLE__CORE_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE__CORE_URL="https://github.com/mulle-core/mulle-core.git"
+
+
+#
+#
+#
+export MULLE__CORE_BRANCH="prerelease"
+
+
+#
+#
+#
+export MULLE__CORE__ALL__LOAD_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE__CORE__ALL__LOAD_URL="https://github.com/mulle-core/mulle-core-all-load.git"
+
+
+#
+#
+#
+export MULLE__CORE__ALL__LOAD_BRANCH="prerelease"
+
+
+#
+#
+#
+export LIBBACKTRACE_NODETYPE="git"
+
+
+#
+#
+#
+export LIBBACKTRACE_URL="https://github.com/mulle-core/libbacktrace.git"
+
+
+#
+#
+#
+export LIBBACKTRACE_BRANCH="prerelease"
+
+
+#
+#
+#
+export MULLE__C11_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE__C11_URL="https://github.com/mulle-c/mulle-c11.git"
+
+
+#
+#
+#
+export MULLE__C11_BRANCH="prerelease"
+
+
+#
+#
+#
+export MULLE__ALLOCATOR_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE__ALLOCATOR_URL="https://github.com/mulle-c/mulle-allocator.git"
+
+
+#
+#
+#
+export MULLE__ALLOCATOR_BRANCH="prerelease"
+
+
+#
+#
+#
+export MULLE__THREAD_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE__THREAD_URL="https://github.com/mulle-concurrent/mulle-thread.git"
+
+
+#
+#
+#
+export MULLE__THREAD_BRANCH="prerelease"
+
+
+#
+#
+#
+export MULLE__DLFCN_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE__DLFCN_URL="https://github.com/mulle-core/mulle-dlfcn.git"
+
+
+#
+#
+#
+export MULLE__DLFCN_BRANCH="prerelease"
+
+
+#
+#
+#
+export MULLE__OBJC__CC_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE__OBJC__CC_URL="https://github.com/mulle-cc/mulle-objc-cc.git"
+
+
+#
+#
+#
+export MULLE__OBJC__CC_BRANCH="prerelease"
+
+
+#
+#
+#
+export MULLE__OBJC__LIST_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE__OBJC__LIST_URL="https://github.com/mulle-objc/mulle-objc-list.git"
+
+
+#
+#
+#
+export MULLE__OBJC__LIST_BRANCH="prerelease"
+
+
