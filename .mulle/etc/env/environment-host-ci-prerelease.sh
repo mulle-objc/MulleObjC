@@ -196,15 +196,3 @@ export MULLE__OBJC__LIST_URL="https://github.com/mulle-objc/mulle-objc-list.git"
 export MULLE__OBJC__LIST_BRANCH="prerelease"
 
 
-#
-#
-#
-export MULLE_CRAFT_PLATFORMS=""
-
-
-#
-#
-#
-export MULLE_SOURCETREE_PLATFORMS=""
-
-
