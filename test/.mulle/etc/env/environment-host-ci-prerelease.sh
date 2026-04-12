@@ -70,3 +70,21 @@ export MULLE__TESTALLOCATOR_URL="https://github.com/mulle-core/mulle-testallocat
 export MULLE__TESTALLOCATOR_BRANCH="prerelease"
 
 
+#
+#
+#
+export MULLE__OBJC__RUNTIME_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE__OBJC__RUNTIME_URL="https://github.com/mulle-objc/mulle-objc-runtime.git"
+
+
+#
+#
+#
+export MULLE__OBJC__RUNTIME_BRANCH="prerelease"
+
+
