@@ -28,4 +28,20 @@
 #ifdef MULLE_OBJC_DEBUG_SUPPORT
 # include <mulle-objc-debug/mulle-objc-debug.h>
 #endif
+
+
+// #ifdef MULLE_TEST 
+// static inline void   mulle_test_trace( char *format, ...)
+// {
+//    va_list   args;
+// 
+//    va_start( args, format);
+//    mulle_vfprintf( stderr, format, args);
+//    va_end( args);
+// } 
+// #else
+// #define mulle_test_trace( format, ...)
+// #endif
+
+
 #endif

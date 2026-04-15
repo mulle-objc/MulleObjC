@@ -1,11 +1,14 @@
 #import <MulleObjC/MulleObjC.h>
 
 #import <MulleObjC/MulleObjCDebug.h>
+#import <MulleObjC/NSLock-Private.h>
+#import <MulleObjC/NSRecursiveLock-Private.h>
 
 
 @interface A : MulleObject < MulleAutolockingObjectProtocols>
 
-- (void) print;
+- (void) x  MULLE_OBJC_THREADSAFE_METHOD;
+- (void) y;
 
 @end
 
@@ -13,26 +16,31 @@
 
 @implementation A
 
-- (void) print
-{
-   mulle_printf( "VfL Bochum\n");
+- (void) x 
+{   
+   mulle_printf( "%s: Locking depth %td\n", __FUNCTION__, _MulleObjCRecursiveLockGetLockingDepth( self->__lock));
+}
+
+
+- (void) y
+{   
+   mulle_printf( "%s: Locking depth %td\n", __FUNCTION__, _MulleObjCRecursiveLockGetLockingDepth( self->__lock));
 }
 
 @end
 
 
+
 int  main( int argc, char *argv[])
 {
-   A   *a, *b;
-#if defined( DEBUG) && defined( __MULLE_OBJC__)
-   mulle_objc_global_check_universe( __MULLE_OBJC_UNIVERSENAME__);
-#endif
+   A   *a;
 
    a = [A instance];
-   b = [A instance];
+   [a x];
+   [a x];
 
-   [a print];
-   [b print];
+   [a y];
+   [a y];
 
    return( 0);
 }

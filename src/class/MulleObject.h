@@ -29,20 +29,15 @@
 // <magie> (aufruf der Methode)  --> [cache] 
 // [NSLock unlock]
 //
-
-// this method user bit is taken by this class
-// same as _mulle_objc_method_user_attribute_4
-#define MULLE_OBJC_METHOD_USER_BIT_NOT_LOCKING   _mulle_objc_method_user_attribute_4
-
-// to make a subclass actually use the locking code, adorn it with
+// To make a subclass actually use the locking code, adorn it with
 // MulleAutolockingObjectProtocols. This way you can use MulleObject
 // as a base class for classes that do not aspire to be thread safe.
 //
 // All instance methods will be thread-safe, due to the whole class being
 // marked MulleObjCThreadSafe. Special methods, that don't need (want) the
-// locking should be marked as MULLE_OBJC_THREADSAFE_METHOD. Subclasses will
-// also be marked as threadsafe during +initialize. If you override
-// +initialize in your subclass, you need to call +[super initialize].
+// automatic locking should be marked as MULLE_OBJC_THREADSAFE_METHOD. 
+// Subclasses will also be marked as threadsafe during +initialize. If you 
+// override +initialize in your subclass, you need to call +[super initialize].
 //
 // To search for methods in a subclass of MulleObject, you will need to
 // specify the desired inheritance value manually. The cls->inheritance value
@@ -52,6 +47,12 @@
 PROTOCOLCLASS_INTERFACE0( MulleAutolockingObject)
 PROTOCOLCLASS_END()
 
+
+// this mulle-objc-runtime method user bit is taken by this class
+// same as _mulle_objc_method_user_attribute_4
+#define MULLE_OBJC_METHOD_USER_BIT_NOT_LOCKING   _mulle_objc_method_user_attribute_4
+
+#define MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD    MULLE_OBJC_THREADSAFE_METHOD
 
 #define MulleAutolockingObjectProtocols   MulleObjCThreadSafe, MulleAutolockingObject
 
@@ -71,17 +72,22 @@ PROTOCOLCLASS_END()
 
 // ??? what for: current philosophy is that we don't want the user to
 //     lock manually...
-- (BOOL) tryLock                                            MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) tryLock   MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD;
+
+//
+// self will use "other" lock instead of own lock after this call. 
+//
+- (void) shareRecursiveLock:(NSRecursiveLock *) other;
+
+// this will call shareRecursiveLock anyway, so need for double autolocking
+- (void) shareRecursiveLockWithObject:(MulleObject *) other  MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD;
 
 // if you override -didShareRecursiveLock: you must call super
-- (void) didShareRecursiveLock:(NSRecursiveLock *) lock     MULLE_OBJC_THREADSAFE_METHOD;
+// this will not lock, as it should only be called from "inside" shareRecursiveLock:
+// CAREFUL! `lock` is not guaranteed to be lockable at this point, you are in
+// deadlock territory if you try to lock it
+- (void) didShareRecursiveLock:(NSRecursiveLock *) lock     MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD;
 
-//
-// self uses "other" lock instead of own, lock. This can only work
-// if the own lock is not locked and "self" is still only single-threaded or ?
-//
-- (void) shareRecursiveLock:(NSRecursiveLock *) other       MULLE_OBJC_THREADSAFE_METHOD;
-- (void) shareRecursiveLockWithObject:(MulleObject *) other MULLE_OBJC_THREADSAFE_METHOD;
 
 @end
 

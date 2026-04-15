@@ -35,15 +35,16 @@
 //
 #define _GNU_SOURCE
 
+// std-c and dependencies
+#import "import-private.h"
+
+
 #import "NSRecursiveLock.h"
 #import "NSLock-Private.h"
 #import "NSRecursiveLock-Private.h"
 #import "MulleObjCException.h"
 
 // other files in this library
-
-// std-c and dependencies
-#import "import-private.h"
 
 
 @implementation NSRecursiveLock
