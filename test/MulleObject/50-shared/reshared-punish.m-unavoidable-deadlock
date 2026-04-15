@@ -9,28 +9,31 @@
 @implementation Foo
 @end
 
+//
+// objects is not an AutoreleasePool just a pool of objects to acquire from
+// and return...
+//
+#define max_n_objects    4
 
-#define s_pool   4
-
-static id                      pool[ s_pool];
-static volatile unsigned int   n_pool;
-mulle_thread_mutex_t           pool_mutex;
+static id                      objects[ max_n_objects];
+static volatile unsigned int   n_objects ;
+mulle_thread_mutex_t           objects_mutex ;
 
 
 static void   fill_pool( void)
 {
    unsigned int   i;
 
-   mulle_thread_mutex_lock( &pool_mutex);
-   for( i = 0; i < s_pool; i++)
+   mulle_thread_mutex_lock( &objects_mutex); 
+   for( i = 0; i < max_n_objects; i++)
    {
-      if( ! pool[ i])
+      if( ! objects[ i])
       {
-         pool[ i] = [Foo new];
-         ++n_pool;
+         objects[ i] = [Foo new];
+         ++n_objects ;
       }
    }
-   mulle_thread_mutex_unlock( &pool_mutex);
+   mulle_thread_mutex_unlock( &objects_mutex); 
 }
 
 
@@ -38,13 +41,13 @@ static void   release_pool( void)
 {
    unsigned int   i;
 
-   mulle_thread_mutex_lock( &pool_mutex);
-   for( i = 0; i < s_pool; i++)
+   mulle_thread_mutex_lock( &objects_mutex); 
+   for( i = 0; i < max_n_objects; i++)
    {
-      [pool[ i] release];
-      pool[ i] = 0;
+      [objects[ i] release];
+      objects[ i] = 0;
    }
-   mulle_thread_mutex_unlock( &pool_mutex);
+   mulle_thread_mutex_unlock( &objects_mutex); 
 }
 
 
@@ -63,13 +66,13 @@ static id   _extract_random_object( void)
    // still locked
    do 
    {
-      i = rand() % s_pool;
+      i = rand() % max_n_objects;
    }
-   while( ! pool[ i]);
+   while( ! objects[ i]);
 
-   obj      = pool[ i];
-   pool[ i] = 0;
-   n_pool  -= 1;
+   obj          = objects[ i];
+   objects[ i]  = 0;
+   n_objects   -= 1;
 
    return( obj);
 }
@@ -83,17 +86,17 @@ static struct id_pair   extract_random_object_pair( void)
 
    for(;;)
    {
-      mulle_thread_mutex_lock( &pool_mutex);
-      if( n_pool >= 2)
+      mulle_thread_mutex_lock( &objects_mutex); 
+      if( n_objects  >= 2)
          break;
-      mulle_thread_mutex_unlock( &pool_mutex);
+      mulle_thread_mutex_unlock( &objects_mutex); 
       mulle_thread_yield();
    }
 
    pair.a = _extract_random_object();
    pair.b = _extract_random_object();
 
-   mulle_thread_mutex_unlock( &pool_mutex);
+   mulle_thread_mutex_unlock( &objects_mutex); 
 
    return( pair);
 }
@@ -107,21 +110,21 @@ static void  insert_object( id obj)
 
    for(;;)
    {
-      mulle_thread_mutex_lock( &pool_mutex);
-      if( n_pool != s_pool)
+      mulle_thread_mutex_lock( &objects_mutex); 
+      if( n_objects  != max_n_objects )
          break;
-      mulle_thread_mutex_unlock( &pool_mutex);
+      mulle_thread_mutex_unlock( &objects_mutex); 
       mulle_thread_yield();
    }
 
    // still locked
-   for( i = 0; i < s_pool; i++)
+   for( i = 0; i < max_n_objects; i++)
    {
-      if( ! pool[ i])
+      if( ! objects[ i])
       {
-         pool[ i] = obj;
-         ++n_pool;
-         mulle_thread_mutex_unlock( &pool_mutex);
+         objects[ i] = obj;
+         ++n_objects ;
+         mulle_thread_mutex_unlock( &objects_mutex); 
          return;
       }
    }
@@ -130,23 +133,23 @@ static void  insert_object( id obj)
 
 
 #define n_loops   10
-#define s_thread  (s_pool * 2)
+#define max_n_threads  (max_n_objects * 2)
 
 
 @interface Foo( Test)
 
-- (void) swap:(id) bar;
+- (void) swap:(id) other;
 - (void) swapWithObject:(Foo *) other;
 
 @end
 
 // Problem: dadurch daß die locks geshared werden, kann es sein daß die locks
-//          von pool[ 2] und pool[ 0] dieselbe ist als auch die von 
-//          pool[ 3] und pool[ 1]. So benutzt ein thread pair = 
-//          { pool[ 0], pool[ 1] }  und der andere pair = { pool[3], pool[2] }
-//          wenn beide gleichzeitig laufen, locked thread 0 erst pool[0] und
-//          nebenher thread 1 pool[ 3] (gleiche lock wie pool[ 1]) Dann dead
-//          locked thread 0 auf pool[ 1]
+//          von objects [ 2] und objects [ 0] dieselbe ist als auch die von 
+//          objects [ 3] und objects [ 1]. So benutzt ein thread pair = 
+//          { objects [ 0], objects [ 1] }  und der andere pair = { objects [3], objects [2] }
+//          wenn beide gleichzeitig laufen, locked thread 0 erst objects [0] und
+//          nebenher thread 1 objects [ 3] (gleiche lock wie objects [ 1]) Dann dead
+//          locked thread 0 auf objects [ 1]
 //
 @implementation Foo( Test)
 
@@ -162,6 +165,11 @@ static void  insert_object( id obj)
    mulle_thread_yield();
 }
 
+static inline NSRecursiveLock  *FooGetLock( Foo *foo)
+{
+   return( foo->__lock);
+}
+
 @end
 
 
@@ -175,13 +183,19 @@ static int   test_thread_main( NSThread *thread, void *index)
    for( i = 0; i < n_loops; i++)
    {
       pair = extract_random_object_pair();
+      mulle_fprintf( stderr, "%p: > %p(%p) %p(%p)%s\n", mulle_thread_self(), pair.a, FooGetLock( pair.a), 
+                                                                          pair.b, FooGetLock( pair.b),
+                                                                          FooGetLock( pair.a) == FooGetLock( pair.b) ? " SAME" : "");
       [pair.a swap:pair.b];
-      if( i == n_loops / 2)
-         mulle_fprintf( stderr, "%p %p\n", index, (void *) mulle_thread_id());
+      mulle_fprintf( stderr, "%p: < %p(%p) %p(%p)\n", mulle_thread_self(), pair.a, FooGetLock( pair.a), 
+                                                                         pair.b, FooGetLock( pair.b));
       insert_object( pair.b);
       insert_object( pair.a);
    }
    return( 0);
+
+   mulle_fprintf( stderr, "%p: done\n", mulle_thread_self());
+
 }
 
 
@@ -190,28 +204,28 @@ static int   test_thread_main( NSThread *thread, void *index)
 int  main( int argc, char *argv[])
 {
    Foo            *foo;
-   NSThread       *thread[ s_thread];
+   NSThread       *thread[ max_n_threads];
    unsigned int   i;
 
-   mulle_thread_mutex_init( &pool_mutex);
+   mulle_thread_mutex_init( &objects_mutex); 
    {
       fill_pool();
 
-      for( i = 0; i < s_thread; i++)
+      for( i = 0; i < max_n_threads; i++)
       {
          thread[ i] = [NSThread mulleThreadWithFunction:test_thread_main
                                                argument:(void *) (intptr_t) i + 1];
          [thread[ i] mulleStart];
       }
 
-      for( i = 0; i < s_thread; i++)
+      for( i = 0; i < max_n_threads; i++)
       {
          [thread[ i] mulleJoin];
          mulle_fprintf( stderr, "joined with %p\n", (void *) (intptr_t) i + 1);
       }
       release_pool();
    }
-   mulle_thread_mutex_done( &pool_mutex);
+   mulle_thread_mutex_done( &objects_mutex); 
    mulle_fprintf( stderr, "gone now\n");
 
    return( 0);

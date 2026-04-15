@@ -396,19 +396,19 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 #ifdef NDEBUG
    rval = mulle_objc_implementation_invoke( imp, self, methodid, parameter);
 #else
-   fprintf(stderr, "About to invoke imp=%p self=%p methodid=%x\n", imp, self, methodid);
+   // mulle_test_trace( "About to invoke imp=%p self=%p methodid=%x\n", imp, self, methodid);
    @try
    {
-      fprintf(stderr, "Inside try\n");
+      // mulle_test_trace( "Inside try\n");
       rval = mulle_objc_implementation_invoke( imp, self, methodid, parameter);
-      fprintf(stderr, "End try\n");
+      // mulle_test_trace( "End try\n");
    }
    @catch( id exception)
    {
       struct _mulle_objc_universe   *universe;
 
       universe = _mulle_objc_object_get_universe( self);
-      fprintf(stderr, "In catch\n");
+      // mulle_test_trace( "In catch\n");
 
       __mulle_objc_universe_raise_internalinconsistency( universe,
                                "An exception %@ is passing thru a -[%@ %s] "
@@ -417,7 +417,7 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
                                MulleObjCObjectGetClass( self),
                                mulle_objc_universe_lookup_methodname( universe, methodid));
    }
-   fprintf(stderr, "Invoke completed\n");
+   // mulle_test_trace( "Invoke completed\n");
 #endif
    if( lock)
       _MulleObjCRecursiveLockUnlock( lock);
@@ -602,33 +602,34 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 
 - (void) shareRecursiveLock:(NSRecursiveLock *) lock
 {
-   //
-   // TODO: if self->_lock is != nil and lock is nil, don't we return to
-   //       a new lock ?
-   //
-   NSLockingDo( lock)
-   {
-      if( lock != self->__lock)
-      {
-         // only share if _lock is not in use yet or if its the same lock.
-         // because why ?
-         // use. (If in use we could hypothetically add lock calls in a loop
-         // to `lock` and discard __lock)
+   // if we share with ourself, hmm just ignore or warn ?
+   if( lock == self->__lock)
+      return;
 
-         //assert( (self->__lock ? _MulleObjCRecursiveLockGetLockingDepth( self->__lock) : 0) == 0);
-         // assert( [self retainCount] == 1);  // must be single threaded
+   // if someone gives nil, this could mean return to former glory ? but 
+   // then just give use a new instance
+   // if( ! lock)
+   //    abort();
 
-         [self->__lock autorelease];
-         self->__lock = [lock retain];
+      //
+      // Ok so we get another lock and this could be already locked by 
+      // a) us (no problem its recursive)
+      // b) someone else... in which case we could deadlock if the other
+      //    thread is also trying to call our object, so what's the advantage
+      //    of locking it ? I see none. The way MulleObject is designed our
+      //    old lock will recursively unlock and the new lock will be used
+      //    with the next unwrapped call
 
-         [self didShareRecursiveLock:lock];
-      }
-   }
+   [self->__lock autorelease];
+   self->__lock = [lock retain];
+   [self didShareRecursiveLock:lock];
 }
 
 
 - (void) shareRecursiveLockWithObject:(MulleObject *) other
 {
+   assert( ! other || [other isKindOfClass:[MulleObject class]]);
+  
    [self shareRecursiveLock:other ? other->__lock : nil];
 }
 

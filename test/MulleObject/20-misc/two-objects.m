@@ -15,7 +15,7 @@
 
 - (void) print
 {
-   mulle_printf( "VfL Bochum");
+   mulle_printf( "VfL Bochum\n");
 }
 
 @end
@@ -32,9 +32,7 @@ int  main( int argc, char *argv[])
    b = [A instance];
 
    [a print];
-   printf("\n");
    [b print];
-   printf("\n");
 
    return( 0);
 }
