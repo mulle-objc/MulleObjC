@@ -122,68 +122,23 @@ NS_ENUM_TABLE( MulleObjCTAOStrategy, 8);
 
 
 
-// make this somewhat "official" by removing the underscore prefix
+// TODO: make this somewhat "official" by removing the underscore prefix
 typedef struct _mulle_objc_dependency     mulle_objc_dependency_t;
 
-#define MULLE_OBJC_MAKE_CLASSID( classname)       @selector( classname)
-#define MULLE_OBJC_MAKE_CATEGORYID( categoryname) @selector( categoryname)
+#define MULLE_OBJC_DEPENDS_ON_LIBRARY( libname) \
+@dependency MulleObjCDeps( libname)
 
-
-#define MULLE_OBJC_CLASS_DEPENDENCY( classname) \
-      { MULLE_OBJC_MAKE_CLASSID( classname), MULLE_OBJC_NO_CATEGORYID }
-#define MULLE_OBJC_CATEGORY_DEPENDENCY( classname, categoryname) \
-      { MULLE_OBJC_MAKE_CLASSID( classname), MULLE_OBJC_MAKE_CATEGORYID( categoryname) }
-#define MULLE_OBJC_LIBRARY_DEPENDENCY( libname) \
-      { MULLE_OBJC_MAKE_CLASSID( MulleObjCDeps), MULLE_OBJC_MAKE_CATEGORYID( libname) }
-
-#define MULLE_OBJC_NO_DEPENDENCY  \
-      { MULLE_OBJC_NO_CLASSID, MULLE_OBJC_NO_CATEGORYID }
-
-
-#define MULLE_OBJC_DEPENDS_ON_CLASS( classname)             \
-                                                            \
-+ (mulle_objc_dependency_t *) dependencies                  \
-{                                                           \
-   static mulle_objc_dependency_t   dependencies[] =        \
-   {                                                        \
-      MULLE_OBJC_CLASS_DEPENDENCY( classname),              \
-      MULLE_OBJC_NO_DEPENDENCY                              \
-   };                                                       \
-   return( dependencies);                                   \
-}                                                           \
-/* gobble up semicolon with known external definition */    \
-extern void   MulleObjCInstanceDeallocate( id obj)
+#define MULLE_OBJC_DEPENDS_ON_CLASS( classname) \
+@dependency classname
 
 #define MULLE_OBJC_DEPENDS_ON_CATEGORY( classname, categoryname) \
-                                                                 \
-+ (mulle_objc_dependency_t *) dependencies                       \
-{                                                                \
-   static mulle_objc_dependency_t   dependencies[] =             \
-   {                                                             \
-      MULLE_OBJC_CATEGORY_DEPENDENCY( classname, categoryname),  \
-      MULLE_OBJC_NO_DEPENDENCY                                   \
-   };                                                            \
-   return( dependencies);                                        \
-}                                                                \
-/* gobble up semicolon with known external definition */         \
-extern void   MulleObjCInstanceDeallocate( id obj)
+@dependency classname( categoryname)
 
+@class NSThread;
 
-#define MULLE_OBJC_DEPENDS_ON_LIBRARY( libname)             \
-                                                            \
-+ (mulle_objc_dependency_t *) dependencies                  \
-{                                                           \
-   static mulle_objc_dependency_t   dependencies[] =        \
-   {                                                        \
-      MULLE_OBJC_LIBRARY_DEPENDENCY( libname),              \
-      MULLE_OBJC_NO_DEPENDENCY                              \
-   };                                                       \
-   return( dependencies);                                   \
-}                                                           \
-/* gobble up semicolon with known external definition */    \
-extern void   MulleObjCInstanceDeallocate( id obj)
-
-
+//
+// Custom attribute for methods
+//
 #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_0   __attribute__((annotate("objc_user_0")))
 #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_1   __attribute__((annotate("objc_user_1")))
 #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_2   __attribute__((annotate("objc_user_2")))
@@ -196,68 +151,6 @@ extern void   MulleObjCInstanceDeallocate( id obj)
 // just the same, but I don't want to use  MULLE_OBJC_THREADSAFE on its own
 #define MULLE_OBJC_THREADSAFE_PROPERTY  \
    _MULLE_OBJC_METHOD_USER_ATTRIBUTE_4
-
-
-
-@protocol NSObject;
-@class NSThread;
-
-/*
- * Helper macros to declare protocol classes.
- *
- * They always implement NSObject. This should be harmless and reduces
- * warnings.y By default all methods are declared optional, since the
- * protocolclass usually implements them (so they are optional for the
- * consumer).
- *
- * MEMO: want to call super ? Check out MulleObjCObjectSearchSuperIMP.
- * TODO: can we put this manually into the instruction cache (like other
- *       superids ?)
- */
-#define _PROTOCOLCLASS_INTERFACE0( name) \
-_Pragma("clang diagnostic push")         \
-@class name;                             \
-@protocol name                           \
-@optional
-
-
-#define PROTOCOLCLASS_INTERFACE0( name)  \
-_Pragma("clang diagnostic push")         \
-@class name;                             \
-@protocol name < NSObject>               \
-@optional
-
-
-#define _PROTOCOLCLASS_INTERFACE( name, ...) \
-_Pragma("clang diagnostic push")             \
-@class name;                                 \
-@protocol name __VA_OPT__(< __VA_ARGS__ >)   \
-@optional
-
-
-#define PROTOCOLCLASS_INTERFACE( name, ...)                    \
-_Pragma("clang diagnostic push")                               \
-@class name;                                                   \
-@protocol name < NSObject __VA_OPT__(, __VA_ARGS__) >          \
-@optional
-
-
-#define PROTOCOLCLASS_END()     \
-_Pragma("clang diagnostic pop") \
-@end
-
-
-
-#define PROTOCOLCLASS_IMPLEMENTATION( name)                        \
-_Pragma("clang diagnostic push")                                   \
-_Pragma("clang diagnostic ignored \"-Wprotocol\"")                 \
-_Pragma("clang diagnostic ignored \"-Wobjc-root-class\"")          \
-_Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
-                                                                   \
-@interface name < name>                                            \
-@end                                                               \
-                                                                   \
-@implementation name
 
 
 
@@ -303,7 +196,9 @@ _Pragma("clang diagnostic ignored \"-Wobjc-missing-super-calls\"") \
 @end
 
 
-
+//
+// MEMO: the compiler will use mulle_objc_object_call_retain on -O2 anyway or ?
+//
 static inline id   MulleObjCObjectRetain( id obj)
 {
    return( mulle_objc_object_call_retain( obj));
@@ -314,30 +209,4 @@ static inline void   MulleObjCObjectRelease( id obj)
 {
    mulle_objc_object_call_release( obj);
 }
-
-
-// Does not work, _Pragma can't do it
-// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_0_PUSH \
-// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_0\"))), apply_to = objc_method)")
-//
-// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_1_PUSH \
-// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_1\"))), apply_to = objc_method")
-//
-// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_2_PUSH \
-// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_2\"))), apply_to = objc_method")
-//
-// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_3_PUSH \
-// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_3\"))), apply_to = objc_method")
-//
-// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_4_PUSH \
-// _Pragma( "clang attribute push(__attribute__((annotate(\"objc_user_4\"))), apply_to = objc_method")
-//
-// #define _MULLE_OBJC_METHOD_USER_ATTRIBUTE_POP    \
-// _Pragma( "clang attribute pop")
-// #define MULLE_OBJC_THREADSAFE_METHODS_PUSH \
-//    _MULLE_OBJC_METHOD_USER_ATTRIBUTE_4_PUSH
-//
-// #define MULLE_OBJC_THREADSAFE_METHODS_POP \
-//    _MULLE_OBJC_METHOD_USER_ATTRIBUTE_POP
-//
 

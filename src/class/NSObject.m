@@ -740,12 +740,11 @@ void  MulleObjCClassInterposeBeforeClass( Class self, Class other)
 }
 
 
-// TODO: move this to NSCopying ?
 - (instancetype) immutableInstance
 {
    id   obj;
 
-   obj = [(id <MulleObjCImmutableCopying>) self immutableCopy];
+   obj = [(id <NSCopying>) self copy];
    obj = [obj autorelease];
    assert( [obj conformsToProtocol:@protocol( MulleObjCImmutable)]);
    return( obj);
@@ -932,5 +931,6 @@ void   _MulleObjCObjectGainOrRelinquishAccessToIvars( id self,
 
    [self mulleRelinquishAccessWithTAOStrategy:strategy];
 }
+
 
 @end

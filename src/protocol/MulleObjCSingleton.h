@@ -45,13 +45,13 @@
 // there is no <MulleObjcThreadSafe> on it by default.
 // You can not run '-mullePerformFinalize' on a singleton.
 //
-_PROTOCOLCLASS_INTERFACE0( MulleObjCSingleton)
+@protocol_interface  MulleObjCSingleton
 
 @optional  // MulleObjCSingleton implements this for you
 + (void) initialize;  // #1#
 + (instancetype) sharedInstance;
 
-PROTOCOLCLASS_END()
+@end
 
 
 // for subclasses, who don't use sharedInstance

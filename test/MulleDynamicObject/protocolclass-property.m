@@ -8,15 +8,15 @@
 // The protocol class can then provide further methods that operate on 
 // the comment property...
 //
-PROTOCOLCLASS_INTERFACE0( Comment)
+@protocol_interface Comment < NSObject>
 
 @property( dynamic, retain) id  comment;
 
-PROTOCOLCLASS_END()
+@end
 
 
-PROTOCOLCLASS_IMPLEMENTATION( Comment)
-PROTOCOLCLASS_END()
+@protocol_implementation  Comment
+@end
 
 
 @interface Foo : MulleDynamicObject < Comment>

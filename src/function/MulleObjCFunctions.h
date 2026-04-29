@@ -1064,6 +1064,16 @@ static inline Class   MulleObjCObjectGetClass( id obj)
 }
 
 
+static inline SEL   MulleObjCClassGetClassID( Class cls)
+{
+   if( ! cls)
+      return( (SEL) MULLE_OBJC_NO_CLASSID);
+
+   return( (SEL) _mulle_objc_class_get_classid( (struct _mulle_objc_class *) cls));
+}
+
+
+
 // common expectation to have this available as well
 static inline Class   MulleObjCInstanceGetClass( id obj)
 {

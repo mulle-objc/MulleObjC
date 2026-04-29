@@ -124,7 +124,7 @@ static void   throw_argument_exception( id format, va_list args)
 
 
 
-- (id) retainedObject
+- (instancetype) retainedObject
 {
    return( _MulleObjCAtomicIdGetLazy( &self->_ivarRetain,
                                       _C_RETAIN_ID,
@@ -170,7 +170,7 @@ static void   throw_argument_exception( id format, va_list args)
 
 
 
-- (id) retainedObject
+- (instancetype) retainedObject
 {
    return( _MulleObjCAtomicIdGetLazy( &self->_ivarRetain,
                                       _C_RETAIN_ID,
@@ -208,7 +208,7 @@ static void   throw_argument_exception( id format, va_list args)
 
 
 
-- (id) retainedObject
+- (instancetype) retainedObject
 {
    return( _MulleObjCAtomicIdGetLazy( &self->_ivarRetain,
                                       _C_RETAIN_ID,

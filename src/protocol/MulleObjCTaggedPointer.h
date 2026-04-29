@@ -41,7 +41,7 @@
 #import "MulleObjCProtocol.h"
 
 
-_PROTOCOLCLASS_INTERFACE( MulleObjCTaggedPointer, MulleObjCImmutable)
+@protocol_interface MulleObjCTaggedPointer < MulleObjCImmutable>
 
 + (BOOL) isTaggedPointerEnabled;
 
@@ -50,8 +50,9 @@ _PROTOCOLCLASS_INTERFACE( MulleObjCTaggedPointer, MulleObjCImmutable)
 - (instancetype) autorelease     MULLE_OBJC_THREADSAFE_METHOD;
 - (void) release                 MULLE_OBJC_THREADSAFE_METHOD;
 - (NSUInteger) retainCount       MULLE_OBJC_THREADSAFE_METHOD;
+- (id) immutableCopy   MULLE_OBJC_THREADSAFE_METHOD;
 
-PROTOCOLCLASS_END()
+@end
 
 
 

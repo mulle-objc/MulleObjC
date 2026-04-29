@@ -83,16 +83,16 @@
 // as this will be the default. But it's also not a bad self-documenting idea.
 //
 //
-_PROTOCOLCLASS_INTERFACE0( MulleObjCThreadSafe)
+@protocol_interface  MulleObjCThreadSafe
 
 @optional
 - (BOOL) mulleIsThreadSafe    MULLE_OBJC_THREADSAFE_METHOD;
 - (id) mulleThreadSafeCopy; // returns self retained
 
-PROTOCOLCLASS_END()
+@end
 
 
-_PROTOCOLCLASS_INTERFACE0( MulleObjCThreadUnsafe)
+@protocol_interface  MulleObjCThreadUnsafe
 
 @optional
 - (BOOL) mulleIsThreadSafe    MULLE_OBJC_THREADSAFE_METHOD;
@@ -101,7 +101,7 @@ _PROTOCOLCLASS_INTERFACE0( MulleObjCThreadUnsafe)
 // locking object (like MulleThreadSafeObject at time of writing)
 - (id) mulleThreadSafeCopy;  // will return nil (!) this is useful so you can change affinity
 
-PROTOCOLCLASS_END()
+@end
 
 
 //
@@ -111,14 +111,15 @@ PROTOCOLCLASS_END()
 //
 // -conformsToProtocol:@selector( MulleObjCImmutable) must be a valid test.
 //
+// Can only be adopted by MulleObjCRuntimeObject adopting classes (need -retain)
 //
-_PROTOCOLCLASS_INTERFACE( MulleObjCImmutable, MulleObjCRuntimeObject)
+@protocol_interface MulleObjCImmutable < MulleObjCRuntimeObject>
 
 @optional
 - (id) copy;           // protocol return type is too tedious
 - (id) immutableCopy;  // protocol return type is too tedious
 
-PROTOCOLCLASS_END()
+@end
 
 
 //
@@ -213,7 +214,7 @@ PROTOCOLCLASS_END()
                                             MulleObjCThreadUnsafe
 
 
-_PROTOCOLCLASS_INTERFACE0( MulleObjCPlaceboRetainCount)
+@protocol_interface  MulleObjCPlaceboRetainCount
 
 @optional
 - (instancetype) retain          MULLE_OBJC_THREADSAFE_METHOD;

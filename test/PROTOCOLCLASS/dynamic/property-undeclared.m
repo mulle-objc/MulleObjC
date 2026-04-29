@@ -11,18 +11,18 @@
    @property int   a
 
 
-_PROTOCOLCLASS_INTERFACE0( Foo)
+@protocol_interface  Foo
 //{
       FooProperties;
 //}
-PROTOCOLCLASS_END()
+@end
 
 
-PROTOCOLCLASS_IMPLEMENTATION( Foo)
+@protocol_implementation  Foo
 //{
       @dynamic a;
 //}
-PROTOCOLCLASS_END()
+@end
 
 
 @interface MyClass : NSObject < Foo>

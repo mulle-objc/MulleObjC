@@ -56,7 +56,8 @@
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
 
-@interface MulleObjCException < MulleObjCException>
+
+@protocol_implementation MulleObjCException
 
 // don't use __attribute(( noreturn)), the compiler will produce
 // wrong code for
@@ -64,13 +65,6 @@
 // ...
 // [exception raise];
 //
-- (void) raise;
-
-@end
-
-
-@implementation MulleObjCException
-
 - (void) raise
 {
    mulle_objc_throw( self);

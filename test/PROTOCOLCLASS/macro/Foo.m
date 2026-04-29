@@ -5,7 +5,7 @@
 #pragma clang diagnostic ignored "-Wprotocol"
 
 
-PROTOCOLCLASS_IMPLEMENTATION( Foo)
+@protocol_implementation  Foo
 
 - (void) doTheFooThing
 {
@@ -15,4 +15,4 @@ PROTOCOLCLASS_IMPLEMENTATION( Foo)
   ivars->a += 1848;
 }
 
-PROTOCOLCLASS_END()
+@end

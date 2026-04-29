@@ -26,14 +26,14 @@ static inline  void   stacktrace( void)
 }
 
 
-- (id) retain
+- (instancetype) retain
 {
    stacktrace();
    return( [super retain]);
 }
 
 
-- (id) autorelease
+- (instancetype) autorelease
 {
    stacktrace();
    return( [super autorelease]);

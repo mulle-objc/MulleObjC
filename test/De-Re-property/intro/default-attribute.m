@@ -20,7 +20,7 @@
 
 @implementation Foo
 
-- (id) retain
+- (instancetype) retain
 {
    mulle_printf( "%s %s\n", _name, __FUNCTION__);
    return( [super retain]);

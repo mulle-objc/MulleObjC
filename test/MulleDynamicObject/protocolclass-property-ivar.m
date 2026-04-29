@@ -7,15 +7,15 @@
 // This test shows how we can add properties via protocol classes.
 // Here we actually use an instance variable again, for improved speed.
 //
-PROTOCOLCLASS_INTERFACE0( Comment)
+@protocol_interface Comment < NSObject>
 
 @property( dynamic, retain) id  comment;
 
-PROTOCOLCLASS_END()
+@end
 
 
-PROTOCOLCLASS_IMPLEMENTATION( Comment)
-PROTOCOLCLASS_END()
+@protocol_implementation  Comment
+@end
 
 
 @interface Foo : MulleDynamicObject < Comment>

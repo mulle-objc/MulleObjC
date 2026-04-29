@@ -44,7 +44,7 @@
    [super dealloc];
 }
 
-- (id) retain
+- (instancetype) retain
 {
    mulle_fprintf( stderr, "%p gets released\n", self);
    return( [super retain]);

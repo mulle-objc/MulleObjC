@@ -111,6 +111,7 @@ src/protocol/MulleObjCClassCluster.h
 src/protocol/MulleObjCException.h
 src/protocol/MulleObjCProtocol.h
 src/protocol/MulleObjCRootObject.h
+src/protocol/MulleObjCRuntimeObjectDeprecated.h
 src/protocol/MulleObjCRuntimeObject.h
 src/protocol/MulleObjCSingleton.h
 src/protocol/MulleObjCTaggedPointer.h

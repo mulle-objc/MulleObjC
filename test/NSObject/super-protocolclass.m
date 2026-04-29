@@ -6,20 +6,20 @@
 
 
 //
-_PROTOCOLCLASS_INTERFACE0( A)
+@protocol_interface  A
 
 @optional
 - (void) method1;
 
-PROTOCOLCLASS_END()
+@end
 
 
-_PROTOCOLCLASS_INTERFACE0( B)
+@protocol_interface  B
 
 @optional
 - (void) method2;
 
-PROTOCOLCLASS_END()
+@end
 
 
 @interface Foo < A, B>
@@ -30,7 +30,7 @@ PROTOCOLCLASS_END()
 @end
 
 
-PROTOCOLCLASS_IMPLEMENTATION( A)
+@protocol_implementation  A
 
 + (void) method0
 {
@@ -42,10 +42,10 @@ PROTOCOLCLASS_IMPLEMENTATION( A)
    mulle_printf( "%s\n", __PRETTY_FUNCTION__);
 }
 
-PROTOCOLCLASS_END()
+@end
 
 
-PROTOCOLCLASS_IMPLEMENTATION( B)
+@protocol_implementation  B
 
 + (void) method0
 {
@@ -57,7 +57,7 @@ PROTOCOLCLASS_IMPLEMENTATION( B)
    mulle_printf( "%s\n", __PRETTY_FUNCTION__);
 }
 
-PROTOCOLCLASS_END()
+@end
 
 
 @implementation Foo

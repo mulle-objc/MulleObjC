@@ -240,7 +240,10 @@ struct _mulle_objc_universefoundationinfo  *
    roots->teardown_callback                        = config->callbacks.teardown;
    foundation.universefriend.data                  = roots;
    foundation.retain_autorelease                   = config->universe.retain_autorelease;
-   foundation.staticstringclass                    = config->universe.staticstringclass;
+   foundation.staticstringclass[ 0]                = config->universe.staticstringclass[ 0];
+   foundation.staticstringclass[ 1]                = config->universe.staticstringclass[ 1];
+   foundation.staticstringclass[ 2]                = config->universe.staticstringclass[ 2];
+   foundation.utf8staticstrings                    = config->universe.utf8staticstrings;
    foundation.universefriend.finalizer             = foundationinfo_finalize;
    foundation.universefriend.destructor            = foundationinfo_done;
    foundation.universefriend.threadinfoinitializer = config->universe.threadinfoinitializer

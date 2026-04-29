@@ -41,7 +41,7 @@
 #import "MulleObjCExceptionHandler-Private.h"
 
 
-PROTOCOLCLASS_IMPLEMENTATION( MulleObjCTaggedPointer)
+@protocol_implementation  MulleObjCTaggedPointer
 
 + (instancetype) alloc
 {
@@ -63,10 +63,10 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCTaggedPointer)
 }
 
 
-- (instancetype) autorelease
-{
-   return( self);
-}
+
+@method_implementation -copy          = -retain;
+@method_implementation -immutableCopy = -retain;
+@method_implementation -autorelease   = -retain;
 
 
 - (void) release
@@ -79,12 +79,6 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCTaggedPointer)
    return( MULLE_OBJC_NEVER_RELEASE);
 }
 
-
-
-- (id) copy
-{
-   return( self);
-}
 
 
 /*
@@ -121,4 +115,4 @@ int   MulleObjCTaggedPointerRegisterClassAtIndex( Class cls, unsigned int index)
    return( rval);
 }
 
-PROTOCOLCLASS_END()
+@end
