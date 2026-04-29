@@ -38,7 +38,6 @@
 #import "MulleObjCRootObject.h"
 
 
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 #pragma clang diagnostic ignored "-Wcast-of-sel-type"
@@ -146,11 +145,6 @@
 @end
 
 
-@interface NSObject( NSCopying)
-
-- (id) immutableInstance;
-
-@end
 
 @class NSMethodSignature;
 @class NSInvocation;

@@ -51,12 +51,12 @@
 // When you call +alloc you get a retained placeholder back. In your
 // init method, you should release it.
 //
-_PROTOCOLCLASS_INTERFACE0( MulleObjCClassCluster)
+@protocol_interface  MulleObjCClassCluster
 
 + (void) initialize;  // #1#
 + (Class) __classClusterClass;
 
-PROTOCOLCLASS_END()
+@end
 
 
 // #1#

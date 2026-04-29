@@ -274,7 +274,6 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
 }
 
 
-
 - (char *) getArgumentTypeAtIndex:(NSUInteger) i
 {
    // +1, skip rval: start with self
@@ -367,7 +366,6 @@ static MulleObjCMethodSignatureTypeInfo  *get_infos( NSMethodSignature *self)
 
    return( frame_length);
 }
-
 
 
 // used by NSInvocation

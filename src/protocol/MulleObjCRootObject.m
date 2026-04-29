@@ -28,7 +28,7 @@ NS_ENUM_TABLE( MulleObjCTAOStrategy, 8) =
 };
 
 
-PROTOCOLCLASS_IMPLEMENTATION( MulleObjCRootObject)
+@protocol_implementation MulleObjCRootObject
 
 + (instancetype) alloc
 {
@@ -176,21 +176,16 @@ static inline void   checkAutoreleaseRelease( id self)
 // as a class method, prevent [Foo autorelease] to end up in the autorelease
 // pool (at least when running -O0)
 //
-+ (instancetype) autorelease
+static id  self_nop( id self, SEL sel, void *param)
 {
-   return( (id) self);
+   return( self);
 }
 
+@method_implementation +autorelease    = self_nop;
+@method_implementation +retain         = self_nop;
+@method_implementation +copy           = self_nop;
+@method_implementation +immutableCopy  = self_nop;
 
-+ (instancetype) retain
-{
-   return( (id) self);
-}
-
-
-+ (void) release
-{
-}
 
 
 + (NSUInteger) retainCount
@@ -199,6 +194,14 @@ static inline void   checkAutoreleaseRelease( id self)
 }
 
 
+
+static void  void_nop( id self, SEL sel, void *param)
+{
+}
+
+
+@method_implementation +finalize  = void_nop;
+
 + (instancetype) init
 {
    assert( 0 && "init a class ???");
@@ -206,16 +209,14 @@ static inline void   checkAutoreleaseRelease( id self)
 }
 
 
-+ (void) finalize
-{
-}
-
-
+#ifdef NDEBUG
 + (void) dealloc
 {
    assert( 0 && "dealloc a class ???");
 }
-
+#else
+@method_implementation +dealloc   = void_nop;
+#endif
 
 
 //
@@ -651,7 +652,7 @@ void   MulleObjCGainAccessToObjectsWithUniquingSet( id *objects,
    sentinel = &objects[ count];
    while( objects < sentinel)
    {
-      obj    = *objects++;
+      obj = *objects++;
       if( mulle_pointerset_insert( uniquing, obj))
          [obj mulleGainAccessWithUniquingSet:uniquing];
    }
@@ -1098,5 +1099,4 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    return( info.n);
 }
 
-
-PROTOCOLCLASS_END();
+@end

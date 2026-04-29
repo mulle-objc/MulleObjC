@@ -2,10 +2,10 @@
 
 #import "NSObjectProtocol.h"
 #import "NSCopying.h"
+#import "MulleObjCException.h"
 
 
-
-PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadSafe)
+@protocol_implementation MulleObjCThreadSafe
 
 // here it comes in handy, that initialize is called by subclasses
 + (void) initialize
@@ -17,7 +17,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadSafe)
 }
 
 
-- (BOOL) mulleIsThreadSafe                MULLE_OBJC_THREADSAFE_METHOD
+- (BOOL) mulleIsThreadSafe   MULLE_OBJC_THREADSAFE_METHOD
 {
    return( YES);
 }
@@ -37,11 +37,11 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadSafe)
    return( MulleObjCTAOKnownThreadSafe);
 }
 
-PROTOCOLCLASS_END()
+@end
 
 
 
-PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadUnsafe)
+@protocol_implementation MulleObjCThreadUnsafe
 
 + (void) initialize
 {
@@ -51,13 +51,13 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadUnsafe)
    _mulle_objc_class_clear_state_bit( cls, MULLE_OBJC_CLASS_IS_NOT_THREAD_AFFINE);
 }
 
-- (BOOL) mulleIsThreadSafe                MULLE_OBJC_THREADSAFE_METHOD
+- (BOOL) mulleIsThreadSafe   MULLE_OBJC_THREADSAFE_METHOD
 {
    return( NO);
 }
 
 
-- (id) mulleThreadSafeCopy
+- (instancetype) mulleThreadSafeCopy
 {
    return( nil);
 }
@@ -78,46 +78,34 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCThreadUnsafe)
    return( MulleObjCTAOCallerRemovesFromCurrentPool);
 }
 
-PROTOCOLCLASS_END()
+@end
 
 
+@protocol_implementation MulleObjCImmutable
 
-PROTOCOLCLASS_IMPLEMENTATION( MulleObjCImmutable)
-
-- (id /*<MulleObjCImmutable>*/) copy
+- (id) copy
 {
    return( [self retain]);
 }
 
 
-- (id /*<MulleObjCImmutable>*/) immutableCopy
-{
-   return( [self retain]);
-}
+@method_implementation -immutableCopy = -copy;
+
+@end
 
 
 
-- (id /*<MulleObjCImmutable>*/) copyWithZone:(NSZone *) zone
-{
-   MULLE_C_UNUSED( zone);
-   return( [self retain]);
-}
-
-
-PROTOCOLCLASS_END()
-
-
-
-PROTOCOLCLASS_IMPLEMENTATION( MulleObjCPlaceboRetainCount)
-
-- (void) finalize
-{
-}
-
+@protocol_implementation MulleObjCPlaceboRetainCount
 
 - (void) dealloc
 {
 }
+
+
+// all do nothing
+@method_implementation -finalize = -dealloc;
+@method_implementation -release  = -dealloc;
+
 
 
 - (instancetype) retain
@@ -125,16 +113,8 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCPlaceboRetainCount)
    return( self);
 }
 
-
-- (instancetype) autorelease
-{
-   return( self);
-}
-
-
-- (void) release
-{
-}
+// all return self
+@method_implementation -autorelease = -retain;
 
 
 - (NSUInteger) retainCount
@@ -142,5 +122,5 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleObjCPlaceboRetainCount)
    return( MULLE_OBJC_NEVER_RELEASE);
 }
 
-PROTOCOLCLASS_END()
+@end
 

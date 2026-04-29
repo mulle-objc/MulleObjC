@@ -20,13 +20,13 @@
 }
 
 
-- (id) retain
+- (instancetype) retain
 {
    return( [super retain]);
 }
 
 
-- (id) autorelease
+- (instancetype) autorelease
 {
    return( [super autorelease]);
 }

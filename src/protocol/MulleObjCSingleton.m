@@ -54,7 +54,7 @@
 #pragma clang diagnostic ignored "-Wprotocol"
 
 
-PROTOCOLCLASS_IMPLEMENTATION( MulleObjCSingleton)
+@protocol_implementation  MulleObjCSingleton
 
 static struct
 {
@@ -286,4 +286,4 @@ id   MulleObjCSingletonCreate( Class self)
    return( _mulle_objc_object_is_constant( self));
 }
 
-PROTOCOLCLASS_END()
+@end

@@ -57,7 +57,7 @@
 #pragma clang diagnostic ignored "-Wprotocol"
 
 
-PROTOCOLCLASS_IMPLEMENTATION( MulleObjCClassCluster)
+@protocol_implementation  MulleObjCClassCluster
 
 //
 // MULLE_OBJC_IS_CLASSCLUSTER gets inherited by the class, that implements the
@@ -237,4 +237,4 @@ void   _mulle_objc_warn_classcluster( struct _mulle_objc_infraclass *self)
    return( _mulle_objc_object_is_constant( self));
 }
 
-PROTOCOLCLASS_END()
+@end

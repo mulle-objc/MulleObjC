@@ -82,18 +82,21 @@
 // possible. If the receiver is immutable, you will just receive a retained
 // instance of the receiver. The use of `-copy` is for creation of snapshots
 // or creating instances from prototypes. `NSCopying` is used by properties.
-// It's not used by NSDictionary, which uses `MulleObjCImmutableCopying` for
-// keys. A copy, if a different object, needs to be independent of the original
-// project. So any change to the original should not change the copy. To what
-// degree though, when NSArray is NSCopying ? -hash and -isEqual: should not
-// change for sure. But NSArray is not calling -copy on its elements (it can't)
+//
+// A copy, if a different object, needs to be independent of the original
+// object. So any change to the original should not change the copy.
+//
+// To what degree though, when NSArray is NSCopying ? -hash and -isEqual:
+// should not change for sure. But NSArray is not calling -copy on its elements
+// (it can't). Therefore it is sufficient for NSArray to be also used a key
+// in NSDictionary, though this is terrible of course.
 //
 // To copy an object to another allocator scheme use NSCopyingWithAllocator.
 // no longer a protocolclass!
 //
 @protocol NSCopying
 
-- (id) copy;
+- (id) copy;   // MEMO: its `id` not `instancetype` !
 
 //
 // the old copyWithZone: is gone. If you have copyWithZone: methods,
@@ -115,8 +118,11 @@
 // Does not return an instancetype (e.g. NSMutableSet returns NSSet).
 // If it isn't immutable, you probably want to be using constructors to copy.
 //
+// Basically this is there to prevent NSArray as a key in an NSDictionary
+// where the first object is mutable and changes and then the hash changes
+// and equality as well.
 @protocol MulleObjCImmutableCopying < NSCopying>
 
-- (id) immutableCopy;
+- (id) immutableCopy;  // MEMO: its `id` not `instancetype` !
 
 @end

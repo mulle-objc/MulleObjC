@@ -26,7 +26,7 @@
 }
 
 
-- (id) retain
+- (instancetype) retain
 {
    mulle_printf( "%s - +: %s %td -> %td\n", __THREAD_NAME__,__PRETTY_FUNCTION__, [self retainCount], [self retainCount] + 1);
    [super retain];
@@ -34,7 +34,7 @@
 }
 
 
-- (id) autorelease
+- (instancetype) autorelease
 {
    mulle_printf( "%s - a: %s %td\n", __THREAD_NAME__,__PRETTY_FUNCTION__, [self retainCount]);
    return( [super autorelease]);

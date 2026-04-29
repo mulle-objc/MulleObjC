@@ -56,10 +56,7 @@ static inline void   *mulle_objc_object_zone( void)
 // these are just here for compatibilty, they pretty much vanish due to
 // inlining
 
-typedef struct
-{
-   void   *unused;  // empty would be not C11
-} NSZone;
+typedef void    NSZone;
 
 
 static inline NSZone   *NSDefaultMallocZone()

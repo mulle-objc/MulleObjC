@@ -7,11 +7,11 @@ struct FooIvars
 };
 
 
-_PROTOCOLCLASS_INTERFACE0( Foo)
+@protocol_interface  Foo
 
 - (void) doTheFooThing;
 - (struct FooIvars *) getFooIvars;
 
-PROTOCOLCLASS_END()
+@end
 
 

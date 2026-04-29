@@ -44,8 +44,12 @@
 // of MulleObject will appear to be broken. This is basically the main
 // trick MulleAutolockingObject uses and it can't be avoided.
 //
-PROTOCOLCLASS_INTERFACE0( MulleAutolockingObject)
-PROTOCOLCLASS_END()
+@protocol_interface MulleAutolockingObject
+
+@optional
+- (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD;
+
+@end
 
 
 // this mulle-objc-runtime method user bit is taken by this class

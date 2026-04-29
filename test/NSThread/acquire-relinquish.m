@@ -108,12 +108,12 @@ static void   recycle_ivar_object( mulle_atomic_pointer_t *p, id obj)
    [super release];
 }
 
-- (id) retain
+- (instancetype) retain
 {
    return( [super retain]);
 }
 
-- (id) autorelease
+- (instancetype) autorelease
 {
    return( [super autorelease]);
 }

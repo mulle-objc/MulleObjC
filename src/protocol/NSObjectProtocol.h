@@ -63,7 +63,7 @@
 
 
 
-_PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
+@protocol NSObject < MulleObjCRuntimeObject>
 
 // used by faults, not necessarily threadsafe
 - (instancetype) self;
@@ -96,7 +96,7 @@ _PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 - (void) _pushToParentAutoreleasePool;
 
 
-- (NSZone *) zone   __attribute__((deprecated("zones have no meaning and will eventually disappear")));  // always NULL
+//- (NSZone *) zone   __attribute__((deprecated("zones have no meaning and will eventually disappear")));  // always NULL
 
 // this is ... questionable
 - (instancetype) immutableInstance;
@@ -125,6 +125,6 @@ _PROTOCOLCLASS_INTERFACE( NSObject, MulleObjCRuntimeObject)
 
 // some mulle additions for AAO mode and complete ObjectGraph support
 
+@end
 
-PROTOCOLCLASS_END()
 

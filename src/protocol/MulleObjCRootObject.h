@@ -2,9 +2,23 @@
 #import "import.h"
 
 #import "MulleObjCRuntimeObject.h"
+#import "MulleObjCFunctions.h"
 
 
 @class NSMethodSignature;
+
+
+#define MulleObjCClassInitializeOnceDo( Self)                                                          \
+   assert( __MULLE_OBJC_CATEGORYID__ == MULLE_OBJC_NO_CATEGORYID && "no +initialize in categories");   \
+   if( MulleObjCClassGetClassID( Self) == __MULLE_OBJC_CLASSID__)
+
+#define MulleObjCClassDeinitializeOnceDo( Self)                                                        \
+   assert( __MULLE_OBJC_CATEGORYID__ == MULLE_OBJC_NO_CATEGORYID && "no +deinitialize in categories"); \
+   if( MulleObjCClassGetClassID( Self) == __MULLE_OBJC_CLASSID__)
+
+#define MulleObjCClassFinalizeOnceDo( Self)                                                            \
+   assert( __MULLE_OBJC_CATEGORYID__ == MULLE_OBJC_NO_CATEGORYID && "no +finalize in categories");     \
+   if( MulleObjCClassGetClassID( Self) == __MULLE_OBJC_CLASSID__)
 
 
 //
@@ -13,16 +27,14 @@
 // Useful for classes, that do not want the whole NSObject baggage
 // especially added by categories. Chiefly used forwarding classes.
 //
-PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
+@protocol_interface MulleObjCRootObject < MulleObjCRuntimeObject>
 
 @optional
 
 #pragma mark - object storage and removal
 
 + (instancetype) alloc;
-+ (instancetype) allocWithZone:(NSZone *) zone;
 + (instancetype) new;
-- (NSZone *) zones                              MULLE_OBJC_THREADSAFE_METHOD;  // always NULL
 - (struct mulle_allocator *) mulleAllocator     MULLE_OBJC_THREADSAFE_METHOD;
 - (void) mullePerformFinalize                   MULLE_OBJC_THREADSAFE_METHOD;
 - (BOOL) mulleIsFinalized                       MULLE_OBJC_THREADSAFE_METHOD;
@@ -154,8 +166,8 @@ PROTOCOLCLASS_INTERFACE( MulleObjCRootObject, MulleObjCRuntimeObject)
 - (id) _resignAsRootObject                            MULLE_OBJC_THREADSAFE_METHOD;
 - (id) _pushToParentAutoreleasePool                   MULLE_OBJC_THREADSAFE_METHOD;
 
+@end
 
-PROTOCOLCLASS_END();
 
 MULLE_OBJC_GLOBAL
 void   MulleObjCRelinquishAccessToObjectsWithUniquingSet( id *objects,

@@ -12,7 +12,7 @@
 #import "MulleObject-Private.h"
 
 
-PROTOCOLCLASS_IMPLEMENTATION( MulleAutolockingObject)
+@protocol_implementation  MulleAutolockingObject
 
 - (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD
 {
@@ -22,8 +22,7 @@ PROTOCOLCLASS_IMPLEMENTATION( MulleAutolockingObject)
    return( MulleObjCTAOTransferIvars);
 }
 
-PROTOCOLCLASS_END()
-
+@end
 
 
 @implementation MulleObject

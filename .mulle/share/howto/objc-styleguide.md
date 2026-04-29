@@ -96,8 +96,12 @@ these rules to maintain code consistency and readability.
 
 -   Do not use `-retain` or `copy` or `-release` or `autorelease` (exception: inside `-init` and `-dealloc` and "accessor" methods)
 -   Do not use `+alloc` `-init` use `+instance` or an appropriate factory method like `-[NSMutableArray array]`
+-   arrange method arguments columnar fashion. Do not write  [dosbox setObject:@"vgaonly" forKey:@"machine"] in a single line but in two lines, where the selector ':' match up in the same column.
 
-### 4.2. Property Access
+
+### 4.2. Properties
+
+-   Just declare the @property in the @interface, skip instance variable declaration, do not @synthesize, do not manage in -dealloc. This is all done automatically and properly
 -   Do not use dot-syntax for property access.
 -   Prefer non-mutable state in properties, prefer `(copy)` over `(retain)` when possible
 -   Do not use strong use retain or copy instead
@@ -106,8 +110,14 @@ these rules to maintain code consistency and readability.
     -   **Read:** `[self property]` instead of `self.property`.
     -   **Write:** `[self setProperty:value]` instead of `self.property = value`.
 
+### 4.3 Employ Factory style object creation
+
+-   prefer [Foo instance] instead of [[Foo new] autorelease] or [[[Foo alloc] init] autorelease]
+-   prefer [[Foo instantiate] initWith...] when a factory method is unavailable
+
 
 ## Tip:
 
 NSString, NSArray and most other Foundation classes are not available
-with mulle-objc/objc-developer, you want foundation/objc-developer for that.
+with mulle-sde project mulle-objc/objc-developer, you need mulle-sde project
+foundation/objc-developer for that.

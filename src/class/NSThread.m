@@ -70,7 +70,7 @@
 @implementation NSThread
 
 
-MULLE_OBJC_DEPENDS_ON_CLASS( NSAutoreleasePool);
+@dependency NSAutoreleasePool;
 
 static struct
 {

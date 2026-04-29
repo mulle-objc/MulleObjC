@@ -63,16 +63,12 @@
 // @property( copy)   id  f;        // copied
 // @property( retain) id  f;        // zeroed!
 //
-@protocol NSCopyingWithAllocator
+@protocol_interface NSCopyingWithAllocator
 
-@optional
 - (id) copyWithAllocator:(struct mulle_allocator *) allocator;
 
 @end
 
-
-@class NSCopyingWithAllocator; // needed for the compiler to understand this is
-                               // protocol class
 
 MULLE_OBJC_GLOBAL
 id  _MulleObjCInstanceCopyWithAllocator( id object,

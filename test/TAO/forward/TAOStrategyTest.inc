@@ -114,7 +114,7 @@ static void   test_trace( char *format, ...)
 }
 
 
-- (id) retain
+- (instancetype) retain
 {
    self = [super retain];
 
@@ -125,7 +125,7 @@ static void   test_trace( char *format, ...)
 }
 
 
-- (id) autorelease
+- (instancetype) autorelease
 {
    self = [super autorelease];
 #if TRACE_RETAIN_RELEASE
@@ -180,7 +180,7 @@ static int   thread_function( NSThread *thread, id obj)
 }
 
 
-- (id) retain
+- (instancetype) retain
 {
    self = MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
@@ -191,7 +191,7 @@ static int   thread_function( NSThread *thread, id obj)
 }
 
 
-- (id) autorelease
+- (instancetype) autorelease
 {
    self = MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
@@ -244,7 +244,7 @@ static int   thread_function( NSThread *thread, id obj)
 }
 
 
-- (id) retain
+- (instancetype) retain
 {
    self = MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
@@ -289,7 +289,7 @@ static int   thread_function( NSThread *thread, id obj)
 
 
 
-- (id) autorelease
+- (instancetype) autorelease
 {
    self = MulleObjCIMPCall0( MulleObjCOverriddenIMP, self, _cmd);
 
