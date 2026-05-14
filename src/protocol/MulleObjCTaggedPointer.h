@@ -41,7 +41,7 @@
 #import "MulleObjCProtocol.h"
 
 
-@protocol_interface MulleObjCTaggedPointer < MulleObjCImmutable>
+@mixin MulleObjCTaggedPointer < MulleObjCImmutable>
 
 + (BOOL) isTaggedPointerEnabled;
 

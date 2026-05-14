@@ -45,7 +45,7 @@
 // there is no <MulleObjcThreadSafe> on it by default.
 // You can not run '-mullePerformFinalize' on a singleton.
 //
-@protocol_interface  MulleObjCSingleton
+@mixin  MulleObjCSingleton
 
 @optional  // MulleObjCSingleton implements this for you
 + (void) initialize;  // #1#

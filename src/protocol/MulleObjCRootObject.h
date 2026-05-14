@@ -27,7 +27,7 @@
 // Useful for classes, that do not want the whole NSObject baggage
 // especially added by categories. Chiefly used forwarding classes.
 //
-@protocol_interface MulleObjCRootObject < MulleObjCRuntimeObject>
+@mixin MulleObjCRootObject < MulleObjCRuntimeObject>
 
 @optional
 

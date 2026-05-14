@@ -6,18 +6,10 @@
 @interface A
 @end
 
-// @protocolclass P
-@class P;
-@protocol P
-@end
-@interface P < P>
+@mixin P
 @end
 
-// @protocolclass Q
-@class Q;
-@protocol Q
-@end
-@interface Q < Q>
+@mixin Q
 @end
 
 @interface B : A < P, Q>

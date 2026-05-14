@@ -5,7 +5,7 @@
 #import "MulleObjCException.h"
 
 
-@protocol_implementation MulleObjCThreadSafe
+@implementation MulleObjCThreadSafe
 
 // here it comes in handy, that initialize is called by subclasses
 + (void) initialize
@@ -41,7 +41,7 @@
 
 
 
-@protocol_implementation MulleObjCThreadUnsafe
+@implementation MulleObjCThreadUnsafe
 
 + (void) initialize
 {
@@ -81,7 +81,7 @@
 @end
 
 
-@protocol_implementation MulleObjCImmutable
+@implementation MulleObjCImmutable
 
 - (id) copy
 {
@@ -95,7 +95,7 @@
 
 
 
-@protocol_implementation MulleObjCPlaceboRetainCount
+@implementation MulleObjCPlaceboRetainCount
 
 - (void) dealloc
 {

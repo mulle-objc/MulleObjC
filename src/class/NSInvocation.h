@@ -52,9 +52,18 @@
    char   *_sentinel;
    char   _argumentsRetained;
    char   _returnValueRetained;
+   IMP    _implementation;   // optional: if set, invocation will call this IMP directly
 }
 
 @property( retain, readonly) NSMethodSignature   *methodSignature;
+
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel
+                                implementation:(IMP) imp
+                                       object:(id) object;
+
+- (IMP) implementation;
+- (void) setImplementation:(IMP) imp;
 
 //
 // build an invocation by passing target, sel, arguments just like

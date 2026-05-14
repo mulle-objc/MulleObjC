@@ -8,14 +8,14 @@
 // The protocol class can then provide further methods that operate on 
 // the comment property...
 //
-@protocol_interface Comment < NSObject>
+@mixin Comment < NSObject>
 
 @property( dynamic, retain) id  comment;
 
 @end
 
 
-@protocol_implementation  Comment
+@implementation  Comment
 @end
 
 

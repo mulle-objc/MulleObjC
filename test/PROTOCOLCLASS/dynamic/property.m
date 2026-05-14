@@ -11,14 +11,14 @@
    @property int   a
 
 
-@protocol_interface  Foo
+@mixin  Foo
 //{
       FooProperties;
 //}
 @end
 
 
-@protocol_implementation  Foo
+@implementation  Foo
 //{
       @dynamic a;
 //}

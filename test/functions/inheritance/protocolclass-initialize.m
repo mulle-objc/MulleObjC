@@ -22,18 +22,14 @@
 @end
 
 
-@class P;
-@protocol P
-@end
-
-@interface P <P>
+@mixin P
 @end
 
 @implementation P
 
 + (void) initialize
 {
-   // we don't get called for the procotolclass itself
+   // we don't get called for the mixin itself
    assert( _mulle_objc_infraclass_get_classid( self) != @selector( P));
 
    printf( "%s\n", __PRETTY_FUNCTION__);
@@ -42,18 +38,14 @@
 @end
 
 
-@class Q;
-@protocol Q
-@end
-
-@interface Q <Q>
+@mixin Q
 @end
 
 @implementation Q
 
 + (void) initialize
 {
-   // we don't get called for the procotolclass itself
+   // we don't get called for the mixin itself
    assert( _mulle_objc_infraclass_get_classid( self) != @selector( Q));
 
    printf( "%s\n", __PRETTY_FUNCTION__);
@@ -69,7 +61,7 @@
 // HISTORY:
 // If there has no +initialize, we used to not wanna see A twice as +initialize
 // was only called once on a class. Nice feature, unfortunately not useful
-// in many scenarios (incompatible, with the way protocolclasses initialize)
+// in many scenarios (incompatible, with the way mixins initialize)
 @implementation B
 @end
 

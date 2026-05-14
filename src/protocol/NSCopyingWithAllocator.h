@@ -63,7 +63,7 @@
 // @property( copy)   id  f;        // copied
 // @property( retain) id  f;        // zeroed!
 //
-@protocol_interface NSCopyingWithAllocator
+@mixin NSCopyingWithAllocator
 
 - (id) copyWithAllocator:(struct mulle_allocator *) allocator;
 

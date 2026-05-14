@@ -40,7 +40,7 @@
 // base your exception subclass on this
 
 
-@protocol_interface MulleObjCException
+@mixin MulleObjCException
 
            // Tip: Never mark an ObjC method (like: f.e. -raise) with `__attribute__(( noreturn))
            // Because of self == nil, it's wrong.

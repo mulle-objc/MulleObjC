@@ -5,7 +5,7 @@
 #pragma clang diagnostic ignored "-Wprotocol"
 
 
-@protocol_implementation  Foo
+@implementation  Foo
 
 - (void) doTheFooThing
 {

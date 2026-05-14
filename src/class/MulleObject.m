@@ -12,7 +12,7 @@
 #import "MulleObject-Private.h"
 
 
-@protocol_implementation  MulleAutolockingObject
+@implementation  MulleAutolockingObject
 
 - (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD
 {

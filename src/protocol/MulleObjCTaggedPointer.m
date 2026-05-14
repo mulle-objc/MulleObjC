@@ -41,7 +41,7 @@
 #import "MulleObjCExceptionHandler-Private.h"
 
 
-@protocol_implementation  MulleObjCTaggedPointer
+@implementation  MulleObjCTaggedPointer
 
 + (instancetype) alloc
 {

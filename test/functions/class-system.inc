@@ -32,11 +32,7 @@
 }
 @end
 
-@class P;
-@protocol P
-@end
-
-@interface P <P>
+@mixin P
 @end
 
 @implementation P
@@ -67,11 +63,7 @@
 
 
 
-@class Q;
-@protocol Q
-@end
-
-@interface Q <Q>
+@mixin Q
 @end
 
 @implementation Q

@@ -54,7 +54,7 @@
 #pragma clang diagnostic ignored "-Wprotocol"
 
 
-@protocol_implementation  MulleObjCSingleton
+@implementation  MulleObjCSingleton
 
 static struct
 {

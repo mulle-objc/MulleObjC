@@ -7,7 +7,7 @@ struct FooIvars
 };
 
 
-@protocol_interface  Foo
+@mixin  Foo
 
 - (void) doTheFooThing;
 - (struct FooIvars *) getFooIvars;
