@@ -86,13 +86,13 @@ static void   _pointerAndSizeOfArgumentValue( NSInvocation *self,
                                               NSUInteger i,
                                               void **p_adr,
                                               size_t *p_size,
-                                              MulleObjCMethodSignatureTypeInfo *p)
+                                              MulleObjCMethodSignatureTypeInfo *info)
 {
    char     *adr;
    size_t   size;
 
-   adr  = &((char *) self->_storage)[ p->invocation_offset];
-   size = p->natural_size;
+   adr  = &((char *) self->_storage)[ info->invocation_offset];
+   size = info->natural_size;
 
    if( ! is_valid_frame_range( self, adr, size))
       MulleObjCThrowInvalidIndexException( i);
@@ -488,6 +488,35 @@ retain the arguments of variadic methods");
 
 @implementation NSInvocation
 
+- (IMP) implementation
+{
+   return( _implementation);
+}
+
+
+- (void) setImplementation:(IMP) imp
+{
+   _implementation = imp;
+}
+
+
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel
+                              implementation:(IMP) imp
+                                      object:(id) object
+{
+   NSInvocation        *invocation;
+
+   invocation = [self mulleInvocationWithTarget:target
+                                       selector:sel
+                                         object:object];
+   if( ! invocation)
+      return( nil);
+
+   invocation->_implementation = imp;
+   return( invocation);
+}
+
 //
 // The invocation frame is stored in "extra" bytes behind the instance.
 // Since invocations should be speedy, we don't usually want to allocate a
@@ -572,7 +601,6 @@ static NSInvocation   *popStandardInvocation( void)
 /**
  **
  **/
-
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature
 {
    NSUInteger                      size;
@@ -625,7 +653,7 @@ static NSInvocation   *popStandardInvocation( void)
 {
    char                               *adr;
    mulle_vararg_list                  arguments;
-   MulleObjCMethodSignatureTypeInfo   *p;
+   MulleObjCMethodSignatureTypeInfo   *info;
    NSInvocation                       *invocation;
    NSMethodSignature                  *signature;
    NSUInteger                         i, n;
@@ -650,15 +678,15 @@ static NSInvocation   *popStandardInvocation( void)
       for( i = 2; i < n; ++i)
       {
          // use internal index for mulleSignatureTypeInfoAtIndex!
-         p    = [signature mulleSignatureTypeInfoAtIndex:i + 1];
-         adr  = &((char *) invocation->_storage)[ p->invocation_offset];
-         size = p->natural_size;
+         info = [signature mulleSignatureTypeInfoAtIndex:i + 1];
+         adr  = &((char *) invocation->_storage)[ info->invocation_offset];
+         size = info->natural_size;
 
          if( ! is_valid_frame_range( invocation, adr, size))
             __mulle_objc_universe_raise_invalidindex( NULL, i);
 
-         src = _mulle_vararg_aligned_struct( &arguments, size, p->natural_alignment);
-         _mulle_objc_typeinfo_demote_value_to_natural( p, adr, src);
+         src = _mulle_vararg_aligned_struct( &arguments, size, info->natural_alignment);
+         _mulle_objc_typeinfo_demote_value_to_natural( info, adr, src);
       }
    }
    mulle_vararg_end( arguments);
@@ -697,7 +725,7 @@ static NSInvocation   *popStandardInvocation( void)
 #if 0
    NSUInteger                         length;
    void                               *adr;
-   MulleObjCMethodSignatureTypeInfo   *p;
+   MulleObjCMethodSignatureTypeInfo   *info;
 #endif
    signature  = [target methodSignatureForSelector:sel];
 
@@ -719,8 +747,8 @@ static NSInvocation   *popStandardInvocation( void)
 
    case MulleObjCMetaABITypeParameterBlock :
       length = [signature mulleMetaABIFrameLength];
-      p      = [signature mulleSignatureTypeInfoAtIndex:2 + 1];
-      adr    = &((char *) invocation->_storage)[ p->invocation_offset];
+      info   = [signature mulleSignatureTypeInfoAtIndex:2 + 1];
+      adr    = &((char *) invocation->_storage)[ info->invocation_offset];
       memcpy( adr, frame, length);
 
    case MulleObjCMetaABITypeVoid           :
@@ -1365,3 +1393,4 @@ static void   perform_context_callback( char *type,
 }
 
 @end
+

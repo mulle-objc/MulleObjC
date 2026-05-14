@@ -7,14 +7,14 @@
 // This test shows how we can add properties via protocol classes.
 // Here we actually use an instance variable again, for improved speed.
 //
-@protocol_interface Comment < NSObject>
+@mixin Comment < NSObject>
 
 @property( dynamic, retain) id  comment;
 
 @end
 
 
-@protocol_implementation  Comment
+@implementation  Comment
 @end
 
 

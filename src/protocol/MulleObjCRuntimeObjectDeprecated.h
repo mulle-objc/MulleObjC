@@ -19,32 +19,38 @@
 
 /*
  * Old helper macros to declare protocol classes.  But use
- * @protocol_interface, @protocol_implementation, @protocol_class now.
+ * @mixin, @implementation, @protocol_class now.
+ * These actually need C23 for __VA_OPT__ so avoid.
  */
+#if MULLE_C_HAS_VA_OPT
+
 #define _PROTOCOLCLASS_INTERFACE0( name)                       \
-@protocol_interface name
+@mixin name
 
 
 #define PROTOCOLCLASS_INTERFACE0( name)                        \
-@protocol_interface name < NSObject>
+@mixin name < NSObject>
 
 
 #define _PROTOCOLCLASS_INTERFACE( name, ...)                   \
-@protocol_interface name __VA_OPT__(< __VA_ARGS__ >)
+@mixin name __VA_OPT__(< __VA_ARGS__ >)
 
 
 #define PROTOCOLCLASS_INTERFACE( name, ...)                    \
-@protocol_interface name < NSObject __VA_OPT__(, __VA_ARGS__) >
+@mixin name < NSObject __VA_OPT__(, __VA_ARGS__) >
 
 
 #define PROTOCOLCLASS_END()                                    \
 @end
 
-
-
 #define PROTOCOLCLASS_IMPLEMENTATION( name)                    \
-@protocol_implementation  name                                 \
+@implementation  name
 
+#else
+
+#warning "deprecated protocolclass macros are unvailable as compiler does not support __VA_OPT__"
+
+#endif
 
 
 

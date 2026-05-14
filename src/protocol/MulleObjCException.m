@@ -57,7 +57,7 @@
 
 
 
-@protocol_implementation MulleObjCException
+@implementation MulleObjCException
 
 // don't use __attribute(( noreturn)), the compiler will produce
 // wrong code for

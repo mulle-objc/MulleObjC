@@ -28,7 +28,7 @@ NS_ENUM_TABLE( MulleObjCTAOStrategy, 8) =
 };
 
 
-@protocol_implementation MulleObjCRootObject
+@implementation MulleObjCRootObject
 
 + (instancetype) alloc
 {

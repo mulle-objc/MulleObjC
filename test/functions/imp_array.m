@@ -3,16 +3,10 @@
 #pragma clang diagnostic ignored "-Wobjc-root-class"
 
 // Protocol classes
-@class P;
-@protocol P
-@end
-@interface P < P>
+@mixin P
 @end
 
-@class Q;
-@protocol Q
-@end
-@interface Q < Q>
+@mixin Q
 @end
 
 @interface Foo

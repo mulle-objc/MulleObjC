@@ -83,7 +83,7 @@
 // as this will be the default. But it's also not a bad self-documenting idea.
 //
 //
-@protocol_interface  MulleObjCThreadSafe
+@mixin  MulleObjCThreadSafe
 
 @optional
 - (BOOL) mulleIsThreadSafe    MULLE_OBJC_THREADSAFE_METHOD;
@@ -92,7 +92,7 @@
 @end
 
 
-@protocol_interface  MulleObjCThreadUnsafe
+@mixin  MulleObjCThreadUnsafe
 
 @optional
 - (BOOL) mulleIsThreadSafe    MULLE_OBJC_THREADSAFE_METHOD;
@@ -113,7 +113,7 @@
 //
 // Can only be adopted by MulleObjCRuntimeObject adopting classes (need -retain)
 //
-@protocol_interface MulleObjCImmutable < MulleObjCRuntimeObject>
+@mixin MulleObjCImmutable < MulleObjCRuntimeObject>
 
 @optional
 - (id) copy;           // protocol return type is too tedious
@@ -214,7 +214,7 @@
                                             MulleObjCThreadUnsafe
 
 
-@protocol_interface  MulleObjCPlaceboRetainCount
+@mixin  MulleObjCPlaceboRetainCount
 
 @optional
 - (instancetype) retain          MULLE_OBJC_THREADSAFE_METHOD;

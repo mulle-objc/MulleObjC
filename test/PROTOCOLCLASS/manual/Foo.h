@@ -6,13 +6,9 @@ struct FooIvars
    int   a;
 };
 
-@class Foo;
-@protocol Foo
+@mixin Foo
 - (struct FooIvars *) getFooIvars;
 @optional
 - (void) doTheFooThing;
-@end
-
-@interface Foo <Foo>
 @end
 

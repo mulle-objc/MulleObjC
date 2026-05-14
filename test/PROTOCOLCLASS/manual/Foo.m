@@ -1,5 +1,7 @@
 #import "Foo.h"
 
+#pragma clang diagnostic ignored "-Wprotocol"
+
 @implementation Foo
 
 - (void) doTheFooThing

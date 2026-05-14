@@ -184,7 +184,7 @@ id   _MulleObjCInstanceCopyWithAllocator( id obj,
 
 
 
-@protocol_implementation NSCopyingWithAllocator
+@implementation NSCopyingWithAllocator
 
 - (id) copyWithAllocator:(struct mulle_allocator *) allocator
 {

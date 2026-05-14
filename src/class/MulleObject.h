@@ -44,7 +44,7 @@
 // of MulleObject will appear to be broken. This is basically the main
 // trick MulleAutolockingObject uses and it can't be avoided.
 //
-@protocol_interface MulleAutolockingObject
+@mixin MulleAutolockingObject
 
 @optional
 - (MulleObjCTAOStrategy) mulleTAOStrategy   MULLE_OBJC_THREADSAFE_METHOD;

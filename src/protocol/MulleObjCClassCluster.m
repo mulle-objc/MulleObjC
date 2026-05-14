@@ -57,7 +57,7 @@
 #pragma clang diagnostic ignored "-Wprotocol"
 
 
-@protocol_implementation  MulleObjCClassCluster
+@implementation  MulleObjCClassCluster
 
 //
 // MULLE_OBJC_IS_CLASSCLUSTER gets inherited by the class, that implements the

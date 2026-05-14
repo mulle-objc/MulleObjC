@@ -6,7 +6,7 @@
 
 
 //
-@protocol_interface  A
+@mixin  A
 
 @optional
 - (void) method1;
@@ -14,7 +14,7 @@
 @end
 
 
-@protocol_interface  B
+@mixin  B
 
 @optional
 - (void) method2;
@@ -30,7 +30,7 @@
 @end
 
 
-@protocol_implementation  A
+@implementation  A
 
 + (void) method0
 {
@@ -45,7 +45,7 @@
 @end
 
 
-@protocol_implementation  B
+@implementation  B
 
 + (void) method0
 {
