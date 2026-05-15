@@ -52,8 +52,8 @@ struct _mulle_objc_universeconfiguration_defaults
 
    mulle_objc_universefriend_versionassert_t  *versionassert;
    // why is this not in _mulle_objc_universeconfiguration_foundation ?
-   struct _mulle_objc_infraclass              *staticstringclass[ 3];
-   char                                       utf8staticstrings;         // 0: ASCII in staticstringclass[ 0]  1: UTF8 (classes1-2 can be NULL)
+   struct _mulle_objc_infraclass              *staticinstanceclass[ 8]; // MULLE_OBJC_STATICINSTANCE_CLASS_SLOTS
+   char                                       utf8staticstrings;         // 0: ASCII in staticinstanceclass[ 0]  1: UTF8 (slots 1-2 can be NULL)
    struct _mulle_objc_method                  *forward;
 
    void   *(*retain_autorelease)( void *);

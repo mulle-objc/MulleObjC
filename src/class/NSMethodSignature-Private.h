@@ -36,6 +36,6 @@
 @interface NSMethodSignature( _Private)
 
 - (char *) _objCTypes;
-- (instancetype) initWithObjCTypes:(char *) types;
 
 @end
+

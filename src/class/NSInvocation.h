@@ -59,8 +59,8 @@
 
 + (NSInvocation *) mulleInvocationWithTarget:(id) target
                                     selector:(SEL) sel
-                                implementation:(IMP) imp
-                                       object:(id) object;
+                              implementation:(IMP) imp
+                                      object:(id) object;
 
 - (IMP) implementation;
 - (void) setImplementation:(IMP) imp;

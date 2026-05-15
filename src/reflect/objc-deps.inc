@@ -9,6 +9,7 @@
       { @selector( NSInvocation), MULLE_OBJC_NO_CATEGORYID },      // c089c043;NSInvocation;;
       { @selector( NSLock), MULLE_OBJC_NO_CATEGORYID },      // cd92d31f;NSLock;;
       { @selector( NSMethodSignature), MULLE_OBJC_NO_CATEGORYID },      // 523989f9;NSMethodSignature;;
+      { @selector( NSMethodSignatureLoader), MULLE_OBJC_NO_CATEGORYID },      // 97e16ec5;NSMethodSignatureLoader;;
       { @selector( NSNull), MULLE_OBJC_NO_CATEGORYID },      // f0c42d79;NSNull;;
       { @selector( NSObject), @selector( NSCodingSupport) },      // b3a66256;NSObject;55df6832;NSCodingSupport
       { @selector( NSObject), @selector( _NSNull) },      // b3a66256;NSObject;90d3fc87;_NSNull
