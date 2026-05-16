@@ -8,7 +8,7 @@
 
 // POSING
 //
-// You have a class hierarcy Foobar : Bar and you want to augment code in Bar,
+// You have a class hierarchy Foobar : Bar and you want to augment code in Bar,
 // but don't want to use categories (for old times sake). So you recreate
 // [NSObject poseAsClass:] for old times sake.
 //

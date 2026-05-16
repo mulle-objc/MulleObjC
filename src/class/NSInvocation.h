@@ -77,6 +77,10 @@
 
 + (NSInvocation *) mulleInvocationWithTarget:(id) target
                                     selector:(SEL) sel
+                             methodSignature:(NSMethodSignature *) sig, ...;
+
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel
                                       object:(id) object;
 
 + (NSInvocation *) mulleInvocationWithTarget:(id) target
@@ -126,6 +130,15 @@
 - (void) mulleRetainReturnValue;
 
 @end
+
+
+// Compiler support: creates an NSInvocation from a prebuilt MetaABI frame.
+// imp may be 0 (NULL) for normal method dispatch.
+NSInvocation   *NSInvocationCreateWithMetaABIFrame( NSMethodSignature *sig,
+                                                    id target,
+                                                    SEL sel,
+                                                    void *frame,
+                                                    IMP imp);
 
 
 // idea:

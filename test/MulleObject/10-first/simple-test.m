@@ -11,6 +11,8 @@
 
 int main(void)
 {
-   [[Foo new] doNothing];
+   Foo *foo = [Foo new];
+   [foo doNothing];
+   [foo release];
    return 0;
 }

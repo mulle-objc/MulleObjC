@@ -90,10 +90,12 @@ struct _NSConstantMethodSignature
 {
    struct _mulle_objc_objectheader   _header;   // isa = MULLE_OBJC_STATICINSTANCE_METHODSIGNATURE_INDEX
    // NSMethodSignature ivars — the "object pointer" points here:
-   uint32_t                         _bits;
-   uint16_t                         _count;   // mulle_objc_signature_count_typeinfos( _types)
-   uint16_t                         _extra;   // 0 — _types points to an external string, no inline extra memory
+   uint32_t                         _bits;     // see method_descriptor; bits 22-23=rType, 24-25=pType. no others valid
+   uint16_t                         _count;    // mulle_objc_signature_count_typeinfos( _types)
+   uint16_t                         _extra;    // 0 — _types points to an external string, no inline extra memory
    char                             *_types;
+   uint32_t                         _invocationSize; // precomputed mulleInvocationSize
+   uint32_t                         _reserved;
    MulleObjCMethodSignatureTypeInfo _infos[3]; // compiler emits inline arginfos here (count >= 3 always)
 };
 
@@ -102,12 +104,18 @@ struct _NSConstantMethodSignature
    ((struct _mulle_objc_object *) &(p)->_bits)
 
 
+//
+// You can't SUBCLASS - NSMethodSignature. As you can't any properties or ivars
+// currently, so only a category makes sense.
+//
 @interface NSMethodSignature : NSObject < MulleObjCImmutableProtocols, NSCopying>
 {
-   uint32_t                            _bits;    // see method_descriptor; bits 22-23=rType, 24-25=pType
+   uint32_t                            _bits;    // see method_descriptor; bits 22-23=rType, 24-25=pType. no others valid
    uint16_t                            _count;
    uint16_t                            _extra;
    char                                *_types;
+   uint32_t                            _invocationSize;
+   uint32_t                            _reserved;
    MulleObjCMethodSignatureTypeInfo    _infos[3]; // inline for minimum (rval,self,_cmd); overflow in extra bytes
    // (#X#) extra bytes follow: [(count-3 overflow arginfos)] [types string (for dynamic instances)]
 }
