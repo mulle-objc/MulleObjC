@@ -75,8 +75,7 @@ void  __NSInvocationInvokeWithTargetAndMessageSignature( NSInvocation *invocatio
    unsigned int                        callType;
 
    infos    = self->_infos;
-   callType = _mulle_objc_method_bits_get_metaabi_rtype( self->_bits)
-            | (_mulle_objc_method_bits_get_metaabi_ptype( self->_bits) << 2);
+   callType = _mulle_objc_method_bits_get_metaabi_calltype( self->_bits);
 
    switch( callType)
    {
@@ -113,7 +112,7 @@ void  __NSInvocationInvokeWithTargetAndMessageSignature( NSInvocation *invocatio
          mulle_objc_object_call_inline_variable( target, sel, param);
          break;
       case MulleObjCMetaABICallVoidPtrBlock:  // -(struct S)foo:(id)
-         param = storage;
+         param = &storage[ infos[ 3].invocation_offset];
          rval  = mulle_objc_object_call_inline_variable( target, sel, param);
          NSInvocationSetReturnValue( invocation, param);
          break;
@@ -132,9 +131,111 @@ void  __NSInvocationInvokeWithTargetAndMessageSignature( NSInvocation *invocatio
    }
 }
 
+static inline void
+   _NSMethodSignatureSetMetaABIFrame( NSMethodSignature *sig,
+                                      char *storage,
+                                      void *frame)
+{
+   MulleObjCMethodSignatureTypeInfo   *infos;
+   void                               *param;
+   size_t                             size;
+   unsigned int                        callType;
+
+   infos    = sig->_infos;
+   callType = _mulle_objc_method_bits_get_metaabi_calltype( sig->_bits);
+
+   switch( callType)
+   {
+   case MulleObjCMetaABICallVoidPtrVoidPtr:  // -(id)foo:(id)
+   case MulleObjCMetaABICallVoidPtrVoid:     // -(void)foo:(id)
+      // frame is the single pointer argument itself
+      param = &storage[ infos[ 3].invocation_offset];
+      *((void **) param) = frame;
+      break;
+
+   case MulleObjCMetaABICallVoidVoidPtr:     // -(id)foo
+   case MulleObjCMetaABICallVoidVoid:        // -(void)foo
+      // no parameters to copy
+      break;
+
+   case MulleObjCMetaABICallVoidPtrBlock:    // -(struct S)foo:(id)
+   case MulleObjCMetaABICallVoidBlock:       // -(struct S)foo
+      // frame points to the rval/param union; for VoidPtrBlock the single
+      // pointer arg is at frame[0].
+      if( callType == MulleObjCMetaABICallVoidPtrBlock)
+      {
+         param = &storage[ infos[ 3].invocation_offset];
+         *((void **) param) = *(void **) frame;
+      }
+      break;
+
+   case MulleObjCMetaABICallBlockVoidPtr:    // -(id)foo:(int)x ...
+   case MulleObjCMetaABICallBlockVoid:       // -(void)foo:(int)x ...
+   case MulleObjCMetaABICallBlockBlock:      // -(struct S)foo:(int)x ...
+      // frame points to the parameter block
+      assert( frame);
+      param = &storage[ infos[ 3].invocation_offset];
+      size  = mulle_metaabi_sizeof_union( infos[ sig->_count - 1].invocation_offset
+                                        + infos[ sig->_count - 1].natural_size);
+      size -= sizeof( id) + sizeof( SEL);
+      memcpy( param, frame, size);
+      break;
+   }
+}
+
+
+static inline void
+   __NSInvocationCallIMP( NSInvocation *invocation,
+                          IMP imp,
+                          SEL sel,
+                          id target,
+                          NSMethodSignature *self,
+                          char *storage)
+{
+   MulleObjCMethodSignatureTypeInfo   *infos;
+   void                               *param;
+   void                               *rval;
+   unsigned int                        callType;
+
+   infos    = self->_infos;
+   callType = _mulle_objc_method_bits_get_metaabi_calltype( self->_bits);
+
+   switch( callType)
+   {
+   case MulleObjCMetaABICallVoidPtrVoidPtr:
+   case MulleObjCMetaABICallVoidPtrVoid:
+      param = *(void **) &storage[ infos[ 3].invocation_offset];
+      break;
+   case MulleObjCMetaABICallVoidVoidPtr:
+   case MulleObjCMetaABICallVoidVoid:
+      param = target;
+      break;
+   default:
+      param = &storage[ infos[ 3].invocation_offset];
+      break;
+   }
+
+   rval = (*imp)( target, sel, param);
+
+   switch( callType)
+   {
+   case MulleObjCMetaABICallVoidPtrVoidPtr:
+   case MulleObjCMetaABICallVoidVoidPtr:
+   case MulleObjCMetaABICallBlockVoidPtr:
+      NSInvocationSetReturnValue( invocation, &rval);
+      break;
+   case MulleObjCMetaABICallVoidPtrBlock:
+   case MulleObjCMetaABICallVoidBlock:
+   case MulleObjCMetaABICallBlockBlock:
+      NSInvocationSetReturnValue( invocation, param);
+      break;
+   default:
+      break;  // void return — nothing to store
+   }
+}
+
+
 @end
-
-
 //
 // what is somewhat tricky in the MetaABI is, that we need to store the
 // parameter block properly aligned. We'd like to index directly into
@@ -767,6 +868,7 @@ static NSInvocation   *popStandardInvocation( void)
    invocation->_storage         = mulle_pointer_align( extraBytes, alignof( double));
    invocation->_sentinel        = &((char *) invocation->_storage)[ size];
    invocation->_methodSignature = [signature retain];
+   invocation->_implementation  = 0;
 
    return( [invocation autorelease]);
 }
@@ -805,6 +907,34 @@ NSInvocation  *NSInvocationCreate( id target,
 }
 
 
+// @mulle-objc@ @invocation >
+// Called by compiler-generated @invocation expressions.
+// sig is a precomputed @signature static instance (no runtime lookup needed).
+// frame is the MetaABI frame built by the compiler on the stack (NULL for Void pType).
+// No argument retention — caller is responsible.
+NSInvocation  *NSInvocationCreateWithMetaABIFrame( NSMethodSignature *sig,
+                                                   id target,
+                                                   SEL sel,
+                                                   void *frame,
+                                                   IMP imp)
+{
+   NSInvocation   *invocation;
+
+   invocation = [NSInvocation invocationWithMethodSignature:sig];
+   if( ! invocation)
+      return( nil);
+
+   NSInvocationSetTarget( invocation, target);
+   NSInvocationSetSelector( invocation, sel);
+   if( frame)
+      [invocation _setMetaABIFrame:frame];
+   invocation->_implementation = imp;
+
+   return( invocation);
+}
+// @mulle-objc@ @invocation <
+
+
 + (NSInvocation *) mulleInvocationWithTarget:(id) target
                                     selector:(SEL) sel, ...
 
@@ -820,6 +950,28 @@ NSInvocation  *NSInvocationCreate( id target,
    mulle_vararg_end( arguments);
    return( inv);
 }
+
+
+// @mulle-objc@ @invocation >
++ (NSInvocation *) mulleInvocationWithTarget:(id) target
+                                    selector:(SEL) sel
+                             methodSignature:(NSMethodSignature *) sig, ...
+{
+   mulle_vararg_list   arguments;
+   NSInvocation        *inv;
+
+   if( ! sel)
+      return( nil);
+
+   if( ! sig)
+      sig = [target methodSignatureForSelector:sel];
+
+   mulle_vararg_start( arguments, sig);
+   inv = NSInvocationCreateV( sig, target, sel, arguments);
+   mulle_vararg_end( arguments);
+   return( inv);
+}
+// @mulle-objc@ @invocation <
 
 
 + (NSInvocation *) mulleInvocationWithTarget:(id) target
@@ -1080,7 +1232,6 @@ void  _NSInvocationInvokeWithTarget( NSInvocation *self, SEL _cmd, id target)
    MulleObjCMethodSignatureTypeInfo   *info;
    SEL                                sel;
    void                               *param;
-   void                               *rval;
 
    if( ! target)
    {
@@ -1095,6 +1246,12 @@ void  _NSInvocationInvokeWithTarget( NSInvocation *self, SEL _cmd, id target)
       MulleObjCThrowInternalInconsistencyExceptionUTF8String( "NSInvocation: selector has not been set yet");
    if( ! self->_methodSignature)
       MulleObjCThrowInternalInconsistencyExceptionUTF8String( "NSInvocation: methodSignature has not been set yet");
+
+   if( self->_implementation)
+   {
+      __NSInvocationCallIMP( self, self->_implementation, sel, target, self->_methodSignature, self->_storage);
+      return;
+   }
 
    __NSInvocationInvokeWithTargetAndMessageSignature( self, sel, target, self->_methodSignature, self->_storage);
 }
@@ -1119,45 +1276,7 @@ void  _NSInvocationInvokeWithTarget( NSInvocation *self, SEL _cmd, id target)
 
 - (void) _setMetaABIFrame:(void *) frame
 {
-   MulleObjCMethodSignatureTypeInfo   *info;
-   void                               *param;
-   size_t                             size;
-   size_t                             frame_size;
-   MulleObjCMetaABIType               pType;
-
-   pType = [_methodSignature _methodMetaABIParameterType];
-   switch( pType)
-   {
-   case MulleObjCMetaABITypeVoid :
-      break;
-
-   case MulleObjCMetaABITypeVoidPointer :
-      // rval, self, _cmd, _param (3)
-      info  = [self->_methodSignature mulleSignatureTypeInfoAtIndex:3];
-      param = &((char *) self->_storage)[ info->invocation_offset];
-      assert( is_valid_frame_range( self, param, sizeof( void *)));
-
-      *((void **) param) = frame;
-      break;
-
-   case MulleObjCMetaABITypeParameterBlock :
-      // rval, self, _cmd, _param (3)
-      info  = [self->_methodSignature mulleSignatureTypeInfoAtIndex:3];
-      param = &((char *) self->_storage)[ info->invocation_offset];
-
-      // calculate amount we have to copy (how can frame be NULL ?)
-      assert( frame);
-
-      frame_size = [_methodSignature frameLength];
-      size       = mulle_metaabi_sizeof_union( frame_size);
-      size      -= sizeof( id) + sizeof( SEL); // _cmd is a pointer
-
-      // blow up to metaABI size
-      assert( is_valid_frame_range( self, param, size));
-
-      memcpy( param, frame, size);
-      break;
-   }
+   _NSMethodSignatureSetMetaABIFrame( _methodSignature, self->_storage, frame);
 }
 
 

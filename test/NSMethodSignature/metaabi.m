@@ -176,10 +176,10 @@ static void  test_double_return()
    test_void_param( @selector( doubleReturnNoParam));
    test_struct_rval( @selector( doubleReturnNoParam));
 
-   test_struct_param( @selector( doubleReturnIntParam:));
+   test_pointer_param( @selector( doubleReturnIntParam:));
    test_struct_rval( @selector( doubleReturnIntParam:));
 
-   test_struct_param( @selector( doubleReturnPointerParam:));
+   test_pointer_param( @selector( doubleReturnPointerParam:));
    test_struct_rval( @selector( doubleReturnPointerParam:));
 
    test_struct_param( @selector( doubleReturnDoubleParam:));
@@ -196,10 +196,10 @@ static void  test_struct_return()
    test_void_param( @selector( structReturnNoParam));
    test_struct_rval( @selector( structReturnNoParam));
 
-   test_struct_param( @selector( structReturnIntParam:));
+   test_pointer_param( @selector( structReturnIntParam:));
    test_struct_rval( @selector( structReturnIntParam:));
 
-   test_struct_param( @selector( structReturnPointerParam:));
+   test_pointer_param( @selector( structReturnPointerParam:));
    test_struct_rval( @selector( structReturnPointerParam:));
 
    test_struct_param( @selector( structReturnDoubleParam:));

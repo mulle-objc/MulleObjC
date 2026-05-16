@@ -56,8 +56,28 @@
 
 + (NSMethodSignature *) signatureWithObjCTypes:(char *) types
 {
-   return( [NSMethodSignatureCreate( self, types, 0) autorelease]);
+   NSUInteger     bits;
+   unsigned int   rType;
+   unsigned int   pType;
+
+   if( ! types)
+      return( nil);
+
+   rType = (unsigned int) mulle_objc_signature_get_metaabireturntype( types);
+   pType = (unsigned int) mulle_objc_signature_get_metaabiparamtype( types);
+   bits  = _mulle_objc_method_bits_set_metaabi_types( 0, rType, pType);
+
+   return( [NSMethodSignatureCreate( self, types, bits) autorelease]);
 }
+
+
++ (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
+                                 descriptorBits:(NSUInteger) bits
+
+{
+   return( [NSMethodSignatureCreate( self, types, bits) autorelease]);
+}
+
 
 #pragma mark - constructors
 
@@ -68,9 +88,6 @@ static inline void   *getExtraMemory( NSMethodSignature *self)
 }
 
 
-static void  fill_infos( NSMethodSignature *self);   // forward
-
-
 //
 // All instances are over-allocated: extra bytes hold any overflow arginfos
 // (count > 3) followed by the types string copy.
@@ -78,7 +95,7 @@ static void  fill_infos( NSMethodSignature *self);   // forward
 // free _types or _infos separately.
 //
 static NSMethodSignature *NSMethodSignatureCreate( Class cls,
-                                                   const char *types,
+                                                   char *types,
                                                    NSUInteger bits)
 {
    NSMethodSignature   *obj;
@@ -108,17 +125,23 @@ static NSMethodSignature *NSMethodSignatureCreate( Class cls,
    obj->_types = (char *) getExtraMemory( obj) + overflow;
 
    memcpy( obj->_types, types, typesize);
-   fill_infos( obj);
+
+   mulle_objc_signature_fill_arginfos( obj->_types, obj->_infos, obj->_count);
+
+   if( ! (obj->_bits & _mulle_objc_method_variadic))
+   {
+      MulleObjCMethodSignatureTypeInfo   *info;
+      NSUInteger                         frame_size;
+
+      info        = &obj->_infos[ obj->_count - 1];
+      frame_size  = info->invocation_offset + info->natural_size;
+      frame_size  = mulle_metaabi_sizeof_union( frame_size);
+      frame_size += obj->_infos[ 0].natural_size;
+      frame_size += alignof( double);
+      obj->_invocationSize = (uint32_t) frame_size;
+   }
 
    return( obj);
-}
-
-
-+ (NSMethodSignature *) _signatureWithObjCTypes:(char *) types
-                                 descriptorBits:(NSUInteger) bits
-
-{
-   return( [NSMethodSignatureCreate( self, types, bits) autorelease]);
 }
 
 
@@ -202,34 +225,6 @@ static NSMethodSignature *NSMethodSignatureCreate( Class cls,
 
 #pragma mark - more accessors
 
-static void  fill_infos( NSMethodSignature *self)
-{
-   MulleObjCMetaABIType     rType;
-   MulleObjCMetaABIType     pType;
-
-   assert( self->_count);
-   assert( self->_types);
-
-   mulle_objc_signature_fill_arginfos( self->_types, self->_infos, self->_count);
-
-   // Compute and cache metaABI type bits 22-25, used by the dispatch hot path.
-   if( self->_bits & _mulle_objc_method_variadic)
-   {
-      rType = (MulleObjCMetaABIType) mulle_objc_signature_get_metaabireturntype( self->_types);
-      pType = MulleObjCMetaABITypeParameterBlock;
-   }
-   else
-   {
-      rType = (MulleObjCMetaABIType) mulle_objc_signature_get_metaabireturntype( self->_types);
-      pType = (self->_count == 3)
-              ? MulleObjCMetaABITypeVoid
-              : (MulleObjCMetaABIType) mulle_objc_signature_get_metaabiparamtype( self->_types);
-   }
-
-   self->_bits = _mulle_objc_method_bits_set_metaabi_types( self->_bits,
-                                                            (unsigned int) rType,
-                                                            (unsigned int) pType);
-}
 
 
 - (char *) getArgumentTypeAtIndex:(NSUInteger) i
@@ -265,27 +260,13 @@ static void  fill_infos( NSMethodSignature *self)
 
 - (MulleObjCMetaABIType) _methodMetaABIParameterType
 {
-   MulleObjCMetaABIType   paramType;
-
-   if( _bits & _mulle_objc_method_variadic)
-      return( MulleObjCMetaABITypeParameterBlock);
-
-   if( self->_count == 3)
-      return( MulleObjCMetaABITypeVoid);
-
-   paramType = (MulleObjCMetaABIType) mulle_objc_signature_get_metaabiparamtype( _types);
-   assert( paramType != (MulleObjCMetaABIType) -1);
-   return( paramType);
+   return( (MulleObjCMetaABIType) _mulle_objc_method_bits_get_metaabi_ptype( _bits));
 }
 
 
 - (MulleObjCMetaABIType) _methodMetaABIReturnType
 {
-   MulleObjCMetaABIType   rvalType;
-
-   rvalType = (MulleObjCMetaABIType) mulle_objc_signature_get_metaabireturntype( _types);
-   assert( rvalType != (MulleObjCMetaABIType) -1);
-   return( rvalType);
+   return( (MulleObjCMetaABIType) _mulle_objc_method_bits_get_metaabi_rtype( _bits));
 }
 
 
@@ -329,20 +310,23 @@ static void  fill_infos( NSMethodSignature *self)
 // used by NSInvocation
 - (NSUInteger) mulleInvocationSize
 {
-   NSUInteger                         frame_size;
-   MulleObjCMethodSignatureTypeInfo   *info;
-   NSUInteger                         i;
+//   NSUInteger                         frame_size;
+//   MulleObjCMethodSignatureTypeInfo   *info;
+//   NSUInteger                         i;
+//
+//   if( _invocationSize)
+   return( _invocationSize);
 
-   i           = _count - 1;
-   info        = &self->_infos[ i];    // get last argument
-   frame_size  = info->invocation_offset + info->natural_size;
-   frame_size  = mulle_metaabi_sizeof_union( frame_size);
-
-   info        = &self->_infos[ 0];
-   frame_size += info->natural_size;     // methodReturnLength
-   frame_size += alignof( double);  // for alignment
-
-   return( frame_size);
+//   i           = _count - 1;
+//   info        = &self->_infos[ i];    // get last argument
+//   frame_size  = info->invocation_offset + info->natural_size;
+//   frame_size  = mulle_metaabi_sizeof_union( frame_size);
+//
+//   info        = &self->_infos[ 0];
+//   frame_size += info->natural_size;     // methodReturnLength
+//   frame_size += alignof( double);       // for alignment
+//
+//   return( frame_size);
 }
 
 

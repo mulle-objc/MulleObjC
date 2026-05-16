@@ -16,6 +16,7 @@ int main(void)
    Foo *foo1 = [Foo new];
    fprintf(stderr, "foo1 = %p\n", foo1);
    [foo1 doNothing];
+   [foo1 release];
    fprintf(stderr, "doNothing on new worked\n");
    
    fprintf(stderr, "Testing instance...\n");

@@ -579,7 +579,7 @@ char   *MulleObjCObjectUTF8String( NSObject *self)
                                                              param));
    /*
     * the slowness of these operations can not even be charted
-    * I need to code something better
+    * I need to code something better.
     */
    signature = [self methodSignatureForSelector:_cmd];
    if( ! signature)
@@ -600,11 +600,12 @@ char   *MulleObjCObjectUTF8String( NSObject *self)
       return( NULL);
    }
 
-   invocation = [NSInvocation invocationWithMethodSignature:signature];
+   invocation = NSInvocationCreateWithMetaABIFrame( signature, self, _cmd, param, 0);
+   //   [NSInvocation invocationWithMethodSignature:signature];
    // could set target here, but seems pointless (Apple seems to do it though)
    // and a waste of time
-   [invocation setSelector:_cmd];
-   [invocation _setMetaABIFrame:param];
+   //[invocation setSelector:_cmd];
+   //[invocation _setMetaABIFrame:param];
    [self forwardInvocation:invocation];
 
    switch( [signature _methodMetaABIReturnType])

@@ -859,7 +859,7 @@ void   MulleObjCGainAccessToObjects( id *objects, NSUInteger count)
 {
    struct _mulle_objc_method   *method;
 
-   // OS X compatible
+   // OS X compatible (though would mulle_objc_class_defaultsearch_method not return nil for 0 anyway ??)
    if( ! sel)
       return( nil);
 
@@ -869,7 +869,8 @@ void   MulleObjCGainAccessToObjects( id *objects, NSUInteger count)
    if( ! method)
       return( nil);
 
-   return( [NSMethodSignature signatureWithObjCTypes:method->descriptor.signature]);
+   return( [NSMethodSignature _signatureWithObjCTypes:method->descriptor.signature
+                                       descriptorBits:method->descriptor.bits]);
 }
 
 

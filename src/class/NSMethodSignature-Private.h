@@ -39,3 +39,10 @@
 
 @end
 
+
+static inline NSUInteger   NSMethodSignatureGetInvocationSize( NSMethodSignature *self)
+{
+   struct { @defs( NSMethodSignature); } *_self = (void *) self;
+
+   return( _self->_invocationSize);
+}

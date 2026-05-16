@@ -1,0 +1,24 @@
+void/void: ok
+hello
+id/id: ok
+identity: ok
+int/multi: ok
+add: 7
+double/multi: ok
+sum: 4.0
+void/multi: ok
+x=42 y=99
+charptr/void: ok
+greeting: hi
+float/void: ok
+pi: 3.14
+struct/void: ok
+origin: 0,0
+struct/multi: ok
+point: 7,8
+explicit static: ok
+add: 30
+dynamic nil-sig: ok
+add: 11
+nil target: ok
+nil sel: null
