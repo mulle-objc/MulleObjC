@@ -20,7 +20,11 @@ if( NOT LIBRARY_NAME)
 endif()
 
 if( NOT OBJC_DEPS_INC)
-   set( OBJC_DEPS_INC "${CMAKE_CURRENT_SOURCE_DIR}/src/reflect/objc-deps.inc")
+   if( MULLE_SDE_REFLECT_DIR)
+      set( OBJC_DEPS_INC "${CMAKE_CURRENT_SOURCE_DIR}/src/${MULLE_SDE_REFLECT_DIR}/objc-deps.inc")
+   else()
+      set( OBJC_DEPS_INC "${CMAKE_CURRENT_SOURCE_DIR}/src/reflect/objc-deps.inc")
+   endif()
 endif()
 
 #

@@ -32,10 +32,12 @@ src/generic/include-private.h
 # contents selected with patternfile ??-header--private-headers
 #
 set( PRIVATE_HEADERS
+src/class/_MulleObjCConcreteValue-Private.h
 src/class/MulleObject-Private.h
 src/class/NSLock-Private.h
 src/class/NSMethodSignature-Private.h
 src/class/NSRecursiveLock-Private.h
+src/class/NSValue-Private.h
 src/function/MulleObjCExceptionHandler-Private.h
 src/mulle-objc-autoreleasepointerarray-private.h
 src/mulle-objc-exceptionhandlertable-private.h
@@ -70,6 +72,7 @@ src/MulleObjCVersion.h
 src/MulleObjC.h
 src/class/MulleDynamicObject.h
 src/class/MulleObjCAutoreleasePool.h
+src/class/_MulleObjCConcreteValue.h
 src/class/MulleObjCDeps.h
 src/class/MulleObjCLockFoundation.h
 src/class/MulleObject.h
@@ -86,6 +89,7 @@ src/class/NSObject.h
 src/class/NSProxy.h
 src/class/NSRecursiveLock.h
 src/class/NSThread.h
+src/class/NSValue.h
 src/function/MulleObjCAllocation.h
 src/function/MulleObjCDebug.h
 src/function/MulleObjCExceptionHandler.h

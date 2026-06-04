@@ -56,6 +56,11 @@ int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
    assert( MulleObjCObjectIsInstance( (id) self));
 
    bits = _mulle_objc_property_get_bits( property);
+
+   // forward properties are cleared by the forwarded-to property
+   if( bits & _mulle_objc_property_forward)
+      return( 0);
+
    if( bits & _mulle_objc_property_setterclear)
    {
       mulle_objc_object_call_inline_variable( self, property->setter, NULL);
@@ -108,6 +113,10 @@ int   _MulleObjCInstanceClearPropertyNoReadOnly( struct _mulle_objc_property *pr
    // don't clear readonly properties for (seems incompatible with Apple)
    bits = _mulle_objc_property_get_bits( property);
    if( bits & _mulle_objc_property_readonly)
+      return( 0);
+
+   // forward properties are cleared by the forwarded-to property
+   if( bits & _mulle_objc_property_forward)
       return( 0);
 
    if( bits & _mulle_objc_property_setterclear)

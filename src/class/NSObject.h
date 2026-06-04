@@ -36,6 +36,7 @@
 #import "NSObjectProtocol.h"
 
 #import "MulleObjCRootObject.h"
+#import "MulleObjCProtocol.h"
 
 
 #pragma clang diagnostic push
@@ -226,7 +227,7 @@
 #define NS_OBJECT_FORWARD_SUPERID   ((mulle_objc_superid_t) 0x3ab7a97b)  // 'NSObject;forward:'
 
 
-@interface NSObject( UTF8StringFuture)
+@interface NSObject( UTF8StringFuture) < MulleObjCFuture>
 
 // In the Foundation this will be overridden, to call -description and then
 // turn the resulting NSString into a -UTF8String
@@ -238,9 +239,10 @@
 - (char *) colorizedUTF8String         MULLE_OBJC_THREADSAFE_METHOD;
 
 // useful for the debugger where, you want to be sure that you don't run
-// into TAO or in a recursive MulleObject lock.
-// You can therefore only access "read only" properties and atomic properties
-// in -nonLockingUTF8String
+// into TAO or into a recursive MulleObject lock.
+// You can therefore only access *true* "read only" properties in
+// -nonLockingUTF8String. E.g. values that have been set during -init and don't
+// ever change.
 - (char *) nonLockingUTF8String        MULLE_OBJC_THREADSAFE_METHOD;  // used to be cStringDescription
 
 // color code to be placed in front of UTF8String (NULL for no colorization)

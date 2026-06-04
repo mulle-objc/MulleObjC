@@ -593,14 +593,18 @@ char   *MulleObjCObjectUTF8String( NSObject *self)
     * Well it does, because though everything is nicely contained in
     * _param, we have to copy _param into the invocation, but don't know
     * its size.
+    * We handle this now in NSInvocationCreateWithMetaABIFrame so we can save
+    * on that method call. If invocation returns nil, it means _cmd is variadic
     */
-   if( [signature isVariadic])
+   // if( [signature isVariadic])
+
+   invocation = NSInvocationCreateWithMetaABIFrame( signature, self, _cmd, param, 0);
+   if( ! invocation)
    {
       [self doesNotForwardVariadicSelector:_cmd];
       return( NULL);
    }
 
-   invocation = NSInvocationCreateWithMetaABIFrame( signature, self, _cmd, param, 0);
    //   [NSInvocation invocationWithMethodSignature:signature];
    // could set target here, but seems pointless (Apple seems to do it though)
    // and a waste of time

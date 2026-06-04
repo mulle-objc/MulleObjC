@@ -58,6 +58,7 @@
 #import "NSObject.h"
 #import "NSProxy.h"
 #import "NSRecursiveLock.h"
+#import "NSValue.h"
 #import "NSThread.h"
 
 

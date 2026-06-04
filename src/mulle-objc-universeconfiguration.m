@@ -100,7 +100,6 @@ void   mulle_objc_universe_dump_coverage( struct _mulle_objc_universe *universe)
 
 void   mulle_objc_teardown_universe( struct _mulle_objc_universe *universe)
 {
-   void   _MulleThreadResignAsMainThreadObjectInUniverse( struct _mulle_objc_universe *universe);
    int    trace;
 
    trace = mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_UNIVERSE");

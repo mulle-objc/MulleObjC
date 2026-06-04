@@ -209,7 +209,7 @@ static struct
 {
    struct mulle_concurrent_hashmap   _getter_lookup;
    int                               _initialized;
-} Self;
+} ClassStatic;
 
 
 + (void) initialize
@@ -217,10 +217,10 @@ static struct
    struct _mulle_objc_universe   *universe;
    struct mulle_allocator        *allocator;
 
-   if( Self._initialized)
+   if( ClassStatic._initialized)
       return;
 
-   Self._initialized = 1;
+   ClassStatic._initialized = 1;
 
    universe = _mulle_objc_infraclass_get_universe( self),
    mulle_objc_universe_register_super_nofail( universe, &OBJECT_forward);
@@ -230,17 +230,17 @@ static struct
    // testallocator which is not mulle-aba aware
    //
    allocator = _mulle_objc_universe_get_allocator( universe);
-   _mulle_concurrent_hashmap_init( &Self._getter_lookup, 0, allocator);
+   _mulle_concurrent_hashmap_init( &ClassStatic._getter_lookup, 0, allocator);
 
 }
 
 
 + (void) deinitialize
 {
-   if( Self._initialized)
+   if( ClassStatic._initialized)
    {
-      _mulle_concurrent_hashmap_done( &Self._getter_lookup);
-      Self._initialized = 0;
+      _mulle_concurrent_hashmap_done( &ClassStatic._getter_lookup);
+      ClassStatic._initialized = 0;
    }
 }
 
@@ -539,7 +539,7 @@ static inline void   *MulleObjectGetKeyForSelector( MulleDynamicObject *self,
    struct _mulle_objc_class        *cls;
    struct _mulle_objc_infraclass   *infra;
 
-   key =  _mulle_concurrent_hashmap_lookup( &Self._getter_lookup, (uintptr_t) _cmd);
+   key =  _mulle_concurrent_hashmap_lookup( &ClassStatic._getter_lookup, (uintptr_t) _cmd);
    assert( key);
    if( key != (void *) (uintptr_t) MULLE_OBJC_INVALID_METHODID)
       return( key);
@@ -882,7 +882,7 @@ static void    register_getter_lookup( mulle_objc_methodid_t sel,
    //
    // if another setter already squats the space,
    //
-   previous = _mulle_concurrent_hashmap_register( &Self._getter_lookup,
+   previous = _mulle_concurrent_hashmap_register( &ClassStatic._getter_lookup,
                                                   (uintptr_t) sel,
                                                   (void *) (uintptr_t ) getterSel);
    // insert worked, fine!

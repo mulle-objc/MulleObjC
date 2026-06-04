@@ -41,7 +41,16 @@
 
 //
 // NSInvocations can be variable in size, as _storage expands and contracts
-// with MetaABI parameters
+// with MetaABI parameters.
+// Big Question: can a NSInvocation be variadic ? Meaning can we create an
+// invocation for [NSString stringWithFormat:@"%d %d %d %d", 1, 2, 3, 4]; ?
+// The answer is ... can we copy the metaABI frame into the NSInvocation ?
+// I don't see how. We would need a special "ephemeral" NSInvocation that can
+// not be retained or copied, that keeps the original metaABI alive., That's
+// just super-fragile. Ppl. should be "just" using `forward:` for this.
+// We could solve this by writing a sizeof() value into the metaABI param block
+// though, maybe at a negative offset. That way we could at least forward
+// stuff (can't retain it though), but to what good ?
 //
 // Subclasses that add properties, even if not readonly must release them
 // in dealloc as -finalize does nothing.

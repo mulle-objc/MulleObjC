@@ -8,17 +8,17 @@
 @class NSMethodSignature;
 
 
-#define MulleObjCClassInitializeOnceDo( Self)                                                          \
+#define MulleObjCClassInitializeOnceDo( self)                                                          \
    assert( __MULLE_OBJC_CATEGORYID__ == MULLE_OBJC_NO_CATEGORYID && "no +initialize in categories");   \
-   if( MulleObjCClassGetClassID( Self) == __MULLE_OBJC_CLASSID__)
+   if( MulleObjCClassGetClassID( self) == __MULLE_OBJC_CLASSID__)
 
-#define MulleObjCClassDeinitializeOnceDo( Self)                                                        \
+#define MulleObjCClassDeinitializeOnceDo( self)                                                        \
    assert( __MULLE_OBJC_CATEGORYID__ == MULLE_OBJC_NO_CATEGORYID && "no +deinitialize in categories"); \
-   if( MulleObjCClassGetClassID( Self) == __MULLE_OBJC_CLASSID__)
+   if( MulleObjCClassGetClassID( self) == __MULLE_OBJC_CLASSID__)
 
-#define MulleObjCClassFinalizeOnceDo( Self)                                                            \
+#define MulleObjCClassFinalizeOnceDo( self)                                                            \
    assert( __MULLE_OBJC_CATEGORYID__ == MULLE_OBJC_NO_CATEGORYID && "no +finalize in categories");     \
-   if( MulleObjCClassGetClassID( Self) == __MULLE_OBJC_CLASSID__)
+   if( MulleObjCClassGetClassID( self) == __MULLE_OBJC_CLASSID__)
 
 
 //

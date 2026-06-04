@@ -54,7 +54,7 @@
 
 
 //
-// forwarding variadic selectors now works ?
+// forwarding variadic selectors now works ? NO IT DOESN'T
 //
 - (void) foo:(id) obj, ...
 {

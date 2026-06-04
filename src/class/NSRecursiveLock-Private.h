@@ -1,123 +1,50 @@
+// NSRecursiveLock-Private.h — delegates to mulle_thread_recursive_mutex_t.
+// The ivar layout of NSRecursiveLock (NSLock._lock, _thread_id, _depth)
+// matches mulle_thread_recursive_mutex_t (_mutex, _thread_id, _depth) exactly,
+// so we can cast self to mulle_thread_recursive_mutex_t * directly.
+
+static inline mulle_thread_recursive_mutex_t *
+   _MulleObjCRecursiveLockGetMutex( NSRecursiveLock *self)
+{
+   return( (mulle_thread_recursive_mutex_t *) &((struct { @defs( NSLock); } *) self)->_lock);
+}
+
+
 static inline NSRecursiveLock  *_MulleObjCRecursiveLockInit( NSRecursiveLock *self)
 {
-   return( (NSRecursiveLock *) _MulleObjCLockInit( self));
+   mulle_thread_recursive_mutex_init( _MulleObjCRecursiveLockGetMutex( self));
+   return( self);
 }
 
 
 static inline void  _MulleObjCRecursiveLockDone( NSRecursiveLock *self)
 {
-   _MulleObjCLockDone( self);
+   mulle_thread_recursive_mutex_done( _MulleObjCRecursiveLockGetMutex( self));
 }
 
 
-static inline void  _MulleObjCRecursiveLockLock( NSRecursiveLock *_self)
+static inline void  _MulleObjCRecursiveLockLock( NSRecursiveLock *self)
 {
-   mulle_thread_id_t   curr_thread_id;
-   mulle_thread_id_t   lock_thread_id;
-
-   struct { @defs( NSRecursiveLock); } *self = (void *) _self;
-
-   //
-   // if this thread is already locked, then just return increment depth
-   // otherwise lock and block (we could do a "cas" here probing for NULL
-   // and if succeeds then lock)
-   //
-   curr_thread_id = mulle_thread_id();
-   lock_thread_id = (mulle_thread_id_t) _mulle_atomic_pointer_read( &self->_thread_id);
-
-   // mulle_test_trace( "thread %p locks %p (locked by %p with depth %td)\n", 
-   //                    curr_thread_id, 
-   //                    self, 
-   //                    lock_thread_id, 
-   //                    _mulle_atomic_pointer_read( &self->_depth));
-
-   // three outcomes:
-   //  1. we get this_thread back (already locked by us) -> just ++depth
-   //  2. we get NULL back (unlocked) -> lock
-   //  3. we get other back (locked) -> lock
-   if( lock_thread_id != curr_thread_id)
-   {
-      // otherwise this thread locks for the first time (blocks to wait for
-      // other thread to finish)
-      _MulleObjCLockLock( _self);
-      assert( NULL == _mulle_atomic_pointer_read( &self->_thread_id));
-      _mulle_atomic_pointer_write( &self->_thread_id, (void *) curr_thread_id);
-   }
-
-   // paranoia
-   _mulle_atomic_pointer_increment( &self->_depth);
+   mulle_thread_recursive_mutex_lock( _MulleObjCRecursiveLockGetMutex( self));
 }
 
 
-static inline void  _MulleObjCRecursiveLockUnlock( NSRecursiveLock *_self)
+static inline void  _MulleObjCRecursiveLockUnlock( NSRecursiveLock *self)
 {
-   struct { @defs( NSRecursiveLock); } *self = (void *) _self;
-
-   //
-   // this thread must be locked already, only unlock once we reach depth 1
-   // otherwise lock and block (we could do a "cas" here probing for NULL
-   // and if succeeds then lock)
-   //
-   assert( mulle_thread_id() == (mulle_thread_id_t) _mulle_atomic_pointer_read( &self->_thread_id));
-
-   //mulle_test_trace( "thread %p unlocks %p (with depth %td)\n", 
-   //                   mulle_thread_id(), 
-   //                   self, 
-   //                   _mulle_atomic_pointer_read( &self->_depth));
-
-   if( (intptr_t) _mulle_atomic_pointer_decrement( &self->_depth) > 0x1)
-      return;
-
-   _mulle_atomic_pointer_write( &self->_thread_id, NULL);
-   _MulleObjCLockUnlock( _self);
+   mulle_thread_recursive_mutex_unlock( _MulleObjCRecursiveLockGetMutex( self));
 }
 
 
-static inline BOOL  _MulleObjCRecursiveLockTryLock( NSRecursiveLock *_self)
+static inline BOOL  _MulleObjCRecursiveLockTryLock( NSRecursiveLock *self)
 {
-   mulle_thread_id_t                   curr_thread_id;
-   mulle_thread_id_t                   lock_thread_id;
-   struct { @defs( NSRecursiveLock); } *self = (void *) _self;
-
-   //
-   // if this thread already locked, then just return increment depth
-   // otherwise lock and block (we could do a "cas" here probing for NULL
-   // and if succeeds then lock)
-   //
-   curr_thread_id = mulle_thread_id();
-   lock_thread_id = (mulle_thread_id_t) _mulle_atomic_pointer_read( &self->_thread_id);
-
-   // mulle_test_trace( "thread %p tries to lock %p (locked by %p with depth %td)\n", 
-   //                    curr_thread_id, 
-   //                    self, 
-   //                    lock_thread_id, 
-   //                    _mulle_atomic_pointer_read( &self->_depth));
-
-   // three outcomes:
-   //  1. we get this_thread back (already locked by us) -> just ++depth
-   //  2. we get NULL back (unlocked) -> lock
-   //  3. we get other back (locked) -> lock
-   if( lock_thread_id != curr_thread_id)
-   {
-      // otherwise this thread locks for the first time (blocks to wait for
-      // other thread to finish)
-      if( ! _MulleObjCLockTryLock( _self))
-         return( NO);
-      assert( NULL == _mulle_atomic_pointer_read( &self->_thread_id));
-      _mulle_atomic_pointer_write( &self->_thread_id, (void *) curr_thread_id);
-   }
-
-   _mulle_atomic_pointer_increment( &self->_depth);
-   return( YES);
+   return( mulle_thread_recursive_mutex_trylock( _MulleObjCRecursiveLockGetMutex( self)) == 0);
 }
 
 
-static inline NSUInteger  _MulleObjCRecursiveLockGetLockingDepth( NSRecursiveLock *_self)
+static inline NSUInteger  _MulleObjCRecursiveLockGetLockingDepth( NSRecursiveLock *self)
 {
-   struct { @defs( NSRecursiveLock); } *self = (void *) _self;
-   NSUInteger   depth;
+   mulle_thread_recursive_mutex_t   *p;
 
-   depth = (NSUInteger) _mulle_atomic_pointer_read( &self->_depth);
-   return( depth);
+   p = _MulleObjCRecursiveLockGetMutex( self);
+   return( (NSUInteger) _mulle_atomic_pointer_read( &p->_depth));
 }
-

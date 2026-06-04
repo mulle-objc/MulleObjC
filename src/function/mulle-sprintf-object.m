@@ -48,11 +48,10 @@
 # error "mulle-sprintf is too old"
 #endif
 
-
 struct
 {
    BOOL  colorize;
-} Self;
+} ClassStatic;
 
 static int  _sprintf_object_conversion( struct mulle_buffer *buffer,
                                         struct mulle_sprintf_formatconversioninfo *info,
@@ -82,10 +81,15 @@ static int  _sprintf_object_conversion( struct mulle_buffer *buffer,
          abort();
       }
 #endif
-      if( info->memory.hash_found && Self.colorize)
-         s = [(id) v.obj colorizedUTF8String];  // inherently thread safe!
+      if( info->memory.hash_found)
+      {
+         if( ClassStatic.colorize && ! info->memory.minus_found)
+            s = [(id) v.obj colorizedUTF8String];  // inherently thread safe!
+         else
+            s = [(id) v.obj nonLockingUTF8String]; // thread safe!
+      }
       else
-         s = [(id) v.obj UTF8String];           // not thread safe!
+         s = [(id) v.obj UTF8String];              // not thread safe!
    }
    // do not use alternate output on string
    info->memory.hash_found = 0;
@@ -152,7 +156,7 @@ static BOOL   colorize( void)
 __attribute__((constructor))
 static void  mulle_sprintf_register_default_object_functions()
 {
-   Self.colorize = colorize();
+   ClassStatic.colorize = colorize();
 
    mulle_sprintf_register_object_functions( mulle_sprintf_get_defaultconversion());
 }
