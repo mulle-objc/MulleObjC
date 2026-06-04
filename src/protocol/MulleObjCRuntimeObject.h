@@ -193,6 +193,13 @@ typedef struct _mulle_objc_dependency     mulle_objc_dependency_t;
 
 - (MulleObjCTAOStrategy) mulleTAOStrategy MULLE_OBJC_THREADSAFE_METHOD;
 
+
+// if using class properties, then you can use these methods to access
+// the recursive lock
++ (void) lock;
++ (void) unlock;
++ (BOOL) tryLock;
+
 @end
 
 

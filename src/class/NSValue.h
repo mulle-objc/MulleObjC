@@ -1,6 +1,6 @@
 //
-//  NSLocking.h
-//  MulleObjC
+//  NSValue.h
+//  MulleObjCValueFoundation
 //
 //  Copyright (c) 2011 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2011 Codeon GmbH.
@@ -33,48 +33,60 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "import.h"
+#import "NSObject.h"
+
+#import "MulleObjCClassCluster.h"
+#import "NSCopying.h"
+#import "MulleObjCProtocol.h"
+#import "MulleObjCRuntimeObject.h"
+
+@class MulleObject;
+
+// used by MulleObject
+#define NSVALUE_DEFINED
 
 
-@protocol NSLocking
 
-- (void) lock     MULLE_OBJC_THREADSAFE_METHOD;
-- (void) unlock   MULLE_OBJC_THREADSAFE_METHOD;
+// This is here, because BasicAnimation depends on it. And a NSValue is
+// "pure C" enough, to warrant being included here. OK...
+//
+// a NSNumber is known to be invariant, but a NSValue could contain a
+// pointer to something... Nevertheless all values are "copied" in and
+// the whole object is thread safe.
+//
+@interface NSValue : NSObject < MulleObjCClassCluster, MulleObjCImmutable, MulleObjCThreadSafe>
+{
+}
 
-// no default implementations for these, these just declare that if those
-// methods exist, their signatures and that they are threadsafe
-@optional
-- (BOOL) tryLock                                                     MULLE_OBJC_THREADSAFE_METHOD;
-- (BOOL) lockBeforeTimeInterval:(mulle_timeinterval_t) timeInterval  MULLE_OBJC_THREADSAFE_METHOD;
++ (instancetype) value:(void *) bytes
+          withObjCType:(char *) type;
++ (instancetype) valueWithBytes:(void *) bytes
+                       objCType:(char *) type;
++ (instancetype) valueWithPointer:(void *) pointer;
++ (instancetype) valueWithRange:(NSRange) range;
 
++ (instancetype) valueWithNonretainedObject:(id) obj;
+
+- (BOOL) isEqual:(id) other;
+- (BOOL) isEqualToValue:(id) other;
+
+- (NSRange) rangeValue;
+- (void *) pointerValue;
+- (id) nonretainedObjectValue;
+
+- (void) getValue:(void *) value
+             size:(NSUInteger) size;
 @end
 
 
-//
-// Use:
-//
-// NSLock   *lock;
-//
-// lock = [NSLock instance];
-// MulleObjCLockingDo( lock)
-// {
-//    // do stuff while locked
-// }
-// // lock is now unlocked
-// If lock is nil, this will run one time, regardless.
-#define MulleObjCLockDo( name)                                         \
-   for( int name ## __i = ([(name) lock], 0);                          \
-        ! name ## __i;                                                 \
-        name ## __i =  ([(name) unlock], 1                             \
-        )                                                              \
-      )                                                                \
-      MULLE_C_CONFINED_LOOP                                            \
-      for( int  name ## __j = 0;    /* break protection */             \
-           name ## __j < 1;                                            \
-           name ## __j++)
+@interface NSValue ( SubclassesFuture)
 
-#define MulleObjCLockingDo( name)   MulleObjCLockDo( name)
+// subclass must implement a compatible hash
+// see _MulleObjCConcreteValue.h for details
+- (NSUInteger) hash;
+- (char *) objCType;
+- (instancetype) initWithBytes:(void *) bytes
+                      objCType:(char *) type;
+- (void) getValue:(void *) bytes;
 
-// kinda prefer these now
-#define NSLockDo( name)     MulleObjCLockDo( name)
-#define NSLockingDo( name)  MulleObjCLockDo( name)
+@end

@@ -835,18 +835,24 @@ static NSInvocation   *popStandardInvocation( void)
    struct _mulle_objc_infraclass   *cls;
 
    // MEMO: do not raise during construction of objects
-   if( ! signature)
-      return( nil);
+//   if( ! signature)
+//      return( nil);
 
 //   frame_size  = [signature frameLength];
 //   size        = mulle_metaabi_sizeof_union( frame_size);
 //   size       += [signature methodReturnLength];
 //   size       += alignof( double);  // for alignment
 
+   invocation = nil;
+   size = [signature mulleInvocationSize];
+
+   // if size is zero, this is a variadic method signature and we can't
+   // do an invocation
+   if( ! size)
+      return( invocation);
+
    // if size is smaller than what we allocate as standard size adjust up
    // to standard size
-   size       = [signature mulleInvocationSize];
-   invocation = nil;
    if( size <= NSInvocationStandardSize)
    {
       cls = (struct _mulle_objc_infraclass *) self;
@@ -1227,11 +1233,7 @@ static void   invocation_with_nil_target_warning( NSInvocation *self)
 MULLE_C_NONNULL_FIRST
 void  _NSInvocationInvokeWithTarget( NSInvocation *self, SEL _cmd, id target)
 {
-   MulleObjCMetaABIType               pType;
-   MulleObjCMetaABIType               rType;
-   MulleObjCMethodSignatureTypeInfo   *info;
-   SEL                                sel;
-   void                               *param;
+   SEL   sel;
 
    if( ! target)
    {

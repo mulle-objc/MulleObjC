@@ -12,6 +12,7 @@ endif()
 #
 set( SOURCES
 src/class/MulleDynamicObject.m
+src/class/_MulleObjCConcreteValue.m
 src/class/MulleObject.m
 src/class/MulleProxy.m
 src/class/NSAutoreleasePool.m
@@ -26,6 +27,7 @@ src/class/NSObject.m
 src/class/NSProxy.m
 src/class/NSRecursiveLock.m
 src/class/NSThread.m
+src/class/NSValue.m
 src/function/MulleObjCAllocation.m
 src/function/MulleObjCDebug.m
 src/function/MulleObjCExceptionHandler.m

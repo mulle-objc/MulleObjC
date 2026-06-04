@@ -1,9 +1,9 @@
 //
-//  MulleObjC.h
-//  MulleObjC
+//  _MulleObjCConcreteValue.h
+//  MulleObjCValueFoundation
 //
-//  Copyright (c) 2015 Nat! - Mulle kybernetiK.
-//  Copyright (c) 2015 Codeon GmbH.
+//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //
 //
@@ -34,66 +34,19 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-// because standalone versions must define FASTIDs
-
-//#ifdef MULLE_OBJC_RUNTIME_VERSION
-//# error "do not include the mulle-objc-runtime before MulleObjC.h"
-//#endif
-
-#import "import.h"
-
-// classes
-#import "MulleObjCDeps.h"
-
-#import "MulleDynamicObject.h"
-#import "MulleObject.h"
-
-#import "NSAutoreleasePool.h"
-#import "NSCondition.h"
-#import "NSConditionLock.h"
-#import "NSInvocation.h"
-#import "NSLock.h"
-#import "NSMethodSignature.h"
-#import "NSNull.h"
-#import "NSObject.h"
-#import "NSProxy.h"
-#import "NSRecursiveLock.h"
 #import "NSValue.h"
-#import "NSThread.h"
 
+//
+// not a MulleObjCInvariant as this could be a wrapper for a mutable value
+// If this really pains, maybe split it up into _MulleObjCConcreteValueMutableContent
+// and _MulleObjCConcreteValueImmutableContent ?
+//
+@interface _MulleObjCConcreteValue : NSValue < MulleObjCImmutableProtocols>
+{
+   NSUInteger  _size;
+}
 
-// protocols and protocolclasses
-#import "MulleObjCClassCluster.h"
-#import "MulleObjCException.h"
-#import "MulleObjCProtocol.h"
-#import "MulleObjCRootObject.h"
-#import "MulleObjCRuntimeObject.h"
-#import "MulleObjCSingleton.h"
-#import "MulleObjCTaggedPointer.h"
-#import "NSCoding.h"
-#import "NSContainer.h"
-#import "NSCopying.h"
-#import "NSCopyingWithAllocator.h"
-#import "NSFastEnumeration.h"
-#import "NSLocking.h"
-#import "NSObjectProtocol.h"
++ (instancetype) mulleNewWithBytes:(void *) bytes
+                          objCType:(char *) type;
 
-// categories
-#import "NSObject+NSCodingSupport.h"
-
-// structs
-// otherwise none.. all C
-
-// functions
-#import "MulleObjCAllocation.h"
-#import "MulleObjCAutoreleasePool.h"
-#import "MulleObjCExceptionHandler.h"
-#import "MulleObjCFunctions.h"
-#import "MulleObjCHashFunctions.h"
-#import "MulleObjCIvar.h"
-#import "MulleObjCProperty.h"
-#import "MulleObjCPrinting.h"
-#import "MulleObjCStackFrame.h"
-#import "MulleObjCUniverse.h"
-#import "NSByteOrder.h"
-
+@end

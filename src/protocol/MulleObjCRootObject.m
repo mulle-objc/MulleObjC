@@ -1100,4 +1100,22 @@ static int   collect( struct _mulle_objc_ivar *ivar,
    return( info.n);
 }
 
+
++ (void) lock
+{
+   mulle_objc_infraclass_lock_classproperty( (struct _mulle_objc_infraclass *) self);
+}
+
+
++ (void) unlock
+{
+   mulle_objc_infraclass_unlock_classproperty( (struct _mulle_objc_infraclass *) self);
+}
+
+
++ (BOOL) tryLock
+{
+   return( mulle_objc_infraclass_trylock_classproperty( (struct _mulle_objc_infraclass *) self) == 0 ? YES : NO);
+}
+
 @end

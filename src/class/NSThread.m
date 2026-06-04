@@ -72,11 +72,12 @@
 
 @dependency NSAutoreleasePool;
 
+// TODO: make this just an atomic variable
 static struct
 {
    mulle_thread_mutex_t    _lock;
    BOOL                    _isMultiThreaded;
-} Self;
+} ClassStatic;
 
 
 // this is usually the very first ObjC method call, so assert a little
@@ -87,7 +88,9 @@ static struct
    assert( self);
    assert( _cmd == @selector( load));
 
-   mulle_thread_mutex_init( &Self._lock);
+   mulle_thread_mutex_init( &ClassStatic._lock);
+
+   mulle_aba_init( NULL);
 
    universe = _mulle_objc_infraclass_get_universe( self);
    assert( universe);
@@ -98,7 +101,9 @@ static struct
 
 + (void) unload
 {
-   mulle_thread_mutex_done( &Self._lock);
+   mulle_aba_done();
+
+   mulle_thread_mutex_done( &ClassStatic._lock);
 }
 
 
@@ -358,7 +363,7 @@ static inline void   _NSThreadSetOSThreadId( NSThread *threadObject,
  * setup ABA gc for thread
  * bond to universe by retaining it
  */
-static void   _mulle_objc_thread_become_universethread( struct _mulle_objc_universe  *universe)
+static void   _mulle_objc_thread_become_universethread( struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_universefoundationinfo  *info;
 
@@ -465,6 +470,7 @@ static NSThread   *__MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc
 
 NSThread   *_MulleThreadCreateThreadObjectInUniverse( struct _mulle_objc_universe *universe)
 {
+   mulle_aba_register();
    _mulle_objc_thread_become_universethread( universe);
    return( __MulleThreadCreateThreadObjectInUniverse( universe));
 }
@@ -511,6 +517,8 @@ void   _MulleThreadRemoveThreadObjectFromUniverse( NSThread *threadObject,
    _MulleThreadTakedownPoolAndRelease( threadObject, universe);
 
    _mulle_objc_thread_resignas_universethread( universe, YES);
+
+   mulle_aba_unregister();
 }
 
 
@@ -536,6 +544,8 @@ NSThread   *_MulleThreadCreateMainThreadObjectInUniverse( struct _mulle_objc_uni
    [threadObject mulleSetNameUTF8String:"NSMainThread"];
    _mulle_objc_universefoundationinfo_set_mainthreadobject( info, threadObject); // does not retain
 
+   mulle_aba_register();
+
    return( threadObject);
 }
 
@@ -550,6 +560,8 @@ void   _MulleThreadFinalizeMainThreadObjectInUniverse( struct _mulle_objc_univer
 
    threadObject = _MulleThreadGetMainThreadObjectInUniverse( universe);
    [threadObject mullePerformFinalize]; // [self finalize]
+
+   mulle_aba_unregister();
 }
 
 
@@ -639,6 +651,8 @@ void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
 
    _mulle_objc_thread_resignas_universethread( universe, NO);
 
+   mulle_aba_unregister();
+
    mulle_thread_tss_set( threadkey, NULL);
 }
 
@@ -673,6 +687,9 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
    thread_id = mulle_thread_id();
    assert( thread_id);
    _NSThreadSetOSThreadId( self, thread_id);
+
+
+   mulle_aba_register();
 
    universe = _mulle_objc_object_get_universe( self);
 
@@ -838,8 +855,21 @@ static mulle_thread_rval_t   bouncyBounce( void *arg)
 
 - (BOOL) isCancelled
 {
-   return( _mulle_atomic_pointer_read( &_cancelled) == (void *) 1);
+   BOOL   isCancelled;
+   void   *currentThreadId;
+
+   isCancelled     = _mulle_atomic_pointer_read( &_cancelled) == (void *) 1;
+   currentThreadId = _mulle_atomic_pointer_read( &self->_osThreadId);
+
+   // this is as good time as any to do a checkin
+   if( self->_osThreadId == currentThreadId)
+   {
+      mulle_aba_checkin();
+   }
+   return( isCancelled);
 }
+
+
 
 
 // TODO: figure out how to do pthread_cancel in windows, then maybe use it
@@ -923,9 +953,9 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
 {
    BOOL   flag;
 
-   mulle_thread_mutex_do( Self._lock)
+   mulle_thread_mutex_do( ClassStatic._lock)
    {
-      flag = Self._isMultiThreaded;
+      flag = ClassStatic._isMultiThreaded;
    }
    return( flag);
 }
@@ -943,11 +973,11 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
    // another thread could be starting up right now from the main thread
    // also some thread destructors might be running
    //
-   mulle_thread_mutex_do( Self._lock)
+   mulle_thread_mutex_do( ClassStatic._lock)
    {
-      if( Self._isMultiThreaded)
+      if( ClassStatic._isMultiThreaded)
       {
-         Self._isMultiThreaded = NO;
+         ClassStatic._isMultiThreaded = NO;
          [self _isProbablyGoingSingleThreaded];
       }
    }
@@ -967,11 +997,11 @@ void  _mulle_objc_threadinfo_initializer( struct _mulle_objc_threadinfo *config)
    // single threaded. We serialize here, so that other threads don't
    // overtake us.
    //
-   mulle_thread_mutex_do( Self._lock)
+   mulle_thread_mutex_do( ClassStatic._lock)
    {
-      if( ! Self._isMultiThreaded)
+      if( ! ClassStatic._isMultiThreaded)
       {
-         Self._isMultiThreaded = YES;
+         ClassStatic._isMultiThreaded = YES;
          [self _isGoingMultiThreaded];
       }
    }

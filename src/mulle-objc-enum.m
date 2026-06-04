@@ -227,7 +227,9 @@ int   _NS_OPTIONS_ParseUTF8String_strict( void *table,
       line = table;
       for( i = 0; i < len; i++)
       {
-         key     = *(char **) line;
+         key = *(char **) line;
+         if( ! key)
+            return( NO);
          key_len = strlen( key);
          if( ! strncmp( key, s, key_len))
          {
@@ -298,7 +300,9 @@ int   _NS_ENUM_ParseUTF8String_strict( void *table,
    line = table;
    for( i = 0; i < len; i++)
    {
-      key     = *(char **) line;
+      key = *(char **) line;
+      if( ! key)
+         return( NO);
       key_len = strlen( key);
       if( ! strncmp( key, s, key_len))
       {

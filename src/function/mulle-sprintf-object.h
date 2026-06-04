@@ -58,6 +58,12 @@
  *    The "%@" conversion uses the standard -UTF8String which can lock. This is
  *    what eventually will call -description.
  *
+ * - `nonLockingUTF8String`    Returns a UTF-8 encoded string without color.
+ *    This special method must be suitable for debugging, so it's important
+ *    that "%-#@" does not lock. This is supposed to be used in all format
+ *    strings that do logging and introspection (po) but where you hate to see
+ *    color.
+ *
  * - `colorizedUTF8String`    Returns a UTF-8 encoded string with color.
  *    This special method must be suitable for debugging, so it's important
  *    that "%#@" does not lock. This is supposed to be used in all format

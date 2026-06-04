@@ -1,6 +1,6 @@
 //
-//  NSLocking.h
-//  MulleObjC
+//  NSValue-Private.h
+//  MulleObjCValueFoundation
 //
 //  Copyright (c) 2011 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2011 Codeon GmbH.
@@ -33,48 +33,9 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-#import "import.h"
 
+@interface NSValue ( _Private)
 
-@protocol NSLocking
-
-- (void) lock     MULLE_OBJC_THREADSAFE_METHOD;
-- (void) unlock   MULLE_OBJC_THREADSAFE_METHOD;
-
-// no default implementations for these, these just declare that if those
-// methods exist, their signatures and that they are threadsafe
-@optional
-- (BOOL) tryLock                                                     MULLE_OBJC_THREADSAFE_METHOD;
-- (BOOL) lockBeforeTimeInterval:(mulle_timeinterval_t) timeInterval  MULLE_OBJC_THREADSAFE_METHOD;
+- (NSUInteger) _size;
 
 @end
-
-
-//
-// Use:
-//
-// NSLock   *lock;
-//
-// lock = [NSLock instance];
-// MulleObjCLockingDo( lock)
-// {
-//    // do stuff while locked
-// }
-// // lock is now unlocked
-// If lock is nil, this will run one time, regardless.
-#define MulleObjCLockDo( name)                                         \
-   for( int name ## __i = ([(name) lock], 0);                          \
-        ! name ## __i;                                                 \
-        name ## __i =  ([(name) unlock], 1                             \
-        )                                                              \
-      )                                                                \
-      MULLE_C_CONFINED_LOOP                                            \
-      for( int  name ## __j = 0;    /* break protection */             \
-           name ## __j < 1;                                            \
-           name ## __j++)
-
-#define MulleObjCLockingDo( name)   MulleObjCLockDo( name)
-
-// kinda prefer these now
-#define NSLockDo( name)     MulleObjCLockDo( name)
-#define NSLockingDo( name)  MulleObjCLockDo( name)

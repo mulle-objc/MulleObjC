@@ -60,7 +60,7 @@ static struct
 {
    int                               _useEphemeralSingleton;
    struct mulle_concurrent_hashmap   _ephemeralSingletonInstances;
-} Self =
+} ClassStatic =
 {
    -1
 };
@@ -99,16 +99,16 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
    struct _mulle_objc_universe   *universe;
 
    MulleObjCSingletonMarkClassAsSingleton( self);
-   if( Self._useEphemeralSingleton == -1)
+   if( ClassStatic._useEphemeralSingleton == -1)
    {
-      Self._useEphemeralSingleton = mulle_objc_environment_get_yes_no( "MULLE_OBJC_EPHEMERAL_SINGLETON")
+      ClassStatic._useEphemeralSingleton = mulle_objc_environment_get_yes_no( "MULLE_OBJC_EPHEMERAL_SINGLETON")
                                     | mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_LEAK")
                                     | mulle_objc_environment_get_yes_no( "MULLE_OBJC_TRACE_ZOMBIE");
-      if( Self._useEphemeralSingleton > 0)
+      if( ClassStatic._useEphemeralSingleton > 0)
       {
          // universe allocator partakes in aba GC, but not the class allocator
          universe = _mulle_objc_infraclass_get_universe( self);
-         _mulle_concurrent_hashmap_init( &Self._ephemeralSingletonInstances,
+         _mulle_concurrent_hashmap_init( &ClassStatic._ephemeralSingletonInstances,
                                          16,
                                          _mulle_objc_universe_get_allocator( universe));
          fprintf( stderr, "warning: MulleObjCSingleton are ephemeral\n");
@@ -124,10 +124,10 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
 //
 + (void) unload
 {
-   if( Self._useEphemeralSingleton > 0)
+   if( ClassStatic._useEphemeralSingleton > 0)
    {
-      _mulle_concurrent_hashmap_done( &Self._ephemeralSingletonInstances);
-      Self._useEphemeralSingleton = -1;
+      _mulle_concurrent_hashmap_done( &ClassStatic._ephemeralSingletonInstances);
+      ClassStatic._useEphemeralSingleton = -1;
    }
 }
 
@@ -161,7 +161,7 @@ static id   MulleObjCSingletonNew( Class self)
                _mulle_objc_infraclass_get_name( self),
                self,
                _mulle_objc_infraclass_get_classid( self),
-               Self._useEphemeralSingleton > 0 ? "ephemeral": "static");
+               ClassStatic._useEphemeralSingleton > 0 ? "ephemeral": "static");
    }
 
    singleton = _MulleObjCClassAllocateInstance( self, 0);
@@ -206,15 +206,15 @@ id   MulleObjCSingletonCreate( Class self)
 
    assert( ! _mulle_objc_infraclass_get_state_bit( self, MULLE_OBJC_INFRA_IS_CLASSCLUSTER));
 
-   if( Self._useEphemeralSingleton > 0)
+   if( ClassStatic._useEphemeralSingleton > 0)
    {
-      singleton = _mulle_concurrent_hashmap_lookup( &Self._ephemeralSingletonInstances,
+      singleton = _mulle_concurrent_hashmap_lookup( &ClassStatic._ephemeralSingletonInstances,
                                                    (intptr_t) self);
       if( singleton)
          return( [[singleton retain] autorelease]); // place into current thread autorelease pool
 
       singleton = [MulleObjCSingletonNew( self) autorelease];
-      dup       = _mulle_concurrent_hashmap_register( &Self._ephemeralSingletonInstances,
+      dup       = _mulle_concurrent_hashmap_register( &ClassStatic._ephemeralSingletonInstances,
                                                      (intptr_t) self,
                                                      singleton);
       if( dup == MULLE_CONCURRENT_INVALID_POINTER)
@@ -256,8 +256,8 @@ id   MulleObjCSingletonCreate( Class self)
 {
    IMP   imp;
 
-   if( Self._useEphemeralSingleton > 0)
-      _mulle_concurrent_hashmap_remove( &Self._ephemeralSingletonInstances,
+   if( ClassStatic._useEphemeralSingleton > 0)
+      _mulle_concurrent_hashmap_remove( &ClassStatic._ephemeralSingletonInstances,
                                        (intptr_t) _mulle_objc_object_get_isa( self),
                                        self);
    imp = MulleObjCObjectSearchOverriddenIMP( self,

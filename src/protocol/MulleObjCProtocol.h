@@ -36,6 +36,38 @@
 #import "MulleObjCRuntimeObject.h"
 
 
+//
+// This is an empty protocol that you can adorn 'forwarding' categories with.
+// Forwarding categories describe implementations that will be forwarded to
+// another object using -forward:. This is an alterative to @optional in the
+// class @interface though this is preferable. It is expected that a
+// @implementation MyClass( Forward) exists, if you declare
+// @properties in the category.
+//
+// @interface MyClass( Forward) <MulleObjCForwarding>
+// - (void) forwardMethod;
+// @end
+//
+@protocol MulleObjCForwarding
+@end
+
+
+//
+// This is an empty protocol that you can adorn 'future' categories with.
+// Future categories describe implementations not yet implemented. In some
+// other part of the app they will be implemented by subclass or a different
+// category. Not implementing this is usually a bug. It is NOT expected that
+// an @implementation MyClass( Future) will exist, though. The implementations
+// will be scattered.
+//
+// @interface MyClass( Future) <MulleObjCFuture>
+// - (void) futureMethod;
+// @end
+//
+@protocol MulleObjCFuture
+@end
+
+
 // This introduces a hierarchy of robustness of objects
 //
 // | Protocol                | Description
