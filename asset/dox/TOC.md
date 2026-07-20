@@ -1,323 +1,767 @@
 # MulleObjC Library Documentation for AI
-<!-- Keywords: objc, runtime, root-classes, threading, autorelease -->
-
+<!-- Keywords: objc, runtime, root-classes, threading, autorelease, mixin -->
 ## 1. Introduction & Purpose
 
-**MulleObjC** is the foundational Objective-C library for the mulle-sde ecosystem. It provides the complete set of root classes (NSObject, NSProxy), core protocols (NSCoding, NSCopying, NSFastEnumeration, NSLocking), threading support (NSThread), memory management (NSAutoreleasePool), and essential utilities for dynamic Objective-C programming on top of the mulle-objc runtime.
+**MulleObjC** is the foundational Objective-C library for the mulle-objc ecosystem. It provides the complete set of root classes (`NSObject`, `NSProxy`), core protocols (`NSCoding`, `NSCopying`, `NSFastEnumeration`, `NSLocking`), threading support (`NSThread`), memory management (`NSAutoreleasePool`), method serialization (`NSInvocation`, `NSMethodSignature`), value boxed types (`NSValue`), and essential utilities for dynamic Objective-C programming on top of the mulle-objc runtime.
 
 **Key Features:**
-- Complete Objective-C root class hierarchy
-- Method serialization (NSInvocation, NSMethodSignature)
-- Thread support with platform abstraction
-- Exception handling integration
-- Autorelease pool management
+- Complete Objective-C root class hierarchy (NSObject, NSProxy, NSAutoreleasePool)
+- Method serialization with MetaABI-optimized invocation (NSInvocation, NSMethodSignature)
+- Thread support with platform abstraction (NSThread, NSLock, NSCondition, NSConditionLock, NSRecursiveLock)
+- Autorelease pool management (NSAutoreleasePool)
+- Exception handling macros (MulleObjCThrow*Exception)
 - Dynamic type introspection utilities
-- Lock and synchronization primitives
+- Thread Affinity & Ownership (TAO) system for safe cross-thread object transfer
+- @mixin-based protocol classes replacing old PROTOCOLCLASS macros
+- Value boxing (NSValue, _MulleObjCConcreteValue)
+- Class dependency declaration via `@dependency` directive
+- Static method signatures via `_NSConstantMethodSignature`
 - Zero C standard library dependencies (portable)
 
 ## 2. Key Concepts & Design Philosophy
 
-- **Two Root Classes**: NSObject (standard) and NSProxy (for dynamic forwarding/proxies)
-- **Memory Model**: Retain/release counting with NSAutoreleasePool for batch deallocation
-- **Protocol-Based Design**: Protocols (NSCoding, NSCopying, etc.) enable optional features without base class bloat
-- **C-Only Core**: MulleObjC minimally depends on mulle-objc-runtime C library, not standard C libraries
-- **Introspection-First**: Full access to method metadata and dynamic dispatch mechanisms
-- **Exception Safety**: Integration with mulle-objc exception handling via @try/@catch/@finally
+- **Two Root Classes**: `NSObject` (standard) and `NSProxy` (for dynamic forwarding/proxies). `NSAutoreleasePool` is also technically a root object (not a subclass of NSObject).
+- **Automatic Allocation Optimization (AAO)**: Factory method `+instantiate` creates pre-autoreleased placeholders; `+alloc` combined with `-init` patterns are replaced by AAO-style factory instantiation.
+- **Memory Model**: Retain/release counting with `NSAutoreleasePool` for batch deallocation.
+- **@mixin Protocol Classes**: Formerly implemented via `PROTOCOLCLASS_INTERFACE` macros, protocol classes (e.g., `MulleObjCSingleton`, `MulleObjCClassCluster`, `MulleObjCThreadSafe`) are now declared with the `@mixin` keyword. These provide default implementations for protocol methods without requiring protocol conformance in subclasses.
+- **Thread Affinity & Ownership (TAO)**: System for safely transferring objects between threads. `MulleObjCTAOStrategy` enum defines strategies for pool removal and thread handoff. Objects marked `MulleObjCThreadSafe` bypass TAO checks.
+- **Thread Safety Protocols Hierarchy**: `MulleObjCThreadUnsafe` → `MulleObjCThreadSafe` → `MulleObjCImmutable` → `MulleObjCInvariant` → `MulleObjCValue`. Each level adds stronger guarantees.
+- **C-Only Core**: MulleObjC depends on the mulle-objc-runtime C library and mulle-thread, not standard C libraries.
+- **@dependency Directive**: Classes declare dependencies using the compiler directive `@dependency ClassName` or `@dependency LibDepsName(libname)` instead of the old `MULLE_OBJC_DEPENDS_ON_*` macros.
+- **MetaABI Optimization**: NSMethodSignature and NSInvocation use MetaABI type information (`MulleObjCMetaABICallType`) for accelerated invocation frame computation.
 
 ## 3. Core API & Data Structures
 
 ### 3.1 Root Classes: NSObject & NSProxy
 
 #### NSObject - The Standard Root Class
-
-**Purpose**: Root class for all objects in typical Objective-C hierarchies. Provides lifecycle, reference counting, memory management, and introspection.
+**Header**: `src/class/NSObject.h`
+**Declaration**: `@interface NSObject < MulleObjCRootObject, NSObject>`
+**Purpose**: Root class for all objects in typical Objective-C hierarchies. Provides lifecycle, reference counting, memory management, introspection, and message dispatching.
 
 **Lifecycle Methods:**
-- `+ (id)alloc` → Creates uninitialized instance (returns autoreleased in some contexts)
-- `- (id)init` → Designated initializer, must be overridden in subclasses
-- `- (void)dealloc` → Destructor, called when retain count reaches zero
-- `+ (id)new` → Shortcut: `[[class alloc] init]`
+- `+ (instancetype) alloc` — Creates uninitialized instance
+- `+ (instancetype) new` — Shortcut: `[[self alloc] init]`
+- `- (instancetype) init` — Designated initializer
+- `- (void) dealloc` — Destructor, called when retain count reaches zero
+- `- (void) finalize` — Pre-dealloc cleanup, called before dealloc
+- `- (void) mullePerformFinalize MULLE_OBJC_THREADSAFE_METHOD` — Triggers finalize chain
+- `- (BOOL) mulleIsFinalized MULLE_OBJC_THREADSAFE_METHOD` — Query finalize state
+- `+ (instancetype) instantiate` — AAO factory, returns autoreleased placeholder
 
 **Reference Counting:**
-- `- (id)retain` → Increment reference count, return self
-- `- (void)release` → Decrement reference count; deallocate if zero
-- `- (id)autorelease` → Add to current NSAutoreleasePool, released at pool drain
-- `- (NSUInteger)retainCount` → Get current reference count
+- `- (instancetype) retain MULLE_OBJC_THREADSAFE_METHOD` — Increment reference count
+- `- (void) release MULLE_OBJC_THREADSAFE_METHOD` — Decrement reference count
+- `- (instancetype) autorelease MULLE_OBJC_THREADSAFE_METHOD` — Add to current pool
+- `- (NSUInteger) retainCount MULLE_OBJC_THREADSAFE_METHOD` — Current count
 
 **Introspection & Method Dispatch:**
-- `- (Class)class` → Get object's class (compile-time or runtime)
-- `- (Class)superclass` → Get superclass
-- `- (BOOL)isKindOfClass:(Class)cls` → Check if object is instance of class or subclass
-- `- (BOOL)isMemberOfClass:(Class)cls` → Check exact class match
-- `- (BOOL)respondsToSelector:(SEL)selector` → Query if selector exists
-- `- (id)performSelector:(SEL)selector` → Dynamically invoke with no args
-- `- (id)performSelector:(SEL)selector withObject:(id)arg` → With one object argument
-- `- (BOOL)conformsToProtocol:(Protocol *)proto` → Check protocol conformance
+- `- (Class) class MULLE_OBJC_THREADSAFE_METHOD`
+- `+ (Class) class MULLE_OBJC_THREADSAFE_METHOD`
+- `- (Class) superclass MULLE_OBJC_THREADSAFE_METHOD`
+- `- (BOOL) isKindOfClass:(Class) cls MULLE_OBJC_THREADSAFE_METHOD`
+- `- (BOOL) isMemberOfClass:(Class) cls MULLE_OBJC_THREADSAFE_METHOD`
+- `- (BOOL) respondsToSelector:(SEL) sel MULLE_OBJC_THREADSAFE_METHOD`
+- `- (BOOL) conformsToProtocol:(PROTOCOL) protocol MULLE_OBJC_THREADSAFE_METHOD`
+- `- (id) performSelector:(SEL) sel MULLE_OBJC_THREADSAFE_METHOD`
+- `- (id) performSelector:(SEL) sel withObject:(id) obj MULLE_OBJC_THREADSAFE_METHOD`
+- `- (id) performSelector:(SEL) sel withObject:(id) obj withObject:(id) other MULLE_OBJC_THREADSAFE_METHOD`
+- `- (IMP) methodForSelector:(SEL) sel MULLE_OBJC_THREADSAFE_METHOD`
+- `+ (IMP) instanceMethodForSelector:(SEL) sel`
+- `+ (BOOL) instancesRespondToSelector:(SEL) sel`
+- `- (NSMethodSignature *) methodSignatureForSelector:(SEL) sel MULLE_OBJC_THREADSAFE_METHOD`
+- `+ (NSMethodSignature *) instanceMethodSignatureForSelector:(SEL) sel`
 
 **Object Comparison & Hashing:**
-- `- (BOOL)isEqual:(id)other` → Default: pointer equality
-- `- (NSUInteger)hash` → Hash for use in collections
-- `- (NSString *)description` → Human-readable string (default: class name + pointer)
+- `- (BOOL) isEqual:(id) other` — Default: pointer equality
+- `- (NSUInteger) hash` — Hash for use in collections
+- `- (char *) UTF8String` — Malloced C-string description (mulle extension)
 
-**Copy & Archive Support:**
-- `- (id)copy` → Shallow copy, requires NSCopying protocol
-- `- (id)mutableCopy` → Mutable copy, requires NSMutableCopying protocol
-- `- (void)encodeWithCoder:(NSCoder *)coder` → Serialization support (NSCoding protocol)
-- `- (id)initWithCoder:(NSCoder *)coder` → Deserialization support
+**Thread Safety Introspection (TAO):**
+- `- (BOOL) mulleIsThreadSafe MULLE_OBJC_THREADSAFE_METHOD`
+- `+ (BOOL) mulleIsThreadSafe MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) mulleSetThreadSafe:(BOOL) flag`
+- `- (BOOL) mulleIsAccessible MULLE_OBJC_THREADSAFE_METHOD`
+- `- (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject MULLE_OBJC_THREADSAFE_METHOD`
+- `- (BOOL) mulleIsAutoreleased`
+- `- (void) mulleGainAccess MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) mulleGainAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) mulleRelinquishAccess MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy MULLE_OBJC_THREADSAFE_METHOD`
+- `- (MulleObjCTAOStrategy) mulleTAOStrategy MULLE_OBJC_THREADSAFE_METHOD`
+
+**Forwarding:**
+- `- (void) forwardInvocation:(NSInvocation *) anInvocation` — Message forwarding hook
+- `- (NSMethodSignature *) methodSignatureForSelector:(SEL) sel MULLE_OBJC_THREADSAFE_METHOD`
+
+**Copy & Archive Support via NSCoding:**
+- `- (id) copy`
+- `- (void) encodeWithCoder:(NSCoder *) coder`
+- `- (instancetype) initWithCoder:(NSCoder *) coder`
 
 #### NSProxy - Alternative Root for Dynamic Proxies
+**Header**: `src/class/NSProxy.h`
+**Declaration**: `@interface NSProxy < MulleObjCRootObject, NSObject>`
+**Purpose**: An alternative root class for forwarding proxies. Does not extend NSObject; instead conforms to `<NSObject>` protocol.
 
-**Purpose**: Unlike NSObject, NSProxy does *not* conform to NSObject protocol, enabling pure forwarding proxies.
-
-**Key Methods:**
-- `+ (id)alloc` → Create proxy
-- `- (void)dealloc` → Cleanup
-- `- (void)forwardInvocation:(NSInvocation *)inv` → Override to handle unknown messages
-- `- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector` → Provide signature for forwarded message
-
-**Usage Pattern**: Use NSProxy for transparent message forwarding (e.g., remote object proxies, lazy-loading wrappers)
+**Key Methods (inherited from protocols):**
+- `+ (instancetype) alloc`
+- `- (void) dealloc`
+- `- (void) forwardInvocation:(NSInvocation *) inv`
+- `- (NSMethodSignature *) methodSignatureForSelector:(SEL) selector`
 
 ### 3.2 Method Serialization & Introspection
 
-#### NSInvocation - Message Recording & Replay
+#### NSMethodSignature - Method Metadata (Redesigned)
+**Header**: `src/class/NSMethodSignature.h`
+**Declaration**: `@interface NSMethodSignature : NSObject < MulleObjCImmutableProtocols, NSCopying>`
 
-**Purpose**: Serialize a message send into an object, modify it, and replay.
+**Key Ivar Layout:**
+```c
+uint32_t                            _bits;    // method descriptor bits; bits 22-23=rType, 24-25=pType
+uint16_t                            _count;
+uint16_t                            _extra;
+char                                *_types;
+uint32_t                            _invocationSize;
+uint32_t                            _reserved;
+MulleObjCMethodSignatureTypeInfo    _infos[3]; // inline for minimum (rval,self,_cmd); overflow in extra bytes
+```
+
+Note: `_infos` is now an inline array of 3 rather than a pointer. Additional arginfos are stored in the extra bytes area, and the types string follows for dynamic instances.
+
+**MetaABI Types:**
+```c
+typedef enum {
+   MulleObjCMetaABITypeVoidPointer    = 0,
+   MulleObjCMetaABITypeVoid           = 1,
+   MulleObjCMetaABITypeParameterBlock = 2
+} MulleObjCMetaABIType;
+
+typedef enum {
+   MulleObjCMetaABICallVoidPtrVoidPtr = 0,   // -(id)foo:(id) — DEFAULT
+   MulleObjCMetaABICallVoidPtrVoid    = 1,   // -(void)foo:(id)
+   MulleObjCMetaABICallVoidPtrBlock   = 2,   // -(struct S)foo:(id)
+   MulleObjCMetaABICallVoidVoidPtr    = 4,   // -(id)foo
+   MulleObjCMetaABICallVoidVoid       = 5,   // -(void)foo
+   MulleObjCMetaABICallVoidBlock      = 6,   // -(struct S)foo
+   MulleObjCMetaABICallBlockVoidPtr   = 8,   // -(id)foo:(int)x ...
+   MulleObjCMetaABICallBlockVoid      = 9,   // -(void)foo:(int)x ...
+   MulleObjCMetaABICallBlockBlock     = 10,  // -(struct S)foo:(int)x ...
+} MulleObjCMetaABICallType;
+```
+
+**Static Instance**: `_NSConstantMethodSignature` struct enables compile-time static method signature objects, placed into the universe via `_mulle_objc_universe_add_staticinstance()`. Slot index `MULLE_OBJC_STATICINSTANCE_METHODSIGNATURE_INDEX = 4`.
+```c
+struct _NSConstantMethodSignature {
+   struct _mulle_objc_objectheader   _header;
+   uint32_t                          _bits;
+   uint16_t                          _count;
+   uint16_t                          _extra;
+   char                              *_types;
+   uint32_t                          _invocationSize;
+   uint32_t                          _reserved;
+   MulleObjCMethodSignatureTypeInfo  _infos[3];
+};
+#define MULLE_OBJC_CONSTANTMETHODSIGNATURE_OBJECT( p)  ((struct _mulle_objc_object *) &(p)->_bits)
+```
 
 **Creation:**
-- `+ (NSInvocation *)invocationWithMethodSignature:(NSMethodSignature *)sig` → Create with signature
-- `- (NSMethodSignature *)methodSignature` → Get associated signature
+- `+ (NSMethodSignature *) signatureWithObjCTypes:(char *) types` — Standard creation
+- `+ (NSMethodSignature *) _signatureWithObjCTypes:(char *) types descriptorBits:(NSUInteger) bits` — With descriptor bits (used by forwarding)
 
-**Configuration:**
-- `- (void)setTarget:(id)target` → Object to receive message
-- `- (void)setSelector:(SEL)selector` → Selector to invoke
-- `- (void)setArgument:(void *)arg atIndex:(NSInteger)idx` → Set argument by index (0=return value, 1+=args)
-- `- (void)getArgument:(void *)arg atIndex:(NSInteger)idx` → Retrieve argument by index
+**Accessors:**
+- `- (BOOL) isOneway`
+- `- (BOOL) isVariadic`
+- `- (NSUInteger) _descriptorBits`
+- `- (NSUInteger) frameLength`
+- `- (NSUInteger) methodReturnLength`
+- `- (char *) methodReturnType`
+- `- (char *) getArgumentTypeAtIndex:(NSUInteger) index` — Uses argument index (0 = self)
+- `- (NSUInteger) numberOfArguments`
+- `- (NSUInteger) mulleInvocationSize` — Extra bytes to allocate for NSInvocation
+- `- (MulleObjCMetaABIType) _methodMetaABIReturnType`
+- `- (MulleObjCMetaABIType) _methodMetaABIParameterType`
+- `- (NSUInteger) mulleMetaABIFrameLength` — Expected size of a call frame
+- `- (MulleObjCMethodSignatureTypeInfo *) mulleSignatureTypeInfoAtIndex:(NSUInteger) i` — Uses internal index (0 = rval, 1 = self, etc.)
+
+#### NSInvocation - Message Recording & Replay (Redesigned)
+**Header**: `src/class/NSInvocation.h`
+**Declaration**: `@interface NSInvocation : NSObject`
+
+**Key Ivar Fields:**
+```c
+char   *_storage;
+char   *_sentinel;
+char   _argumentsRetained;
+char   _returnValueRetained;
+IMP    _implementation;   // optional: direct IMP call instead of objc_msgSend
+```
+
+NSInvocation is variable-sized: `_storage` expands/contracts with MetaABI parameters.
+
+**Property:**
+- `@property( retain, readonly) NSMethodSignature *methodSignature`
+
+**Factory Methods:**
+- `+ (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature` — Create with signature
+- `+ (NSInvocation *) mulleInvocationWithTarget:(id) target selector:(SEL) sel, ...` — Build from variadic args
+- `+ (NSInvocation *) mulleInvocationWithTarget:(id) target selector:(SEL) sel methodSignature:(NSMethodSignature *) sig, ...`
+- `+ (NSInvocation *) mulleInvocationWithTarget:(id) target selector:(SEL) sel object:(id) object` — Single object arg
+- `+ (NSInvocation *) mulleInvocationWithTarget:(id) target selector:(SEL) sel metaABIFrame:(void *) frame` — From prebuilt MetaABI frame
+- `+ (NSInvocation *) mulleInvocationWithTarget:(id) target selector:(SEL) sel implementation:(IMP) imp object:(id) object` — With custom IMP
+
+**IMP Access:**
+- `- (IMP) implementation`
+- `- (void) setImplementation:(IMP) imp`
 
 **Execution:**
-- `- (void)invoke` → Send serialized message to target
-- `- (void)invokeWithTarget:(id)target` → Override target for this invocation
+- `- (void) invoke` — Dispatch to target using stored selector/IMP
+- `- (void) invokeWithTarget:(id) target` — Override target for this invocation
+- `- (int) mulleIntReturnValue` — Get int return value (used by NSThread)
 
-**Accessors:**
-- `- (id)target` → Get target
-- `- (SEL)selector` → Get selector
-- `- (id)returnValue` → Get serialized return value (after invoke)
+**Inspection:**
+- `- (BOOL) argumentsRetained`
+- `- (BOOL) mulleReturnValueRetained`
+- `- (void) _setMetaABIFrame:(void *) frame`
 
-#### NSMethodSignature - Method Metadata
+**MulleBasicAccessors Category (`NSInvocation(MulleBasicAccessors)`):**
+- `- (void) getReturnValue:(void *) value_p`
+- `- (void) setReturnValue:(void *) value_p`
+- `- (void) getArgument:(void *) value_p atIndex:(NSUInteger) i`
+- `- (void) setArgument:(void *) value_p atIndex:(NSUInteger) i`
+- `- (SEL) selector`
+- `- (void) setSelector:(SEL) selector`
+- `- (id) target`
+- `- (void) setTarget:(id) target`
+- `- (void) retainArguments` — Retain all object arguments
+- `- (void) mulleRetainReturnValue`
 
-**Purpose**: Describes method signature: argument types, return type, etc.
-
-**Creation:**
-- `+ (NSMethodSignature *)signatureWithObjCTypes:(const char *)types` → From encoded type string (e.g., "v@:")
-- `- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector` → Get from object/class (via NSObject)
-
-**Accessors:**
-- `- (NSUInteger)numberOfArguments` → Count of arguments (includes self, selector)
-- `- (const char *)getArgumentTypeAtIndex:(NSUInteger)idx` → Encoded type of arg (e.g., "@", "i", "v")
-- `- (const char *)methodReturnType` → Encoded return type
-- `- (NSUInteger)frameLength` → Stack frame size needed for arguments
-
-**Encoded Types**: e.g., "v@:" = void(self, selector), "i@:@" = int(self, selector, object)
+**C Function:**
+- `NSInvocation *NSInvocationCreateWithMetaABIFrame(NSMethodSignature *sig, id target, SEL sel, void *frame, IMP imp)` — Compiler support: creates invocation from prebuilt MetaABI frame
 
 ### 3.3 Synchronization Primitives
 
 #### NSLock - Basic Mutual Exclusion
+**Header**: `src/class/NSLock.h`
+**Declaration**: `@interface NSLock : NSObject < NSLocking, MulleObjCThreadSafe>`
+**Ivar**: `mulle_thread_mutex_t _lock`
 
-**Purpose**: Simple lock for mutual exclusion.
-
-**Methods:**
-- `- (BOOL)lock` → Wait for and acquire lock
-- `- (BOOL)tryLock` → Non-blocking acquire, return YES if successful
-- `- (void)unlock` → Release lock
-- `- (NSString *)name` → Lock identifier
+- `- (void) lock` — Acquire (blocking)
+- `- (void) unlock` — Release
+- `- (BOOL) tryLock` — Non-blocking acquire
+- `- (BOOL) lockBeforeTimeInterval:(mulle_timeinterval_t) timeInterval` — Timed lock
 
 #### NSRecursiveLock - Reentrant Lock
-
-**Purpose**: Lock that same thread can acquire multiple times.
-
-**Methods:**
-- `- (BOOL)lock` → Acquire (blocks other threads even if same thread)
-- `- (BOOL)tryLock` → Non-blocking acquire
-- `- (void)unlock` → Release
+**Header**: `src/class/NSRecursiveLock.h`
+**Declaration**: `@interface NSRecursiveLock : NSLock`
+**Ivars**: `mulle_atomic_pointer_t _thread_id; mulle_atomic_pointer_t _depth`
+**Implementation note**: delegates to `mulle_thread_recursive_mutex_t` via `NSRecursiveLock-Private.h`. Inherits `-lock`, `-unlock`, `-tryLock` from `NSLock`.
 
 #### NSCondition - Wait/Signal with Lock
-
-**Purpose**: Condition variable for thread coordination.
-
-**Methods:**
-- `- (void)wait` → Release lock, wait for signal, reacquire lock
-- `- (BOOL)waitUntilDate:(NSDate *)limit` → Wait with timeout
-- `- (void)signal` → Wake one waiting thread
-- `- (void)broadcast` → Wake all waiting threads
-- `- (void)lock` / `- (void)unlock` → Underlying lock operations
+**Header**: `src/class/NSCondition.h`
+- `- (void) lock` / `- (void) unlock`
+- `- (void) wait` — Release lock, wait for signal, reacquire
+- `- (BOOL) waitUntilDate:(NSDate *) limit` — Wait with timeout
+- `- (void) signal` — Wake one waiting thread
+- `- (void) broadcast` — Wake all
 
 #### NSConditionLock - Condition + Integer State
+**Header**: `src/class/NSConditionLock.h`
+- `- (void) lockWhenCondition:(int) condition`
+- `- (BOOL) tryLockWhenCondition:(int) condition`
+- `- (void) unlockWithCondition:(int) condition`
+- `- (int) condition`
 
-**Purpose**: Condition variable with associated condition value.
-
-**Methods:**
-- `- (void)lockWhenCondition:(int)condition` → Acquire when condition matches
-- `- (BOOL)tryLockWhenCondition:(int)condition` → Non-blocking version
-- `- (void)unlockWithCondition:(int)condition` → Release and set new condition
-- `- (int)condition` → Current condition value
-
-### 3.4 Threading
-
-#### NSThread - Platform-Abstracted Thread Control
-
-**Purpose**: Portable thread abstraction; work with mulle-c-threads.
+### 3.4 Threading: NSThread
+**Header**: `src/class/NSThread.h`
+**Declaration**: `@interface NSThread : NSObject < MulleObjCThreadSafe>`
 
 **Class Methods:**
-- `+ (NSThread *)currentThread` → Get running thread
-- `+ (void)sleepForTimeInterval:(NSTimeInterval)duration` → Sleep current thread
-- `+ (BOOL)isMainThread` → Check if in main thread
-- `+ (NSThread *)mainThread` → Get main thread
+- `+ (NSThread *) mainThread`
+- `+ (NSThread *) currentThread` — Crashes if not a MulleObjC thread
+- `+ (BOOL) mulleIsMainThread`
+- `+ (BOOL) isMultiThreaded`
+- `+ (BOOL) mulleIsMultiThreaded`
+- `+ (BOOL) mulleMainThreadWaitsAtExit`
+- `+ (void) mulleSetMainThreadWaitsAtExit:(BOOL) flag`
+- `+ (void) detachNewThreadSelector:(SEL) sel toTarget:(id) target withObject:(id) argument`
+- `+ (void) mulleDetachNewThreadWithInvocation:(NSInvocation *) invocation`
+- `+ (void) mulleDetachNewThreadWithFunction:(MulleThreadFunction_t *) f argument:(void *) argument`
+- `+ (void) exit`
 
-**Instance Methods:**
-- `- (id)initWithTarget:(id)target selector:(SEL)sel object:(id)arg` → Create thread
-- `- (void)start` → Begin thread execution
-- `- (BOOL)isExecuting` → Thread is running
-- `- (BOOL)isFinished` → Thread finished
-- `- (NSString *)name` → Thread identifier
-- `- (void)setName:(NSString *)name` → Set identifier
+**Instance Creation:**
+- `- (instancetype) initWithTarget:(id) target selector:(SEL) sel object:(id) argument`
+- `- (instancetype) mulleInitWithFunction:(MulleThreadFunction_t *) f argument:(void *) argument`
+- `- (instancetype) mulleInitWithObjectFunction:(MulleThreadObjectFunction_t) f object:(id) obj`
+- `- (instancetype) mulleInitWithInvocation:(NSInvocation *) invocation`
 
-### 3.5 Autorelease Pool Management
+**Static Factory Methods:**
+- `+ (instancetype) mulleThreadWithTarget:(id) target selector:(SEL) sel object:(id) argument`
+- `+ (instancetype) mulleThreadWithFunction:(MulleThreadFunction_t *) f argument:(void *) argument`
+- `+ (instancetype) mulleThreadWithObjectFunction:(MulleThreadObjectFunction_t) f object:(id) obj`
+- `+ (instancetype) mulleThreadWithInvocation:(NSInvocation *) invocation`
 
-#### NSAutoreleasePool - Deferred Memory Release
+**Runtime:**
+- `- (void) mulleStart` — Start thread (preferred: keep NSThread, later mulleJoin)
+- `- (void) start` — Legacy: runs detached
+- `- (NSInvocation *) mulleJoin` — Wait for thread to finish, return invocation
+- `- (id) mulleSetRunLoop:(id) runLoop`
+- `- (id) mulleRunLoop`
+- `- (void) main` — Thread entry point
+- `- (int) mulleReturnStatus`
+- `- (BOOL) isCancelled` / `- (void) cancel` — Cooperative cancellation
+- `- (BOOL) wasAutocreated`
+- `- (void) mulleAddFinalizer:(id) obj` / `- (void) mulleRemoveFinalizer:(id) obj`
+- `- (void) mulleSetNameUTF8String:(char *) s MULLE_OBJC_THREADSAFE_METHOD`
+- `- (char *) mulleNameUTF8String MULLE_OBJC_THREADSAFE_METHOD`
 
-**Purpose**: Batch memory management—objects added to pool released at pool drain.
+**C Utilities:**
+- `NSThread *MulleThreadGetCurrentThread(void)` — Get NSThread for current OS thread
+- `NSThread *MulleThreadGetOrCreateCurrentThread(void)`
+- `void MulleThreadSetCurrentThreadUserInfo(id info)`
+- `id MulleThreadGetCurrentThreadUserInfo(void)`
+- `void MulleThreadSetObjectForKeyUTF8String(id value, char *key)`
+- `id MulleThreadObjectForKeyUTF8String(char *key)`
+- `mulle_thread_t MulleThreadGetCurrentOSThread(void)`
+- `mulle_thread_id_t MulleThreadGetCurrentOSThreadId(void)`
+- `mulle_thread_id_t MulleThreadObjectGetOSThreadId(NSThread *threadObject)`
 
-**Methods:**
-- `+ (NSAutoreleasePool *)currentPool` → Top of pool stack
-- `- (id)init` → Create and push pool
-- `- (void)dealloc` → Pop and drain pool (release all contained objects)
-- `- (void)drain` → Explicit drain (alternative to dealloc)
-- `- (void)addObject:(id)obj` → Manually add object to pool
+### 3.5 Autorelease Pool: NSAutoreleasePool
+**Header**: `src/class/NSAutoreleasePool.h`
+**Declaration**: `@interface NSAutoreleasePool` (root class, NOT a subclass of NSObject)
 
-**Macros (mulle-sde convention):**
-- `@autoreleasepool { ... }` → Create pool scope, auto-drain at end
+- `+ (id) alloc` / `+ (id) new`
+- `- (id) init`
+- `+ (Class) class MULLE_OBJC_THREADSAFE_METHOD`
+- `- (Class) class MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) release MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) addObject:(id) object` / `+ (void) addObject:(id) object`
+- `- (void) mulleAddObjects:(id *) objects count:(NSUInteger) count`
+- `+ (void) mulleAddObjects:(id *) objects count:(NSUInteger) count`
+- `+ (NSAutoreleasePool *) mulleDefaultAutoreleasePool`
+- `+/- (NSAutoreleasePool *) mulleParentAutoreleasePool`
+- `+/- (BOOL) mulleContainsObject:(id) p`
+- `+/- (NSUInteger) mulleCountObject:(id) p`
+- `+/- (NSUInteger) mulleCount`
+- `- (void) mulleReleaseAllPoolObjects`
+- `+/- (void) mulleReleasePoolObjects:(id *) p count:(NSUInteger) count`
+- `+/- (void) mulleReleasePoolObject:(id) p`
+- `@property( dynamic, assign) char *mulleNameUTF8String MULLE_OBJC_THREADSAFE_PROPERTY`
+
+**C Push/Pop Functions:**
+- `NSAutoreleasePool *NSPushAutoreleasePool(unsigned int size)`
+- `void NSPopAutoreleasePool(NSAutoreleasePool *pool)`
+- `NSAutoreleasePool *MulleAutoreleasePoolPush(void)`
+- `void MulleAutoreleasePoolPop(NSAutoreleasePool *pool)`
+- `id NSAutoreleaseObject(id obj)` — Autorelease with inlining (MULLE_C_STATIC_ALWAYS_INLINE)
+
+**Debug Dump:**
+- `void MulleObjCDumpAutoreleasePoolsToFile(char *filename)`
+- `void MulleObjCDumpAutoreleasePoolsToFileIndexed(char *filename)`
+- `void MulleObjCDumpAutoreleasePoolsToFILEWithOptions(FILE *fp, int indexed)`
+- `unsigned long MulleObjCDumpAutoreleasePoolsFrame(void)`
 
 ### 3.6 Core Protocols
 
 #### NSCoding - Object Serialization
+**Header**: `src/protocol/NSCoding.h`
+```objc
+@protocol NSCoding
+- (void) encodeWithCoder:(NSCoder *) aCoder;
+- (instancetype) initWithCoder:(NSCoder *) aDecoder;
+@optional
+- (Class) classForCoder;
+- (void) decodeWithCoder:(NSCoder *) aDecoder;
+@end
+```
 
-**Purpose**: Enable objects to serialize and deserialize.
+#### NSCopying & MulleObjCImmutableCopying
+**Header**: `src/protocol/NSCopying.h`
+```objc
+@protocol NSCopying
+- (id) copy;   // MEMO: returns `id` not `instancetype`
+@end
 
-**Methods:**
-- `- (void)encodeWithCoder:(NSCoder *)coder` → Write object state
-- `- (id)initWithCoder:(NSCoder *)coder` → Reconstruct from coder
-
-#### NSCopying & NSMutableCopying - Copying
-
-**Purpose**: Support shallow/deep copying.
-
-**Methods:**
-- `- (id)copy` → Return copy (implement NSCopying)
-- `- (id)mutableCopy` → Return mutable copy (implement NSMutableCopying)
+@protocol MulleObjCImmutableCopying < NSCopying>
+- (id) immutableCopy;  // returns `id` not `instancetype`
+@end
+```
 
 #### NSFastEnumeration - for-in Loop Support
+**Header**: `src/protocol/NSFastEnumeration.h`
+```objc
+typedef struct {
+   NSUInteger   state;
+   id           *itemsPtr;
+   NSUInteger   *mutationsPtr;
+   NSUInteger   extra[5];
+} NSFastEnumerationState;
 
-**Purpose**: Enable `for (Type *obj in collection) { ... }` syntax.
-
-**Methods:**
-- `- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackbuf count:(NSUInteger)len`
-  - Returns count of objects in this batch; updates state; called repeatedly until returns 0
+@protocol NSFastEnumeration
+- (NSUInteger) count;
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *) state
+                                    objects:(id *) objects
+                                      count:(NSUInteger) count;
+@end
+```
 
 #### NSLocking - Lock Protocol
+**Header**: `src/protocol/NSLocking.h`
+```objc
+@protocol NSLocking
+- (void) lock;
+- (void) unlock;
+@end
+```
 
-**Purpose**: Unify lock interfaces.
+#### NSObject Protocol
+**Header**: `src/protocol/NSObjectProtocol.h`
+```objc
+@protocol NSObject < MulleObjCRuntimeObject>
+- (instancetype) self;
+- (Class) superclass MULLE_OBJC_THREADSAFE_METHOD;
+- (Class) class MULLE_OBJC_THREADSAFE_METHOD;
++ (Class) class MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) isProxy MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) isKindOfClass:(Class) cls MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) isMemberOfClass:(Class) cls MULLE_OBJC_THREADSAFE_METHOD;
++ (instancetype) instantiate;
++ (instancetype) new;
++ (instancetype) alloc;
+- (instancetype) init;
+- (void) dealloc;
+- (void) finalize;
+- (instancetype) autorelease MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) conformsToProtocol:(PROTOCOL) protocol MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) respondsToSelector:(SEL) sel MULLE_OBJC_THREADSAFE_METHOD;
++ (IMP) instanceMethodForSelector:(SEL) sel;
+- (IMP) methodForSelector:(SEL) sel MULLE_OBJC_THREADSAFE_METHOD;
+- (instancetype) immutableInstance;
+- (id) performSelector:(SEL) sel MULLE_OBJC_THREADSAFE_METHOD;
+- (id) performSelector:(SEL) sel withObject:(id) obj MULLE_OBJC_THREADSAFE_METHOD;
+- (id) performSelector:(SEL) sel withObject:(id) obj withObject:(id) other MULLE_OBJC_THREADSAFE_METHOD;
+- (NSUInteger) hash;
+- (BOOL) isEqual:(id) obj;
+- (char *) UTF8String;
+- (void) mullePerformFinalize MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) mulleIsFinalized MULLE_OBJC_THREADSAFE_METHOD;
+@end
 
-**Methods:**
-- `- (void)lock`
-- `- (void)unlock`
+@protocol MullePropertyObserving
+- (void) willChange;
+@end
+```
 
-#### NSObjectProtocol (Informal Protocol)
+### 3.7 @mixin Protocol Classes
 
-**Purpose**: Expected methods on NSObject; not formally declared.
+All protocol classes formerly declared via `PROTOCOLCLASS_INTERFACE` macros now use the `@mixin` keyword. The implementing class is generated via `@implementation ProtocolClassName`.
 
-**Key Methods:**
-- `- (NSString *)description`
-- `- (BOOL)isEqual:(id)other`
-- `- (NSUInteger)hash`
+#### MulleObjCClassCluster
+**Header**: `src/protocol/MulleObjCClassCluster.h`
+```objc
+@mixin MulleObjCClassCluster
++ (void) initialize;
++ (Class) __classClusterClass;
+@end
+```
+When you call `+alloc` you get a retained placeholder. In your `-init` method, release it.
 
-### 3.7 Utility Protocols
+#### MulleObjCSingleton
+**Header**: `src/protocol/MulleObjCSingleton.h`
+```objc
+@mixin MulleObjCSingleton
+@optional
++ (void) initialize;
++ (instancetype) sharedInstance;
+@end
+```
+C helpers: `id MulleObjCSingletonCreate(Class self)`, `BOOL MulleObjCInstanceIsSingleton(id obj)`, `void MulleObjCSingletonMarkClassAsSingleton(Class self)`, `void MulleObjCSingletonSetEphemeral(BOOL flag)`.
 
-#### NSCopyingWithAllocator - Advanced Copying
+#### MulleObjCException
+**Header**: `src/protocol/MulleObjCException.h`
+```objc
+@mixin MulleObjCException
+- (void) raise;
+- (char *) UTF8String;
+@end
+```
+Exception throwing macros: `MulleObjCThrowInvalidArgumentException(...)`, `MulleObjCThrowInvalidIndexException(index)`, `MulleObjCThrowInternalInconsistencyException(...)`, `MulleObjCThrowErrnoException(...)`, `MulleObjCThrowInvalidRangeException(range)`. C-string variants: `MulleObjCThrowInvalidArgumentExceptionUTF8String(...)`, `MulleObjCThrowInternalInconsistencyExceptionUTF8String(...)`, `MulleObjCThrowErrnoExceptionUTF8String(...)`.
 
-**Purpose**: Specify allocator for copy (rarely used).
+Class cast macros: `MULLE_OBJC_CLASS_CAST(className, x)`, `MULLE_OBJC_CLASS_CAST_OR_NIL(className, x)`, `MULLE_OBJC_CLASS_CAST_NON_NIL(className, x)`. Protocol cast: `MULLE_OBJC_PROTOCOL_CAST(protocolName, x)`.
 
-**Methods:**
-- `- (id)copyWithAllocator:(NSZone *)zone`
+Range validation: `NSRange MulleObjCValidateRangeAgainstLength(NSRange range, NSUInteger length)`, `NSRange MulleObjCAdjustRangeForLength(NSRange range, NSUInteger length)`.
 
-#### MulleObjCRuntimeObject (Informal Protocol)
+#### MulleObjCTaggedPointer
+**Header**: `src/protocol/MulleObjCTaggedPointer.h`
+```objc
+@mixin MulleObjCTaggedPointer < MulleObjCImmutable>
++ (BOOL) isTaggedPointerEnabled;
+@optional
+- (instancetype) retain MULLE_OBJC_THREADSAFE_METHOD;
+- (instancetype) autorelease MULLE_OBJC_THREADSAFE_METHOD;
+- (void) release MULLE_OBJC_THREADSAFE_METHOD;
+- (NSUInteger) retainCount MULLE_OBJC_THREADSAFE_METHOD;
+- (id) immutableCopy MULLE_OBJC_THREADSAFE_METHOD;
+@end
+```
+C functions: `MulleObjCTaggedPointerRegisterClassAtIndex()`, `MulleObjCTaggedPointerClassGetIndex()`, `MulleObjCTaggedPointerIsIntegerValue()`, `MulleObjCTaggedPointerIsFloatValue()`, `MulleObjCTaggedPointerIsDoubleValue()`, creation and extraction functions for signed/unsigned/float/double tagged pointers.
 
-**Purpose**: Minimal object contract for mulle-objc runtime.
+#### Thread Safety Protocols
+**Header**: `src/protocol/MulleObjCProtocol.h`
+```objc
+@mixin MulleObjCThreadSafe
+@optional
+- (BOOL) mulleIsThreadSafe MULLE_OBJC_THREADSAFE_METHOD;
+- (id) mulleThreadSafeCopy; // returns self retained
+@end
 
-**Implies**: Has `isa` pointer, supports `-class`, `-retain`/`-release`.
+@mixin MulleObjCThreadUnsafe
+@optional
+- (BOOL) mulleIsThreadSafe MULLE_OBJC_THREADSAFE_METHOD;
+- (id) mulleThreadSafeCopy; // will return nil
+@end
 
-#### MulleObjCClassCluster - Class Factory Pattern
+@mixin MulleObjCImmutable < MulleObjCRuntimeObject>
+@optional
+- (id) copy;
+- (id) immutableCopy;
+@end
+```
 
-**Purpose**: Implement class clusters (e.g., NSString returns different subclasses).
+**Protocol convenience macros:**
+- `MulleObjCValueProtocols` — `MulleObjCRuntimeObject, MulleObjCValue, MulleObjCInvariant, MulleObjCImmutable, MulleObjCThreadSafe, MulleObjCImmutableCopying`
+- `MulleObjCMutableValueProtocols` — `MulleObjCRuntimeObject, MulleObjCValue, MulleObjCThreadUnsafe`
+- `MulleObjCContainerProtocols` — `MulleObjCRuntimeObject, MulleObjCContainer, MulleObjCImmutable, MulleObjCThreadSafe, MulleObjCImmutableCopying`
+- `MulleObjCMutableContainerProtocols` — `MulleObjCRuntimeObject, MulleObjCContainer, MulleObjCThreadUnsafe`
+- `MulleObjCImmutableProtocols` — `MulleObjCRuntimeObject, MulleObjCImmutable, MulleObjCThreadSafe, MulleObjCImmutableCopying`
+- `MulleObjCMutableProtocols` — `MulleObjCRuntimeObject, MulleObjCThreadUnsafe`
 
-**Methods:** None; used as marker for cluster implementation.
+**Additional protocols**: `@protocol MulleObjCInvariant`, `@protocol MulleObjCValue`, `@protocol MulleObjCContainer`, `@protocol MulleObjCContainerProperty`.
 
-#### MulleObjCException - Exception Object Marker
+#### MulleObjCPlaceboRetainCount
+```objc
+@mixin MulleObjCPlaceboRetainCount
+@optional
+- (instancetype) retain MULLE_OBJC_THREADSAFE_METHOD;
+- (instancetype) autorelease MULLE_OBJC_THREADSAFE_METHOD;
+- (void) release MULLE_OBJC_THREADSAFE_METHOD;
+- (NSUInteger) retainCount MULLE_OBJC_THREADSAFE_METHOD;
+- (void) finalize;
+- (void) dealloc;
+@end
+```
 
-**Purpose**: Marks object as exception-compatible (for @throw/@catch).
+#### MulleObjCForwarding & MulleObjCFuture
+**Header**: `src/protocol/MulleObjCProtocol.h`
+```objc
+@protocol MulleObjCForwarding
+@end
 
-**Methods:** None; used by runtime for exception unwinding.
+@protocol MulleObjCFuture
+@end
+```
+`MulleObjCForwarding`: marker for categories whose methods are forwarded to another object via `-forward:`. `MulleObjCFuture`: marker for categories whose implementations will be provided elsewhere (not yet implemented).
 
-#### MulleObjCSingleton - Singleton Pattern
+### 3.8 MulleObjCRootObject Mixin
+**Header**: `src/protocol/MulleObjCRootObject.h`
+```objc
+@mixin MulleObjCRootObject < MulleObjCRuntimeObject>
+@optional
++ (instancetype) alloc;
++ (instancetype) new;
+- (struct mulle_allocator *) mulleAllocator MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mullePerformFinalize MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) mulleIsFinalized MULLE_OBJC_THREADSAFE_METHOD;
+- (void) finalize;
+- (void) dealloc;
+- (instancetype) init;
+- (instancetype) retain MULLE_OBJC_THREADSAFE_METHOD;
+- (void) release MULLE_OBJC_THREADSAFE_METHOD;
+- (NSUInteger) retainCount MULLE_OBJC_THREADSAFE_METHOD;
+- (instancetype) autorelease MULLE_OBJC_THREADSAFE_METHOD;
+// ... plus introspection, THAOS, forwarding, and method dispatch methods
+@end
+```
 
-**Purpose**: Mark class for singleton instance management.
-
-**Methods:** None; enables runtime singleton support.
-
-#### MulleObjCTaggedPointer - Inline Integer Objects
-
-**Purpose**: Encode small integers directly in pointer for efficiency.
-
-**Methods:** None; runtime optimization.
-
-### 3.8 Utility Functions & Macros
-
-#### Allocation & Type Checking
-
-- `id objc_calloc(size_t count, size_t size)` → Allocate zeroed memory for object components
-- `NSUInteger class_instanceSize(Class cls)` → Size of class instance
-- `BOOL class_isMetaClass(Class cls)` → Check if class is metaclass
-
-#### Debug & Introspection
-
-- `void mulle_objc_printf(const char *format, ...)` → Printf variant for objc context
-- `NSString *NSStringFromClass(Class cls)` → Get class name as NSString
-- `NSString *NSStringFromSelector(SEL sel)` → Get selector name as NSString
-- `Class NSClassFromString(NSString *name)` → Get class by name
-
-#### Property & Ivar Access
-
-- `struct objc_ivar *class_getInstanceVariable(Class cls, const char *name)` → Get ivar metadata
-- `id object_getIvar(id obj, struct objc_ivar *ivar)` → Get ivar value
-- `void object_setIvar(id obj, struct objc_ivar *ivar, id value)` → Set ivar value
-
-#### Hash Functions
-
-- `NSUInteger mulle_objc_hashConstantCStringCallback(const void *key)` → Hash C string
-- `BOOL mulle_objc_isEqualConstantCStringCallback(const void *a, const void *b)` → Compare C strings
-
-### 3.9 Structures
-
-#### NSRange - Interval Type
-
+**Key Macros:**
 ```c
-struct NSRange {
-   NSUInteger location;   // Start index
-   NSUInteger length;     // Count of elements
+#define MulleObjCClassInitializeOnceDo( self) \
+   assert( __MULLE_OBJC_CATEGORYID__ == MULLE_OBJC_NO_CATEGORYID && "no +initialize in categories"); \
+   if( MulleObjCClassGetClassID( self) == __MULLE_OBJC_CLASSID__)
+
+#define MulleObjCClassDeinitializeOnceDo( self) ...  // same pattern for +deinitialize
+#define MulleObjCClassFinalizeOnceDo( self) ...      // same pattern for +finalize
+```
+
+**C Functions:**
+- `void MulleObjCRelinquishAccessToObjects(id *objects, NSUInteger count)`
+- `void MulleObjCRelinquishAccessToObjectsWithUniquingSet(id *objects, NSUInteger count, struct mulle_pointerset *uniquing)`
+- `void MulleObjCGainAccessToObjects(id *objects, NSUInteger count)`
+- `void MulleObjCGainAccessToObjectsWithUniquingSet(id *objects, NSUInteger count, struct mulle_pointerset *uniquing)`
+- `BOOL MulleObjCClassIsSubclassOfClass(Class self, Class otherClass)` — inline
+- `BOOL NSObjectIsKindOfClass(id self, Class otherClass)` — inline
+- `BOOL MulleObjCInstanceIsMemberOfClass(id self, Class otherClass)` — inline
+
+### 3.9 MulleObjCRuntimeObject Protocol
+**Header**: `src/protocol/MulleObjCRuntimeObject.h`
+
+```objc
+@protocol MulleObjCRuntimeObject
+- (instancetype) retain MULLE_OBJC_THREADSAFE_METHOD;
+- (void) release MULLE_OBJC_THREADSAFE_METHOD;
+- (NSUInteger) retainCount MULLE_OBJC_THREADSAFE_METHOD;
+- (void) dealloc;
+- (void) finalize;
+- (id) _becomeRootObject;
+- (BOOL) mulleIsThreadSafe MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) mulleIsAccessible MULLE_OBJC_THREADSAFE_METHOD;
+- (BOOL) mulleIsAccessibleByThread:(NSThread *) threadObject MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleGainAccess MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleGainAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleRelinquishAccess MULLE_OBJC_THREADSAFE_METHOD;
+- (void) mulleRelinquishAccessWithTAOStrategy:(MulleObjCTAOStrategy) strategy MULLE_OBJC_THREADSAFE_METHOD;
+- (MulleObjCTAOStrategy) mulleTAOStrategy MULLE_OBJC_THREADSAFE_METHOD;
+// Class-side locking for class properties:
++ (void) lock;
++ (void) unlock;
++ (BOOL) tryLock;
+@end
+```
+
+**TAO Strategy Enum:**
+```c
+typedef NS_ENUM(NSUInteger, MulleObjCTAOStrategy) {
+   MulleObjCTAOCallerRemovesFromCurrentPool,
+   MulleObjCTAOCallerRemovesFromAllPools,
+   MulleObjCTAOCallerRemovesFromCurrentPoolShallow,
+   MulleObjCTAOCallerRemovesFromAllPoolsShallow,
+   MulleObjCTAOReceiverPerformsFinalize,
+   MulleObjCTAOTransferIvars,
+   MulleObjCTAOKnownThreadSafeMethods,
+   MulleObjCTAOKnownThreadSafe
 };
 ```
 
-#### NSZone - Memory Zone (Legacy)
+**Dependency Macros** (using `@dependency` compiler directive):
+```c
+#define MULLE_OBJC_DEPENDS_ON_CLASS( classname)   @dependency classname
+#define MULLE_OBJC_DEPENDS_ON_CATEGORY( classname, categoryname)  @dependency classname( categoryname)
+#define MULLE_OBJC_DEPENDS_ON_LIBRARY( libname)   @dependency MulleObjCDeps( libname)
+```
 
-- Largely unused in modern code; present for compatibility
+**Method User Attributes:**
+- `_MULLE_OBJC_METHOD_USER_ATTRIBUTE_0` through `_4` — `__attribute__((annotate("objc_user_N")))`
+- `MULLE_OBJC_THREADSAFE_METHOD` — `_MULLE_OBJC_METHOD_USER_ATTRIBUTE_4`
+- `MULLE_OBJC_THREADSAFE_PROPERTY` — `_MULLE_OBJC_METHOD_USER_ATTRIBUTE_4`
+
+### 3.10 MulleObject - Auto-Locking Object
+**Header**: `src/class/MulleObject.h`
+**Declaration**: `@interface MulleObject : MulleDynamicObject < NSLocking>`
+
+Auto-locking object base class. Subclasses that adopt `MulleAutolockingObjectProtocols` (`MulleObjCThreadSafe, MulleAutolockingObject`) get automatic `NSRecursiveLock`-based locking around every method call. Methods not needing locking should be marked `MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD` (same as `MULLE_OBJC_THREADSAFE_METHOD`).
+
+```objc
+@mixin MulleAutolockingObject
+@optional
+- (MulleObjCTAOStrategy) mulleTAOStrategy MULLE_OBJC_THREADSAFE_METHOD;
+@end
+```
+
+**Key Methods:**
+- `+ (instancetype) locklessObject` — Create without a lock (not thread-safe until sharing)
+- `- (instancetype) initNoLock`
+- `- (BOOL) tryLock MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD`
+- `- (void) shareRecursiveLock:(NSRecursiveLock *) other` — Use another's lock
+- `- (void) shareRecursiveLockWithObject:(MulleObject *) other MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD`
+- `- (void) didShareRecursiveLock:(NSRecursiveLock *) lock MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD`
+- `void MulleLockingObjectSetAutolockingEnabled(Class self, BOOL flag)`
+- `void MulleLockingObjectFillCache(MulleObject *self, SEL sel, IMP imp, BOOL isThreadAffine)`
+
+### 3.11 NSValue - Boxed Value Type (NEW)
+**Header**: `src/class/NSValue.h`
+**Declaration**: `@interface NSValue : NSObject < MulleObjCClassCluster, MulleObjCImmutable, MulleObjCThreadSafe>`
+
+**Factory Methods:**
+- `+ (instancetype) value:(void *) bytes withObjCType:(char *) type`
+- `+ (instancetype) valueWithBytes:(void *) bytes objCType:(char *) type`
+- `+ (instancetype) valueWithPointer:(void *) pointer`
+- `+ (instancetype) valueWithRange:(NSRange) range`
+- `+ (instancetype) valueWithNonretainedObject:(id) obj`
+
+**Accessors:**
+- `- (BOOL) isEqual:(id) other`
+- `- (BOOL) isEqualToValue:(id) other`
+- `- (NSRange) rangeValue`
+- `- (void *) pointerValue`
+- `- (id) nonretainedObjectValue`
+- `- (void) getValue:(void *) value size:(NSUInteger) size`
+
+**SubclassesFuture Category:**
+- `- (NSUInteger) hash`
+- `- (char *) objCType`
+- `- (instancetype) initWithBytes:(void *) bytes objCType:(char *) type`
+- `- (void) getValue:(void *) bytes`
+
+**Concrete Subclass**: `_MulleObjCConcreteValue : NSValue < MulleObjCImmutableProtocols>`
+**Header**: `src/class/_MulleObjCConcreteValue.h`
+- `+ (instancetype) mulleNewWithBytes:(void *) bytes objCType:(char *) type`
+- Ivars: `NSUInteger _size` (data stored inline after ivar area)
+
+### 3.12 Structures
+
+#### NSRange
+**Header**: `src/struct/NSRange.h`
+```c
+struct NSRange {
+   NSUInteger location;
+   NSUInteger length;
+};
+```
+
+#### NSZone
+**Header**: `src/struct/NSZone.h`
+```c
+typedef void NSZone;  // zones are effectively void; legacy compat
+```
+
+#### MulleObjCContainerObjectCallback
+**Header**: `src/struct/MulleObjCContainerObjectCallback.h`
+Callback struct for container operations (hash, isEqual, describes).
+
+### 3.13 MulleObjCRuntimeObjectDeprecated
+**Header**: `src/protocol/MulleObjCRuntimeObjectDeprecated.h`
+If `MULLE_OBJC_RUNTIME_OBJECT_DEPRECATED` is defined, provides backward-compatible macros: `MULLE_OBJC_CLASS_DEPENDENCY`, `MULLE_OBJC_CATEGORY_DEPENDENCY`, `MULLE_OBJC_LIBRARY_DEPENDENCY`, `MULLE_OBJC_NO_DEPENDENCY`, and old `PROTOCOLCLASS_*` macros (if `MULLE_C_HAS_VA_OPT`).
+
+### 3.14 Utility Functions & Macros
+
+#### Class ID Functions
+From `src/function/MulleObjCFunctions.h`:
+- `static inline SEL MulleObjCClassGetClassID(Class cls)` — Returns `__MULLE_OBJC_CLASSID__` selector or `MULLE_OBJC_NO_CLASSID`
+- `static inline SEL MulleObjCInstanceGetClassID(id obj)` — ClassID of object's class
+
+#### Retain/Release Inlines
+From `src/protocol/MulleObjCRuntimeObject.h`:
+- `static inline id MulleObjCObjectRetain(id obj)` — `mulle_objc_object_call_retain(obj)`
+- `static inline void MulleObjCObjectRelease(id obj)` — `mulle_objc_object_call_release(obj)`
+
+#### TAO Test
+From `src/class/NSThread.h`:
+- `static inline void MulleObjCTAOTest(Class cls, id arg)` — Test a class under TAO conditions
+
+#### TAO Failure:
+- `typedef void MulleObjCTAOFailureHandler(void *obj, mulle_thread_t osThread, struct _mulle_objc_descriptor *des) MULLE_C_NO_RETURN`
+- `static inline MulleObjCTAOFailureHandler *MulleObjCGetTAOFailureHandler(void)`
+- `static inline void MulleObjCSetTAOFailureHandler(MulleObjCTAOFailureHandler *handler)`
+- `void MulleObjCTAOLogAndFail(...)` MULLE_C_NO_RETURN
+
+### 3.15 NSCopyingWithAllocator Mixin
+**Header**: `src/protocol/NSCopyingWithAllocator.h`
+```objc
+@mixin NSCopyingWithAllocator
+- (id) copyWithAllocator:(struct mulle_allocator *) allocator;
+@end
+```
+Copies object and its ivars/properties to another allocator. C helper: `id _MulleObjCInstanceCopyWithAllocator(id object, NSUInteger extraBytes, struct mulle_allocator *allocator)`.
 
 ## 4. Performance Characteristics
 
@@ -325,317 +769,274 @@ struct NSRange {
 - **Method Lookup**: O(1) cached; O(log n) first lookup with modern runtime
 - **retain/release**: O(1) atomic increment/decrement
 - **NSAutoreleasePool**: O(1) add; O(n) drain where n = pooled objects
-- **NSInvocation**: O(n) where n = argument count (serialization cost)
-- **Locking**: O(1) acquire/release (platform-dependent; typically futex on Linux)
+- **NSInvocation**: O(n) where n = argument count (MetaABI-optimized)
+- **NSMethodSignature**: O(1) static lookup via `_NSConstantMethodSignature` for compile-time signatures; O(n) for dynamic
+- **Locking**: O(1) for mutex-based locks (platform-dependent, typically futex on Linux); `NSRecursiveLock` delegates to `mulle_thread_recursive_mutex_t`
 - **Memory**: Object header ~2 pointers (isa + retain count or atomic id)
-- **Thread-Safety**: NSObject retain/release thread-safe (atomic). Collections not thread-safe without external locking.
+- **Thread-Safety**: `NSObject` retain/release thread-safe (atomic). `NSRecursiveLock` delegates to `mulle_thread_recursive_mutex_t`. `MulleObject` provides auto-locking for all methods.
+- **TAO**: Object transfer cost proportional to autorelease pool search (linear in pool count)
 
 ## 5. AI Usage Recommendations & Patterns
 
 ### Best Practices
 
-- **Memory Model**: Always pair `retain`/`release`; prefer autorelease for return values
-- **Lifecycle**: Use `-init`/`-dealloc` pattern; call `[super init]` and `[super dealloc]`
-- **Message Dispatch**: Use `-respondsToSelector:` before optional methods
-- **Thread Safety**: Protect mutable state with NSLock; NSObject immutable reference counting is thread-safe
-- **Pool Management**: Create pools in tight loops; use `@autoreleasepool` for scope
-- **Proxy Usage**: Use NSProxy only for custom forwarding; NSObject is standard
-- **Serialization**: Implement NSCoding for persistence; NSInvocation for message capture
+- **Memory Model**: Always pair `retain`/`release`; prefer `autorelease` for return values; do NOT use `-retain` or `-release` outside of `-init`/`-dealloc` (per style guide)
+- **Object Creation**: Use `+instantiate` (AAO) or `+instance` instead of `[[[Foo alloc] init] autorelease]`
+- **Lifecycle**: Use `-init`/`-dealloc` pattern; call `[super init]` and `[super dealloc]`; expect `-finalize` before `-dealloc`
+- **@mixin vs @protocol**: Use `@mixin` for protocol classes (MulleObjCSingleton, MulleObjCClassCluster, etc.) — these provide default implementations coded via `@implementation MixinName`
+- **Dependencies**: Use `@dependency ClassName` or `@dependency DepsClassName(libname)` instead of old `MULLE_OBJC_DEPENDS_ON_*` macros
+- **Thread Safety**: Protect mutable state with `NSLock`/`NSRecursiveLock`; use `MulleObject` with `MulleAutolockingObjectProtocols` for auto-locking; mark non-locking methods `MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD`
+- **Initialization Guards**: Use `MulleObjCClassInitializeOnceDo(self)` to guard `+initialize` against multiple calls from category loading
+- **TAO**: Use `MulleObjCTAOKnownThreadSafe` for thread-safe objects; call `-mulleGainAccess`/`-mulleRelinquishAccess` when transferring objects across threads
+- **Pool Management**: Use `@autoreleasepool` for scope-based management; create explicit pools in tight loops or custom threads
+- **Invocation**: For dynamic method dispatch, use `+mulleInvocationWithTarget:selector:...` variadic factories; set `-setImplementation:` for direct IMP dispatch
 
 ### Common Pitfalls
 
-- **Retain Cycles**: NSAutoreleasePool > weak references > circular references
-- **Double-Release**: Each retain must have exactly one release; use MRC (Manual Retain-release) carefully
-- **Deallocated Objects**: Accessing released object causes crash; no nil safety (use if (obj) checks)
-- **forwardInvocation**: NSProxy requires implementation; default NSObject raises "unrecognized selector"
-- **Lock Deadlock**: NSRecursiveLock allows same thread reentry; NSLock does not—avoid in single-threaded contexts
-- **NSInvocation Overhead**: Slower than direct dispatch; use for dynamic methods only
-- **Exception Safety**: @try/@catch context required for exception objects; default unwind may skip dealloc
+- **Retain Cycles**: Manual retain-release (MRC) requires careful balancing; chaque retain needs exactly one release
+- **Double-Release**: Each retain must have exactly one release — no more, no less
+- **Deallocated Objects**: Accessing released object causes crash; no automatic nil safety
+- **forwardInvocation**: NSProxy requires both `-methodSignatureForSelector:` and `-forwardInvocation:` implementations
+- **Lock Deadlock**: NSLock is NOT recursive — same thread can't lock twice; use NSRecursiveLock for reentrant scenarios
+- **NSInvocation Overhead**: Slower than direct dispatch; use for dynamic methods or cross-thread marshalling only
+- **Class Cluster Placeholders**: Classes adopting `MulleObjCClassCluster` must call `[super initialize]` when overriding `+initialize`
+- **@mixin Hierarchy**: @mixin classes behave differently from protocols — they provide concrete default implementations; check with `[object respondsToSelector:]`
 
 ### Idiomatic Usage Patterns
 
-**Pattern 1: Proper Object Lifecycle**
+**Pattern 1: Proper Object Lifecycle (mulle-objc style)**
 ```objc
-@interface MyObject : NSObject {
-    int value;
+@interface MyObject : NSObject
+{
+   id   _other;
 }
-- (id)initWithValue:(int)v;
+- (instancetype) initWithOther:(id) other;
 @end
 
 @implementation MyObject
-- (id)initWithValue:(int)v {
-    self = [super init];
-    if (self) {
-        value = v;
-    }
-    return self;
+- (instancetype) initWithOther:(id) other
+{
+   self = [super init];
+   if( self)
+      _other = [other retain];
+   return( self);
 }
 
-- (void)dealloc {
-    // Clean up if needed
-    [super dealloc];
+- (void) dealloc
+{
+   [_other release];
+   [super dealloc];
 }
 @end
 ```
 
-**Pattern 2: Safe Message Dispatch**
+**Pattern 2: Class Cluster Guards**
 ```objc
-// Check before calling optional methods
-if ([object respondsToSelector:@selector(optionalMethod)]) {
-    [object performSelector:@selector(optionalMethod)];
++ (void) initialize
+{
+   MulleObjCClassInitializeOnceDo( self)
+   {
+      MulleObjCClassMarkAsClassCluster( self);
+   }
 }
 ```
 
-**Pattern 3: Autorelease for Return Values**
+**Pattern 3: Auto-Locking MulleObject**
 ```objc
-- (NSString *)processedString {
-    NSString *result = [[NSString alloc] initWithCString:"data"];
-    return [result autorelease];  // Caller doesn't need to release
+@interface Foo : MulleObject < MulleAutolockingObjectProtocols>
+@end
+
+@implementation Foo
+// All instance methods are auto-locked with NSRecursiveLock
+- (void) doStuff
+{
+   // thread safe!
 }
+
+- (void) threadSafeGetter  MULLE_OBJECT_SKIP_AUTOLOCKING_METHOD
+{
+   // not locked — mark as skip
+}
+@end
 ```
 
-**Pattern 4: Thread-Safe Access**
+**Pattern 4: Create and Invoke with MetaABI**
 ```objc
-NSLock *lock = [[NSLock alloc] init];
-[lock lock];
-// Access shared state safely
-[lock unlock];
-```
+NSInvocation *inv;
 
-**Pattern 5: Dynamic Method Invocation**
-```objc
-NSMethodSignature *sig = [object methodSignatureForSelector:@selector(method:)];
-NSInvocation *inv = [NSInvocation invocationWithMethodSignature:sig];
-[inv setTarget:object];
-[inv setSelector:@selector(method:)];
-id arg = ...;
-[inv setArgument:&arg atIndex:2];  // Index 2 because 0=return, 1=self
+inv = [NSInvocation mulleInvocationWithTarget:array
+                                     selector:@selector(objectAtIndex:),
+                                            (NSUInteger) i];
 [inv invoke];
-id returnValue = nil;
-[inv getReturnValue:&returnValue];
+[inv getReturnValue:&obj];
+```
+
+**Pattern 5: Dependency Declaration**
+```objc
+@implementation MyClass
+
+MULLE_OBJC_DEPENDS_ON_CLASS( NSString)     // @dependency NSString
+MULLE_OBJC_DEPENDS_ON_LIBRARY( foo)        // @dependency MulleObjCDeps( foo)
+
+@end
+```
+
+**Pattern 6: Thread Handoff with TAO**
+```objc
+// Producer thread:
+[mutableObject mulleRelinquishAccess];
+
+// Consumer thread:
+[receivedObject mulleGainAccess];
 ```
 
 ## 6. Integration Examples
 
-### Example 1: Basic NSObject Usage
-
+### Example 1: Basic NSObject Subclass
 ```objc
 #import <MulleObjC/MulleObjC.h>
 
-@interface Person : NSObject {
-    NSString *name;
-    int age;
+@interface Person : NSObject
+{
+   char   *_name;
+   int    _age;
 }
-- (id)initWithName:(NSString *)n age:(int)a;
-- (NSString *)description;
+- (instancetype) initWithName:(char *) s
+                          age:(int) a;
+- (char *) UTF8String;
 @end
 
 @implementation Person
-- (id)initWithName:(NSString *)n age:(int)a {
-    self = [super init];
-    if (self) {
-        name = [n retain];
-        age = a;
-    }
-    return self;
+- (instancetype) initWithName:(char *) s
+                          age:(int) a
+{
+   self = [super init];
+   if( self)
+   {
+      _name = MulleObjC_strdup( s);
+      _age  = a;
+   }
+   return( self);
 }
 
-- (NSString *)description {
-    return [NSString stringWithFormat:@"Person: %@ (%d)", name, age];
+- (char *) UTF8String
+{
+   return( mulle_dup_printf( "Person: %s (%d)", _name, _age));
 }
 
-- (void)dealloc {
-    [name release];
-    [super dealloc];
-}
-@end
-
-int main() {
-    Person *p = [[Person alloc] initWithName:@"Alice" age:30];
-    NSLog(@"%@", p);
-    [p release];
-    return 0;
-}
-```
-
-### Example 2: Autorelease Pool Pattern
-
-```objc
-#import <MulleObjC/MulleObjC.h>
-
-int main() {
-    @autoreleasepool {
-        NSString *str1 = [NSString stringWithCString:"Hello"];  // autoreleased
-        NSString *str2 = [[NSString alloc] initWithCString:" World"];  // must release
-        [str2 autorelease];
-        
-        NSLog(@"%@%@", str1, str2);
-        // Both released at pool drain
-    }
-    return 0;
-}
-```
-
-### Example 3: Thread Synchronization
-
-```objc
-#import <MulleObjC/MulleObjC.h>
-
-int main() {
-    NSLock *lock = [[NSLock alloc] init];
-    NSCondition *cond = [[NSCondition alloc] init];
-    
-    // Acquire lock
-    [lock lock];
-    NSLog(@"Lock acquired");
-    [lock unlock];
-    
-    // Wait on condition with timeout
-    [cond lock];
-    NSDate *timeout = [[NSDate date] dateByAddingTimeInterval:2.0];
-    BOOL signaled = [cond waitUntilDate:timeout];
-    [cond unlock];
-    
-    if (!signaled) {
-        NSLog(@"Timeout waiting for signal");
-    }
-    
-    [lock release];
-    [cond release];
-    return 0;
-}
-```
-
-### Example 4: Method Introspection
-
-```objc
-#import <MulleObjC/MulleObjC.h>
-
-@interface Calculator : NSObject
-- (int)add:(int)a to:(int)b;
-@end
-
-@implementation Calculator
-- (int)add:(int)a to:(int)b {
-    return a + b;
+- (void) dealloc
+{
+   mulle_free( _name);
+   [super dealloc];
 }
 @end
-
-int main() {
-    Calculator *calc = [[Calculator alloc] init];
-    
-    SEL selector = @selector(add:to:);
-    if ([calc respondsToSelector:selector]) {
-        NSMethodSignature *sig = [calc methodSignatureForSelector:selector];
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:sig];
-        [inv setTarget:calc];
-        [inv setSelector:selector];
-        int x = 5, y = 3;
-        [inv setArgument:&x atIndex:2];
-        [inv setArgument:&y atIndex:3];
-        [inv invoke];
-        
-        int result = 0;
-        [inv getReturnValue:&result];
-        NSLog(@"Result: %d", result);  // Output: Result: 8
-    }
-    
-    [calc release];
-    return 0;
-}
 ```
 
-### Example 5: NSProxy for Message Forwarding
-
+### Example 2: Autorelease Pool
 ```objc
 #import <MulleObjC/MulleObjC.h>
 
-@interface Forwarder : NSProxy {
-    id target;
+int main()
+{
+   @autoreleasepool
+   {
+      // objects created here are autoreleased
+   }
+   return( 0);
 }
-- (id)initWithTarget:(id)t;
+```
+
+### Example 3: Dynamic Method Invocation with MetaABI
+```objc
+NSInvocation   *inv;
+id             obj;
+
+inv = [NSInvocation mulleInvocationWithTarget:array
+                                     selector:@selector(objectAtIndex:),
+                                            (NSUInteger) 12];
+[inv invoke];
+[inv getReturnValue:&obj];
+```
+
+### Example 4: NSProxy Forwarding
+```objc
+@interface Forwarder : NSProxy
+{
+   id   _target;
+}
+- (instancetype) initWithTarget:(id) t;
 @end
 
 @implementation Forwarder
-- (id)initWithTarget:(id)t {
-    target = [t retain];
-    return self;
+- (instancetype) initWithTarget:(id) t
+{
+   _target = [t retain];
+   return( self);
 }
 
-- (void)forwardInvocation:(NSInvocation *)inv {
-    [inv setTarget:target];
-    [inv invoke];
+- (void) forwardInvocation:(NSInvocation *) inv
+{
+   [inv setTarget:_target];
+   [inv invoke];
 }
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)sel {
-    return [target methodSignatureForSelector:sel];
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) sel
+{
+   return( [_target methodSignatureForSelector:sel]);
 }
 
-- (void)dealloc {
-    [target release];
-    [super dealloc];
+- (void) dealloc
+{
+   [_target release];
+   [super dealloc];
 }
 @end
-
-int main() {
-    NSString *realString = [@"Hello" copy];
-    Forwarder *proxy = [[Forwarder alloc] initWithTarget:realString];
-    
-    // Message sent to proxy, forwarded to realString
-    NSLog(@"String: %@", proxy);  // Works transparently
-    
-    [proxy release];
-    [realString release];
-    return 0;
-}
 ```
 
-### Example 6: NSCoding for Object Serialization
-
+### Example 5: Thread Creation
 ```objc
-#import <MulleObjC/MulleObjC.h>
+NSThread   *thread;
 
-@interface Book : NSObject <NSCoding> {
-    NSString *title;
-    int year;
-}
-- (id)initWithTitle:(NSString *)t year:(int)y;
-@end
+thread = [[[NSThread alloc] initWithTarget:worker
+                                  selector:@selector(run)
+                                    object:nil] autorelease];
+[thread mulleStart];
+// ... later:
+[thread mulleJoin];
+```
 
-@implementation Book
-- (id)initWithTitle:(NSString *)t year:(int)y {
-    self = [super init];
-    if (self) {
-        title = [t retain];
-        year = y;
-    }
-    return self;
-}
+### Example 6: Condition Variable Usage
+```objc
+NSCondition   *condition;
 
-- (void)encodeWithCoder:(NSCoder *)coder {
-    [coder encodeObject:title forKey:@"title"];
-    [coder encodeInt:year forKey:@"year"];
-}
+condition = [[[NSCondition alloc] init] autorelease];
 
-- (id)initWithCoder:(NSCoder *)coder {
-    self = [super init];
-    if (self) {
-        title = [[coder decodeObjectForKey:@"title"] retain];
-        year = [coder decodeIntForKey:@"year"];
-    }
-    return self;
-}
+// Thread 1 (consumer):
+[condition lock];
+[condition wait];
+[condition unlock];
 
-- (void)dealloc {
-    [title release];
-    [super dealloc];
-}
-@end
+// Thread 2 (producer):
+[condition lock];
+[condition signal];
+[condition unlock];
+```
+
+### Example 7: NSValue Boxing
+```objc
+NSValue   *v;
+NSValue   *rangeValue;
+int       x;
+
+x = 1848;
+v = [NSValue value:&x withObjCType:@encode(int)];
+
+rangeValue = [NSValue valueWithRange:NSRangeMake( 0, 10)];
 ```
 
 ## 7. Dependencies
 
-- **mulle-objc-runtime** (C library) - Runtime engine; method dispatch, memory model
-- **mulle-objc-debug** (optional) - Debug support; introspection tools
-- **mulle-thread** (via mulle-c) - Thread primitives
+- **mulle-objc-runtime** (C library) — Runtime engine; method dispatch, memory model, class infrastructure
+- **mulle-objc-debug** (C library, optional) — Debug support; introspection tools
+- **mulle-thread** (C library, via mulle-c) — Thread primitives (`mulle_thread_mutex_t`, `mulle_thread_recursive_mutex_t`)
 - No C standard library; fully self-contained portable implementation
