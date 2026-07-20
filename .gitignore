@@ -106,3 +106,5 @@ test/MulleObject/30-bench/mulle-objc.css
 .roam
 .graveyard
 *.tmp.*
+*.test.*
+.idea
