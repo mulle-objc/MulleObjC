@@ -763,6 +763,163 @@ From `src/class/NSThread.h`:
 ```
 Copies object and its ivars/properties to another allocator. C helper: `id _MulleObjCInstanceCopyWithAllocator(id object, NSUInteger extraBytes, struct mulle_allocator *allocator)`.
 
+### 3.16 NSNull - Sentinel Null Object
+**Header**: `src/class/NSNull.h`
+**Declaration**: `@interface NSNull : NSObject < MulleObjCSingleton, MulleObjCValueProtocols>`
+
+A singleton representing null/nil in collections. Reacts to all unknown methods by returning `nil`/`NULL`/`0`.
+
+- `+ (NSNull *) null` — Access the shared singleton instance
+
+### 3.17 MulleDynamicObject - Dynamic Property Storage
+**Header**: `src/class/MulleDynamicObject.h`
+**Declaration**: `@interface MulleDynamicObject : NSObject`
+
+A convenience superclass for "non-value" and "non-container" objects that enables adding properties via categories using `@property( dynamic)` and `@dynamic` in categories. Uses a `struct mulle__pointermap __ivars` internally for property storage.
+
+**Key Methods:**
+- `+ (BOOL) isFullyDynamic` — Global switch to create method descriptors on-the-fly for unknown selectors (non-thread-safe for performance)
+- `- (void *) forward:(void *) args` — Overrides NSObject's `-forward:` to handle dynamic property access
+
+**Generic Type Enum:**
+```c
+typedef NS_ENUM(NSInteger, MulleObjCGenericType) {
+    MulleObjCGenericTypeVoidPointer = 0,
+    MulleObjCGenericTypeStrdup,
+    MulleObjCGenericTypeAssign,
+    MulleObjCGenericTypeRetain,
+    MulleObjCGenericTypeCopy,
+    MulleObjCGenericTypeValue,
+    MulleObjCGenericTypeNumber
+};
+```
+
+**C Helper Functions:**
+- `void *_MulleDynamicObjectForward(id self, SEL _cmd, void *args, int *fail)` — Inline forward hook for dynamic properties
+- `void _MulleDynamicObjectValueSetter(MulleDynamicObject *self, SEL selector, void *_param, char *objcType)`
+- `void _MulleDynamicObjectNumberSetter(MulleDynamicObject *self, SEL selector, void *_param, char *objcType)`
+- `void _MulleDynamicObjectValueGetter(MulleDynamicObject *self, SEL selector, void *_param)`
+- `struct _mulle_objc_property *_MulleObjCClassPointerSearchDynamicProperty(struct _mulle_objc_infraclass **infra_p, mulle_objc_methodid_t methodid)`
+- `MulleObjCGenericType _MulleObjCGenericTypeOfProperty(struct _mulle_objc_property *property)`
+- `MulleObjCGenericType _MulleObjCGenericTypeOfSignature(char *signature)`
+- `struct _mulle_objc_method *_mulle_objc_infraclass_create_methods_for_property(...)`
+- `struct _mulle_objc_method *_mulle_objc_infraclass_create_accessor_methods(...)`
+
+### 3.18 MulleProxy - Auto-Locking NSProxy
+**Header**: `src/class/MulleProxy.h`
+**Declaration**: `@interface MulleProxy : NSProxy`
+
+An alternative root-class auto-locking proxy for a target object. Wraps a target with an `NSRecursiveLock` and TAO-aware gain/relinquish IMPs.
+
+**Ivars:** `NSRecursiveLock *__lock`, `id __target`, `IMP __gain_imp`, `IMP __relinquish_imp`, `NSUInteger __taoStrategy`
+
+**Creation:**
+- `+ (instancetype) proxyWithObject:(id) target` — Create with lock
+- `- (instancetype) initWithObject:(id) target`
+- `+ (instancetype) locklessProxyWithObject:(id) target` — Create without lock
+- `- (instancetype) initNoLockWithObject:(id) target`
+
+**Locking:**
+- `- (BOOL) tryLock MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) shareRecursiveLock:(NSRecursiveLock *) other MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) shareRecursiveLockWithObject:(MulleObject *) other MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) shareRecursiveLockWithProxy:(MulleProxy *) other MULLE_OBJC_THREADSAFE_METHOD`
+- `- (void) didShareRecursiveLock:(NSRecursiveLock *) lock MULLE_OBJC_THREADSAFE_METHOD`
+
+### 3.19 Container Protocols (NSArray, NSDictionary, NSSet)
+**Header**: `src/protocol/NSContainer.h`
+
+Protocol declarations for the fundamental collection types used by the mulle-objc ecosystem. These are the interface contracts; implementations are provided by higher-level libraries.
+
+#### NSArray / NSMutableArray
+```objc
+@protocol NSArray < NSObject, NSFastEnumeration >
+- (NSUInteger) count;
+- (id) objectAtIndex:(NSUInteger) i;
+@end
+
+@protocol NSMutableArray < NSArray>
+- (void) insertObject:(id <NSObject>) obj atIndex:(NSUInteger) i;
+- (void) removeObjectAtIndex:(NSUInteger) i;
+- (void) addObject:(id <NSObject>) obj;
+- (void) removeLastObject;
+- (void) removeAllObjects;
+- (void) replaceObjectAtIndex:(NSUInteger) i withObject:(id <NSObject>) obj;
+@end
+```
+
+#### NSDictionary / NSMutableDictionary
+```objc
+@protocol NSDictionary < NSObject, NSFastEnumeration >
+- (NSUInteger) count;
+- (id) objectForKey:(id <NSObject, MulleObjCImmutableCopying>) key;
+@end
+
+@protocol NSMutableDictionary < NSDictionary>
+- (void) setObject:(id <NSObject>) object forKey:(id <NSObject, MulleObjCImmutableCopying>) key;
+- (void) removeObjectForKey:(id <NSObject, MulleObjCImmutableCopying>) key;
+- (void) removeAllObjects;
+@end
+```
+
+#### NSSet / NSMutableSet
+```objc
+@protocol NSSet < NSObject, NSFastEnumeration >
+- (NSUInteger) count;
+- (id) member:(id <NSObject>) object;
+@end
+
+@protocol NSMutableSet < NSSet>
+- (void) addObject:(id <NSObject>) obj;
+- (void) removeObject:(id <NSObject>) obj;
+- (void) removeAllObjects;
+@end
+```
+
+### 3.20 Expanded Utility Functions
+
+#### Printing (`src/function/MulleObjCPrinting.h`)
+- `char *MulleObjC_vasprintf(char *format, va_list args)` — C format string returning autoreleased `char *`
+- `char *MulleObjC_mvasprintf(char *format, mulle_vararg_list args)`
+- `char *MulleObjC_asprintf(char *format, ...)`
+- `char *MulleObjC_strdup(char *s)` — Duplicate string, returns autoreleased `char *`
+- `mulle_buffer_do_autoreleased_string(name, allocator, s)` — Macro: iteration pattern for building autoreleased strings from a mulle_buffer
+
+#### Exception Handling (`src/function/MulleObjCExceptionHandler.h`)
+- `MULLE_C_NO_RETURN void mulle_objc_throw(void *exception)` — Throw an exception object
+- `void mulle_objc_break_exception(void)` — Breakpoint hook for catching all exceptions
+- `typedef void NSUncaughtExceptionHandler(MULLE_OBJC_EXCEPTION_CLASS_P exception)`
+- `NSUncaughtExceptionHandler *NSGetUncaughtExceptionHandler(void)` — inline, reads from universe
+- `void NSSetUncaughtExceptionHandler(NSUncaughtExceptionHandler *handler)` — inline, writes to universe
+
+#### Ivar Access (`src/function/MulleObjCIvar.h`)
+- `int _MulleObjCObjectSetIvar(id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)` — memcpy into ivar
+- `int _MulleObjCObjectGetIvar(id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)` — memcpy from ivar
+- `id MulleObjCObjectGetObjectIvar(id self, mulle_objc_ivarid_t ivarid)` — Proper retain/autorelease object getter
+- `void MulleObjCObjectSetObjectIvar(id self, mulle_objc_ivarid_t ivarid, id value)` — Proper assign/copy/retain object setter
+- `int _MulleObjCClassWalkIvars(Class cls, mulle_objc_walkivarscallback_t f, void *userinfo)` — Enumerate ivars of a class
+
+#### Allocation (`src/function/MulleObjCAllocation.h`)
+- `struct mulle_allocator *MulleObjCInstanceGetAllocator(id obj)` — Get the allocator used to allocate an instance
+- `id MulleObjCAutoreleaseAllocation(void *bytes, struct mulle_allocator *allocator)` — Autorelease a raw allocation for later freeing
+- `void *MulleObjCAllocateNonZeroedMemory(size_t size, struct mulle_allocator *allocator)`
+- `void MulleObjCFreeMemory(void *p, struct mulle_allocator *allocator)`
+
+#### Debug (`src/function/NSDebug.h`)
+- `char *_NSPrintForDebugger(id a)` — Searched by gdb/lldb for `po obj`; thread-safe
+- `BOOL MulleObjCIsDebugEnabled(void)` / `NSDebugEnabled` — Query debug mode
+- `BOOL MulleObjCDebugElideAddressOutput` — Global flag to elide addresses in debug output
+- `void _MulleObjCZombifyObject(id obj, int shred)` — Turn an object into a zombie for debugging
+- `void MulleObjCZombifyObject(id obj, int shred)` — Null-safe inline wrapper
+
+#### Property Introspection (`src/function/MulleObjCFunctions.h` addition)
+- `struct _mulle_objc_property *MulleObjCClassSearchProperty(Class cls, SEL propertyid)` — Search property by ID
+- `struct _mulle_objc_property *MulleObjCInstanceSearchProperty(id obj, SEL propertyid)` — Search property on object's class
+- `char *MulleObjCGetSizeAndAlignment(char *type, NSUInteger *size, NSUInteger *alignment)` — Parse @encode string for size/align
+- `NSGetSizeAndAlignment(char *type, NSUInteger *size, NSUInteger *alignment)` — Synonym
+- `BOOL MulleObjCDescribeMemory(struct mulle_buffer *buffer, struct mulle_data data, char *type)` — Format memory contents by @encode type
+- `void MulleObjCDescribeIvars(struct mulle_buffer *buffer, id obj)` — Dump instance variables
+
 ## 4. Performance Characteristics
 
 - **Message Send**: O(1) average with inline cache; optimized by mulle-objc-runtime
