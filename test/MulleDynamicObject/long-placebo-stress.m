@@ -1,6 +1,8 @@
 #import <MulleObjC/MulleObjC.h>
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 @interface Foo : MulleDynamicObject
@@ -63,15 +65,51 @@
 @end
 
 
-#define LOOPS (1000*1000)
+//
+// This is a single-threaded throughput stress test. Under valgrind it runs
+// ~50x slower and gets killed for exceeding the test timeout. The printed
+// result is myLongValue00 / LOOPS which is invariant (== 24.0) regardless of
+// the loop count, so we can drastically reduce LOOPS under valgrind without
+// changing the expected output.
+//
+// Detects valgrind via the MULLE_TEST_VALGRIND env var, or automatically on
+// Linux by scanning /proc/self/maps for the valgrind preload.
+//
+static long   n_loops( void)
+{
+   if( getenv( "MULLE_TEST_VALGRIND"))
+      return( 1000);
+#ifdef __linux__
+   {
+      FILE   *f;
+      char   line[ 256];
+
+      f = fopen( "/proc/self/maps", "r");
+      if( f)
+      {
+         while( fgets( line, sizeof( line), f))
+            if( strstr( line, "vgpreload"))
+            {
+               fclose( f);
+               return( 1000);
+            }
+         fclose( f);
+      }
+   }
+#endif
+   return( 1000*1000);
+}
+
 
 int  main()
 {
    Foo   *obj;
-   int   j;
+   long  j;
+   long  loops;
 
-   obj = [Foo instance];
-   for( j = 0; j < LOOPS; j++)
+   loops = n_loops();
+   obj   = [Foo instance];
+   for( j = 0; j < loops; j++)
    {
       [obj setMyLongValue01:[obj myLongValue00] + 1];
       [obj setMyLongValue02:[obj myLongValue01] + 1];
@@ -98,7 +136,7 @@ int  main()
       [obj setMyLongValue23:[obj myLongValue22] + 1];
       [obj setMyLongValue00:[obj myLongValue23] + 1];
    }
-   printf( "%.1f\n", [obj myLongValue00] / (double) LOOPS);
+   printf( "%.1f\n", [obj myLongValue00] / (double) loops);
    return( 0);
 }
 

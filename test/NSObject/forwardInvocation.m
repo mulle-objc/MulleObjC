@@ -25,7 +25,7 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 
 - (int) intReturnNoParam                       { return( 1848); }
 - (int) intReturnIntParam:(int) param          { return( param + 1); }
-- (int) intReturnPointerParam:(void *) param   { return( (int) param + 1); }
+- (int) intReturnPointerParam:(void *) param   { return( (int) (intptr_t) param + 1); }
 - (int) intReturnDoubleParam:(double) param    { return( (int) param + 1); }
 - (int) intReturnStructParam:(NSRange) param   { return( (int) ((param.location + 1) * 100 + param.length + 1)); }
 
@@ -57,6 +57,8 @@ extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 
 
 @interface Foo: NSObject
+
+@optional
 
 - (void) noReturnNoParam;
 - (void) noReturnIntParam:(int) param;

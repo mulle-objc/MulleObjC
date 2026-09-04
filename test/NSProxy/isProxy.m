@@ -16,11 +16,6 @@
    return( _MulleObjCClassAllocateInstance( self, 0));
 }
 
-- (void) dealloc
-{
-   return( _MulleObjCInstanceFree( self));
-}
-
 @end
 
 

@@ -1,8 +1,8 @@
 //
-//  version.h
+//  MulleObjCVersion.h
 //  MulleObjC
 //
-//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2020 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2018 Codeon GmbH.
 //  All rights reserved.
 //
@@ -33,7 +33,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 // This header should be includeable by C and must not require inclusion
 // or link the runtime
 
@@ -41,7 +40,7 @@
 #define MulleObjC_version__h__
 
 
-#define MULLE_OBJC_VERSION    ((0UL << 20) | (29 << 8) | 0)
+#define MULLE_OBJC_VERSION    ((0UL << 20) | (30 << 8) | 0)
 
 #endif
 

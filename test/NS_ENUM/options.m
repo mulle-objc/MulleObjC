@@ -14,7 +14,7 @@ typedef NS_OPTIONS( short, Foo)
 
 
 MULLE_OBJC_GLOBAL
-extern NS_OPTIONS_TABLE( Foo, 3);
+NS_OPTIONS_TABLE( Foo, 3);
 
 
 NS_OPTIONS_TABLE( Foo, 3) =

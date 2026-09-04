@@ -213,29 +213,14 @@ void   MulleObjCClassPoseAsSuperclass( Class self)
       ctxt.victim = victim_infra;
       ctxt.poseur = infra;
 
-      // register old superclass under new name, so we still get proper
-      // cleanup when the universe pedantically exists
-      // Foo ->  %Foo  (which is invalid for the compiler)
-      mulle_buffer_do( buffer)
-      {
-         mulle_buffer_sprintf( buffer, "%%%s", _mulle_objc_infraclass_get_name( victim_infra));
-         name = mulle_objc_universe_strdup( universe, mulle_buffer_get_string( buffer));
-
-         victim_infra->base.name =
-         victim_meta->base.name  = name;
-
-         // if we change the classids here than within victim code (class
-         // and category) stops working. Thats because the supers are
-         // referencing the wrong classid and the search will fail.
-         //
-
-         //victim_infra->base.classid =
-         //victim_meta->base.classid  = classid;
-         classid = mulle_objc_classid_from_string( name);
-         if( _mulle_objc_universe_register_infraclass_for_classid( universe, victim_infra, classid))
-            MulleObjCThrowErrnoExceptionUTF8String( "posed away class \"%s\" could not register",
-                  _mulle_objc_infraclass_get_name( victim_infra));
-      }
+      // NOTE: the runtime's mulle_objc_universe_patch_infraclass now renames
+      // the posed-away victim to a unique "%"-prefixed name and re-registers it
+      // in the classtable under a fresh classid, so the classtable remains the
+      // single owner of the displaced classpair and it gets proper cleanup when
+      // the universe pedantically exits. Nothing to do here anymore.
+      MULLE_C_UNUSED( name);
+      MULLE_C_UNUSED( classid);
+      MULLE_C_UNUSED( victim_meta);
 
       _mulle_objc_universe_invalidate_classcache( universe);
 

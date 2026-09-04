@@ -1,8 +1,8 @@
 //
-//  mulle_sprintf_object.m
-//  MulleObjCValueFoundation
+//  mulle-sprintf-object.m
+//  MulleObjC
 //
-//  Copyright (c) 2011 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2021 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2011 Codeon GmbH.
 //  All rights reserved.
 //

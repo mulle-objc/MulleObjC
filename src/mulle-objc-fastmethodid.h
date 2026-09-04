@@ -1,8 +1,8 @@
 //
-//  ns_fastmethodids.h
+//  mulle-objc-fastmethodid.h
 //  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //
@@ -33,7 +33,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 // included in "include.h" and nowhere else
 
 #ifndef mulle_objc_fastmethodid__h__
@@ -49,6 +48,7 @@
 //
 // https://www.mulle-kybernetik.com/weblog/2015/mulle_objc_selector_statistics.html
 //
+// These are currently non-negotiable
 //#define MULLE_OBJC_FASTMETHODHASH_0    MULLE_OBJC_METHODID( 0x3d036158)   // "alloc"
 //#define MULLE_OBJC_FASTMETHODHASH_1    MULLE_OBJC_METHODID( 0x3d036158)   // "init"
 //#define MULLE_OBJC_FASTMETHODHASH_2    MULLE_OBJC_METHODID( 0x3d036158)   // "finalize"

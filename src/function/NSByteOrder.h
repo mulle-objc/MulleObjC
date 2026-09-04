@@ -1,8 +1,8 @@
 //
 //  NSByteOrder.h
-//  MulleObjCFoundation
+//  MulleObjC
 //
-//  Copyright (c) 2011-2026 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2011 Codeon GmbH.
 //  All rights reserved.
 //
@@ -33,7 +33,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 // This header should be includeable by C and must not require inclusion
 // or link of the runtime
 

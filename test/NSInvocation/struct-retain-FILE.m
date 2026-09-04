@@ -3,6 +3,7 @@
 extern void  *__forward_mulle_objc_object_call( id, SEL, ...);
 #else
 # import <MulleObjC/MulleObjC.h>
+# import <MulleObjC/NSMethodSignature-Private.h>
 #endif
 
 

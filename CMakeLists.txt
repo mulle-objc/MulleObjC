@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.13...99.99) # 3.15 fails on windows
 
-project( MulleObjC VERSION 0.29.0 LANGUAGES C)
+project( MulleObjC VERSION 0.30.0 LANGUAGES C)
 
 
 if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release")

@@ -42,16 +42,16 @@ int  main( void)
    print_bool( [Bar self] != [Foo self]);
    print_bool( [Bar self] == [Bar class]);
 
-   foo = [Foo new];
+foo = [Foo new];
 
-   print_bool( [foo self] != Nil);
+   print_bool( (id) [foo self] != Nil);
    print_bool( [foo self] != [NSObject self]);
    print_bool( [foo self] != [Bar self]);
    print_bool( [foo self] != [Foo self]);
 
    bar = [Bar new];
 
-   print_bool( [bar self] != Nil);
+   print_bool( (id) [bar self] != Nil);
    print_bool( [bar self] != [NSObject self]);
    print_bool( [bar self] != [Foo self]);
    print_bool( [bar self] != [Bar self]);

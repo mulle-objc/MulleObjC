@@ -1,5 +1,5 @@
 //
-//  mulle-objc-atomicid.c
+//  mulle-objc-atomicid.m
 //  MulleObjC
 //
 //  Copyright (c) 2024 Nat! - Mulle kybernetiK.
@@ -32,7 +32,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 #import "mulle-objc-atomicid.h"
 
 #import "import-private.h"

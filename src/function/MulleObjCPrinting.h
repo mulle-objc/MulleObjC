@@ -1,5 +1,5 @@
 //
-//  MulleObjCPrinting.m
+//  MulleObjCPrinting.h
 //  MulleObjC
 //
 //  Copyright (c) 2022 Nat! - Mulle kybernetiK.

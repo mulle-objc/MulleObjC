@@ -1,8 +1,8 @@
 //
-//  MulleObjCContainerCallback.h
-//  MulleObjCStandardFoundation
+//  MulleObjCContainerObjectCallback.h
+//  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2022 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //
@@ -33,7 +33,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 //
 // This is a hybrid. The header is C, but the actual implementation is
 // in ObjC
@@ -116,13 +115,13 @@ const struct mulle_container_valuecallback    _MulleObjCContainerAssignRetainedV
 
 MULLE_OBJC_GLOBAL
 uintptr_t
-   mulle_container_keycallback_object_hash( struct mulle_container_keycallback *callback,
-                                            void *obj);
+   mulle_container_keycallback_object_hash( const struct mulle_container_keycallback *callback,
+                                            const void *obj);
 MULLE_OBJC_GLOBAL
 int
-   mulle_container_keycallback_object_is_equal( struct mulle_container_keycallback *callback,
-                                                void *obj,
-                                                void *other);
+   mulle_container_keycallback_object_is_equal( const struct mulle_container_keycallback *callback,
+                                                const void *obj,
+                                                const void *other);
 // these will be casted anyway, so the signature can be wrong :)
 MULLE_OBJC_GLOBAL
 void   *

@@ -24,8 +24,14 @@
 
 @interface Foo < A, B>
 
-+ (void) method0;
 - (void) method3;
+
+@end
+
+
+@interface Foo (MixinMethods)
+
++ (void) method0;
 
 @end
 

@@ -1,8 +1,8 @@
 //
-//  MulleObjCDebug.h
+//  MulleObjCDebug.m
 //  MulleObjC
 //
-//  Copyright © 2023 Mulle kybernetiK.
+//  Copyright (c) 2023 Nat! - Mulle kybernetiK.
 //  All rights reserved.
 //
 //

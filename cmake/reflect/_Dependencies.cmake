@@ -36,34 +36,41 @@ if( COLLECT_ALL_LOAD_DEPENDENCY_LIBRARIES_AS_NAMES)
    list( APPEND ALL_LOAD_DEPENDENCY_LIBRARIES "mulle-objc-runtime")
 else()
    if( NOT MULLE__OBJC__RUNTIME_LIBRARY)
-      find_library( MULLE__OBJC__RUNTIME_LIBRARY NAMES
-         ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
-         ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-runtime${MULLE_PREFERRED_LIBRARY_SUFFIX}
-         ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
-         ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-runtime${MULLE_FALLBACK_LIBRARY_SUFFIX}
-         mulle-objc-runtime
-         NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_FIND_ROOT_PATH
-      )
-      if( NOT MULLE__OBJC__RUNTIME_LIBRARY AND NOT DEPENDENCY_IGNORE_SYSTEM_LIBARIES)
+      foreach( _TMP_MULLE__OBJC__RUNTIME_LIBRARY_TARGET mulle-objc-runtime)
+         if( TARGET ${_TMP_MULLE__OBJC__RUNTIME_LIBRARY_TARGET})
+            set( MULLE__OBJC__RUNTIME_LIBRARY ${_TMP_MULLE__OBJC__RUNTIME_LIBRARY_TARGET})
+            break()
+         endif()
+      endforeach()
+      if( NOT MULLE__OBJC__RUNTIME_LIBRARY)
          find_library( MULLE__OBJC__RUNTIME_LIBRARY NAMES
             ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
             ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-runtime${MULLE_PREFERRED_LIBRARY_SUFFIX}
             ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
             ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-runtime${MULLE_FALLBACK_LIBRARY_SUFFIX}
             mulle-objc-runtime
+            NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_FIND_ROOT_PATH
          )
+         if( NOT MULLE__OBJC__RUNTIME_LIBRARY AND NOT DEPENDENCY_IGNORE_SYSTEM_LIBARIES)
+            find_library( MULLE__OBJC__RUNTIME_LIBRARY NAMES
+               ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
+               ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-runtime${MULLE_PREFERRED_LIBRARY_SUFFIX}
+               ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
+               ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-runtime${MULLE_FALLBACK_LIBRARY_SUFFIX}
+               mulle-objc-runtime
+            )
+         endif()
       endif()
       message( STATUS "MULLE__OBJC__RUNTIME_LIBRARY is ${MULLE__OBJC__RUNTIME_LIBRARY}")
-      #
-      # The order looks ascending, but due to the way this file is read
-      # it ends up being descending, which is what we need.
-      #
-      if( MULLE__OBJC__RUNTIME_LIBRARY)
+   endif()
+   if( MULLE__OBJC__RUNTIME_LIBRARY)
          #
          # Add MULLE__OBJC__RUNTIME_LIBRARY to ALL_LOAD_DEPENDENCY_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark mulle-objc-runtime no-cmake-add`
          #
-         list( APPEND ALL_LOAD_DEPENDENCY_LIBRARIES ${MULLE__OBJC__RUNTIME_LIBRARY})
+         if( NOT ${MULLE__OBJC__RUNTIME_LIBRARY} IN_LIST ALL_LOAD_DEPENDENCY_LIBRARIES)
+            list( APPEND ALL_LOAD_DEPENDENCY_LIBRARIES ${MULLE__OBJC__RUNTIME_LIBRARY})
+         endif()
          #
          # Inherit information from dependency.
          # Encompasses: no-cmake-searchpath,no-cmake-dependency,no-cmake-loader
@@ -119,14 +126,13 @@ else()
                endif()
             endforeach()
          endif()
-      else()
-         # Disable with: `mulle-sourcetree mark mulle-objc-runtime no-require-link`
-         message( SEND_ERROR "MULLE__OBJC__RUNTIME_LIBRARY was not found in ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
+   else()
+      # Disable with: `mulle-sourcetree mark mulle-objc-runtime no-require-link`
+      message( SEND_ERROR "MULLE__OBJC__RUNTIME_LIBRARY was not found in ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
 ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-runtime${MULLE_PREFERRED_LIBRARY_SUFFIX}
 ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-runtime${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
 ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-runtime${MULLE_FALLBACK_LIBRARY_SUFFIX}
 mulle-objc-runtime")
-      endif()
    endif()
 endif()
 
@@ -141,34 +147,41 @@ if( COLLECT_DEPENDENCY_LIBRARIES_AS_NAMES)
    list( APPEND DEPENDENCY_LIBRARIES "mulle-objc-debug")
 else()
    if( NOT MULLE__OBJC__DEBUG_LIBRARY)
-      find_library( MULLE__OBJC__DEBUG_LIBRARY NAMES
-         ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
-         ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-debug${MULLE_PREFERRED_LIBRARY_SUFFIX}
-         ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
-         ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-debug${MULLE_FALLBACK_LIBRARY_SUFFIX}
-         mulle-objc-debug
-         NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_FIND_ROOT_PATH
-      )
-      if( NOT MULLE__OBJC__DEBUG_LIBRARY AND NOT DEPENDENCY_IGNORE_SYSTEM_LIBARIES)
+      foreach( _TMP_MULLE__OBJC__DEBUG_LIBRARY_TARGET mulle-objc-debug)
+         if( TARGET ${_TMP_MULLE__OBJC__DEBUG_LIBRARY_TARGET})
+            set( MULLE__OBJC__DEBUG_LIBRARY ${_TMP_MULLE__OBJC__DEBUG_LIBRARY_TARGET})
+            break()
+         endif()
+      endforeach()
+      if( NOT MULLE__OBJC__DEBUG_LIBRARY)
          find_library( MULLE__OBJC__DEBUG_LIBRARY NAMES
             ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
             ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-debug${MULLE_PREFERRED_LIBRARY_SUFFIX}
             ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
             ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-debug${MULLE_FALLBACK_LIBRARY_SUFFIX}
             mulle-objc-debug
+            NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_FIND_ROOT_PATH
          )
+         if( NOT MULLE__OBJC__DEBUG_LIBRARY AND NOT DEPENDENCY_IGNORE_SYSTEM_LIBARIES)
+            find_library( MULLE__OBJC__DEBUG_LIBRARY NAMES
+               ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_DEBUG_POSTFIX}${MULLE_PREFERRED_LIBRARY_SUFFIX}
+               ${MULLE_PREFERRED_LIBRARY_PREFIX}mulle-objc-debug${MULLE_PREFERRED_LIBRARY_SUFFIX}
+               ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-debug${CMAKE_DEBUG_POSTFIX}${MULLE_FALLBACK_LIBRARY_SUFFIX}
+               ${MULLE_FALLBACK_LIBRARY_PREFIX}mulle-objc-debug${MULLE_FALLBACK_LIBRARY_SUFFIX}
+               mulle-objc-debug
+            )
+         endif()
       endif()
       message( STATUS "MULLE__OBJC__DEBUG_LIBRARY is ${MULLE__OBJC__DEBUG_LIBRARY}")
-      #
-      # The order looks ascending, but due to the way this file is read
-      # it ends up being descending, which is what we need.
-      #
-      if( MULLE__OBJC__DEBUG_LIBRARY)
+   endif()
+   if( MULLE__OBJC__DEBUG_LIBRARY)
          #
          # Add MULLE__OBJC__DEBUG_LIBRARY to DEPENDENCY_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark mulle-objc-debug no-cmake-add`
          #
-         list( APPEND DEPENDENCY_LIBRARIES ${MULLE__OBJC__DEBUG_LIBRARY})
+         if( NOT ${MULLE__OBJC__DEBUG_LIBRARY} IN_LIST DEPENDENCY_LIBRARIES)
+            list( APPEND DEPENDENCY_LIBRARIES ${MULLE__OBJC__DEBUG_LIBRARY})
+         endif()
          #
          # Inherit information from dependency.
          # Encompasses: no-cmake-searchpath,no-cmake-dependency,no-cmake-loader
@@ -211,9 +224,8 @@ else()
                message( STATUS "${_TMP_MULLE__OBJC__DEBUG_DIR} not found")
             endif()
          endforeach()
-      else()
-         # Enable with: `mulle-sourcetree mark mulle-objc-debug require`
-         message( STATUS "MULLE__OBJC__DEBUG_LIBRARY is missing but it is marked as \"no-require\"")
-      endif()
+   else()
+      # Enable with: `mulle-sourcetree mark mulle-objc-debug require`
+      message( STATUS "MULLE__OBJC__DEBUG_LIBRARY is missing but it is marked as \"no-require\"")
    endif()
 endif()

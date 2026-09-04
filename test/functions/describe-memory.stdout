@@ -5,7 +5,7 @@ test_float: 1848
 test_double: 1848
 test_union: (union abc) ( 1848 )
 test_struct: (struct abc) { 1848, '2', 3 }
-test_struct2: (struct mulle_structarray) { <pointer>, <pointer>, <pointer>, 0, 16, 16, 0, 0 }
+test_struct2: (struct mulle_structarray) { <pointer>, <pointer>, <pointer>, (nil), 16, 16, 0, (nil) }
 test_array: [ 1, 1848, 3 ]
 test_object: <Foo <pointer>>
 test_selector: @selector( callMeMaybe:)

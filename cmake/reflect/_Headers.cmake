@@ -39,6 +39,7 @@ src/class/NSMethodSignature-Private.h
 src/class/NSRecursiveLock-Private.h
 src/class/NSValue-Private.h
 src/function/MulleObjCExceptionHandler-Private.h
+src/function/MulleObjCStandardImplementation-Private.h
 src/mulle-objc-autoreleasepointerarray-private.h
 src/mulle-objc-exceptionhandlertable-private.h
 src/mulle-objc-startup-private.inc
@@ -99,6 +100,7 @@ src/function/MulleObjCIvar.h
 src/function/MulleObjCPrinting.h
 src/function/MulleObjCProperty.h
 src/function/MulleObjCStackFrame.h
+src/function/MulleObjCStandardImplementation.h
 src/function/NSByteOrder.h
 src/function/NSDebug.h
 src/function/mulle-sprintf-object.h

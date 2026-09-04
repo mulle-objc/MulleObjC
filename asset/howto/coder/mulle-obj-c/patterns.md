@@ -32,7 +32,7 @@ int main()
 {
    @autoreleasepool
    {
-      [[Foo new] autorelease];
+      [Foo instance];
    }
    return( 0);
 }
@@ -62,9 +62,9 @@ int main()
 {
    NSThread *thread;
 
-   thread = [[[NSThread alloc] initWithTarget:[Foo class]
-                                     selector:@selector( function:)
-                                       object:nil] autorelease];
+   thread = [NSThread mulleThreadWithTarget:[Foo class]
+                                    selector:@selector( function:)
+                                      object:nil];
    [thread mulleStart];
    [thread mulleJoin];
    return( 0);
@@ -77,11 +77,12 @@ and `-mulleStart` + `-mulleJoin` over detached `-start`.
 ## Lock — basic mutual exclusion
 
 ```objc
-NSLock *lock = [[NSLock alloc] init];
-[lock lock];
-// critical section
-[lock unlock];
-[lock release];
+NSLock *lock = [NSLock instance];
+
+NSLockingDo( lock)
+{
+   // critical section
+}
 ```
 
 For reentrant locking use `NSRecursiveLock`. For condition variables use

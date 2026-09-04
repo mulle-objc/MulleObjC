@@ -36,6 +36,7 @@ src/function/MulleObjCIvar.m
 src/function/MulleObjCPrinting.m
 src/function/MulleObjCProperty.m
 src/function/MulleObjCStackFrame.m
+src/function/MulleObjCStandardImplementation.m
 src/function/NSDebug.m
 src/function/mulle-sprintf-object.m
 src/mulle-objc-atomicid.m
