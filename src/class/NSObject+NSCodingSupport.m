@@ -1,8 +1,8 @@
 //
-//  NSObject+NSCoding.m
+//  NSObject+NSCodingSupport.m
 //  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //

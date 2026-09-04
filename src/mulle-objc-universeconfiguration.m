@@ -1,8 +1,8 @@
 //
-//  mulle-objc-rootconfiguration.m
+//  mulle-objc-universeconfiguration.m
 //  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //
@@ -33,7 +33,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 // this is the only file that has an __attribute__ constructor
 // this links in all the roots stuff into the universe
 #define _GNU_SOURCE  1  // hmm, needed for Linux dlcfn have to do this first
@@ -47,6 +46,7 @@
 #import "MulleObjCAutoreleasePool.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
+#import "MulleObjCStandardImplementation.h"
 #import "NSRange.h"
 #import "NSDebug.h"
 #import "NSThread.h"
@@ -182,7 +182,7 @@ struct _mulle_objc_universefoundationinfo  *
                                                          struct _mulle_objc_universe *universe)
 {
    struct mulle_allocator                      *allocator;
-   struct _mulle_objc_foundation               foundation;
+   struct _mulle_objc_foundation               foundation = { 0 };
    struct _mulle_objc_universefoundationinfo   *roots;
    size_t                                      size;
    size_t                                      neededsize;
@@ -274,6 +274,41 @@ struct _mulle_objc_universefoundationinfo  *
 
    foundation.allocator       = allocator;
    foundation.headerextrasize = config->foundation.headerextrasize;
+
+   //
+   // Register standard method IMPs and selectors for the standardimpmask
+   // mechanism. These are known C functions — no class lookup needed.
+   //
+   foundation.standardimps[ _mulle_objc_methodfamily_alloc]       = (mulle_objc_implementation_t) MulleObjCStandardAlloc;
+   // foundation.standardimps[ _mulle_objc_methodfamily_copy]        = 0;  // no standard
+   foundation.standardimps[ _mulle_objc_methodfamily_init]        = (mulle_objc_implementation_t) MulleObjCStandardInit;
+   // foundation.standardimps[ _mulle_objc_methodfamily_mutablecopy] = 0;  // noW standard
+   foundation.standardimps[ _mulle_objc_methodfamily_new]         = (mulle_objc_implementation_t) MulleObjCStandardNew;
+   foundation.standardimps[ _mulle_objc_methodfamily_autorelease] = (mulle_objc_implementation_t) MulleObjCStandardAutorelease;
+   foundation.standardimps[ _mulle_objc_methodfamily_dealloc]     = (mulle_objc_implementation_t) MulleObjCStandardDealloc;
+   foundation.standardimps[ _mulle_objc_methodfamily_finalize]    = (mulle_objc_implementation_t) MulleObjCStandardFinalize;
+   foundation.standardimps[ _mulle_objc_methodfamily_release]     = (mulle_objc_implementation_t) MulleObjCStandardRelease;
+   foundation.standardimps[ _mulle_objc_methodfamily_retain]      = (mulle_objc_implementation_t) MulleObjCStandardRetain;
+   foundation.standardimps[ _mulle_objc_methodfamily_retaincount] = (mulle_objc_implementation_t) MulleObjCStandardRetainCount;
+   foundation.standardimps[ _mulle_objc_methodfamily_self]        = (mulle_objc_implementation_t) MulleObjCStandardSelf;
+
+   foundation.standardselectors[ _mulle_objc_methodfamily_alloc]       = @selector( alloc);
+   foundation.standardselectors[ _mulle_objc_methodfamily_copy]        = @selector( copy);
+   foundation.standardselectors[ _mulle_objc_methodfamily_init]        = @selector( init);
+   foundation.standardselectors[ _mulle_objc_methodfamily_mutablecopy] = @selector( mutableCopy);
+   foundation.standardselectors[ _mulle_objc_methodfamily_new]         = @selector( new);
+   foundation.standardselectors[ _mulle_objc_methodfamily_autorelease] = @selector( autorelease);
+   foundation.standardselectors[ _mulle_objc_methodfamily_dealloc]     = @selector( dealloc);
+   foundation.standardselectors[ _mulle_objc_methodfamily_finalize]    = @selector( finalize);
+   foundation.standardselectors[ _mulle_objc_methodfamily_release]     = @selector( release);
+   foundation.standardselectors[ _mulle_objc_methodfamily_retain]      = @selector( retain);
+   foundation.standardselectors[ _mulle_objc_methodfamily_retaincount] = @selector( retainCount);
+   foundation.standardselectors[ _mulle_objc_methodfamily_self]        = @selector( self);
+
+   // Bitmask: 1 = class method (look up on meta), 0 = instance method
+   foundation.standardmetamask = (1 << _mulle_objc_methodfamily_alloc)
+                               | (1 << _mulle_objc_methodfamily_new);
+
    _mulle_objc_universe_set_foundation( universe, &foundation);
 
    return( roots);

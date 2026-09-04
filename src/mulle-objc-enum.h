@@ -2,7 +2,7 @@
 //  mulle-objc-enum.h
 //  MulleObjC
 //
-//  Copyright (c) 2015 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2025 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2015 Codeon GmbH.
 //  All rights reserved.
 //
@@ -33,7 +33,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 #ifndef mulle_objc_enum__h__
 #define mulle_objc_enum__h__
 

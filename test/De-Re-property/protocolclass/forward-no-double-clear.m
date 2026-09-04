@@ -40,9 +40,12 @@ static int   forward_called;
 int  main( void)
 {
    Foo   *foo;
+   id    other;
 
-   foo = [Foo new];
-   [foo setOther:foo];
+   other = [NSObject new];
+   foo   = [Foo new];
+   [foo setOther:other];
+   [other release];
 
    forward_called = 0;
    mulle_printf( "---\n");

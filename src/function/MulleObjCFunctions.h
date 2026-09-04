@@ -2,7 +2,7 @@
 //  MulleObjCFunctions.h
 //  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //
@@ -1153,12 +1153,12 @@ static inline char   *MulleObjCSelectorUTF8String( SEL sel)
 
 
 MULLE_OBJC_GLOBAL
-char    *MulleObjCProtocolGetNameUTF8String( PROTOCOL sel);
+char    *MulleObjCProtocolGetNameUTF8String( PROTOCOL proto);
 
 
-static inline char   *MulleObjCProtocolUTF8String( SEL sel)
+static inline char   *MulleObjCProtocolUTF8String( PROTOCOL proto)
 {
-   return( MulleObjCProtocolGetNameUTF8String( sel));
+   return( MulleObjCProtocolGetNameUTF8String( proto));
 }
 
 

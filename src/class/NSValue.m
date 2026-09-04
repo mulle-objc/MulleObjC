@@ -1,8 +1,8 @@
 //
 //  NSValue.m
-//  MulleObjCValueFoundation
+//  MulleObjC
 //
-//  Copyright (c) 2011 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2026 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2011 Codeon GmbH.
 //  All rights reserved.
 //

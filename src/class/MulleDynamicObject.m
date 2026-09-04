@@ -2,7 +2,7 @@
 //  MulleDynamicObject.m
 //  MulleObjC
 //
-//  Copyright (c) 2020 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2024 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2020 Codeon GmbH.
 //  All rights reserved.
 //

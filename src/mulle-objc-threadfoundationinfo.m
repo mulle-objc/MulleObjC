@@ -1,5 +1,5 @@
 //
-//  ns_threadinfouration.m
+//  mulle-objc-threadfoundationinfo.m
 //  MulleObjC
 //
 //  Copyright (c) 2018 Nat! - Mulle kybernetiK.

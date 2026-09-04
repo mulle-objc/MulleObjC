@@ -6,7 +6,7 @@
    "license" : "BSD-3-Clause",
    "repo" : "mulle-objc/MulleObjC",
    "src" : [
-      "asset/dox/TOC.md",
+      "asset/dox/api/toc/index.md",
       "src/class/MulleDynamicObject.h",
       "src/class/MulleDynamicObject.m",
       "src/class/MulleObjCAutoreleasePool.h",
@@ -71,6 +71,9 @@
       "src/function/MulleObjCProperty.m",
       "src/function/MulleObjCStackFrame.h",
       "src/function/MulleObjCStackFrame.m",
+      "src/function/MulleObjCStandardImplementation-Private.h",
+      "src/function/MulleObjCStandardImplementation.h",
+      "src/function/MulleObjCStandardImplementation.m",
       "src/function/NSByteOrder.h",
       "src/function/NSDebug.h",
       "src/function/NSDebug.m",

@@ -21,7 +21,7 @@
 
 int  main( void)
 {
-   id   obj;
+   NSObject   *obj;
 
    obj = [NSObject new];
    [obj hash];

@@ -2,9 +2,9 @@
 //  MulleObjCDebug.h
 //  MulleObjC
 //
-//  Created by Nat! on 11.03.23.
-//  Copyright © 2023 Mulle kybernetiK.
+//  Copyright (c) 2023 Nat! - Mulle kybernetiK.
 //  All rights reserved.
+//
 //
 //  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 #include "include.h"
 
 // these need to be in MulleObjC to get the compiled UNIVERSE ID

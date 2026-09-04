@@ -2,7 +2,7 @@
 //  NSObject.m
 //  MulleObjC
 //
-//  Copyright (c) 2011 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2011 Codeon GmbH.
 //  All rights reserved.
 //
@@ -41,6 +41,7 @@
 #import "mulle-objc-type.h"
 #import "mulle-objc-classbit.h"
 #import "MulleObjCAllocation.h"
+#import "MulleObjCStandardImplementation-Private.h"
 #import "MulleObjCException.h"
 #import "MulleObjCExceptionHandler.h"
 #import "MulleObjCExceptionHandler-Private.h"
@@ -196,10 +197,7 @@ static id
 @implementation NSObject
 
 
-- (instancetype) self
-{
-   return( self);
-}
+@method_implementation -self = MulleObjCStandardSelf;
 
 
 #pragma mark - singleton/classcluster support
@@ -260,15 +258,13 @@ retry:
 
 + (instancetype) instance
 {
-   id   obj;
+   NSUInteger   mask;
+   id           obj;
 
-   //
-   // we don't do the instantiate here, because we autorelease
-   // anyway.
-   //
-   obj = [self alloc];
-   obj = [obj init];
-   obj = [obj autorelease];
+   mask = MulleObjCClassGetStandardImplementationMask( self);
+   obj  = MulleObjCClassCallAllocInline( self, mask);
+   obj  = MulleObjCInstanceCallInitInline( obj, mask);
+   obj  = MulleObjCInstanceCallAutoreleaseInline( obj, mask);
    return( obj);
 }
 
@@ -395,10 +391,7 @@ retry:
 
 # pragma mark - regular methods
 
-- (instancetype) init
-{
-   return( self);
-}
+@method_implementation -init = MulleObjCStandardInit;
 
 
 - (BOOL) isEqual:(id) other

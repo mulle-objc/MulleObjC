@@ -4,6 +4,10 @@
 
 
 @interface A : MulleObject < MulleAutolockingObjectProtocols>
+
+@optional
+- (void) verify;
+
 @end
 
 

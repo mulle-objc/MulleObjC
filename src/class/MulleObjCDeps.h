@@ -2,10 +2,7 @@
 //  MulleObjCDeps.h
 //  MulleObjC
 //
-//  Created by Nat! on 27.03.17.
-//  Copyright © 2017 Mulle kybernetiK. All rights reserved.
-//
-//  Copyright (c) 2015 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2026 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2015 Codeon GmbH.
 //  All rights reserved.
 //

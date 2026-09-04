@@ -2,7 +2,7 @@
 //  MulleObjCSingleton.m
 //  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //
@@ -58,8 +58,8 @@
 
 static struct
 {
-   int                               _useEphemeralSingleton;
-   struct mulle_concurrent_hashmap   _ephemeralSingletonInstances;
+   int                                _useEphemeralSingleton;
+   struct mulle_concurrent_hashtable  _ephemeralSingletonInstances;
 } ClassStatic =
 {
    -1
@@ -108,9 +108,9 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
       {
          // universe allocator partakes in aba GC, but not the class allocator
          universe = _mulle_objc_infraclass_get_universe( self);
-         _mulle_concurrent_hashmap_init( &ClassStatic._ephemeralSingletonInstances,
-                                         16,
-                                         _mulle_objc_universe_get_allocator( universe));
+         _mulle_concurrent_hashtable_init_even( &ClassStatic._ephemeralSingletonInstances,
+                                                16,
+                                                _mulle_objc_universe_get_allocator( universe));
          fprintf( stderr, "warning: MulleObjCSingleton are ephemeral\n");
       }
    }
@@ -126,7 +126,7 @@ void   MulleObjCSingletonMarkClassAsSingleton( Class self)
 {
    if( ClassStatic._useEphemeralSingleton > 0)
    {
-      _mulle_concurrent_hashmap_done( &ClassStatic._ephemeralSingletonInstances);
+      mulle_concurrent_hashtable_done( &ClassStatic._ephemeralSingletonInstances);
       ClassStatic._useEphemeralSingleton = -1;
    }
 }
@@ -195,6 +195,7 @@ id   MulleObjCSingletonCreate( Class self)
    id <NSObject>                 singleton;
    id <NSObject>                 dup;
    struct _mulle_objc_universe   *universe;
+   struct _mulle_objc_class      *cls;
 
    //
    // if the universe is deinitializing, we are not creating singletons
@@ -208,17 +209,22 @@ id   MulleObjCSingletonCreate( Class self)
 
    if( ClassStatic._useEphemeralSingleton > 0)
    {
-      singleton = _mulle_concurrent_hashmap_lookup( &ClassStatic._ephemeralSingletonInstances,
-                                                   (intptr_t) self);
+singleton = mulle_concurrent_hashtable_lookup( &ClassStatic._ephemeralSingletonInstances,
+                                                      (uintptr_t) self);
       if( singleton)
          return( [[singleton retain] autorelease]); // place into current thread autorelease pool
 
-      singleton = [MulleObjCSingletonNew( self) autorelease];
-      dup       = _mulle_concurrent_hashmap_register( &ClassStatic._ephemeralSingletonInstances,
-                                                     (intptr_t) self,
-                                                     singleton);
-      if( dup == MULLE_CONCURRENT_INVALID_POINTER)
+singleton = [MulleObjCSingletonNew( self) autorelease];
+      if( mulle_concurrent_hashtable_register( &ClassStatic._ephemeralSingletonInstances,
+                                                (uintptr_t) self,
+                                                singleton,
+                                                (void **) &dup))
          abort();
+      cls = dup ? _mulle_objc_object_get_isa( dup) : (struct _mulle_objc_class *) self;
+      if( cls != (struct _mulle_objc_class *) self)
+         mulle_objc_universe_fail_inconsistency( universe, "another singleton %p of %s is hashing to the same value",
+                                                           dup,
+                                                           _mulle_objc_infraclass_get_name( (struct _mulle_objc_infraclass *) cls));
       return( dup ? dup : singleton);
    }
 
@@ -257,9 +263,9 @@ id   MulleObjCSingletonCreate( Class self)
    IMP   imp;
 
    if( ClassStatic._useEphemeralSingleton > 0)
-      _mulle_concurrent_hashmap_remove( &ClassStatic._ephemeralSingletonInstances,
-                                       (intptr_t) _mulle_objc_object_get_isa( self),
-                                       self);
+      mulle_concurrent_hashtable_remove( &ClassStatic._ephemeralSingletonInstances,
+                                         (uintptr_t) _mulle_objc_object_get_isa( self),
+                                         self);
    imp = MulleObjCObjectSearchOverriddenIMP( self,
                                              _cmd,
                                              @selector( MulleObjCSingleton),

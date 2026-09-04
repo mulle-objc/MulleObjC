@@ -1,3 +1,37 @@
+//
+//  MulleObjCRootObject.m
+//  MulleObjC
+//
+//  Copyright (c) 2024 Nat! - Mulle kybernetiK.
+//  All rights reserved.
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//  Redistributions of source code must retain the above copyright notice, this
+//  list of conditions and the following disclaimer.
+//
+//  Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation
+//  and/or other materials provided with the distribution.
+//
+//  Neither the name of Mulle kybernetiK nor the names of its contributors
+//  may be used to endorse or promote products derived from this software
+//  without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
+//
 #import "MulleObjCRootObject.h"
 
 #import "import-private.h"
@@ -7,6 +41,7 @@
 #import "MulleObjCExceptionHandler-Private.h"
 #import "MulleObjCFunctions.h"
 #import "MulleObjCProperty.h"
+#import "MulleObjCStandardImplementation.h"
 #import "NSAutoreleasePool.h"
 #import "NSMethodSignature.h"
 #import "NSThread.h"
@@ -30,10 +65,7 @@ NS_ENUM_TABLE( MulleObjCTAOStrategy, 8) =
 
 @implementation MulleObjCRootObject
 
-+ (instancetype) alloc
-{
-   return( _MulleObjCClassAllocateInstance( self, 0));
-}
+@method_implementation +alloc = MulleObjCStandardAlloc;
 
 
 + (instancetype) allocWithZone:(NSZone *) zone
@@ -43,10 +75,7 @@ NS_ENUM_TABLE( MulleObjCTAOStrategy, 8) =
 }
 
 
-+ (instancetype) new
-{
-   return( [_MulleObjCClassAllocateInstance( self, 0) init]);
-}
+@method_implementation +new = MulleObjCStandardNew;
 
 
 - (NSZone *) zone  // always NULL
@@ -73,103 +102,25 @@ NS_ENUM_TABLE( MulleObjCTAOStrategy, 8) =
 }
 
 
-- (void) finalize
-{
-   _MulleObjCInstanceClearProperties( self, NO);
-}
+@method_implementation -finalize = MulleObjCStandardFinalize;
 
 
-- (void) dealloc
-{
-#if DEBUG
-   struct _mulle_objc_universe                 *universe;
-   struct _mulle_objc_universefoundationinfo   *config;
-
-   universe = _mulle_objc_object_get_universe( self);
-   config   = _mulle_objc_universe_get_universefoundationinfo( universe);
-
-   if( config->object.singlethreadautoreleasecheckerenabled)
-   {
-      if( [NSAutoreleasePool mulleCountObject:self] )
-         __mulle_objc_universe_raise_internalinconsistency( universe,
-                        "deallocing object %p still in autoreleasepool", self);
-   }
-#endif
-   _MulleObjCInstanceFree( self);
-}
+@method_implementation -dealloc = MulleObjCStandardDealloc;
 
 
 #pragma mark - lifetime management
 
 
-//
-// this "facility" catches release/autorelease mistakes, but only for
-// single threaded programs. For multithreaded one would need to suspend all
-// other threads and inspect their autorelease pools as well
-//
-#ifdef DEBUG
-static void   checkAutoreleaseRelease( id self)
-{
-   struct _mulle_objc_universe                 *universe;
-   struct _mulle_objc_universefoundationinfo   *config;
-
-   universe = _mulle_objc_object_get_universe( self);
-   config   = _mulle_objc_universe_get_universefoundationinfo( universe);
-
-   if( config->object.singlethreadautoreleasecheckerenabled)
-   {
-      NSUInteger   autoreleaseCount;
-      NSUInteger   retainCount;
-
-      autoreleaseCount = [NSAutoreleasePool mulleCountObject:self];
-      retainCount      = [self retainCount];
-      if( autoreleaseCount >= retainCount)
-      {
-         __mulle_objc_universe_raise_internalinconsistency( universe,
-               "object <%s %p> would be autoreleased too often",
-                     MulleObjCInstanceGetClassNameUTF8String( self), self);
-      }
-   }
-}
-#else
-static inline void   checkAutoreleaseRelease( id self)
-{
-}
-#endif
+@method_implementation -release = MulleObjCStandardRelease;
 
 
-- (void) release
-{
-   checkAutoreleaseRelease( self);
-
-   // only place in mulle-objc where _mulle_objc_object_release_inline should
-   // be called and not _mulle_objc_object_call_release
-   _mulle_objc_object_release_inline( self);
-}
+@method_implementation -retain = MulleObjCStandardRetain;
 
 
-- (instancetype) retain
-{
-   // only place in mulle-objc where _mulle_objc_object_retain_inline should
-   // be called and not _mulle_objc_object_call_retain
-   _mulle_objc_object_retain_inline( (struct _mulle_objc_object *) self);
-   return( self);
-}
+@method_implementation -retainCount = MulleObjCStandardRetainCount;
 
 
-- (NSUInteger) retainCount
-{
-   return( (NSUInteger) _mulle_objc_object_get_retaincount_notps_noslow( self));
-}
-
-
-- (instancetype) autorelease
-{
-   checkAutoreleaseRelease( self);
-
-   _MulleObjCAutoreleaseObject( self);
-   return( self);
-}
+@method_implementation -autorelease = MulleObjCStandardAutorelease;
 
 
 //

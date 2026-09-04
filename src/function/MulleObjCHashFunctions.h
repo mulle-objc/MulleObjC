@@ -1,8 +1,8 @@
 //
-//  MulleObjCHash.h
-//  MulleObjCStandardFoundation
+//  MulleObjCHashFunctions.h
+//  MulleObjC
 //
-//  Copyright (c) 2017 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2020 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2017 Codeon GmbH.
 //  All rights reserved.
 //

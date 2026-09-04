@@ -1,5 +1,5 @@
 //
-//  MulleProtocol.h
+//  MulleObjCProtocol.h
 //  MulleObjC
 //
 //  Copyright (c) 2019 Nat! - Mulle kybernetiK.

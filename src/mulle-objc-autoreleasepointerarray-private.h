@@ -1,8 +1,8 @@
 //
-//  _ns-autoreleasepointerarray.h
+//  mulle-objc-autoreleasepointerarray-private.h
 //  MulleObjC
 //
-//  Copyright (c) 2012 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2012 Codeon GmbH.
 //  All rights reserved.
 //

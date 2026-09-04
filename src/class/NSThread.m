@@ -2,7 +2,7 @@
 //  NSThread.m
 //  MulleObjC
 //
-//  Copyright (c) 2011 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2011 Codeon GmbH.
 //  All rights reserved.
 //
@@ -386,9 +386,19 @@ static void   _mulle_objc_thread_become_universethread( struct _mulle_objc_unive
 }
 
 
+//
+// Resign this thread's UNIVERSE membership. This peels exactly one layer:
+//   - unregister from the per-universe gc aba
+//   - decrement the universe's live-thread count (n_threads)
+//
+// It deliberately does NOT: clear the thread's TSS/config (that is the config
+// layer, owned by the caller), unregister from the GLOBAL aba (that is the
+// process-global layer, owned by the caller), or release the universe
+// reference (the caller does that last, because dropping the last reference
+// synchronously drives universe teardown).
+//
 static void
-   _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *universe,
-                                               BOOL unset)
+   _mulle_objc_thread_resignas_universethread( struct _mulle_objc_universe *universe)
 {
    struct _mulle_objc_universefoundationinfo   *info;
 
@@ -397,13 +407,11 @@ static void
    // "main" thread
    //
    assert( mulle_thread_id() != _mulle_objc_universe_get_thread_id( universe));
+
    _mulle_objc_thread_remove_universe_gc( universe);
-   if( unset)
-      mulle_objc_thread_unset_threadinfo( universe);      // can't call Objective-C anymore
 
    info = _mulle_objc_universe_get_universefoundationinfo( universe);
    _mulle_atomic_pointer_decrement( &info->thread.n_threads);
-   _mulle_objc_universe_release( universe);
 }
 
 
@@ -516,9 +524,28 @@ void   _MulleThreadRemoveThreadObjectFromUniverse( NSThread *threadObject,
 
    _MulleThreadTakedownPoolAndRelease( threadObject, universe);
 
-   _mulle_objc_thread_resignas_universethread( universe, YES);
-
-   mulle_aba_unregister();
+   //
+   // Peel the thread's layers in reverse (LIFO) of _mulle_objc_thread_-
+   // become_universethread's setup order:
+   //   setup:  global-aba(register, in bouncyBounce) -> universe retain ->
+   //           config/TSS(setup_threadinfo) -> gc-aba(register) -> n_threads++
+   //   teardown here (inner -> outer):
+   //           n_threads-- + gc-aba(resignas) -> config/TSS(unset_threadinfo)
+   //           -> global-aba(unregister) -> universe release
+   //
+   // MEMO: strict LIFO would unregister the global aba LAST (it is the
+   // outermost layer). We instead unregister it just BEFORE the universe
+   // release, because _mulle_objc_universe_release can drop the last universe
+   // reference and then synchronously drives universe teardown on THIS thread,
+   // which calls NSThread +unload -> mulle_aba_done(), zeroing the global aba
+   // storage. Unregistering after the release would deref that zeroed world
+   // (NULL) -> SIGSEGV. Keep this ordering in sync with the detached-thread
+   // teardown in _mulle_objc_threadinfo_destructor().
+   //
+   _mulle_objc_thread_resignas_universethread( universe);   // gc aba + n_threads
+   mulle_objc_thread_unset_threadinfo( universe);           // config + TSS
+   mulle_aba_unregister();                                  // global aba
+   _mulle_objc_universe_release( universe);                 // may drive teardown
 }
 
 
@@ -649,11 +676,25 @@ void   _mulle_objc_threadinfo_destructor( struct _mulle_objc_threadinfo *info,
 
    _MulleThreadTakedownPoolAndRelease( threadObject, universe);
 
-   _mulle_objc_thread_resignas_universethread( universe, NO);
+   //
+   // Detached-thread teardown, invoked from the pthread TSS destructor (i.e.
+   // from WITHIN mulle_objc_threadinfo_free -> foundation_destructor). Because
+   // the config layer is already being freed by that enclosing call, we must
+   // NOT call mulle_objc_thread_unset_threadinfo here (it would re-enter
+   // threadinfo_free); we clear the TSS by hand at the end instead.
+   //
+   // Layer order otherwise matches _MulleThreadRemoveThreadObjectFromUniverse:
+   // resign universe membership (gc aba + n_threads), unregister the GLOBAL
+   // aba, then release the universe. As there, the global unregister must
+   // precede _mulle_objc_universe_release, whose teardown can call
+   // NSThread +unload -> mulle_aba_done() and zero the global aba storage.
+   // Keep this ordering in sync with _MulleThreadRemoveThreadObjectFromUniverse().
+   //
+   _mulle_objc_thread_resignas_universethread( universe);   // gc aba + n_threads
+   mulle_aba_unregister();                                  // global aba
+   _mulle_objc_universe_release( universe);                 // may drive teardown
 
-   mulle_aba_unregister();
-
-   mulle_thread_tss_set( threadkey, NULL);
+   mulle_thread_tss_set( threadkey, NULL);                  // config/TSS
 }
 
 

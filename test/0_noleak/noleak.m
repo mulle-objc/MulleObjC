@@ -5,7 +5,11 @@
 #endif
 
 
-@implementation Foo : MulleObject
+@interface Foo : MulleObject
+@end
+
+
+@implementation Foo
 @end
 
 

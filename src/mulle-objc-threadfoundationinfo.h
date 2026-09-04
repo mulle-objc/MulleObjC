@@ -1,8 +1,8 @@
 //
-//  ns_threadconfiguration.h
+//  mulle-objc-threadfoundationinfo.h
 //  MulleObjC
 //
-//  Copyright (c) 2016 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2016 Codeon GmbH.
 //  All rights reserved.
 //
@@ -33,7 +33,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 #ifndef mulle_objc_threadfoundationinfo__h__
 #define mulle_objc_threadfoundationinfo__h__
 

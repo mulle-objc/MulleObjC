@@ -1,0 +1,16 @@
+#
+# This test deliberately starts an NSThread and never joins it (see the test's
+# own comment: "just checking what happens if a NSThread is started but never
+# joined"). glibc keeps the unjoined thread's stack + TLS/DTV block around, and
+# reclaims it lazily on a schedule valgrind cannot observe. Under valgrind that
+# block is therefore reported as "304 bytes possibly lost" in
+# _dl_allocate_tls / allocate_stack / pthread_create, and mulle-test turns
+# valgrind's --error-exitcode into TEST CRASHED (77).
+#
+# This is a valgrind false-positive, not a runtime leak: joining the thread
+# (mulleStart + mulleJoin) would make it disappear, but that would defeat the
+# entire point of this test. So we exclude this test from sanitizers/valgrind
+# instead. It still runs and is output-checked without valgrind.
+#
+# See MulleFoundation/VALGRIND-TLS-POSTMORTEM.md for the general pattern.
+#

@@ -1,8 +1,8 @@
 //
-//  mulle-objc-foundationinfo.m
+//  mulle-objc-universefoundationinfo.m
 //  MulleObjC
 //
-//  Copyright (c) 2011-2018 Nat! - Mulle kybernetiK.
+//  Copyright (c) 2018 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2011-2018 Codeon GmbH.
 //  All rights reserved.
 //
