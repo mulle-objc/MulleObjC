@@ -1,3 +1,18 @@
+## 0.30.0
+
+
+feature: add standard named method implementations with `@method_implementation` support
+
+* new MulleObjCStandardImplementation module providing canonical implementations for +alloc, +new, -init, -autorelease, -dealloc, -finalize, -release, -retain, -retainCount and -self
+* new `@method_implementation` directive lets classes opt into standard implementations by name instead of writing inline bodies
+* fast-path dispatch (e.g. +instance) now calls inline standard implementations via a class implementation mask for zero overhead
+* standard implementations are single-sourced: the public named functions delegate to the same inline core, so custom overrides and the fast path stay in sync
+
+
+
+* split `_mulle_objc_thread_resignas_universethread` so config/TSS, global ABA and universe-release steps peel in strict LIFO order, preventing a NULL-deref/SIGSEGV when universe teardown runs on the releasing thread
+
+
 ## 0.29.0
 
 
