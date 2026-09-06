@@ -4,6 +4,23 @@
    once without printing and then once more with printing. I assume its got
    to be something with OS paging or some such that trips it up otherwise.
 
+## dispatch-bench
+
+   `dispatch-bench.m` contrasts the raw dispatch mechanisms:
+
+      c function   ~400M calls/s     plain C function through a function pointer
+      objc vtable  ~ 60M calls/s     FCS fastmethodtable slot lookup + call
+      objc cache   ~ 30M calls/s     full inline class method cache lookup + call
+      objc forward:~ 30M calls/s     same as cache, but the IMP is `forward:`
+      NSInvocation ~  5M calls/s     `-[NSInvocation invoke]`
+
+   Numbers are Debug (-O0) figures, print out to stderr and the benchmark
+   always exits 0. `[Bench method]` calls pay the cache lookup while "vtable"
+   calls pay only the fastmethodtable slot read, which is why vtable wins
+   over cache. Note that the test build compiles with `-fobjc-tao`; the TAO
+   bit is cleared in `main` so that non-threadsafe methods actually stay in
+   the cache (otherwise the "cache" case measures the TAO "refail" path).
+
 ## A
 
 Safe calls are just normal Objective-C method calls. Currently the compiler
