@@ -6,20 +6,44 @@
 
 ## dispatch-bench
 
-   `dispatch-bench.m` contrasts the raw dispatch mechanisms:
+   `dispatch-bench.m` contrasts the raw dispatch mechanisms. It is compiled
+   at `-O3 -DNDEBUG` (see `dispatch-bench.Debug.CFLAGS` /
+   `dispatch-bench.Release.CFLAGS`); `-O0` figures would be dominated by
+   debug/assert code and are pointless.
 
-      c function   ~400M calls/s     plain C function through a function pointer
-      objc vtable  ~ 60M calls/s     FCS fastmethodtable slot lookup + call
-      objc cache   ~ 30M calls/s     full inline class method cache lookup + call
-      objc forward:~ 30M calls/s     same as cache, but the IMP is `forward:`
-      NSInvocation ~  5M calls/s     `-[NSInvocation invoke]`
+   Debug library (`mulle-sde test run ...`, lib built `-O0 -fobjc-tao`):
 
-   Numbers are Debug (-O0) figures, print out to stderr and the benchmark
-   always exits 0. `[Bench method]` calls pay the cache lookup while "vtable"
-   calls pay only the fastmethodtable slot read, which is why vtable wins
-   over cache. Note that the test build compiles with `-fobjc-tao`; the TAO
-   bit is cleared in `main` so that non-threadsafe methods actually stay in
-   the cache (otherwise the "cache" case measures the TAO "refail" path).
+      c function    ~800M calls/s     plain C function through a function pointer
+      objc vtable   ~570M calls/s     FCS fastmethodtable slot lookup + call
+      objc cache    ~500M calls/s     full inline class method cache lookup + call
+      objc forward: ~320M calls/s     cache miss -> -forward: -> target method (~2 dispatch hops)
+      NSInvocation  ~  5M calls/s     `-[NSInvocation invoke]` (library body built at -O0)
+
+   Release library (`mulle-sde test run --release ...`, lib built `-O3 -fno-objc-tao`):
+
+      c function    ~800M calls/s
+      objc vtable   ~575M calls/s
+      objc cache    ~570M calls/s
+      objc forward: ~333M calls/s
+      NSInvocation  ~ 48M calls/s     `-[NSInvocation invoke]` (library body now -O3)
+
+   The `forward:` case is a real proxy: it dispatches a selector the proxy
+   does not implement, so the runtime misses the proxy's cache, calls the
+   proxy's `-forward:`, which then dispatches to a second object's method.
+   That is two dispatch hops, hence roughly half the cache hits/s. The proxy
+   overrides `-forward:` in this file so the whole path is compiled at `-O3`;
+   relying on `NSObject`'s `-forward:` would drag in the library's build.
+
+   The vtable case uses a compile-time constant slot index (as inlined FCS
+   dispatch does for a constant selector) - a runtime global index would be
+   reloaded every iteration and distort the result.
+
+   Note: the `.CFLAGS` files clobber the platform defaults, so they must also
+   mirror the thread-affinity flag of the library they link against (Debug
+   `-fobjc-tao`, Release `-fno-objc-tao`). In Debug builds the TAO bit is
+   additionally cleared in `main` so that non-threadsafe methods actually
+   stay in the cache (otherwise the "cache" case measures the TAO "refail"
+   path).
 
 ## A
 

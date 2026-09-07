@@ -11,28 +11,31 @@
 //   1. plain C function calls
 //   2. Objective-C method calls via the FCS "vtable" (fastmethodtable)
 //   3. Objective-C method calls via the class method cache
-//   4. calls that get dispatched to `forward:`
+//   4. calls that get forwarded to another object's method
 //   5. calls through NSInvocation
 //
-// The benchmark just outputs a calls/s number and never fails. Timings are
+// The benchmark just prints a calls/s number and never fails. Timings are
 // super flakey, so run it twice. The first run warms up the process, the
 // second run is the one that matters.
 //
-// To compare on optimized code:
-//
-//    mulle-sde test --configuration Release run MulleObject/30-bench/dispatch-bench.m
-//
 // The optimizer will try its very best to remove the calls, so the measured
 // loops are MULLE_C_NEVER_INLINE and the return values are accumulated and
-// printed at the end. The dispatch targets are function pointers, so they can
-// not be devirtualized away.
+// printed at the end. The dispatch targets are function pointers, so they
+// can not be devirtualized away. The bench compiles at -O3 -DNDEBUG via the
+// `dispatch-bench.Debug.CFLAGS` / `dispatch-bench.Release.CFLAGS` files;
+// -O0 figures would be meaningless here.
 //
-// NOTE: The test build defaults to -fobjc-tao, which keeps non-threadsafe
-// methods out of the method cache ("refail" on every call). To compare the
-// dispatch *mechanisms* on equal footing, the TAO bit is cleared upfront in
-// main, so the "objc cache" and "objc forward:" cases measure true cache
-// hits. Run with `MULLE_OBJC_CHECK_TAO=NO` to achieve the same effect
-// externally.
+// Because a `.CFLAGS` file clobbers the platform default flags, the file
+// must also mirror the thread-affinity flag of the linked library: the
+// Debug build of MulleObjC is `-fobjc-tao`, the Release build is
+// `-fno-objc-tao` (the runtime rejects a mismatch).
+//
+// NOTE: The (Debug) test build compiles with -fobjc-tao, which keeps
+// non-threadsafe methods out of the method cache ("refail" on every call).
+// To compare the dispatch *mechanisms* on equal footing, the TAO bit is
+// cleared upfront in main, so the "objc cache" and "objc forward:" cases
+// measure true cache hits. Run with `MULLE_OBJC_CHECK_TAO=NO` to achieve
+// the same effect externally.
 //
 
 
@@ -60,18 +63,43 @@
 @end
 
 
-@interface ForwardBench : NSObject
+@interface ForwardProxy : NSObject
+{
+   id   _target;
+}
 
+- (instancetype) initWithTarget:(id) target;
 - (void *) forward:(void *) param;
 
 @end
 
 
-@implementation ForwardBench
+@implementation ForwardProxy
 
+- (instancetype) initWithTarget:(id) target
+{
+   if( (self = [super init]))
+      _target = target;
+   return( self);
+}
+
+
+// override -forward: so that the whole forward path (cache miss on the
+// proxy, forward, second dispatch on the target) is compiled in this file
+// at the same optimization level. Relying on NSObject's -forward: would
+// pull in the -O0 build of the MulleObjC library and blow up the number
+// with debug code.
+//
+// The proxy does not implement run:, so dispatching run: on it misses the
+// proxy's cache and lands here. This forwards the message to _target, i.e.
+// one dispatch on the proxy (that reaches forward:) plus one dispatch on the
+// target object. That is the minimal honest "forward to another object's
+// method" cost.
 - (void *) forward:(void *) param
 {
-   return( param);
+   return( mulle_objc_object_call_inline_variable( _target,
+                                                   (mulle_objc_methodid_t) _cmd,
+                                                   param));
 }
 
 @end
@@ -81,8 +109,6 @@ typedef void *(* call_t)( void *object, void *parameter);
 
 
 static mulle_objc_methodid_t   CacheSel;
-static mulle_objc_methodid_t   ForwardSel;
-static int                     VtabIndex;
 static uintptr_t               Accumulator;
 
 
@@ -101,24 +127,31 @@ static void *cache_call( void *object, void *parameter)
 
 
 #ifdef __MULLE_OBJC_FCS__
+#define MULLE_OBJC_BENCH_VTAB_SLOT_INIT   1   // == mulle_objc_get_fastmethodtable_index( MULLE_OBJC_INIT_METHODID)
 MULLE_C_NEVER_INLINE
 static void *vtable_call( void *object, void *parameter)
 {
    struct _mulle_objc_class              *cls;
    mulle_objc_implementation_t           imp;
 
+   // compile-time constant slot index, just like inlined FCS dispatch gets
+   // for a constant _cmd. A runtime global would force a reload of the index
+   // on every call, which would distort the measurement.
    cls = _mulle_objc_object_get_isa( object);
    imp = (mulle_objc_implementation_t)
-            _mulle_atomic_pointer_read( &cls->vtab.methods[ VtabIndex].pointer);
+            _mulle_atomic_pointer_read( &cls->vtab.methods[ MULLE_OBJC_BENCH_VTAB_SLOT_INIT].pointer);
    return( (*imp)( object, MULLE_OBJC_INIT_METHODID, parameter));
 }
 #endif
 
 
+// dispatch a method the proxy does not implement; its inherited -forward:
+// calls -forwardingTargetForSelector:, which hands off to the real Bench
+// object, which then actually implements run:
 MULLE_C_NEVER_INLINE
 static void *forward_call( void *object, void *parameter)
 {
-   return( mulle_objc_object_call_inline_full( object, ForwardSel, parameter));
+   return( mulle_objc_object_call_inline_full( object, CacheSel, parameter));
 }
 
 
@@ -197,7 +230,7 @@ static void  run_case( struct benchcase *bc, int iterations, double budget)
 int  main( int argc, char *argv[])
 {
    Bench                             *bench;
-   ForwardBench                      *forward;
+   ForwardProxy                      *proxy;
    NSInvocation                      *invocation;
    struct benchcase                   cases[ 5];
    struct _mulle_objc_universe       *universe;
@@ -209,20 +242,20 @@ int  main( int argc, char *argv[])
 
    @autoreleasepool
    {
-      // the test build defaults to -fobjc-tao, which puts non-threadsafe
-      // methods on the "refail" path (see note above). Clear the TAO bit so
-      // that this benchmark measures the plain dispatch mechanisms.
+      // the test build compiles with -fobjc-tao (see dispatch-bench.CFLAGS),
+      // which keeps non-threadsafe methods out of the method cache
+      // ("refail" on every call). Clear the TAO bit so that this benchmark
+      // measures the plain dispatch mechanisms instead of the TAO miss path.
       universe = mulle_objc_global_get_universe( 0);
       universe->debug.method_call &= ~MULLE_OBJC_UNIVERSE_CALL_TAO_BIT;
 
       bench    = [Bench instance];
-      forward  = [ForwardBench instance];
+      proxy    = [[ForwardProxy alloc] initWithTarget:bench];
       invocation = [NSInvocation mulleInvocationWithTarget:bench
                                                  selector:@selector( run:)
                                                    object:nil];
 
-      CacheSel    = (mulle_objc_methodid_t) @selector( run:);
-      ForwardSel  = (mulle_objc_methodid_t) @selector( runFakeBenchCall:);
+      CacheSel = (mulle_objc_methodid_t) @selector( run:);
 
       n = 0;
 
@@ -237,19 +270,16 @@ int  main( int argc, char *argv[])
       n++;
 
 #ifdef __MULLE_OBJC_FCS__
-      VtabIndex = mulle_objc_get_fastmethodtable_index( MULLE_OBJC_INIT_METHODID);
-      if( VtabIndex >= 0)
-      {
-         cases[ n].name   = "objc vtable";
-         cases[ n].call   = vtable_call;
-         cases[ n].object = bench;
-         n++;
-      }
+      // MULLE_OBJC_INIT_METHODID is always a fast method (slot 0-5)
+      cases[ n].name   = "objc vtable";
+      cases[ n].call   = vtable_call;
+      cases[ n].object = bench;
+      n++;
 #endif
 
       cases[ n].name   = "objc forward:";
       cases[ n].call   = forward_call;
-      cases[ n].object = forward;
+      cases[ n].object = proxy;
       n++;
 
       cases[ n].name   = "NSInvocation";
