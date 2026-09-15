@@ -1,0 +1,9 @@
+# Force the object sprintf colorizer ON for this test.
+#
+# `%#@` emits the colorizerPrefix/Suffix ("[C]" ... "[/C]") only when
+# colorize() in mulle-sprintf-object.m returns YES. In CI the environment
+# sets NO_COLOR / TERM=dumb, which disables colorization and makes the
+# expected `[C]Foo nonlocking[/C]` output differ. Neutralize those here.
+unset NO_COLOR
+export MULLE_NO_COLOR=NO
+export TERM=xterm
