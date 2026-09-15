@@ -260,9 +260,13 @@ retry:
 {
    NSUInteger   mask;
    id           obj;
+   Class        cls;
 
    mask = MulleObjCClassGetStandardImplementationMask( self);
    obj  = MulleObjCClassCallAllocInline( self, mask);
+   cls  = MulleObjCInstanceGetClass( obj);
+   if( cls != self)
+      mask = MulleObjCClassGetStandardImplementationMask( cls);
    obj  = MulleObjCInstanceCallInitInline( obj, mask);
    obj  = MulleObjCInstanceCallAutoreleaseInline( obj, mask);
    return( obj);
