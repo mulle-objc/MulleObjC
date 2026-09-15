@@ -198,6 +198,9 @@ static inline id   _MulleObjCStandardSelfInline( id self, SEL sel, void *param)
 
 static inline NSUInteger   MulleObjCClassGetStandardImplementationMask( Class cls)
 {
+   if( ! cls)
+      return( 0);
+
    return( (NSUInteger) _mulle_objc_infraclass_get_standardimpmask( (struct _mulle_objc_infraclass *) cls));
 }
 
