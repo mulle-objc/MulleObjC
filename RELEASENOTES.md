@@ -1,3 +1,8 @@
+## 0.30.1
+
+* fix for classclusters using +instance
+
+
 ## 0.30.0
 
 
