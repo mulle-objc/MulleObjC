@@ -499,6 +499,17 @@ static void   _autoreleaseObject( struct _mulle_objc_poolconfiguration *config, 
 {
    NSUInteger   count;
 
+   //
+   // constant objects (singletons, static instances) can not be released
+   // by the pool, since their retain count is pinned at NEVER_RELEASE. They
+   // are deallocated directly at universe teardown. Putting such an object
+   // into the pool would hand it out twice: once to the pool and once to the
+   // teardown, which corrupts memory. So -autorelease is a no-op for them,
+   // exactly like -retain and -release are.
+   //
+   if( p && _mulle_objc_object_is_constant( p))
+      return;
+
    if( ! config->tail)
    {
       if( config->trace)

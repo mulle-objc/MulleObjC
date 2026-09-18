@@ -69,8 +69,8 @@ endif()
 include( InstallLibrary)
 
 if( LINK_PHASE)
-   include( InstallCMakeInclude)
-   include( InstallCMakePackage)
+   include( AddSubdirectorySupport)
+   include( FindPackageSupport)
 endif() 
 
 include( FinalOutput OPTIONAL)

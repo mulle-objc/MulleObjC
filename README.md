@@ -130,15 +130,6 @@ file).
 ### Add as subproject with cmake and git
 
 ``` bash
-git submodule add -f --name "mulle-core" \
-                            "https://github.com/mulle-core/mulle-core.git" \
-                            "stash/mulle-core"
-git submodule add -f --name "libbacktrace" \
-                            "https://github.com/mulle-core/libbacktrace.git" \
-                            "stash/libbacktrace"
-git submodule add -f --name "mulle-core-all-load" \
-                            "https://github.com/mulle-core/mulle-core-all-load.git" \
-                            "stash/mulle-core-all-load"
 git submodule add -f --name "mulle-objc-runtime" \
                             "https://github.com/mulle-objc/mulle-objc-runtime.git" \
                             "stash/mulle-objc-runtime"
@@ -155,16 +146,10 @@ git submodule update --init --recursive
 add_subdirectory( stash/MulleObjC)
 add_subdirectory( stash/mulle-objc-debug)
 add_subdirectory( stash/mulle-objc-runtime)
-add_subdirectory( stash/mulle-core-all-load)
-add_subdirectory( stash/libbacktrace)
-add_subdirectory( stash/mulle-core)
 
 target_link_libraries( ${PROJECT_NAME} PUBLIC MulleObjC)
 target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-objc-debug)
 target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-objc-runtime)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-core-all-load)
-target_link_libraries( ${PROJECT_NAME} PUBLIC libbacktrace)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-core)
 ```
 
 

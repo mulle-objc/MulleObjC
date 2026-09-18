@@ -103,10 +103,8 @@ int   _MulleObjCInstanceClearPropertyNoReadOnly( struct _mulle_objc_property *pr
                                                  struct _mulle_objc_infraclass *cls,
                                                  void *self)
 {
-   uint32_t                   bits;
-   ptrdiff_t                  offset;
-   struct _mulle_objc_ivar    *ivar;
-   mulle_objc_ivarid_t        ivarid;
+   uint32_t   bits;
+
 
    assert( MulleObjCObjectIsInstance( (id) self));
 
@@ -115,33 +113,7 @@ int   _MulleObjCInstanceClearPropertyNoReadOnly( struct _mulle_objc_property *pr
    if( bits & _mulle_objc_property_readonly)
       return( 0);
 
-   // forward properties are cleared by the forwarded-to property
-   if( bits & _mulle_objc_property_forward)
-      return( 0);
-
-   if( bits & _mulle_objc_property_setterclear)
-   {
-      mulle_objc_object_call_inline_variable( self, property->setter, NULL);
-      return( 0);
-   }
-
-   //
-   // This happens for readonly properties, which have no setter.
-   // They are penalized with a bsearch for the ivar.
-   //
-   if( bits & _mulle_objc_property_autoreleaseclear)
-   {
-      ivarid = _mulle_objc_property_get_ivarid( property);
-      if( ivarid)  // otherwise its dynamic
-      {
-         ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
-         offset = _mulle_objc_ivar_get_offset( ivar);
-
-         // TODO: this is a compiler built-in should not use
-         mulle_objc_object_set_property_value( self, 0, offset, NULL, 0);
-      }
-   }
-   return( 0);
+   return( _MulleObjCInstanceClearProperty( property, cls, self));
 }
 
 

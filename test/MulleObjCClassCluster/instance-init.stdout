@@ -1,0 +1,6 @@
+-init
+alloc/init: Bar
+-init
+new: Bar
+-init
+instance: Bar
