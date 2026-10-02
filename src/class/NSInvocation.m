@@ -131,10 +131,17 @@ void  __NSInvocationInvokeWithTargetAndMessageSignature( NSInvocation *invocatio
    }
 }
 
+//
+// frameLength is the length of the parameter block in `frame`, excluding
+// self and _cmd. Pass 0 to let the signature tell us (works only for
+// non-variadic methods, as the signature has no knowledge of a variadic
+// tail).
+//
 static inline void
    _NSMethodSignatureSetMetaABIFrame( NSMethodSignature *sig,
                                       char *storage,
-                                      void *frame)
+                                      void *frame,
+                                      size_t frameLength)
 {
    MulleObjCMethodSignatureTypeInfo   *infos;
    void                               *param;
@@ -175,9 +182,13 @@ static inline void
       // frame points to the parameter block
       assert( frame);
       param = &storage[ infos[ 3].invocation_offset];
-      size  = mulle_metaabi_sizeof_union( infos[ sig->_count - 1].invocation_offset
-                                        + infos[ sig->_count - 1].natural_size);
-      size -= sizeof( id) + sizeof( SEL);
+      size  = frameLength;
+      if( ! size)
+      {
+         size  = mulle_metaabi_sizeof_union( infos[ sig->_count - 1].invocation_offset
+                                           + infos[ sig->_count - 1].natural_size);
+         size -= sizeof( id) + sizeof( SEL);
+      }
       memcpy( param, frame, size);
       break;
    }
@@ -824,6 +835,20 @@ static NSInvocation   *popStandardInvocation( void)
 #endif
 
 
+static void   _NSInvocationSetStorage( NSInvocation *invocation,
+                                       NSMethodSignature *signature,
+                                       NSUInteger size)
+{
+   void   *extraBytes;
+
+   extraBytes                   = MulleObjCInstanceGetExtraBytes( invocation);
+   invocation->_storage         = mulle_pointer_align( extraBytes, alignof( double));
+   invocation->_sentinel        = &((char *) invocation->_storage)[ size];
+   invocation->_methodSignature = [signature retain];
+   invocation->_implementation  = 0;
+}
+
+
 /**
  **
  **/
@@ -831,7 +856,6 @@ static NSInvocation   *popStandardInvocation( void)
 {
    NSUInteger                      size;
    NSInvocation                    *invocation;
-   void                            *extraBytes;
    struct _mulle_objc_infraclass   *cls;
 
    // MEMO: do not raise during construction of objects
@@ -870,11 +894,7 @@ static NSInvocation   *popStandardInvocation( void)
    if( ! invocation)
       invocation = NSAllocateObject( self, size, NULL);
 
-   extraBytes                   = MulleObjCInstanceGetExtraBytes( invocation);
-   invocation->_storage         = mulle_pointer_align( extraBytes, alignof( double));
-   invocation->_sentinel        = &((char *) invocation->_storage)[ size];
-   invocation->_methodSignature = [signature retain];
-   invocation->_implementation  = 0;
+   _NSInvocationSetStorage( invocation, signature, size);
 
    return( [invocation autorelease]);
 }
@@ -939,6 +959,63 @@ NSInvocation  *NSInvocationCreateWithMetaABIFrame( NSMethodSignature *sig,
    return( invocation);
 }
 // @mulle-objc@ @invocation <
+
+
+//
+// Variadic counterpart to NSInvocationCreateWithMetaABIFrame.
+//
+// A NSMethodSignature can not describe the tail of a variadic method, so it
+// can not size a variadic invocation. mulleInvocationSize is 0 for those and
+// +invocationWithMethodSignature: consequently returns nil. Here the caller
+// supplies the length of the parameter block it built, which lifts that
+// restriction without weakening +invocationWithMethodSignature:. That check
+// is what makes -forward: fail closed on variadic selectors.
+//
+// frame must contain the parameter block without self and _cmd, laid out
+// exactly as the MetaABI expects. mulle-vararg-builder.h can build one, in
+// which case frameLength is the number of bytes pushed.
+// No argument retention — caller is responsible.
+//
+NSInvocation  *NSInvocationCreateWithMetaABIFrameAndLength( NSMethodSignature *sig,
+                                                            id target,
+                                                            SEL sel,
+                                                            void *frame,
+                                                            size_t frameLength,
+                                                            IMP imp)
+{
+   MulleObjCMethodSignatureTypeInfo   *info;
+   NSUInteger                         needed;
+   NSUInteger                         size;
+   NSInvocation                       *invocation;
+
+   // index 3 is the first parameter (0 is rval, 1 self, 2 _cmd) and -invoke
+   // passes it as the parameter block. numberOfArguments is 2 for a method
+   // without any, which leaves nothing to point at.
+   if( ! sig || ! frame || ! frameLength || [sig numberOfArguments] < 3)
+      return( nil);
+
+   //
+   // start from what the signature knows (0 for variadic) and grow to fit
+   // the callers parameter block. The slack covers _storage alignment.
+   //
+   info   = [sig mulleSignatureTypeInfoAtIndex:3];
+   needed = (NSUInteger) info->invocation_offset + frameLength + alignof( double);
+   size   = [sig mulleInvocationSize];
+   if( size < needed)
+      size = needed;
+
+   // MEMO: deliberately not using +invocationWithMethodSignature: nor the
+   //       standard invocation reuse pool, as this invocation is oversized
+   invocation = NSAllocateObject( [NSInvocation class], size, NULL);
+   _NSInvocationSetStorage( invocation, sig, size);
+
+   NSInvocationSetTarget( invocation, target);
+   NSInvocationSetSelector( invocation, sel);
+   invocation->_implementation = imp;
+   _NSMethodSignatureSetMetaABIFrame( sig, invocation->_storage, frame, frameLength);
+
+   return( [invocation autorelease]);
+}
 
 
 + (NSInvocation *) mulleInvocationWithTarget:(id) target
@@ -1278,7 +1355,7 @@ void  _NSInvocationInvokeWithTarget( NSInvocation *self, SEL _cmd, id target)
 
 - (void) _setMetaABIFrame:(void *) frame
 {
-   _NSMethodSignatureSetMetaABIFrame( _methodSignature, self->_storage, frame);
+   _NSMethodSignatureSetMetaABIFrame( _methodSignature, self->_storage, frame, 0);
 }
 
 

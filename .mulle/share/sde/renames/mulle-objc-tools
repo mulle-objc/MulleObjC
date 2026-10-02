@@ -1,0 +1,12 @@
+# Rename the mulle-objc-list dependency to mulle-objc-tools
+#
+# This file is installed into .mulle/share/sde/renames by the
+# mulle-objc/objc extension and applied by the generic dependency
+# rename pass in mulle-sde. See sde::migrate::dependency_renames.
+#
+address=mulle-objc-list
+newaddress=mulle-objc-tools
+url=https://github.com/mulle-objc/mulle-objc-list
+newurl=https://github.com/mulle-objc/mulle-objc-tools
+env=MULLE__OBJC__LIST:MULLE__OBJC__TOOLS
+env=MULLE_OBJC_LIST:MULLE_OBJC_TOOLS

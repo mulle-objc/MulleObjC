@@ -50,13 +50,25 @@ MULLE_OBJC_GLOBAL
 int   _MulleObjCInstanceClearPropertyNoReadOnly( struct _mulle_objc_property *property,
                                                  struct _mulle_objc_infraclass *cls,
                                                  void *self);
+
+MULLE_OBJC_GLOBAL
+int   _MulleObjCInstanceClearPropertyOnlyReadOnly( struct _mulle_objc_property *property,
+                                                   struct _mulle_objc_infraclass *cls,
+                                                   void *self);
 MULLE_OBJC_GLOBAL
 int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *infra,
                                               mulle_objc_walkpropertiescallback_t f,
                                               void *userinfo);
 
+typedef NS_ENUM( uint8_t, MulleObjCPropertyClearMode)
+{
+   MulleObjCPropertyClearNonReadOnly    = 0,
+   MulleObjCPropertyClearAll            = 1,
+   MulleObjCPropertyClearOnlyReadOnly   = 2
+};
+
 MULLE_OBJC_GLOBAL
-void   _MulleObjCInstanceClearProperties( id obj, BOOL clearReadOnly);
+void   _MulleObjCInstanceClearProperties( id obj, MulleObjCPropertyClearMode mode);
 
 
 //  MulleObjRecycle and MulleObjCAcquire are useful to transfer objects from

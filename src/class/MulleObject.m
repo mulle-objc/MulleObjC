@@ -40,6 +40,8 @@
 #import "MulleObjCException.h"
 #import "MulleObjCFunctions.h"
 
+#import "MulleObjCProperty.h"
+
 #import "MulleObjCExceptionHandler-Private.h"
 #import "NSLock-Private.h"
 #import "NSRecursiveLock-Private.h"
@@ -547,6 +549,15 @@ void   MulleObjectSetAutolockingEnabled( Class self, BOOL flag)
 {
    [__lock release];
    [super dealloc];
+}
+
+
+- (void) finalize
+{
+   _MulleObjectLock( self);
+   _MulleObjCInstanceClearProperties( self, MulleObjCPropertyClearOnlyReadOnly);
+   _MulleObjectUnlock( self);
+   [super finalize];
 }
 
 

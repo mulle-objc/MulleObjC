@@ -18,7 +18,7 @@ mulle-sourcetree rcopy /tmp/other-project Foo
 
 ```bash
 mulle-sde move MulleObjC below MyLibrary
-mulle-sde move mulle-objc-list to bottom
+mulle-sde move mulle-objc-tools to bottom
 mulle-sde move mulle-testallocator to bottom
 ```
 

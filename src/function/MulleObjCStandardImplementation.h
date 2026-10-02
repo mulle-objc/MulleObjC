@@ -45,33 +45,43 @@
 //
 
 // family 1: +alloc  (class method)
+MULLE_OBJC_GLOBAL
 id   MulleObjCStandardAlloc( id self, SEL sel, void *param);
 
 // family 3: -init  (instance method)
+MULLE_OBJC_GLOBAL
 id   MulleObjCStandardInit( id self, SEL sel, void *param);
 
 // family 5: +new  (class method)
+MULLE_OBJC_GLOBAL
 id   MulleObjCStandardNew( id self, SEL sel, void *param);
 
 // family 6: -autorelease  (instance method)
+MULLE_OBJC_GLOBAL
 id   MulleObjCStandardAutorelease( id self, SEL sel, void *param);
 
 // family 7: -dealloc  (instance method)
+MULLE_OBJC_GLOBAL
 void   MulleObjCStandardDealloc( id self, SEL sel);
 
 // family 8: -finalize  (instance method)
+MULLE_OBJC_GLOBAL
 void   MulleObjCStandardFinalize( id self, SEL sel);
 
 // family 9: -release  (instance method)
+MULLE_OBJC_GLOBAL
 void   MulleObjCStandardRelease( id self, SEL sel);
 
 // family 10: -retain  (instance method)
+MULLE_OBJC_GLOBAL
 id   MulleObjCStandardRetain( id self, SEL sel, void *param);
 
 // family 11: -retainCount  (instance method)
+MULLE_OBJC_GLOBAL
 NSUInteger   MulleObjCStandardRetainCount( id self, SEL sel, void *param);
 
 // family 12: -self  (instance method)
+MULLE_OBJC_GLOBAL
 id   MulleObjCStandardSelf( id self, SEL sel, void *param);
 
 #endif

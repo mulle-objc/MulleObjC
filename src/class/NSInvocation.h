@@ -42,19 +42,27 @@
 //
 // NSInvocations can be variable in size, as _storage expands and contracts
 // with MetaABI parameters.
-// Big Question: can a NSInvocation be variadic ? Meaning can we create an
-// invocation for [NSString stringWithFormat:@"%d %d %d %d", 1, 2, 3, 4]; ?
+//
+// Variadic:
+// A NSMethodSignature can not describe the tail of a variadic method, so it
+// can not size an invocation for one. mulleInvocationSize is 0 for variadic
+// signatures and +invocationWithMethodSignature: returns nil accordingly.
+// That nil is load bearing: it is how -forward: detects that it can not copy
+// a variadic parameter block of unknown length, and raises instead of
+// corrupting the call.
+//
 // Forwarding:
-// The answer is ... can we copy the metaABI frame into the NSInvocation ?
-// I don't see how. We would need a special "ephemeral" NSInvocation that can
-// not be retained or copied, that keeps the original metaABI alive., That's
-// just super-fragile. Ppl. should be "just" using `forward:` for this.
-// We could solve this by writing a sizeof() value into the metaABI param block
-// though, maybe at a negative offset. That way we could at least forward
-// stuff (can't retain it though), but to what good ?
+// Still not possible, for that same reason. It would need either a length
+// stored in the parameter block (e.g. at a negative offset), or a special
+// "ephemeral" NSInvocation that can not be retained or copied and keeps the
+// original metaABI alive. The latter is just super-fragile. Ppl. should be
+// "just" using `forward:` for this.
 //
 // Construction:
-// We could create a variadic NSInvocation manually though...
+// If you build the parameter block yourself, and therefore know its length,
+// use NSInvocationCreateWithMetaABIFrameAndLength. It allocates directly and
+// leaves the check above intact. mulle-vararg-builder.h (mulle-vararg) has
+// the macros to build a conforming parameter block.
 //
 // Subclasses that add properties, even if not readonly must release them
 // in dealloc as -finalize does nothing.
@@ -147,11 +155,25 @@
 
 // Compiler support: creates an NSInvocation from a prebuilt MetaABI frame.
 // imp may be 0 (NULL) for normal method dispatch.
+MULLE_OBJC_GLOBAL
 NSInvocation   *NSInvocationCreateWithMetaABIFrame( NSMethodSignature *sig,
                                                     id target,
                                                     SEL sel,
                                                     void *frame,
                                                     IMP imp);
+
+
+// Same, but for frames whose length the signature can not supply, which is
+// the variadic case. frameLength is the size of the parameter block in frame,
+// excluding self and _cmd. Returns nil if frameLength is 0.
+// No argument retention, the caller is responsible.
+MULLE_OBJC_GLOBAL
+NSInvocation   *NSInvocationCreateWithMetaABIFrameAndLength( NSMethodSignature *sig,
+                                                             id target,
+                                                             SEL sel,
+                                                             void *frame,
+                                                             size_t frameLength,
+                                                             IMP imp);
 
 
 // idea:

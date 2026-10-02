@@ -7,6 +7,7 @@
 **Key Features:**
 - Complete Objective-C root class hierarchy (NSObject, NSProxy, NSAutoreleasePool)
 - Method serialization with MetaABI-optimized invocation (NSInvocation, NSMethodSignature)
+- Caller-supplied parameter blocks for variadic methods via `NSInvocationCreateWithMetaABIFrameAndLength`, without weakening the `+invocationWithMethodSignature:` nil that keeps `forward:` fail-closed
 - Thread support with platform abstraction (NSThread, NSLock, NSCondition, NSConditionLock, NSRecursiveLock)
 - Autorelease pool management (NSAutoreleasePool)
 - Exception handling macros (MulleObjCThrow*Exception)
@@ -171,7 +172,7 @@ struct _NSConstantMethodSignature {
 
 **Accessors:**
 - `- (BOOL) isOneway`
-- `- (BOOL) isVariadic`
+- `- (BOOL) isVariadic` — The signature has a promoted tail that it does not describe; it does not mean no invocation can exist (see `NSInvocationCreateWithMetaABIFrameAndLength`)
 - `- (NSUInteger) _descriptorBits`
 - `- (NSUInteger) frameLength`
 - `- (NSUInteger) methodReturnLength`
@@ -236,8 +237,15 @@ NSInvocation is variable-sized: `_storage` expands/contracts with MetaABI parame
 - `- (void) retainArguments` — Retain all object arguments
 - `- (void) mulleRetainReturnValue`
 
-**C Function:**
-- `NSInvocation *NSInvocationCreateWithMetaABIFrame(NSMethodSignature *sig, id target, SEL sel, void *frame, IMP imp)` — Compiler support: creates invocation from prebuilt MetaABI frame
+**C Functions:**
+- `NSInvocation *NSInvocationCreateWithMetaABIFrame(NSMethodSignature *sig, id target, SEL sel, void *frame, IMP imp)` — Compiler support: creates invocation from prebuilt MetaABI frame; `imp` may be `NULL` for normal method dispatch
+- `NSInvocation *NSInvocationCreateWithMetaABIFrameAndLength(NSMethodSignature *sig, id target, SEL sel, void *frame, size_t frameLength, IMP imp)` — Same, for frames whose length the signature can not supply, which is the variadic case; allocates directly and does not consult `mulleInvocationSize`; returns `nil` if `frameLength` is 0
+
+**Variadic invocations:**
+
+A variadic `NSMethodSignature` describes only the fixed parameters, so `-mulleInvocationSize` returns 0 for it and `+invocationWithMethodSignature:` returns `nil`. That `nil` is load bearing — `-forward:` relies on it to detect that it can not copy a parameter block of unknown length, and raises rather than corrupting the call.
+
+`NSInvocationCreateWithMetaABIFrameAndLength` lifts the restriction without weakening that check: it allocates directly, bypassing `+invocationWithMethodSignature:` and the standard invocation reuse pool. The caller owns the frame layout (`self` and `_cmd` excluded); `mulle-vararg-builder.h` (mulle-vararg) supplies the push macros to build one. The tail arguments are not addressable via `-getArgument:atIndex:` and `-retainArguments` still throws, as the tail types are not in the signature.
 
 ### 3.3 Synchronization Primitives
 
@@ -946,7 +954,7 @@ Protocol declarations for the fundamental collection types used by the mulle-obj
 - **Initialization Guards**: Use `MulleObjCClassInitializeOnceDo(self)` to guard `+initialize` against multiple calls from category loading
 - **TAO**: Use `MulleObjCTAOKnownThreadSafe` for thread-safe objects; call `-mulleGainAccess`/`-mulleRelinquishAccess` when transferring objects across threads
 - **Pool Management**: Use `@autoreleasepool` for scope-based management; create explicit pools in tight loops or custom threads
-- **Invocation**: For dynamic method dispatch, use `+mulleInvocationWithTarget:selector:...` variadic factories; set `-setImplementation:` for direct IMP dispatch
+- **Invocation**: For dynamic method dispatch, use `+mulleInvocationWithTarget:selector:...` variadic factories; set `-setImplementation:` for direct IMP dispatch. For a variadic *method*, build the MetaABI parameter block yourself and use `NSInvocationCreateWithMetaABIFrameAndLength` — `+invocationWithMethodSignature:` deliberately returns `nil` for variadic signatures
 
 ### Common Pitfalls
 
@@ -956,6 +964,7 @@ Protocol declarations for the fundamental collection types used by the mulle-obj
 - **forwardInvocation**: NSProxy requires both `-methodSignatureForSelector:` and `-forwardInvocation:` implementations
 - **Lock Deadlock**: NSLock is NOT recursive — same thread can't lock twice; use NSRecursiveLock for reentrant scenarios
 - **NSInvocation Overhead**: Slower than direct dispatch; use for dynamic methods or cross-thread marshalling only
+- **Variadic NSInvocation**: `+invocationWithMethodSignature:` returns `nil` for a variadic signature and `-retainArguments` throws — that nil is deliberate, not a bug. Use `NSInvocationCreateWithMetaABIFrameAndLength` with a caller-built parameter block
 - **Class Cluster Placeholders**: Classes adopting `MulleObjCClassCluster` must call `[super initialize]` when overriding `+initialize`
 - **@mixin Hierarchy**: @mixin classes behave differently from protocols — they provide concrete default implementations; check with `[object respondsToSelector:]`
 

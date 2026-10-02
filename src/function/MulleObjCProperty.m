@@ -117,6 +117,23 @@ int   _MulleObjCInstanceClearPropertyNoReadOnly( struct _mulle_objc_property *pr
 }
 
 
+int   _MulleObjCInstanceClearPropertyOnlyReadOnly( struct _mulle_objc_property *property,
+                                                   struct _mulle_objc_infraclass *cls,
+                                                   void *self)
+{
+   uint32_t   bits;
+
+   assert( MulleObjCObjectIsInstance( (id) self));
+
+   // only clear readonly properties
+   bits = _mulle_objc_property_get_bits( property);
+   if( ! (bits & _mulle_objc_property_readonly))
+      return( 0);
+
+   return( _MulleObjCInstanceClearProperty( property, cls, self));
+}
+
+
 
 # pragma mark - improve dealloc speed for classes that don't have properties that need to be released
 
@@ -154,10 +171,11 @@ int   _MulleObjCClassWalkClearableProperties( struct _mulle_objc_infraclass *inf
 }
 
 
-void   _MulleObjCInstanceClearProperties( id obj, BOOL clearReadOnly)
+void   _MulleObjCInstanceClearProperties( id obj, MulleObjCPropertyClearMode mode)
 {
    struct _mulle_objc_class        *cls;
    struct _mulle_objc_infraclass   *infra;
+   mulle_objc_walkpropertiescallback_t  callback;
 
    assert( MulleObjCObjectIsInstance( obj));
 
@@ -165,11 +183,24 @@ void   _MulleObjCInstanceClearProperties( id obj, BOOL clearReadOnly)
    cls  = _mulle_objc_object_get_isa( obj);
    // if it's a meta class it's an error during debug
    infra = _mulle_objc_class_as_infraclass( cls);
-   _MulleObjCClassWalkClearableProperties( infra,
-                                           clearReadOnly
-                                           ? _MulleObjCInstanceClearProperty
-                                           : _MulleObjCInstanceClearPropertyNoReadOnly,
-                                           obj);
+
+   switch( mode)
+   {
+   case MulleObjCPropertyClearNonReadOnly:
+      callback = _MulleObjCInstanceClearPropertyNoReadOnly;
+      break;
+   case MulleObjCPropertyClearAll:
+      callback = _MulleObjCInstanceClearProperty;
+      break;
+   case MulleObjCPropertyClearOnlyReadOnly:
+      callback = _MulleObjCInstanceClearPropertyOnlyReadOnly;
+      break;
+   default:
+      callback = _MulleObjCInstanceClearPropertyNoReadOnly;
+      break;
+   }
+
+   _MulleObjCClassWalkClearableProperties( infra, callback, obj);
 }
 
 

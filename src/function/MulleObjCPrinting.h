@@ -61,16 +61,16 @@ char   *MulleObjC_strdup( char *s);
 #define mulle_buffer_do_autoreleased_string( name, allocator, s)               \
    for( struct mulle_buffer name ## __storage = MULLE_BUFFER_DATA( allocator), \
                             *name = &name ## __storage,                        \
-                            name ## __i = { 0 };                               \
+                            *name ## __i = NULL;                               \
                                                                                \
-        s = (name ## __i._storage)                                             \
+        s = (name ## __i)                                                      \
                ? MulleObjCAutoreleaseAllocation(                               \
                    mulle_buffer_extract_string( &name ## __storage),           \
                    (allocator))                                                \
                : NULL,                                                         \
-        ! name ## __i._storage;                                                \
+        ! name ## __i;                                                         \
                                                                                \
-        name ## __i._storage = (void *) 0x1                                    \
+        name ## __i = (void *) 0x1                                             \
       )                                                                        \
       MULLE_C_CONFINED_LOOP                                                    \
       for( int  name ## __j = 0;    /* break protection */                     \

@@ -120,8 +120,21 @@
   parameters (from `src/class/NSInvocation.h`).
 - Subclasses that add properties must release them in `-dealloc` as
   `-finalize` does nothing for NSInvocation.
-- Variadic invocations are not supported (can't copy a MetaABI frame for
-  variadic calls). Use `forward:` for variadic forwarding.
+- A variadic `NSMethodSignature` can not size an invocation — it describes
+  only the fixed parameters. `-mulleInvocationSize` is 0 for one and
+  `+invocationWithMethodSignature:` returns `nil` accordingly. Do not "fix"
+  that: the `nil` is what makes `-forward:` raise on a variadic selector
+  instead of corrupting the call.
+- To build an invocation for a variadic method anyway, construct the MetaABI
+  parameter block yourself and pass its length to
+  `NSInvocationCreateWithMetaABIFrameAndLength` (`mulle-vararg-builder.h` has
+  the push macros). The block excludes `self` and `_cmd`, and the caller owns
+  the layout.
+- `-retainArguments` throws for variadic invocations — the tail types are not
+  in the signature, so the runtime can not retain them. This is the one case
+  where the rule below does not apply.
+- Forwarding (as opposed to constructing) a variadic selector still raises.
+  Use `forward:` for variadic *forwarding* within your own class instead.
 - `-retainArguments` must be called explicitly when passing invocations to
   threads (from `src/class/NSThread.h`).
 

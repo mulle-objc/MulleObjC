@@ -19,12 +19,18 @@ if( NOT LIBRARY_NAME)
    set( LIBRARY_NAME "${PROJECT_NAME}")
 endif()
 
+if( NOT MULLE_SDE_REFLECT_DIR)
+   set( MULLE_SDE_REFLECT_DIR "reflect")
+endif()
+
+if( "$ENV{PROJECT_SOURCE_DIR}" STREQUAL "")
+   set( MULLE_SDE_REFLECT_SOURCE_DIR "src/${MULLE_SDE_REFLECT_DIR}")
+else()
+   set( MULLE_SDE_REFLECT_SOURCE_DIR "$ENV{PROJECT_SOURCE_DIR}/${MULLE_SDE_REFLECT_DIR}")
+endif()
+
 if( NOT OBJC_DEPS_INC)
-   if( MULLE_SDE_REFLECT_DIR)
-      set( OBJC_DEPS_INC "${CMAKE_CURRENT_SOURCE_DIR}/src/${MULLE_SDE_REFLECT_DIR}/objc-deps.inc")
-   else()
-      set( OBJC_DEPS_INC "${CMAKE_CURRENT_SOURCE_DIR}/src/reflect/objc-deps.inc")
-   endif()
+   set( OBJC_DEPS_INC "${CMAKE_CURRENT_SOURCE_DIR}/${MULLE_SDE_REFLECT_SOURCE_DIR}/objc-deps.inc")
 endif()
 
 #

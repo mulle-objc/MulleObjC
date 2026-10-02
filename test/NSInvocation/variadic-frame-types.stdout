@@ -1,0 +1,124 @@
+ints/0:
+ints/1:
+1
+ints/2:
+1
+2
+ints/3:
+1
+2
+3
+ints/16:
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+chars:
+65
+66
+67
+shorts:
+-1
+2
+-3
+unsignedchars:
+200
+255
+0
+unsignedshorts:
+40000
+65535
+1
+unsignedints:
+3000000000
+1
+2
+int32s:
+-2000000000
+2000000000
+0
+uint32s:
+4000000000
+1
+2
+longs:
+1000000000
+-1
+42
+unsignedlongs:
+10000000000
+1
+2
+longlongs:
+5000000000
+-5000000000
+0
+unsignedlonglongs:
+5000000000000000000
+1
+2
+int64s:
+-5000000000
+5000000000
+0
+uint64s:
+10000000000000000000
+1
+2
+floats:
+1.5
+-0.25
+3.5
+doubles:
+1.5
+-0.25
+3.5
+mixed:
+65 -2 1000 100000 5000000000 1.5 2.5 mixed again
+pointers:
+VfL Bochum 1848
+1848
+objects:
+self
+other
+self
+structs:
+1848 2.5
+-1848 -2.5
+functionpointers:
+calls: 3
+namedChar:
+char 65 7 8
+namedShort:
+short -123 7 8
+namedInt:
+int 123 7 8
+namedLong:
+long 1234567890 7 8
+namedLongLong:
+longlong 1234567890123 7 8
+namedFloat:
+float 1.5 7 8
+namedDouble:
+double 2.5 7 8
+namedPointer:
+pointer named 7 8
+namedObject:
+object self 7 8
+namedStruct:
+struct 1848 2.5 7 8
+threeMixed:
+threeMixed 66 1.5 2.5 7 8
+sum: 10

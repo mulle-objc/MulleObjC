@@ -146,7 +146,7 @@ static inline void   _MulleObjCStandardDeallocInline( id self, SEL sel)
 // family 8: -finalize
 static inline void   _MulleObjCStandardFinalizeInline( id self, SEL sel)
 {
-   _MulleObjCInstanceClearProperties( self, NO);
+   _MulleObjCInstanceClearProperties( self, MulleObjCPropertyClearNonReadOnly);
 }
 
 
