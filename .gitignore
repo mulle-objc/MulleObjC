@@ -112,3 +112,9 @@ test/NSThread/.unison.vgcore.*.unison.tmp
 TODO.md
 REVIEW.md
 .freebuff
+.vscode/
+.touch
+*.orig
+*.workspace
+*.*-workspace
+*.future
