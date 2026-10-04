@@ -25,7 +25,7 @@
 #endif
 #if defined( MULLE__OBJC__RUNTIME_VERSION)
 # ifndef MULLE__OBJC__RUNTIME_VERSION_MIN
-#  define MULLE__OBJC__RUNTIME_VERSION_MIN  ((0UL << 20) | (30 << 8) | 0)
+#  define MULLE__OBJC__RUNTIME_VERSION_MIN  ((0UL << 20) | (30 << 8) | 1)
 # endif
 # ifndef MULLE__OBJC__RUNTIME_VERSION_MAX
 #  define MULLE__OBJC__RUNTIME_VERSION_MAX  ((0UL << 20) | (31 << 8) | 0)

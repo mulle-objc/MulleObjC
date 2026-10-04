@@ -68,6 +68,12 @@ static void   test_struct2( void)
                            NULL);
    mulle_structarray_add( &array, &x);
 
+   // _n_mutations is only counted without NDEBUG, so zero it to keep the
+   // described output identical in Debug and Release
+#ifndef MULLE__CONTAINER_MISER_MODE
+   array.base._n_mutations = 0;
+#endif
+
    char   *s;
 
    mulle_buffer_do( buffer)

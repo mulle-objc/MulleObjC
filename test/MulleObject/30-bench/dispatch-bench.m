@@ -309,6 +309,8 @@ int  main( int argc, char *argv[])
       for( i = 0; i < n; i++)
          run_case( &cases[ first < 0 ? i : first + i], iterations, budget);
 
+      [proxy release];
+
       mulle_fprintf( stderr, "\n");
    }
 
