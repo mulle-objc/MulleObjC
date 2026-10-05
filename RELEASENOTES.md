@@ -1,3 +1,24 @@
+### 0.30.2
+
+
+* Verify `@signature` and `instanceMethodSignatureForSelector:` agree on argument count, invocation offsets, and natural sizes for the same method
+* Guards against the 64 bit ``_cmd`` `natural_size` mismatch that could overflow the stack in NSInvocation
+
+
+
+feature: add variadic NSInvocation support via caller-supplied parameter blocks
+
+* new `NSInvocationCreateWithMetaABIFrameAndLength` C function builds an invocation for a variadic method from a caller-constructed MetaABI parameter block, since the method signature cannot size the variadic tail
+* `+invocationWithMethodSignature:` deliberately still returns `nil` for variadic signatures, preserving `-forward:` fail-closed behavior instead of corrupting the call
+* `MulleObjCPropertyClearMode` replaces the `BOOL clearReadOnly` argument of ``_MulleObjCInstanceClearProperties`;` **BREAKING** for direct callers of that function
+* new `MulleObjCPropertyClearOnlyReadOnly` mode and ``_MulleObjCInstanceClearPropertyOnlyReadOnly`` clear only readonly properties
+* `MulleObject` now implements `-finalize` to clear its readonly properties on teardown
+* added variadic-frame test coverage across all promoted type classes and cardinalities
+
+
+
+* constant objects will not be added to the autoreleasepool anymore
+
 ## 0.30.1
 
 * fix for classclusters using +instance
