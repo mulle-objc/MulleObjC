@@ -905,6 +905,7 @@ Protocol declarations for the fundamental collection types used by the mulle-obj
 - `int _MulleObjCObjectGetIvar(id self, mulle_objc_ivarid_t ivarid, void *buf, size_t size)` — memcpy from ivar
 - `id MulleObjCObjectGetObjectIvar(id self, mulle_objc_ivarid_t ivarid)` — Proper retain/autorelease object getter
 - `void MulleObjCObjectSetObjectIvar(id self, mulle_objc_ivarid_t ivarid, id value)` — Proper assign/copy/retain object setter
+- `void MulleObjCObjectSetDuplicatedUTF8String(id self, char **ivar, char *s)` — Duplicate UTF-8 C string into an ivar; pass NULL as `s` to free the stored string
 - `int _MulleObjCClassWalkIvars(Class cls, mulle_objc_walkivarscallback_t f, void *userinfo)` — Enumerate ivars of a class
 
 #### Allocation (`src/function/MulleObjCAllocation.h`)

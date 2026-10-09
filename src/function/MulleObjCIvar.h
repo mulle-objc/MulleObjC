@@ -68,7 +68,8 @@ int   _MulleObjCInstanceWalkIvars( id obj,
 // write:
 //   MulleObjCInstanceDeallocateMemory( self, **&**_fontName); !! WRONG
 // with the erroneus & before the _ivar
-//
+// better use: MulleObjCObjectSetDuplicatedUTF8String( self, &_fontName, NULL)
+// to free
 MULLE_OBJC_GLOBAL
 void   MulleObjCObjectSetDuplicatedUTF8String( id self, char **ivar, char *s);
 
