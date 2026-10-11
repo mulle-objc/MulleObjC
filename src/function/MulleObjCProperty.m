@@ -68,6 +68,24 @@ int   _MulleObjCInstanceClearProperty( struct _mulle_objc_property *property,
    }
 
    //
+   // A 'copy' C string that is readonly has no setter, so it can not be
+   // cleared by messaging. A '_Nonnull' one has a setter, but no setterclear
+   // bit, as a NULL can not be passed through it. In both cases the
+   // duplicated string is freed with the same allocator that created it.
+   //
+   if( bits & _mulle_objc_property_cstring)
+   {
+      ivarid = _mulle_objc_property_get_ivarid( property);
+      if( ivarid)
+      {
+         ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
+         offset = _mulle_objc_ivar_get_offset( ivar);
+         mulle_objc_object_set_property_cstring( self, 0, offset, NULL, 0);
+      }
+      return( 0);
+   }
+
+   //
    // This happens for readonly properties, which have no setter.
    // They are penalized with a bsearch for the ivar.
    //

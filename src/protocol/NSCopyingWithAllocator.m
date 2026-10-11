@@ -73,6 +73,34 @@ int   _MulleObjCInstanceCopyWithAllocatorProperty( struct _mulle_objc_property *
    if( bits & _mulle_objc_property_dynamic)
       return( 0);
 
+   //
+   // A 'copy' C string is not an object, so it can not be sent
+   // copyWithAllocator:. The string is duplicated into the target allocator
+   // instead, while the source gives up its own string and frees it with its
+   // own allocator, keeping the two allocators balanced.
+   //
+   // noautorelease is passed to the getter, so that it does not send
+   // -autorelease to a char *.
+   //
+   if( bits & _mulle_objc_property_cstring)
+   {
+      ivarid = _mulle_objc_property_get_ivarid( property);
+      ivar   = mulle_objc_infraclass_search_ivar( cls, ivarid);
+      offset = _mulle_objc_ivar_get_offset( ivar);
+      value  = mulle_objc_object_get_property_value( info->obj,
+                                                     0,
+                                                     offset,
+                                                     mulle_objc_property_accessor_noautorelease);
+      if( ! value)
+         return( 0);
+
+      *((char **) &((char *) info->clone)[ offset]) =
+         mulle_allocator_strdup( info->allocator, (char *) value);
+
+      mulle_objc_object_set_property_cstring( info->obj, 0, offset, NULL, 0);
+      return( 0);
+   }
+
    if( ! (bits & _mulle_objc_property_copy))
       return( 0);
 
@@ -83,6 +111,15 @@ int   _MulleObjCInstanceCopyWithAllocatorProperty( struct _mulle_objc_property *
    if( ! value)
       return( 0);
    value = [value copyWithAllocator:info->allocator];
+
+   //
+   // Hand the copy (and its +1) over to the clone and let the source
+   // relinquish its own reference. The clone's ivar is written directly, as
+   // going through the setter would either copy again or, because the
+   // preceding memcpy aliased the source's value into the clone, drop a
+   // reference the clone does not own.
+   //
+   *((void **) &((char *) info->clone)[ offset]) = value;
    mulle_objc_object_set_property_value( info->obj, 0, offset, NULL, 0);
 
    //
@@ -170,6 +207,13 @@ id   _MulleObjCInstanceCopyWithAllocator( id obj,
    clone    = _MulleObjCClassAllocateInstanceWithAllocator( infraCls,
                                                             extraBytes, allocator);
 
+   //
+   // Duplicate the raw ivars first, then let the property walk replace the
+   // 'copy' properties with copies made in the target allocator. Doing it the
+   // other way round would have the memcpy overwrite those copies again.
+   //
+   memcpy( clone, obj, extraBytes + _mulle_objc_infraclass_get_instancesize( infraCls));
+
    info.obj       = obj;
    info.clone     = clone;
    info.allocator = allocator;
@@ -178,7 +222,6 @@ id   _MulleObjCInstanceCopyWithAllocator( id obj,
                                               _MulleObjCInstanceCopyWithAllocatorProperty,
                                               &info);
 
-   memcpy( clone, obj, extraBytes + _mulle_objc_infraclass_get_instancesize( infraCls));
    return( clone);
 }
 
