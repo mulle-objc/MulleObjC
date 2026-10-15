@@ -1,10 +1,6 @@
 ### 0.30.2
 
 
-* Add MulleObjCObjectSetDuplicatedUTF8String to the API table of contents
-* Note in MulleObjCIvar.h that passing NULL frees the stored string
-
-
 
 * Verify `@signature` and `instanceMethodSignatureForSelector:` agree on argument count, invocation offsets, and natural sizes for the same method
 * Guards against the 64 bit ``_cmd`` `natural_size` mismatch that could overflow the stack in NSInvocation
