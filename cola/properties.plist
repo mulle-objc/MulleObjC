@@ -14,7 +14,7 @@
    dependencies =
    (
       {
-         description="⏩ A fast, portable Objective-C runtime written 100% in C11";
+         description="⏩ A fast, portable Objective-C runtime written 100% in C";
          domain="github";
          name="mulle-objc-runtime";
          repo="mulle-objc-runtime";
@@ -30,7 +30,6 @@
          user="mulle-objc";
       },
       {
-         description="⏩ make mulle-clang the default Objective-C compiler";
          domain="github";
          name="mulle-objc-cc";
          repo="mulle-objc-cc";

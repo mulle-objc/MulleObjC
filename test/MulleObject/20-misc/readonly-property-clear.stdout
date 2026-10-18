@@ -1,0 +1,6 @@
+bar cstr: hello
+bar foo : set
+bar cstr: (null)
+bar foo : NULL
+baz cstr: hello
+baz cstr: (null)

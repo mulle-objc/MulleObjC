@@ -72,9 +72,9 @@ which supports the metaABI required for the mulle-objc runtime.
 
 |   Requirement         | Release Version  | Description
 |-----------------------|------------------|---------------
-| [mulle-objc-runtime](https://github.com/mulle-objc/mulle-objc-runtime) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-runtime.svg) [![Build Status](https://github.com/mulle-objc/mulle-objc-runtime/workflows/CI/badge.svg?branch=release)](https://github.com/mulle-objc/mulle-objc-runtime/actions/workflows/mulle-sde-ci.yml) | ⏩ A fast, portable Objective-C runtime written 100% in C11
+| [mulle-objc-runtime](https://github.com/mulle-objc/mulle-objc-runtime) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-runtime.svg) [![Build Status](https://github.com/mulle-objc/mulle-objc-runtime/workflows/CI/badge.svg?branch=release)](https://github.com/mulle-objc/mulle-objc-runtime/actions/workflows/mulle-sde-ci.yml) | ⏩ A fast, portable Objective-C runtime written 100% in C
 | [mulle-objc-debug](https://github.com/mulle-objc/mulle-objc-debug) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-debug.svg) [![Build Status](https://github.com/mulle-objc/mulle-objc-debug/workflows/CI/badge.svg?branch=release)](https://github.com/mulle-objc/mulle-objc-debug/actions/workflows/mulle-sde-ci.yml) | 🐞 Debug support for the mulle-objc-runtime
-| [mulle-objc-cc](https://github.com/mulle-cc/mulle-objc-cc) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-cc/mulle-objc-cc.svg) [![Build Status](https://github.com/mulle-cc/mulle-objc-cc/workflows/CI/badge.svg?branch=release)](https://github.com/mulle-cc/mulle-objc-cc/actions/workflows/mulle-sde-ci.yml) | ⏩ make mulle-clang the default Objective-C compiler
+| [mulle-objc-cc](https://github.com/mulle-cc/mulle-objc-cc) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-cc/mulle-objc-cc.svg) [![Build Status](https://github.com/mulle-cc/mulle-objc-cc/workflows/CI/badge.svg?branch=release)](https://github.com/mulle-cc/mulle-objc-cc/actions/workflows/mulle-sde-ci.yml) | 
 | [mulle-objc-tools](https://github.com/mulle-objc/mulle-objc-tools) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-objc/mulle-objc-tools.svg) [![Build Status](https://github.com/mulle-objc/mulle-objc-tools/workflows/CI/badge.svg?branch=release)](https://github.com/mulle-objc/mulle-objc-tools/actions/workflows/mulle-sde-ci.yml) | 📒 Lists mulle-objc runtime information contained in executables.
 
 
@@ -127,44 +127,38 @@ file).
 
 
 
-### Add as subproject with cmake and git
+### Add as subproject with cmake
 
-``` bash
-git submodule add -f --name "mulle-core" \
-                            "https://github.com/mulle-core/mulle-core.git" \
-                            "stash/mulle-core"
-git submodule add -f --name "libbacktrace" \
-                            "https://github.com/mulle-core/libbacktrace.git" \
-                            "stash/libbacktrace"
-git submodule add -f --name "mulle-core-all-load" \
-                            "https://github.com/mulle-core/mulle-core-all-load.git" \
-                            "stash/mulle-core-all-load"
-git submodule add -f --name "mulle-objc-runtime" \
-                            "https://github.com/mulle-objc/mulle-objc-runtime.git" \
-                            "stash/mulle-objc-runtime"
-git submodule add -f --name "mulle-objc-debug" \
-                            "https://github.com/mulle-objc/mulle-objc-debug.git" \
-                            "stash/mulle-objc-debug"
-git submodule add -f --name "MulleObjC" \
-                            "https://github.com/mulle-objc/MulleObjC" \
-                            "stash/MulleObjC"
-git submodule update --init --recursive
-```
+Add MulleObjC and its dependencies to your `CMakeLists.txt` with
+[FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html):
 
 ``` cmake
-add_subdirectory( stash/MulleObjC)
-add_subdirectory( stash/mulle-objc-debug)
-add_subdirectory( stash/mulle-objc-runtime)
-add_subdirectory( stash/mulle-core-all-load)
-add_subdirectory( stash/libbacktrace)
-add_subdirectory( stash/mulle-core)
+include( FetchContent)
+
+include_directories( SYSTEM "${CMAKE_BINARY_DIR}/include")
+
+set( MULLE__OBJC__RUNTIME_TAG "master" CACHE STRING "branch or tag to fetch mulle-objc-runtime from")
+
+FetchContent_Declare( MULLE__OBJC__RUNTIME
+   GIT_REPOSITORY https://github.com/mulle-objc/mulle-objc-runtime.git
+   GIT_TAG        "${MULLE__OBJC__RUNTIME_TAG}")
+FetchContent_MakeAvailable( MULLE__OBJC__RUNTIME)
+
+set( MULLE__OBJC__DEBUG_TAG "master" CACHE STRING "branch or tag to fetch mulle-objc-debug from")
+
+FetchContent_Declare( MULLE__OBJC__DEBUG
+   GIT_REPOSITORY https://github.com/mulle-objc/mulle-objc-debug.git
+   GIT_TAG        "${MULLE__OBJC__DEBUG_TAG}")
+FetchContent_MakeAvailable( MULLE__OBJC__DEBUG)
+
+set( MULLEOBJC_TAG "master" CACHE STRING "branch or tag to fetch MulleObjC from")
+
+FetchContent_Declare( MULLEOBJC
+   GIT_REPOSITORY https://github.com/mulle-objc/MulleObjC.git
+   GIT_TAG        "${MULLEOBJC_TAG}")
+FetchContent_MakeAvailable( MULLEOBJC)
 
 target_link_libraries( ${PROJECT_NAME} PUBLIC MulleObjC)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-objc-debug)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-objc-runtime)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-core-all-load)
-target_link_libraries( ${PROJECT_NAME} PUBLIC libbacktrace)
-target_link_libraries( ${PROJECT_NAME} PUBLIC mulle-core)
 ```
 
 
@@ -186,9 +180,9 @@ Install all requirements
 
 | Requirements                                 | Description
 |----------------------------------------------|-----------------------
-| [mulle-objc-runtime](https://github.com/mulle-objc/mulle-objc-runtime)             | ⏩ A fast, portable Objective-C runtime written 100% in C11
+| [mulle-objc-runtime](https://github.com/mulle-objc/mulle-objc-runtime)             | ⏩ A fast, portable Objective-C runtime written 100% in C
 | [mulle-objc-debug](https://github.com/mulle-objc/mulle-objc-debug)             | 🐞 Debug support for the mulle-objc-runtime
-| [mulle-objc-cc](https://github.com/mulle-cc/mulle-objc-cc)             | ⏩ make mulle-clang the default Objective-C compiler
+| [mulle-objc-cc](https://github.com/mulle-cc/mulle-objc-cc)             | 
 | [mulle-objc-tools](https://github.com/mulle-objc/mulle-objc-tools)             | 📒 Lists mulle-objc runtime information contained in executables.
 
 #### Download & Install
