@@ -771,6 +771,8 @@ From `src/class/NSThread.h`:
 ```
 Copies object and its ivars/properties to another allocator. C helper: `id _MulleObjCInstanceCopyWithAllocator(id object, NSUInteger extraBytes, struct mulle_allocator *allocator)`.
 
+A `copy` C-string property is not an object, so it can not be sent `-copyWithAllocator:`. The string is duplicated into the target allocator instead (`mulle_allocator_strdup`), while the source gives up its own string and frees it with its own allocator, keeping the two allocators balanced; the duplicate is written directly into the clone's ivar and the source's reference is released exactly once. The raw ivars are memcpy'd before the property walk, so the `copy` properties (including C strings) then replace those aliases with copies made in the target allocator.
+
 ### 3.16 NSNull - Sentinel Null Object
 **Header**: `src/class/NSNull.h`
 **Declaration**: `@interface NSNull : NSObject < MulleObjCSingleton, MulleObjCValueProtocols>`
