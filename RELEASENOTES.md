@@ -2,6 +2,25 @@
 
 
 
+
+
+* verify readonly `retain` and `copy` object properties are cleared by `-finalize`, even when a class has only readonly properties
+* verify ``_Nonnull`` `copy` C string properties are cleared through their ivar, since they have no setterclear bit
+* verify `-copyWithAllocator:` duplicates `copy` C string properties and copies `copy` object properties into the target allocator
+* verify the standard `-finalize` frees setterclear `copy` C string properties
+
+
+
+
+
+
+
+
+* Add MulleObjCObjectSetDuplicatedUTF8String to the API table of contents
+* Note in MulleObjCIvar.h that passing NULL frees the stored string
+
+
+
 * Verify `@signature` and `instanceMethodSignatureForSelector:` agree on argument count, invocation offsets, and natural sizes for the same method
 * Guards against the 64 bit ``_cmd`` `natural_size` mismatch that could overflow the stack in NSInvocation
 
